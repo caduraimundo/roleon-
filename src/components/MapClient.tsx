@@ -391,11 +391,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
             font-family:'Noto Sans',sans-serif;font-size:12.5px;font-weight:700;
             display:flex;align-items:center;gap:5px;white-space:nowrap;line-height:1;
             box-shadow:${isActive?`0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px ${PRIMARY}`:'0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'};">
-            <span style="width:18px;height:18px;border-radius:999px;
-              background:${isActive?'rgba(255,255,255,0.22)':'#F2F0EB'};
-              display:flex;align-items:center;justify-content:center;
-              font-size:10px;font-weight:700;color:${isActive?'#fff':'#7A6F5A'};">♪</span>
-            R$${ev.price}
+            ${ev.price === 0 ? 'Grátis' : `R$${ev.price}`}
           </div>
           <div style="width:8px;height:8px;background:${isActive?PRIMARY:'#fff'};
             transform:rotate(45deg);margin-top:-4px;

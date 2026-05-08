@@ -281,7 +281,7 @@ export function MapHint({ count, bottomNavHeight }: MapHintProps) {
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: T.text }}>
-          {count} {count === 1 ? 'rolê' : 'rolês'} no mapa
+          {count} {count === 1 ? 'rolê' : 'rolês'} por perto
         </div>
         <div style={{ fontSize: 11.5, color: T.textDim, marginTop: 1 }}>
           Toque num pin pra ver os detalhes
