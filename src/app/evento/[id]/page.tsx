@@ -58,7 +58,7 @@ export default async function EventoPage({
 
   const { data: ev } = await supabase
     .from('events')
-    .select('id, title, genre, price, location_name, event_date, is_free, description, likes_count')
+    .select('id, title, genre, price, location_name, event_date, is_free, description, likes_count, policies')
     .eq('id', id)
     .single()
 
@@ -240,6 +240,43 @@ export default async function EventoPage({
             }}>
               {ev.description}
             </p>
+          </div>
+        )}
+
+        {/* Seção políticas */}
+        {ev.policies && Array.isArray(ev.policies) && ev.policies.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 6 }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, color: '#9A9A9A',
+              textTransform: 'uppercase', letterSpacing: 0.8,
+            }}>
+              Políticas do evento
+            </div>
+            <div style={{
+              background: '#fff',
+              border: '1px solid #EFEFEF',
+              borderRadius: 14,
+              overflow: 'hidden',
+            }}>
+              {(ev.policies as string[]).map((policy, i) => (
+                <div key={i}>
+                  {i > 0 && <div style={{ height: '0.5px', background: '#EFEFEF', margin: '0 14px' }} />}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px' }}>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                      <circle cx="7" cy="7" r="6.2" stroke="#0EA5A0" strokeWidth="1.3"/>
+                      <path d="M7 6.2v4" stroke="#0EA5A0" strokeWidth="1.4" strokeLinecap="round"/>
+                      <circle cx="7" cy="4.2" r="0.7" fill="#0EA5A0"/>
+                    </svg>
+                    <span style={{
+                      fontSize: 13.5, color: '#1A1A1A', lineHeight: 1.55,
+                      fontFamily: "'Noto Sans', sans-serif",
+                    }}>
+                      {policy}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
