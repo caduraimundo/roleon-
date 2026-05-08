@@ -58,8 +58,22 @@ const INPUT: React.CSSProperties = {
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
+const ERROR_MAP: Record<string, string> = {
+  'Invalid login credentials':  'E-mail ou senha incorretos',
+  'Email not confirmed':        'Confirme seu e-mail antes de entrar',
+  'User already registered':    'Este e-mail já está cadastrado',
+}
+
+function translateError(msg: string): string {
+  for (const [en, pt] of Object.entries(ERROR_MAP)) {
+    if (msg.includes(en)) return pt
+  }
+  return 'Algo deu errado. Tente novamente.'
+}
+
 export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
   const [mode,        setMode]        = useState<Mode>('signin')
+  const [name,        setName]        = useState('')
   const [email,       setEmail]       = useState('')
   const [password,    setPassword]    = useState('')
   const [showPwd,     setShowPwd]     = useState(false)
@@ -85,10 +99,10 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
     setLoading(true)
     const fn = mode === 'signin'
       ? supabase.auth.signInWithPassword({ email, password })
-      : supabase.auth.signUp({ email, password })
+      : supabase.auth.signUp({ email, password, options: { data: { full_name: name } } })
     const { error: err } = await fn
     setLoading(false)
-    if (err) { setError(err.message); return }
+    if (err) { setError(translateError(err.message)); return }
     onClose()
   }
 
@@ -100,7 +114,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       redirectTo: window.location.origin + '/auth/callback',
     })
     setLoading(false)
-    if (err) { setError(err.message); return }
+    if (err) { setError(translateError(err.message)); return }
     setResetSent(true)
   }
 
@@ -192,6 +206,16 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
 
         {/* Formulário */}
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {mode === 'signup' && (
+            <input
+              type="text"
+              placeholder="Nome completo"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+              style={INPUT}
+            />
+          )}
           <input
             type="email"
             placeholder="E-mail"
