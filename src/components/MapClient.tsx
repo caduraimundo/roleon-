@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import BottomNav, { TabId } from './BottomNav'
 import { PinSheet, MapHint, RoleonEvent } from './EventBottomSheet'
+import { supabase } from '../lib/supabase'
 
 const PRIMARY = '#0EA5A0'
 const TEXT    = '#1A1A1A'
@@ -262,17 +263,25 @@ function FilterSheet({ onClose, bottomNavHeight, onApply }: {
 
 // ── MapClient (componente principal exportado) ───────────────────────────────
 
+const GENRE_COLORS: Record<string, string> = {
+  'Samba/Pagode': '#C8956C', 'MPB': '#7C9E87', 'Rock': '#7B7FA8',
+  'Funk': '#C97B8A', 'Sertanejo': '#C4A35A', 'Forró': '#D4845A',
+  'Rap': '#6E7D8C', 'Eletrônico': '#6B8FBF', 'Piseiro': '#C97B72',
+  'Reggae': '#7CA87C', 'Indie': '#9E8AB4', 'Axé': '#D4A644', 'República': '#A07850',
+}
+
 interface MapClientProps {
-  events?: RoleonEvent[]
   onEventSelect?: (event: RoleonEvent) => void
   bottomNavHeight?: number
 }
 
-export default function MapClient({ events = [], onEventSelect, bottomNavHeight = 64 }: MapClientProps) {
+export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapClientProps) {
   const mapRef         = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const overlayRefs    = useRef<Map<string, { overlay: any; container: HTMLDivElement }>>(new Map())
 
+  const [events,          setEvents]          = useState<RoleonEvent[]>([])
+  const [loading,         setLoading]         = useState(true)
   const [activePin,       setActivePin]       = useState<string | null>(null)
   const [activeChip,      setActiveChip]      = useState<string | null>(null)
   const [activeTab,       setActiveTab]       = useState<TabId>('explorar')
@@ -280,6 +289,37 @@ export default function MapClient({ events = [], onEventSelect, bottomNavHeight 
   const [filterCategoria, setFilterCategoria] = useState<string | null>(null)
   const [filterPreco,     setFilterPreco]     = useState<string | null>(null)
   const [safeTop,         setSafeTop]         = useState(56)
+
+  useEffect(() => {
+    supabase
+      .from('events')
+      .select('id, title, genre, price, location_lat, location_lng, location_name, event_date, is_free, status')
+      .eq('status', 'active')
+      .then(({ data }) => {
+        if (data) {
+          setEvents(data.map((row) => {
+            const d = row.event_date ? new Date(row.event_date) : null
+            return {
+              id:           String(row.id),
+              title:        row.title ?? '',
+              genre:        row.genre ?? '',
+              price:        row.is_free ? 0 : (row.price ?? 0),
+              fee:          0,
+              likes:        0,
+              lat:          row.location_lat ?? 0,
+              lng:          row.location_lng ?? 0,
+              venue:        row.location_name ?? '',
+              neighborhood: '',
+              address:      row.location_name ?? '',
+              date:         d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '',
+              time:         d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
+              color:        GENRE_COLORS[row.genre] ?? '#9E9E9E',
+            } satisfies RoleonEvent
+          }))
+        }
+        setLoading(false)
+      })
+  }, [])
 
   useEffect(() => {
     const el = document.createElement('div')
@@ -416,6 +456,18 @@ export default function MapClient({ events = [], onEventSelect, bottomNavHeight 
       {/* Card de evento ou hint */}
       {activeEvent ? (
         <PinSheet event={activeEvent} onClose={() => setActivePin(null)} onViewDetail={handleViewDetail} bottomNavHeight={bottomNavHeight} />
+      ) : loading ? (
+        <div style={{
+          position: 'absolute', left: 16, right: 16, bottom: bottomNavHeight + 14,
+          background: '#ffffff', borderRadius: 14,
+          padding: '11px 14px',
+          boxShadow: '0 10px 28px rgba(0,0,0,0.10), 0 0 0 0.5px rgba(0,0,0,0.04)',
+          display: 'flex', alignItems: 'center', gap: 10,
+          zIndex: 12, fontFamily: "'Noto Sans', sans-serif",
+          fontSize: 13, fontWeight: 600, color: '#6E6E73',
+        }}>
+          Carregando rolês...
+        </div>
       ) : (
         <MapHint count={filteredEvents.length} bottomNavHeight={bottomNavHeight} />
       )}
