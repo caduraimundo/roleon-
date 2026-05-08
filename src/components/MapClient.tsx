@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import BottomNav, { TabId } from './BottomNav'
 import { PinSheet, MapHint, RoleonEvent } from './EventBottomSheet'
+import AuthSheet from './AuthSheet'
 import { supabase } from '../lib/supabase'
 
 const PRIMARY = '#0EA5A0'
@@ -284,6 +285,8 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
 
   const [events,          setEvents]          = useState<RoleonEvent[]>([])
   const [loading,         setLoading]         = useState(true)
+  const [authed,          setAuthed]          = useState(false)
+  const [showAuth,        setShowAuth]        = useState(false)
   const [activePin,       setActivePin]       = useState<string | null>(null)
   const [activeChip,      setActiveChip]      = useState<string | null>(null)
   const [activeTab,       setActiveTab]       = useState<TabId>('explorar')
@@ -330,6 +333,20 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     setSafeTop(Math.max(parseFloat(getComputedStyle(el).height) || 0, 20))
     document.documentElement.removeChild(el)
   }, [])
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setAuthed(!!data.session))
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setAuthed(!!session)
+      if (session) setShowAuth(false)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleTabChange = (tab: TabId) => {
+    if (tab !== 'explorar' && !authed) { setShowAuth(true); return }
+    setActiveTab(tab)
+  }
 
   const filteredEvents = events.filter((ev) => {
     if (activeChip === 'Grátis' && ev.price > 0) return false
@@ -482,7 +499,10 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       )}
 
       {/* Bottom nav */}
-      <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+
+      {/* Auth sheet */}
+      <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
     </div>
   )
 }
