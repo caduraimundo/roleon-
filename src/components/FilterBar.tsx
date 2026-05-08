@@ -1,57 +1,64 @@
-"use client";
+'use client'
 
-export type FilterOption =
-  | "Todos"
-  | "Hoje"
-  | "Samba"
-  | "Pagode"
-  | "MPB"
-  | "Rock"
-  | "Funk"
-  | "Sertanejo"
-  | "Grátis";
+import { useState } from 'react'
+
+// Gêneros musicais — sem emoji, só texto
+const GENRES = ['Samba', 'MPB', 'Rock', 'Funk', 'Sertanejo']
 
 interface FilterBarProps {
-  activeFilter: FilterOption;
-  onFilterChange: (filter: FilterOption) => void;
+  activeGenre: string | null
+  onGenreChange: (genre: string | null) => void
 }
 
-const filters: { label: FilterOption; emoji: string }[] = [
-  { label: "Todos", emoji: "🎵" },
-  { label: "Hoje", emoji: "📅" },
-  { label: "Samba", emoji: "🥁" },
-  { label: "Pagode", emoji: "🎸" },
-  { label: "MPB", emoji: "🎤" },
-  { label: "Rock", emoji: "🤘" },
-  { label: "Funk", emoji: "🔥" },
-  { label: "Sertanejo", emoji: "🤠" },
-  { label: "Grátis", emoji: "🎁" },
-];
-
-export default function FilterBar({ activeFilter, onFilterChange }: FilterBarProps) {
+export default function FilterBar({ activeGenre, onGenreChange }: FilterBarProps) {
   return (
-    <div className="absolute top-4 left-0 right-0 z-10 px-4 pointer-events-none">
-      <div className="flex gap-2 overflow-x-auto pb-1 pointer-events-auto no-scrollbar">
-        {filters.map(({ label, emoji }) => {
-          const isActive = activeFilter === label;
-          return (
-            <button
-              key={label}
-              onClick={() => onFilterChange(label)}
-              style={isActive ? { backgroundColor: "#0EA5A0" } : undefined}
-              className={[
-                "flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium shadow-md transition-colors",
-                isActive
-                  ? "text-white"
-                  : "bg-white text-gray-500 hover:bg-gray-50",
-              ].join(" ")}
-            >
-              <span>{emoji}</span>
-              <span>{label}</span>
-            </button>
-          );
-        })}
-      </div>
+    <div
+      style={{
+        display: 'flex',
+        gap: 8,
+        overflowX: 'auto',
+        padding: '0 16px 4px',
+        scrollbarWidth: 'none',
+        WebkitOverflowScrolling: 'touch',
+      }}
+      className="no-scrollbar"
+    >
+      {GENRES.map((genre) => {
+        const active = activeGenre === genre
+        return (
+          <button
+            key={genre}
+            onClick={() => onGenreChange(active ? null : genre)}
+            style={{
+              flex: '0 0 auto',
+              padding: '8px 15px',
+              borderRadius: 999,
+              border: 0,
+              cursor: 'pointer',
+              // Ativo = fundo escuro + texto branco | Inativo = fundo branco + texto escuro
+              background: active ? '#1A1A1A' : '#ffffff',
+              color: active ? '#ffffff' : '#1A1A1A',
+              fontSize: 13,
+              fontWeight: 600,
+              fontFamily: "'Noto Sans', sans-serif",
+              whiteSpace: 'nowrap',
+              // Sombra suave no inativo, sem sombra no ativo
+              boxShadow: active
+                ? '0 4px 12px rgba(0,0,0,0.18)'
+                : '0 2px 8px rgba(0,0,0,0.07), 0 0 0 0.5px rgba(0,0,0,0.04)',
+              transition: 'background 160ms, color 160ms, transform 120ms',
+              lineHeight: 1,
+            }}
+          >
+            {genre}
+          </button>
+        )
+      })}
+
+      <style>{`
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
     </div>
-  );
+  )
 }

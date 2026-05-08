@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(cp \"C:\\\\Users\\\\Carlo\\\\roleon-\\\\.env.local\" \"C:\\\\Users\\\\Carlo\\\\roleon-\\\\.claude\\\\worktrees\\\\heuristic-khorana-0fcc72\\\\.env.local\")",
+      "PowerShell(Get-Process -Name \"node\" -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Force)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
+    ]
+  }
+}
