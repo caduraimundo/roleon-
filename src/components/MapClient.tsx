@@ -173,7 +173,9 @@ function FilterSheet({ onClose, bottomNavHeight, onApply }: {
         position: 'absolute', left: 0, right: 0, bottom: bottomNavHeight,
         background: '#fff',
         borderTopLeftRadius: 20, borderTopRightRadius: 20,
-        zIndex: 90, maxHeight: 480, overflowY: 'auto', paddingBottom: 30,
+        zIndex: 90,
+        maxHeight: 'calc(100dvh - 120px)',
+        overflowY: 'auto', paddingBottom: 30,
         animation: 'fsUp 280ms cubic-bezier(.2,.9,.3,1)',
         fontFamily: "'Noto Sans', sans-serif",
       }}>
