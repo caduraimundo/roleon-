@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import BottomNav, { TabId } from './BottomNav'
 import { PinSheet, MapHint, RoleonEvent } from './EventBottomSheet'
 import { supabase } from '../lib/supabase'
@@ -276,6 +277,7 @@ interface MapClientProps {
 }
 
 export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapClientProps) {
+  const router         = useRouter()
   const mapRef         = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const overlayRefs    = useRef<Map<string, { overlay: any; container: HTMLDivElement }>>(new Map())
@@ -408,8 +410,10 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   }, [filteredEvents, activePin])
 
   const handleViewDetail = useCallback(() => {
-    if (activeEvent && onEventSelect) onEventSelect(activeEvent)
-  }, [activeEvent, onEventSelect])
+    if (!activeEvent) return
+    if (onEventSelect) onEventSelect(activeEvent)
+    router.push(`/evento/${activeEvent.id}`)
+  }, [activeEvent, onEventSelect, router])
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F9F9F9', overflow: 'hidden' }}>
