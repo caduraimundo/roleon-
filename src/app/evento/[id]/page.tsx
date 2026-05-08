@@ -1,13 +1,48 @@
 import { createClient } from '@supabase/supabase-js'
 import { notFound } from 'next/navigation'
-import BackButton from './BackButton'
+import HeroActions from './HeroActions'
 
 const GENRE_COLORS: Record<string, string> = {
-  'Samba/Pagode': '#C8956C', 'MPB': '#7C9E87', 'Rock': '#7B7FA8',
-  'Funk': '#C97B8A', 'Sertanejo': '#C4A35A', 'Forró': '#D4845A',
-  'Rap': '#6E7D8C', 'Eletrônico': '#6B8FBF', 'Piseiro': '#C97B72',
-  'Reggae': '#7CA87C', 'Indie': '#9E8AB4', 'Axé': '#D4A644', 'República': '#A07850',
+  'Samba/Pagode': '#7B5E57',
+  'MPB':          '#556B5D',
+  'República':    '#6B5E7A',
+  'Funk':         '#8A6F4A',
+  'Forró':        '#7A6550',
+  'Rock':         '#4A6B6F',
 }
+const DEFAULT_COLOR = '#0EA5A0'
+
+// ── Ícones SVG ───────────────────────────────────────────────────────────────
+
+function IconCalendar() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+      <rect x="1.5" y="3.5" width="13" height="11" rx="2" stroke="#0EA5A0" strokeWidth="1.4"/>
+      <path d="M1.5 7h13M5 1.5v4M11 1.5v4" stroke="#0EA5A0" strokeWidth="1.4" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function IconPin() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+      <path d="M8 1.5C5.79 1.5 4 3.29 4 5.5c0 3.25 4 9 4 9s4-5.75 4-9c0-2.21-1.79-4-4-4z"
+        stroke="#0EA5A0" strokeWidth="1.4" fill="none"/>
+      <circle cx="8" cy="5.5" r="1.5" fill="#0EA5A0"/>
+    </svg>
+  )
+}
+
+function IconHeart() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 22 22" fill="#E26A6A">
+      <path d="M11 18.5s-6.5-4-6.5-9a3.8 3.8 0 016.5-2.7A3.8 3.8 0 0117.5 9.5c0 5-6.5 9-6.5 9z"
+        stroke="#E26A6A" strokeWidth="1.9" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────
 
 export default async function EventoPage({
   params,
@@ -23,22 +58,23 @@ export default async function EventoPage({
 
   const { data: ev } = await supabase
     .from('events')
-    .select('id, title, genre, price, location_lat, location_lng, location_name, event_date, is_free, status, description')
+    .select('id, title, genre, price, location_name, event_date, is_free, description, likes_count')
     .eq('id', id)
     .single()
 
   if (!ev) notFound()
 
-  const d = ev.event_date ? new Date(ev.event_date) : null
-  const dateStr = d
-    ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' })
-    : null
-  const timeStr = d
-    ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-    : null
+  const d        = ev.event_date ? new Date(ev.event_date) : null
+  const dateStr  = d ? d.toLocaleDateString('pt-BR',  { weekday: 'long', day: '2-digit', month: 'long' }) : null
+  const yearStr  = d ? d.toLocaleDateString('pt-BR',  { year: 'numeric' }) : null
+  const timeStr  = d ? d.toLocaleTimeString('pt-BR',  { hour: '2-digit', minute: '2-digit' }) : null
+  const isFree   = ev.is_free || Number(ev.price) === 0
+  const price    = Number(ev.price) || 0
+  const fee      = isFree ? 0 : Math.round(price * 0.05 * 100) / 100
+  const likes    = ev.likes_count ?? 0
+  const heroColor = GENRE_COLORS[ev.genre] ?? DEFAULT_COLOR
 
-  const heroColor = GENRE_COLORS[ev.genre] ?? '#9E9E9E'
-  const isFree = ev.is_free || ev.price === 0
+  const genreKey = (ev.genre ?? '').toLowerCase().replace(/\//g, '').replace(/\s+/g, '')
 
   return (
     <div style={{
@@ -47,124 +83,220 @@ export default async function EventoPage({
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex',
       flexDirection: 'column',
+      paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 90px)',
     }}>
-      {/* Hero */}
-      <div style={{
-        height: 260,
-        background: heroColor,
-        position: 'relative',
-        flexShrink: 0,
-      }}>
-        {/* Grid sutil */}
+
+      {/* ── HERO ── */}
+      <div style={{ height: 260, background: heroColor, position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
+
+        {/* Gradiente escuro no topo */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 100,
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.42) 0%, transparent 100%)',
+          zIndex: 1,
+        }} />
+
+        {/* Grid de linhas brancas */}
         <svg viewBox="0 0 100 100" preserveAspectRatio="none"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.15 }}>
-          <g stroke="#fff" strokeWidth="0.8" fill="none">
-            <path d="M0 25 L100 25 M0 50 L100 50 M0 75 L100 75"/>
-            <path d="M25 0 L25 100 M50 0 L50 100 M75 0 L75 100"/>
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.12 }}>
+          <g stroke="#fff" strokeWidth="0.5" fill="none">
+            <path d="M0 20 L100 20 M0 40 L100 40 M0 60 L100 60 M0 80 L100 80"/>
+            <path d="M20 0 L20 100 M40 0 L40 100 M60 0 L60 100 M80 0 L80 100"/>
           </g>
         </svg>
 
-        {/* Botão voltar */}
-        <div style={{ position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 16px)', left: 16 }}>
-          <BackButton />
+        {/* Gradiente escuro na base (para o texto ficar legível) */}
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: 80,
+          background: 'linear-gradient(to top, rgba(0,0,0,0.48) 0%, transparent 100%)',
+          zIndex: 1,
+        }} />
+
+        {/* Label monospace no canto inferior esquerdo */}
+        <div style={{
+          position: 'absolute', bottom: 16, left: 18, zIndex: 2,
+          color: '#fff', opacity: 0.85,
+          fontFamily: "'JetBrains Mono', 'Courier New', ui-monospace, monospace",
+          fontSize: 10, fontWeight: 500, letterSpacing: 1.2,
+          textTransform: 'uppercase',
+        }}>
+          {ev.genre} · FOTO DO EVENTO
         </div>
 
-        {/* Gênero */}
-        <div style={{
-          position: 'absolute', bottom: 20, left: 20,
-          color: '#fff', opacity: 0.9,
-          fontFamily: "'Noto Sans', sans-serif",
-          fontSize: 12, fontWeight: 700,
-          letterSpacing: 1.5, textTransform: 'uppercase',
-        }}>
-          {ev.genre}
+        {/* Botões hero (client component) */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none' }}>
+          <div style={{ pointerEvents: 'auto' }}>
+            <HeroActions title={ev.title} eventId={String(ev.id)} />
+          </div>
         </div>
       </div>
 
-      {/* Conteúdo */}
-      <div style={{ flex: 1, padding: '24px 20px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      {/* ── CONTEÚDO ── */}
+      <div style={{ flex: 1, padding: '22px 20px 0', display: 'flex', flexDirection: 'column', gap: 18 }}>
 
-        {/* Título + pill gênero */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {/* Genre pill + likes */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{
-            display: 'inline-flex', alignSelf: 'flex-start',
             background: '#E6F7F6', color: '#0EA5A0',
-            fontSize: 11, fontWeight: 700, letterSpacing: 0.6,
+            fontSize: 11, fontWeight: 700, letterSpacing: 0.7,
             textTransform: 'uppercase', padding: '4px 10px', borderRadius: 999,
           }}>
             {ev.genre}
           </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#6E6E73', fontWeight: 600 }}>
+            <IconHeart />
+            {likes}
+          </div>
+        </div>
+
+        {/* Título */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: -6 }}>
           <h1 style={{
             margin: 0, fontSize: 24, fontWeight: 800,
-            color: '#1A1A1A', lineHeight: 1.2, letterSpacing: -0.4,
+            color: '#1A1A1A', lineHeight: 1.2, letterSpacing: -0.5,
           }}>
             {ev.title}
           </h1>
-        </div>
-
-        {/* Infos */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {dateStr && (
-            <InfoRow icon="📅" label={`${dateStr}${timeStr ? ` · ${timeStr}` : ''}`} />
-          )}
           {ev.location_name && (
-            <InfoRow icon="📍" label={ev.location_name} />
-          )}
-          {isFree ? (
-            <InfoRow icon="🎟️" label="Entrada gratuita" />
-          ) : (
-            <InfoRow icon="🎟️" label={`R$ ${Number(ev.price).toFixed(2).replace('.', ',')}`} />
+            <div style={{ fontSize: 13.5, color: '#8A8A8A', fontWeight: 500 }}>
+              por {ev.location_name}
+            </div>
           )}
         </div>
 
-        {/* Descrição */}
+        {/* Card data + local */}
+        <div style={{
+          background: '#fff',
+          borderRadius: 14,
+          border: '1px solid #EFEFEF',
+          overflow: 'hidden',
+        }}>
+          {/* Linha data */}
+          {dateStr && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+              <IconCalendar />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
+                  Data
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>
+                  {dateStr}{yearStr ? `, ${yearStr}` : ''}{timeStr ? ` · ${timeStr}` : ''}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Divisor */}
+          {dateStr && ev.location_name && (
+            <div style={{ height: 1, background: '#F2F2F2', margin: '0 16px' }} />
+          )}
+
+          {/* Linha local */}
+          {ev.location_name && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px' }}>
+              <div style={{ marginTop: 2 }}><IconPin /></div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', marginBottom: 2 }}>
+                  {ev.location_name}
+                </div>
+                <div style={{ fontSize: 12.5, color: '#9A9A9A' }}>
+                  Ouro Preto, MG
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Botão "Como chegar" */}
+        {ev.location_name && (
+          <button style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+            background: 'transparent',
+            border: '1.5px solid #0EA5A0',
+            borderRadius: 10, padding: '11px 18px',
+            color: '#0EA5A0', fontSize: 14, fontWeight: 600,
+            fontFamily: "'Noto Sans', sans-serif",
+            cursor: 'pointer', width: '100%',
+          }}>
+            <IconPin />
+            Como chegar
+            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style={{ marginLeft: 2 }}>
+              <path d="M3 11L11 3M11 3H6M11 3v5" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )}
+
+        {/* Seção descrição */}
         {ev.description && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#8A8A8A', textTransform: 'uppercase', letterSpacing: 0.7 }}>
-              Sobre o evento
+            <div style={{
+              fontSize: 11, fontWeight: 700, color: '#9A9A9A',
+              textTransform: 'uppercase', letterSpacing: 0.8,
+            }}>
+              O Ambiente
             </div>
-            <p style={{ margin: 0, fontSize: 15, color: '#3A3A3A', lineHeight: 1.65 }}>
+            <p style={{
+              margin: 0, fontSize: 14.5, color: '#3A3A3A', lineHeight: 1.7,
+            }}>
               {ev.description}
             </p>
           </div>
         )}
       </div>
 
-      {/* CTA fixo no rodapé */}
+      {/* ── FOOTER FIXO ── */}
       <div style={{
-        position: 'sticky', bottom: 0,
-        background: '#F9F9F9',
-        borderTop: '0.5px solid #E8E8E8',
-        padding: '14px 20px calc(env(safe-area-inset-bottom, 0px) + 14px)',
+        position: 'fixed', bottom: 0, left: 0, right: 0,
+        background: 'rgba(249,249,249,0.92)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderTop: '0.5px solid rgba(0,0,0,0.08)',
+        padding: '12px 20px calc(env(safe-area-inset-bottom, 0px) + 12px)',
+        zIndex: 50,
       }}>
-        <button style={{
-          width: '100%',
-          background: isFree ? '#22C55E' : '#0EA5A0',
-          color: '#fff',
-          border: 0, cursor: 'pointer',
-          padding: '16px 20px',
-          borderRadius: 14,
-          fontSize: 16, fontWeight: 700,
-          fontFamily: "'Noto Sans', sans-serif",
-          boxShadow: isFree
-            ? '0 6px 20px rgba(34,197,94,0.30)'
-            : '0 6px 20px rgba(14,165,160,0.30)',
-          letterSpacing: -0.1,
-        }}>
-          {isFree
-            ? 'Participar'
-            : `Comprar ingresso · R$ ${Number(ev.price).toFixed(2).replace('.', ',')}`}
-        </button>
+        {isFree ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, color: '#8A8A8A', fontWeight: 500 }}>Ingresso</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A1A' }}>Entrada gratuita</div>
+            </div>
+            <button style={{
+              background: '#0EA5A0', color: '#fff',
+              border: 0, cursor: 'pointer',
+              padding: '13px 28px', borderRadius: 12,
+              fontSize: 15, fontWeight: 700,
+              fontFamily: "'Noto Sans', sans-serif",
+              boxShadow: '0 6px 18px rgba(14,165,160,0.28)',
+              whiteSpace: 'nowrap',
+            }}>
+              Participar
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, color: '#8A8A8A', fontWeight: 500 }}>Total</div>
+              <div style={{ fontSize: 19, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.5 }}>
+                R$ {price.toFixed(2).replace('.', ',')}
+              </div>
+              <div style={{ fontSize: 11, color: '#9A9A9A', marginTop: 1 }}>
+                R$ {price.toFixed(2).replace('.', ',')} + R$ {fee.toFixed(2).replace('.', ',')} taxa
+              </div>
+            </div>
+            <button style={{
+              background: '#0EA5A0', color: '#fff',
+              border: 0, cursor: 'pointer',
+              padding: '13px 22px', borderRadius: 12,
+              fontSize: 15, fontWeight: 700,
+              fontFamily: "'Noto Sans', sans-serif",
+              boxShadow: '0 6px 18px rgba(14,165,160,0.28)',
+              whiteSpace: 'nowrap',
+            }}>
+              Comprar ingresso
+            </button>
+          </div>
+        )}
       </div>
-    </div>
-  )
-}
-
-function InfoRow({ icon, label }: { icon: string; label: string }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-      <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>{icon}</span>
-      <span style={{ fontSize: 14.5, color: '#3A3A3A', lineHeight: 1.5 }}>{label}</span>
     </div>
   )
 }
