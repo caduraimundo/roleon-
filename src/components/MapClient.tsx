@@ -155,16 +155,33 @@ function ChipBar({ activeChip, onChipChange }: {
 
 // ── Filter Sheet ─────────────────────────────────────────────────────────────
 
-const CATEGORIAS = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Indie', 'Axé', 'República']
-const PRECOS     = ['Grátis', 'Até R$30', 'Até R$50', 'Qualquer']
+const CATEGORIAS  = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Indie', 'Axé', 'República']
+const PRECOS      = ['Grátis', 'Até R$30', 'Até R$50', 'Qualquer']
+const DATE_CHIPS  = ['Qualquer data', 'Hoje', 'Amanhã', 'Este fim de semana', 'Esta semana']
+
+function FilterChip({ label, active, onToggle }: { label: string; active: boolean; onToggle: () => void }) {
+  return (
+    <button onClick={onToggle} style={{
+      border: `1.5px solid ${active ? TEXT : '#E8E8E8'}`,
+      background: active ? TEXT : '#fff',
+      color: active ? '#fff' : '#404040',
+      padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
+      fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
+      whiteSpace: 'nowrap',
+    }}>
+      {label}
+    </button>
+  )
+}
 
 function FilterSheet({ onClose, bottomNavHeight, onApply }: {
   onClose: () => void
   bottomNavHeight: number
-  onApply: (cat: string | null, price: string | null) => void
+  onApply: (cat: string | null, date: string | null, price: string | null) => void
 }) {
-  const [categoria, setCategoria] = useState<string | null>(null)
-  const [preco, setPreco]         = useState<string | null>(null)
+  const [categoria,     setCategoria]     = useState<string | null>(null)
+  const [selectedDate,  setSelectedDate]  = useState<string | null>(null)
+  const [preco,         setPreco]         = useState<string | null>(null)
 
   return (
     <>
@@ -203,53 +220,64 @@ function FilterSheet({ onClose, bottomNavHeight, onApply }: {
 
         {/* Categoria */}
         <div style={{ padding: '18px 20px 0' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#8A8A8A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
             Categoria
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {CATEGORIAS.map((c) => {
-              const on = categoria === c
-              return (
-                <button key={c} onClick={() => setCategoria(on ? null : c)} style={{
-                  border: `1.5px solid ${on ? PRIMARY : '#E0E0E0'}`,
-                  background: on ? `${PRIMARY}18` : '#fff',
-                  color: on ? PRIMARY : '#404040',
-                  padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
-                  fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
-                }}>
-                  {c}
-                </button>
-              )
-            })}
+            {CATEGORIAS.map((c) => (
+              <button key={c} onClick={() => setCategoria(categoria === c ? null : c)} style={{
+                border: `1.5px solid ${categoria === c ? PRIMARY : '#E0E0E0'}`,
+                background: categoria === c ? `${PRIMARY}18` : '#fff',
+                color: categoria === c ? PRIMARY : '#404040',
+                padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
+                fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
+              }}>
+                {c}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Quando */}
+        <div style={{ padding: '18px 20px 0' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
+            Quando
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {DATE_CHIPS.map((d) => (
+              <FilterChip
+                key={d}
+                label={d}
+                active={selectedDate === d}
+                onToggle={() => setSelectedDate(selectedDate === d ? null : d)}
+              />
+            ))}
           </div>
         </div>
 
         {/* Preço */}
         <div style={{ padding: '18px 20px 0' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#8A8A8A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
             Preço
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {PRECOS.map((p) => {
-              const on = preco === p
-              return (
-                <button key={p} onClick={() => setPreco(on ? null : p)} style={{
-                  border: `1.5px solid ${on ? PRIMARY : '#E0E0E0'}`,
-                  background: on ? `${PRIMARY}18` : '#fff',
-                  color: on ? PRIMARY : '#404040',
-                  padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
-                  fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
-                }}>
-                  {p}
-                </button>
-              )
-            })}
+            {PRECOS.map((p) => (
+              <button key={p} onClick={() => setPreco(preco === p ? null : p)} style={{
+                border: `1.5px solid ${preco === p ? PRIMARY : '#E0E0E0'}`,
+                background: preco === p ? `${PRIMARY}18` : '#fff',
+                color: preco === p ? PRIMARY : '#404040',
+                padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
+                fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
+              }}>
+                {p}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Aplicar */}
         <div style={{ padding: '24px 20px 0' }}>
-          <button onClick={() => { onApply(categoria, preco); onClose() }} style={{
+          <button onClick={() => { onApply(categoria, selectedDate, preco); onClose() }} style={{
             width: '100%', background: PRIMARY, color: '#fff',
             border: 0, cursor: 'pointer', padding: '14px 18px', borderRadius: 12,
             fontSize: 15, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
@@ -261,6 +289,49 @@ function FilterSheet({ onClose, bottomNavHeight, onApply }: {
       </div>
     </>
   )
+}
+
+// ── Helpers de data ──────────────────────────────────────────────────────────
+
+function getDateRange(filter: string | null): { gte?: string; lte?: string } {
+  if (!filter || filter === 'Qualquer data') return {}
+
+  const now   = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const MS_DAY = 24 * 60 * 60 * 1000
+
+  const endOf = (d: Date) =>
+    new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999)
+
+  if (filter === 'Hoje') {
+    return { gte: today.toISOString(), lte: endOf(today).toISOString() }
+  }
+
+  if (filter === 'Amanhã') {
+    const tomorrow = new Date(today.getTime() + MS_DAY)
+    return { gte: tomorrow.toISOString(), lte: endOf(tomorrow).toISOString() }
+  }
+
+  if (filter === 'Este fim de semana') {
+    // Domingo = 0, …, Sábado = 6
+    const dow = today.getDay()
+    // Dias até o próximo domingo (inclusive hoje se for domingo)
+    const daysToSun = dow === 0 ? 0 : 7 - dow
+    const sunday    = new Date(today.getTime() + daysToSun * MS_DAY)
+    const friday    = new Date(sunday.getTime() - 2 * MS_DAY)
+    const fridayStart = new Date(friday.getFullYear(), friday.getMonth(), friday.getDate(), 18, 0, 0)
+    const start = fridayStart < now ? now : fridayStart
+    return { gte: start.toISOString(), lte: endOf(sunday).toISOString() }
+  }
+
+  if (filter === 'Esta semana') {
+    const dow = today.getDay()
+    const daysToSun = dow === 0 ? 0 : 7 - dow
+    const sunday = new Date(today.getTime() + daysToSun * MS_DAY)
+    return { gte: today.toISOString(), lte: endOf(sunday).toISOString() }
+  }
+
+  return {}
 }
 
 // ── MapClient (componente principal exportado) ───────────────────────────────
@@ -292,39 +363,45 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const [activeTab,       setActiveTab]       = useState<TabId>('explorar')
   const [showFilter,      setShowFilter]      = useState(false)
   const [filterCategoria, setFilterCategoria] = useState<string | null>(null)
+  const [filterDate,      setFilterDate]      = useState<string | null>(null)
   const [filterPreco,     setFilterPreco]     = useState<string | null>(null)
   const [safeTop,         setSafeTop]         = useState(56)
 
   useEffect(() => {
-    supabase
+    setLoading(true)
+    const { gte, lte } = getDateRange(filterDate)
+    let query = supabase
       .from('events')
       .select('id, title, genre, price, location_lat, location_lng, location_name, event_date, is_free, status')
       .eq('status', 'active')
-      .then(({ data }) => {
-        if (data) {
-          setEvents(data.map((row) => {
-            const d = row.event_date ? new Date(row.event_date) : null
-            return {
-              id:           String(row.id),
-              title:        row.title ?? '',
-              genre:        row.genre ?? '',
-              price:        row.is_free ? 0 : (row.price ?? 0),
-              fee:          0,
-              likes:        0,
-              lat:          row.location_lat ?? 0,
-              lng:          row.location_lng ?? 0,
-              venue:        row.location_name ?? '',
-              neighborhood: '',
-              address:      row.location_name ?? '',
-              date:         d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '',
-              time:         d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
-              color:        GENRE_COLORS[row.genre] ?? '#9E9E9E',
-            } satisfies RoleonEvent
-          }))
-        }
-        setLoading(false)
-      })
-  }, [])
+    if (gte) query = query.gte('event_date', gte)
+    if (lte) query = query.lte('event_date', lte)
+
+    query.then(({ data }) => {
+      if (data) {
+        setEvents(data.map((row) => {
+          const d = row.event_date ? new Date(row.event_date) : null
+          return {
+            id:           String(row.id),
+            title:        row.title ?? '',
+            genre:        row.genre ?? '',
+            price:        row.is_free ? 0 : (row.price ?? 0),
+            fee:          0,
+            likes:        0,
+            lat:          row.location_lat ?? 0,
+            lng:          row.location_lng ?? 0,
+            venue:        row.location_name ?? '',
+            neighborhood: '',
+            address:      row.location_name ?? '',
+            date:         d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '',
+            time:         d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
+            color:        GENRE_COLORS[row.genre] ?? '#9E9E9E',
+          } satisfies RoleonEvent
+        }))
+      }
+      setLoading(false)
+    })
+  }, [filterDate])
 
   useEffect(() => {
     const el = document.createElement('div')
@@ -357,7 +434,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   })
 
   const activeEvent = filteredEvents.find((e) => e.id === activePin) ?? null
-  const hasActiveFilter = !!(filterCategoria || filterPreco)
+  const hasActiveFilter = !!(filterCategoria || filterPreco || (filterDate && filterDate !== 'Qualquer data'))
 
   // Inicializa o mapa
   useEffect(() => {
@@ -494,7 +571,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         <FilterSheet
           onClose={() => setShowFilter(false)}
           bottomNavHeight={bottomNavHeight}
-          onApply={(cat, price) => { setFilterCategoria(cat); setFilterPreco(price) }}
+          onApply={(cat, date, price) => { setFilterCategoria(cat); setFilterDate(date); setFilterPreco(price) }}
         />
       )}
 
