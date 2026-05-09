@@ -1,7 +1,11 @@
-import { createClient } from '@supabase/supabase-js'
-import { notFound } from 'next/navigation'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useParams, notFound } from 'next/navigation'
+import { supabase } from '../../../lib/supabase'
 import HeroActions from './HeroActions'
 import EventoCTA from './EventoCTA'
+import type { RoleonEvent } from '../../../components/EventBottomSheet'
 
 const GENRE_COLORS: Record<string, string> = {
   'Samba/Pagode': '#7B5E57',
@@ -12,6 +16,64 @@ const GENRE_COLORS: Record<string, string> = {
   'Rock':         '#4A6B6F',
 }
 const DEFAULT_COLOR = '#0EA5A0'
+
+interface FullEvent {
+  id: string
+  title: string
+  genre: string
+  price: number
+  isFree: boolean
+  fee: number
+  venue: string
+  dateStr: string | null
+  timeStr: string | null
+  yearStr: string | null
+  heroColor: string
+  likes: number
+  description?: string | null
+  policies?: string[] | null
+}
+
+function fromCache(cached: RoleonEvent): FullEvent {
+  return {
+    id:        cached.id,
+    title:     cached.title,
+    genre:     cached.genre,
+    price:     cached.price,
+    isFree:    cached.price === 0,
+    fee:       cached.fee,
+    venue:     cached.venue,
+    dateStr:   cached.date || null,
+    timeStr:   cached.time || null,
+    yearStr:   null,
+    heroColor: GENRE_COLORS[cached.genre] ?? DEFAULT_COLOR,
+    likes:     cached.likes,
+    description: cached.description ?? null,
+    policies:  null,
+  }
+}
+
+function fromSupabase(row: Record<string, unknown>): FullEvent {
+  const d       = row.event_date ? new Date(row.event_date as string) : null
+  const price   = Number(row.price) || 0
+  const isFree  = !!(row.is_free) || price === 0
+  return {
+    id:        String(row.id),
+    title:     (row.title as string) ?? '',
+    genre:     (row.genre as string) ?? '',
+    price,
+    isFree,
+    fee:       isFree ? 0 : Math.round(price * 0.05 * 100) / 100,
+    venue:     (row.location_name as string) ?? '',
+    dateStr:   d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }) : null,
+    timeStr:   d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : null,
+    yearStr:   d ? d.toLocaleDateString('pt-BR', { year: 'numeric' }) : null,
+    heroColor: GENRE_COLORS[(row.genre as string)] ?? DEFAULT_COLOR,
+    likes:     (row.likes_count as number) ?? 0,
+    description: (row.description as string | null) ?? null,
+    policies:    Array.isArray(row.policies) ? (row.policies as string[]) : null,
+  }
+}
 
 // ── Ícones SVG ───────────────────────────────────────────────────────────────
 
@@ -45,37 +107,45 @@ function IconHeart() {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
-export default async function EventoPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = await params
+export default function EventoPage() {
+  const params = useParams()
+  const id     = String(params.id)
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  )
+  const [ev,       setEv]       = useState<FullEvent | null>(null)
+  const [missing,  setMissing]  = useState(false)
 
-  const { data: ev } = await supabase
-    .from('events')
-    .select('id, title, genre, price, location_name, event_date, is_free, description, likes_count, policies')
-    .eq('id', id)
-    .single()
+  useEffect(() => {
+    // 1. Lê do sessionStorage para exibição imediata
+    try {
+      const raw = sessionStorage.getItem(`evento-${id}`)
+      if (raw) setEv(fromCache(JSON.parse(raw) as RoleonEvent))
+    } catch {}
 
-  if (!ev) notFound()
+    // 2. Busca do Supabase em paralelo para dados completos e frescos
+    supabase
+      .from('events')
+      .select('id, title, genre, price, location_name, event_date, is_free, description, likes_count, policies')
+      .eq('id', id)
+      .single()
+      .then(({ data }) => {
+        if (!data) { setMissing(true); return }
+        const full = fromSupabase(data as Record<string, unknown>)
+        setEv(full)
+        try { sessionStorage.setItem(`evento-${id}`, JSON.stringify(full)) } catch {}
+      })
+  }, [id])
 
-  const d        = ev.event_date ? new Date(ev.event_date) : null
-  const dateStr  = d ? d.toLocaleDateString('pt-BR',  { weekday: 'long', day: '2-digit', month: 'long' }) : null
-  const yearStr  = d ? d.toLocaleDateString('pt-BR',  { year: 'numeric' }) : null
-  const timeStr  = d ? d.toLocaleTimeString('pt-BR',  { hour: '2-digit', minute: '2-digit' }) : null
-  const isFree   = ev.is_free || Number(ev.price) === 0
-  const price    = Number(ev.price) || 0
-  const fee      = isFree ? 0 : Math.round(price * 0.05 * 100) / 100
-  const likes    = ev.likes_count ?? 0
-  const heroColor = GENRE_COLORS[ev.genre] ?? DEFAULT_COLOR
+  if (missing) notFound()
 
-  const genreKey = (ev.genre ?? '').toLowerCase().replace(/\//g, '').replace(/\s+/g, '')
+  if (!ev) {
+    return (
+      <div style={{ minHeight: '100dvh', background: '#F9F9F9' }}>
+        <div style={{ height: 260, background: DEFAULT_COLOR, opacity: 0.6 }} />
+      </div>
+    )
+  }
+
+  const dateLabel = [ev.dateStr, ev.yearStr].filter(Boolean).join(', ') + (ev.timeStr ? ` · ${ev.timeStr}` : '')
 
   return (
     <div style={{
@@ -88,16 +158,14 @@ export default async function EventoPage({
     }}>
 
       {/* ── HERO ── */}
-      <div style={{ height: 260, background: heroColor, position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
+      <div style={{ height: 260, background: ev.heroColor, position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
 
-        {/* Gradiente escuro no topo */}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: 100,
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.42) 0%, transparent 100%)',
           zIndex: 1,
         }} />
 
-        {/* Grid de linhas brancas */}
         <svg viewBox="0 0 100 100" preserveAspectRatio="none"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.12 }}>
           <g stroke="#fff" strokeWidth="0.5" fill="none">
@@ -106,14 +174,12 @@ export default async function EventoPage({
           </g>
         </svg>
 
-        {/* Gradiente escuro na base (para o texto ficar legível) */}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: 80,
           background: 'linear-gradient(to top, rgba(0,0,0,0.48) 0%, transparent 100%)',
           zIndex: 1,
         }} />
 
-        {/* Label monospace no canto inferior esquerdo */}
         <div style={{
           position: 'absolute', bottom: 16, left: 18, zIndex: 2,
           color: '#fff', opacity: 0.85,
@@ -124,10 +190,9 @@ export default async function EventoPage({
           {ev.genre} · FOTO DO EVENTO
         </div>
 
-        {/* Botões hero (client component) */}
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none' }}>
           <div style={{ pointerEvents: 'auto' }}>
-            <HeroActions title={ev.title} eventId={String(ev.id)} />
+            <HeroActions title={ev.title} eventId={ev.id} />
           </div>
         </div>
       </div>
@@ -146,7 +211,7 @@ export default async function EventoPage({
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#6E6E73', fontWeight: 600 }}>
             <IconHeart />
-            {likes}
+            {ev.likes}
           </div>
         </div>
 
@@ -158,9 +223,9 @@ export default async function EventoPage({
           }}>
             {ev.title}
           </h1>
-          {ev.location_name && (
+          {ev.venue && (
             <div style={{ fontSize: 13.5, color: '#8A8A8A', fontWeight: 500 }}>
-              por {ev.location_name}
+              por {ev.venue}
             </div>
           )}
         </div>
@@ -172,8 +237,7 @@ export default async function EventoPage({
           border: '1px solid #EFEFEF',
           overflow: 'hidden',
         }}>
-          {/* Linha data */}
-          {dateStr && (
+          {ev.dateStr && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
               <IconCalendar />
               <div style={{ flex: 1 }}>
@@ -181,24 +245,22 @@ export default async function EventoPage({
                   Data
                 </div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>
-                  {dateStr}{yearStr ? `, ${yearStr}` : ''}{timeStr ? ` · ${timeStr}` : ''}
+                  {dateLabel}
                 </div>
               </div>
             </div>
           )}
 
-          {/* Divisor */}
-          {dateStr && ev.location_name && (
+          {ev.dateStr && ev.venue && (
             <div style={{ height: 1, background: '#F2F2F2', margin: '0 16px' }} />
           )}
 
-          {/* Linha local */}
-          {ev.location_name && (
+          {ev.venue && (
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px' }}>
               <div style={{ marginTop: 2 }}><IconPin /></div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', marginBottom: 2 }}>
-                  {ev.location_name}
+                  {ev.venue}
                 </div>
                 <div style={{ fontSize: 12.5, color: '#9A9A9A' }}>
                   Ouro Preto, MG
@@ -209,7 +271,7 @@ export default async function EventoPage({
         </div>
 
         {/* Botão "Como chegar" */}
-        {ev.location_name && (
+        {ev.venue && (
           <button style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
             background: 'transparent',
@@ -236,16 +298,14 @@ export default async function EventoPage({
             }}>
               O Ambiente
             </div>
-            <p style={{
-              margin: 0, fontSize: 14.5, color: '#3A3A3A', lineHeight: 1.7,
-            }}>
+            <p style={{ margin: 0, fontSize: 14.5, color: '#3A3A3A', lineHeight: 1.7 }}>
               {ev.description}
             </p>
           </div>
         )}
 
         {/* Seção políticas */}
-        {ev.policies && Array.isArray(ev.policies) && ev.policies.length > 0 && (
+        {ev.policies && ev.policies.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 6 }}>
             <div style={{
               fontSize: 11, fontWeight: 700, color: '#9A9A9A',
@@ -259,7 +319,7 @@ export default async function EventoPage({
               borderRadius: 14,
               overflow: 'hidden',
             }}>
-              {(ev.policies as string[]).map((policy, i) => (
+              {ev.policies.map((policy, i) => (
                 <div key={i}>
                   {i > 0 && <div style={{ height: '0.5px', background: '#EFEFEF', margin: '0 14px' }} />}
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px' }}>
@@ -282,7 +342,7 @@ export default async function EventoPage({
         )}
       </div>
 
-      <EventoCTA isFree={isFree} price={price} fee={fee} />
+      <EventoCTA isFree={ev.isFree} price={ev.price} fee={ev.fee} />
     </div>
   )
 }

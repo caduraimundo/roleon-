@@ -437,14 +437,45 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const activeEvent = filteredEvents.find((e) => e.id === activePin) ?? null
   const hasActiveFilter = !!(filterCategoria || filterPreco || filterDate)
 
-  // Inicializa o mapa
+  // Inicializa o mapa + marcador de localização do usuário
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return
-    mapInstanceRef.current = new google.maps.Map(mapRef.current, {
+
+    const map = new google.maps.Map(mapRef.current, {
       center: OURO_PRETO_CENTER, zoom: 15,
       styles: LIGHT_MAP_STYLE,
       disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
     })
+    mapInstanceRef.current = map
+
+    if (!navigator.geolocation) return
+
+    const dot = document.createElement('div')
+    dot.style.cssText = 'position:absolute;pointer-events:none;'
+    dot.innerHTML = '<div style="width:14px;height:14px;border-radius:50%;background:#0EA5A0;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.28);transform:translate(-50%,-50%);"></div>'
+
+    let userPos: google.maps.LatLng | null = null
+    class UserDot extends google.maps.OverlayView {
+      onAdd()    { this.getPanes()!.floatPane.appendChild(dot) }
+      draw()     { if (!userPos) return; const p = this.getProjection().fromLatLngToDivPixel(userPos); if (p) { dot.style.left=`${p.x}px`; dot.style.top=`${p.y}px` } }
+      onRemove() { dot.parentNode?.removeChild(dot) }
+    }
+    const dotOverlay = new UserDot()
+
+    const watchId = navigator.geolocation.watchPosition(
+      ({ coords }) => {
+        userPos = new google.maps.LatLng(coords.latitude, coords.longitude)
+        if (!dotOverlay.getMap()) dotOverlay.setMap(map)
+        dotOverlay.draw()
+      },
+      () => {},
+      { enableHighAccuracy: true },
+    )
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId)
+      dotOverlay.setMap(null)
+    }
   }, [])
 
   // Renderiza pins
@@ -506,6 +537,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
 
   const handleViewDetail = useCallback(() => {
     if (!activeEvent) return
+    try { sessionStorage.setItem(`evento-${activeEvent.id}`, JSON.stringify(activeEvent)) } catch {}
     if (onEventSelect) onEventSelect(activeEvent)
     router.push(`/evento/${activeEvent.id}`)
   }, [activeEvent, onEventSelect, router])
