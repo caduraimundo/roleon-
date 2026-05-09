@@ -422,6 +422,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
 
   const handleTabChange = (tab: TabId) => {
     if (tab !== 'explorar' && !authed) { setShowAuth(true); return }
+    if (tab === 'perfil') { router.push('/perfil'); return }
     setActiveTab(tab)
   }
 
