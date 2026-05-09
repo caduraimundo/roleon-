@@ -156,8 +156,8 @@ function ChipBar({ activeChip, onChipChange }: {
 // ── Filter Sheet ─────────────────────────────────────────────────────────────
 
 const CATEGORIAS  = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Indie', 'Axé', 'República']
-const PRECOS      = ['Grátis', 'Até R$30', 'Até R$50', 'Qualquer']
-const DATE_CHIPS  = ['Qualquer data', 'Hoje', 'Amanhã', 'Este fim de semana', 'Esta semana']
+const PRECOS      = ['Grátis', 'Até R$30', 'Até R$50']
+const DATE_CHIPS  = ['Hoje', 'Amanhã', 'Este fim de semana', 'Esta semana']
 
 function FilterChip({ label, active, onToggle }: { label: string; active: boolean; onToggle: () => void }) {
   return (
@@ -294,7 +294,7 @@ function FilterSheet({ onClose, bottomNavHeight, onApply }: {
 // ── Helpers de data ──────────────────────────────────────────────────────────
 
 function getDateRange(filter: string | null): { gte?: string; lte?: string } {
-  if (!filter || filter === 'Qualquer data') return {}
+  if (!filter) return {}
 
   const now   = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
@@ -434,7 +434,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   })
 
   const activeEvent = filteredEvents.find((e) => e.id === activePin) ?? null
-  const hasActiveFilter = !!(filterCategoria || filterPreco || (filterDate && filterDate !== 'Qualquer data'))
+  const hasActiveFilter = !!(filterCategoria || filterPreco || filterDate)
 
   // Inicializa o mapa
   useEffect(() => {
