@@ -52,22 +52,25 @@ export default function InteressesPage() {
   const [showAuth, setShowAuth] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data }) => {
-      const session = data.session
-      if (!session) { setAuthed(false); setLoading(false); return }
+    supabase.auth.getUser().then(async ({ data }) => {
+      const user = data.user
+      if (!user) { setAuthed(false); setLoading(false); return }
       setAuthed(true)
 
-      const { data: rows } = await supabase
+      const { data: rows, error } = await supabase
         .from('saved_events')
         .select(`
           id,
           event_id,
           events (
-            id, title, genre, price, is_free, event_date, cover_image_url
+            id, title, genre, price, is_free, event_date, event_time, location_name, cover_image_url
           )
         `)
-        .eq('user_id', session.user.id)
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false })
+
+      console.log('INTERESSES DATA:', rows)
+      console.log('INTERESSES ERROR:', error)
 
       if (rows) {
         setEvents(rows.map((row: any) => {
