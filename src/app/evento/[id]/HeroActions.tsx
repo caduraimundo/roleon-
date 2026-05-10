@@ -1,8 +1,6 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
-import { supabase } from '../../../lib/supabase'
 
 function IconArrowLeft() {
   return (
@@ -46,47 +44,19 @@ const BTN: React.CSSProperties = {
   display: 'flex', alignItems: 'center', justifyContent: 'center',
   color: '#1A1A1A',
   boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+  pointerEvents: 'auto',
 }
+
+const TOP = 'calc(env(safe-area-inset-top, 0px) + 16px)'
 
 interface HeroActionsProps {
   title: string
-  eventId: string
-  onAuthRequired?: () => void
+  isSaved: boolean
+  onToggleSave: () => void
 }
 
-export default function HeroActions({ title, eventId, onAuthRequired }: HeroActionsProps) {
+export default function HeroActions({ title, isSaved, onToggleSave }: HeroActionsProps) {
   const router = useRouter()
-  const [saved,     setSaved]     = useState(false)
-  const [userId,    setUserId]    = useState<string | null>(null)
-  const [toast,     setToast]     = useState<string | null>(null)
-  const [toastTimer, setToastTimer] = useState<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      const uid = data.session?.user?.id ?? null
-      setUserId(uid)
-      if (!uid) return
-      supabase
-        .from('saved_events')
-        .select('id')
-        .eq('user_id', uid)
-        .eq('event_id', eventId)
-        .maybeSingle()
-        .then(({ data: row, error }) => {
-          if (error) console.error('[HeroActions] check saved:', error)
-          if (row) setSaved(true)
-        })
-    })
-  }, [eventId])
-
-  useEffect(() => () => { if (toastTimer) clearTimeout(toastTimer) }, [toastTimer])
-
-  const showToast = (msg: string) => {
-    setToast(msg)
-    if (toastTimer) clearTimeout(toastTimer)
-    const t = setTimeout(() => setToast(null), 2000)
-    setToastTimer(t)
-  }
 
   const handleShare = () => {
     if (navigator.share) {
@@ -96,85 +66,28 @@ export default function HeroActions({ title, eventId, onAuthRequired }: HeroActi
     }
   }
 
-  const handleSave = async () => {
-    if (!userId) {
-      onAuthRequired?.()
-      return
-    }
-    const next = !saved
-    setSaved(next)
-
-    if (next) {
-      const { error } = await supabase
-        .from('saved_events')
-        .insert({ user_id: userId, event_id: eventId })
-      if (error) {
-        console.error('[HeroActions] insert saved_events:', error)
-        setSaved(false)
-        return
-      }
-      showToast('Salvo!')
-    } else {
-      const { error } = await supabase
-        .from('saved_events')
-        .delete()
-        .eq('user_id', userId)
-        .eq('event_id', eventId)
-      if (error) {
-        console.error('[HeroActions] delete saved_events:', error)
-        setSaved(true)
-        return
-      }
-      showToast('Removido dos salvos')
-    }
-  }
-
   return (
     <>
-      {/* Voltar — topo esquerdo */}
       <button
         onClick={() => router.back()}
         aria-label="Voltar"
-        style={{ ...BTN, position: 'absolute', top: 'calc(env(safe-area-inset-top, 0px) + 16px)', left: 16 }}
+        style={{ ...BTN, position: 'absolute', top: TOP, left: 16 }}
       >
         <IconArrowLeft />
       </button>
 
-      {/* Compartilhar + Salvar — topo direito */}
-      <div style={{
-        position: 'absolute',
-        top: 'calc(env(safe-area-inset-top, 0px) + 16px)',
-        right: 16,
-        display: 'flex', gap: 8,
-      }}>
+      <div style={{ position: 'absolute', top: TOP, right: 16, display: 'flex', gap: 8, pointerEvents: 'auto' }}>
         <button onClick={handleShare} aria-label="Compartilhar" style={BTN}>
           <IconShare />
         </button>
-        <button onClick={handleSave} aria-label={saved ? 'Remover dos salvos' : 'Salvar evento'} style={BTN}>
-          <IconHeart saved={saved} />
+        <button
+          onClick={onToggleSave}
+          aria-label={isSaved ? 'Remover dos salvos' : 'Salvar evento'}
+          style={BTN}
+        >
+          <IconHeart saved={isSaved} />
         </button>
       </div>
-
-      {/* Toast */}
-      {toast && (
-        <div style={{
-          position: 'fixed',
-          bottom: 'calc(env(safe-area-inset-bottom, 0px) + 100px)',
-          left: '50%', transform: 'translateX(-50%)',
-          background: '#0EA5A0', color: '#fff',
-          fontSize: 13.5, fontWeight: 600,
-          fontFamily: "'Noto Sans', sans-serif",
-          padding: '10px 20px', borderRadius: 8,
-          boxShadow: '0 4px 16px rgba(14,165,160,0.35)',
-          zIndex: 9999,
-          whiteSpace: 'nowrap',
-          pointerEvents: 'none',
-          animation: 'toastIn 200ms ease',
-        }}>
-          <style>{`@keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(6px) } to { opacity:1; transform:translateX(-50%) translateY(0) } }`}</style>
-          {toast}
-        </div>
-      )}
     </>
   )
 }

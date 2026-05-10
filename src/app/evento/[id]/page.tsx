@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useParams, notFound } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import HeroActions from './HeroActions'
@@ -55,9 +55,9 @@ function fromCache(cached: RoleonEvent): FullEvent {
 }
 
 function fromSupabase(row: Record<string, unknown>): FullEvent {
-  const d       = row.event_date ? new Date(row.event_date as string) : null
-  const price   = Number(row.price) || 0
-  const isFree  = !!(row.is_free) || price === 0
+  const d      = row.event_date ? new Date(row.event_date as string) : null
+  const price  = Number(row.price) || 0
+  const isFree = !!(row.is_free) || price === 0
   return {
     id:        String(row.id),
     title:     (row.title as string) ?? '',
@@ -76,7 +76,7 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
   }
 }
 
-// ── Ícones SVG ───────────────────────────────────────────────────────────────
+// ── Ícones ────────────────────────────────────────────────────────────────────
 
 function IconCalendar() {
   return (
@@ -97,7 +97,7 @@ function IconPin() {
   )
 }
 
-function IconHeart() {
+function IconHeartSmall() {
   return (
     <svg width="13" height="13" viewBox="0 0 22 22" fill="#E26A6A">
       <path d="M11 18.5s-6.5-4-6.5-9a3.8 3.8 0 016.5-2.7A3.8 3.8 0 0117.5 9.5c0 5-6.5 9-6.5 9z"
@@ -112,18 +112,20 @@ export default function EventoPage() {
   const params = useParams()
   const id     = String(params.id)
 
-  const [ev,        setEv]       = useState<FullEvent | null>(null)
-  const [missing,   setMissing]  = useState(false)
-  const [showAuth,  setShowAuth] = useState(false)
+  const [ev,       setEv]       = useState<FullEvent | null>(null)
+  const [missing,  setMissing]  = useState(false)
+  const [showAuth, setShowAuth] = useState(false)
+  const [isSaved,  setIsSaved]  = useState(false)
+  const [toast,    setToast]    = useState<string | null>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Carrega evento
   useEffect(() => {
-    // 1. Lê do sessionStorage para exibição imediata
     try {
       const raw = sessionStorage.getItem(`evento-${id}`)
       if (raw) setEv(fromCache(JSON.parse(raw) as RoleonEvent))
     } catch {}
 
-    // 2. Busca do Supabase em paralelo para dados completos e frescos
     supabase
       .from('events')
       .select('id, title, genre, price, location_name, event_date, is_free, description, likes_count, policies')
@@ -136,6 +138,68 @@ export default function EventoPage() {
         try { sessionStorage.setItem(`evento-${id}`, JSON.stringify(full)) } catch {}
       })
   }, [id])
+
+  // Verifica se o evento já está salvo pelo usuário atual
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      const uid = data.session?.user?.id
+      if (!uid) return
+      supabase
+        .from('saved_events')
+        .select('id')
+        .eq('user_id', uid)
+        .eq('event_id', id)
+        .maybeSingle()
+        .then(({ data: row, error }) => {
+          if (error) console.error('[EventoPage] check saved:', error)
+          setIsSaved(!!row)
+        })
+    })
+  }, [id])
+
+  const showToast = (msg: string) => {
+    setToast(msg)
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(() => setToast(null), 2000)
+  }
+
+  const handleToggleSave = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    console.log('[EventoPage] handleToggleSave — user:', session?.user?.id, 'event:', id, 'isSaved:', isSaved)
+
+    if (!session) {
+      setShowAuth(true)
+      return
+    }
+
+    const uid  = session.user.id
+    const next = !isSaved
+    setIsSaved(next)  // optimistic
+
+    if (next) {
+      const { error } = await supabase
+        .from('saved_events')
+        .insert({ user_id: uid, event_id: id })
+      if (error) {
+        console.error('[EventoPage] insert error:', error)
+        setIsSaved(false)
+        return
+      }
+      showToast('Salvo!')
+    } else {
+      const { error } = await supabase
+        .from('saved_events')
+        .delete()
+        .eq('user_id', uid)
+        .eq('event_id', id)
+      if (error) {
+        console.error('[EventoPage] delete error:', error)
+        setIsSaved(true)
+        return
+      }
+      showToast('Removido dos salvos')
+    }
+  }
 
   if (missing) notFound()
 
@@ -165,11 +229,11 @@ export default function EventoPage() {
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: 100,
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.42) 0%, transparent 100%)',
-          zIndex: 1,
+          zIndex: 1, pointerEvents: 'none',
         }} />
 
         <svg viewBox="0 0 100 100" preserveAspectRatio="none"
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.12 }}>
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.12, pointerEvents: 'none' }}>
           <g stroke="#fff" strokeWidth="0.5" fill="none">
             <path d="M0 20 L100 20 M0 40 L100 40 M0 60 L100 60 M0 80 L100 80"/>
             <path d="M20 0 L20 100 M40 0 L40 100 M60 0 L60 100 M80 0 L80 100"/>
@@ -179,11 +243,11 @@ export default function EventoPage() {
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: 80,
           background: 'linear-gradient(to top, rgba(0,0,0,0.48) 0%, transparent 100%)',
-          zIndex: 1,
+          zIndex: 1, pointerEvents: 'none',
         }} />
 
         <div style={{
-          position: 'absolute', bottom: 16, left: 18, zIndex: 2,
+          position: 'absolute', bottom: 16, left: 18, zIndex: 2, pointerEvents: 'none',
           color: '#fff', opacity: 0.85,
           fontFamily: "'JetBrains Mono', 'Courier New', ui-monospace, monospace",
           fontSize: 10, fontWeight: 500, letterSpacing: 1.2,
@@ -192,10 +256,13 @@ export default function EventoPage() {
           {ev.genre} · FOTO DO EVENTO
         </div>
 
-        <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none' }}>
-          <div style={{ pointerEvents: 'auto' }}>
-            <HeroActions title={ev.title} eventId={ev.id} onAuthRequired={() => setShowAuth(true)} />
-          </div>
+        {/* Botões sobre o hero — z-index alto, sem wrapper que possa bloquear cliques */}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+          <HeroActions
+            title={ev.title}
+            isSaved={isSaved}
+            onToggleSave={handleToggleSave}
+          />
         </div>
       </div>
 
@@ -212,7 +279,7 @@ export default function EventoPage() {
             {ev.genre}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#6E6E73', fontWeight: 600 }}>
-            <IconHeart />
+            <IconHeartSmall />
             {ev.likes}
           </div>
         </div>
@@ -233,12 +300,7 @@ export default function EventoPage() {
         </div>
 
         {/* Card data + local */}
-        <div style={{
-          background: '#fff',
-          borderRadius: 14,
-          border: '1px solid #EFEFEF',
-          overflow: 'hidden',
-        }}>
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EFEFEF', overflow: 'hidden' }}>
           {ev.dateStr && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
               <IconCalendar />
@@ -291,13 +353,10 @@ export default function EventoPage() {
           </button>
         )}
 
-        {/* Seção descrição */}
+        {/* Descrição */}
         {ev.description && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{
-              fontSize: 11, fontWeight: 700, color: '#9A9A9A',
-              textTransform: 'uppercase', letterSpacing: 0.8,
-            }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>
               O Ambiente
             </div>
             <p style={{ margin: 0, fontSize: 14.5, color: '#3A3A3A', lineHeight: 1.7 }}>
@@ -306,21 +365,13 @@ export default function EventoPage() {
           </div>
         )}
 
-        {/* Seção políticas */}
+        {/* Políticas */}
         {ev.policies && ev.policies.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 6 }}>
-            <div style={{
-              fontSize: 11, fontWeight: 700, color: '#9A9A9A',
-              textTransform: 'uppercase', letterSpacing: 0.8,
-            }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>
               Políticas do evento
             </div>
-            <div style={{
-              background: '#fff',
-              border: '1px solid #EFEFEF',
-              borderRadius: 14,
-              overflow: 'hidden',
-            }}>
+            <div style={{ background: '#fff', border: '1px solid #EFEFEF', borderRadius: 14, overflow: 'hidden' }}>
               {ev.policies.map((policy, i) => (
                 <div key={i}>
                   {i > 0 && <div style={{ height: '0.5px', background: '#EFEFEF', margin: '0 14px' }} />}
@@ -330,10 +381,7 @@ export default function EventoPage() {
                       <path d="M7 6.2v4" stroke="#0EA5A0" strokeWidth="1.4" strokeLinecap="round"/>
                       <circle cx="7" cy="4.2" r="0.7" fill="#0EA5A0"/>
                     </svg>
-                    <span style={{
-                      fontSize: 13.5, color: '#1A1A1A', lineHeight: 1.55,
-                      fontFamily: "'Noto Sans', sans-serif",
-                    }}>
+                    <span style={{ fontSize: 13.5, color: '#1A1A1A', lineHeight: 1.55, fontFamily: "'Noto Sans', sans-serif" }}>
                       {policy}
                     </span>
                   </div>
@@ -347,6 +395,25 @@ export default function EventoPage() {
       <EventoCTA isFree={ev.isFree} price={ev.price} fee={ev.fee} />
 
       <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
+
+      {/* Toast de feedback */}
+      {toast && (
+        <div style={{
+          position: 'fixed',
+          bottom: 'calc(env(safe-area-inset-bottom, 0px) + 100px)',
+          left: '50%', transform: 'translateX(-50%)',
+          background: '#0EA5A0', color: '#fff',
+          fontSize: 13.5, fontWeight: 600,
+          fontFamily: "'Noto Sans', sans-serif",
+          padding: '10px 20px', borderRadius: 8,
+          boxShadow: '0 4px 16px rgba(14,165,160,0.35)',
+          zIndex: 9999, whiteSpace: 'nowrap', pointerEvents: 'none',
+          animation: 'toastIn 200ms ease',
+        }}>
+          <style>{`@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
+          {toast}
+        </div>
+      )}
     </div>
   )
 }
