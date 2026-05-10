@@ -5,6 +5,7 @@ import { useParams, notFound } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import HeroActions from './HeroActions'
 import EventoCTA from './EventoCTA'
+import AuthSheet from '../../../components/AuthSheet'
 import type { RoleonEvent } from '../../../components/EventBottomSheet'
 
 const GENRE_COLORS: Record<string, string> = {
@@ -111,8 +112,9 @@ export default function EventoPage() {
   const params = useParams()
   const id     = String(params.id)
 
-  const [ev,       setEv]       = useState<FullEvent | null>(null)
-  const [missing,  setMissing]  = useState(false)
+  const [ev,        setEv]       = useState<FullEvent | null>(null)
+  const [missing,   setMissing]  = useState(false)
+  const [showAuth,  setShowAuth] = useState(false)
 
   useEffect(() => {
     // 1. Lê do sessionStorage para exibição imediata
@@ -192,7 +194,7 @@ export default function EventoPage() {
 
         <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none' }}>
           <div style={{ pointerEvents: 'auto' }}>
-            <HeroActions title={ev.title} eventId={ev.id} />
+            <HeroActions title={ev.title} eventId={ev.id} onAuthRequired={() => setShowAuth(true)} />
           </div>
         </div>
       </div>
@@ -343,6 +345,8 @@ export default function EventoPage() {
       </div>
 
       <EventoCTA isFree={ev.isFree} price={ev.price} fee={ev.fee} />
+
+      <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
     </div>
   )
 }

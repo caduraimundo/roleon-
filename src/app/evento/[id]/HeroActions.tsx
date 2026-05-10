@@ -1,7 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { supabase } from '../../../lib/supabase'
 
 function IconArrowLeft() {
   return (
@@ -22,15 +23,16 @@ function IconShare() {
   )
 }
 
-function IconHeart({ filled }: { filled: boolean }) {
+function IconHeart({ saved }: { saved: boolean }) {
+  const color = saved ? '#0EA5A0' : '#6E6E73'
   return (
     <svg width="17" height="17" viewBox="0 0 22 22" fill="none">
       <path
         d="M11 18.5s-6.5-4-6.5-9a3.8 3.8 0 016.5-2.7A3.8 3.8 0 0117.5 9.5c0 5-6.5 9-6.5 9z"
-        stroke={filled ? '#E26A6A' : 'currentColor'}
+        stroke={color}
         strokeWidth="1.9"
         strokeLinejoin="round"
-        fill={filled ? '#E26A6A' : 'none'}
+        fill={saved ? color : 'none'}
       />
     </svg>
   )
@@ -46,15 +48,51 @@ const BTN: React.CSSProperties = {
   boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
 }
 
-export default function HeroActions({ title, eventId }: { title: string; eventId: string }) {
+interface HeroActionsProps {
+  title: string
+  eventId: string
+  onAuthRequired?: () => void
+}
+
+export default function HeroActions({ title, eventId, onAuthRequired }: HeroActionsProps) {
   const router  = useRouter()
-  const [liked, setLiked] = useState(false)
+  const [saved,   setSaved]   = useState(false)
+  const [userId,  setUserId]  = useState<string | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      const uid = data.session?.user?.id ?? null
+      setUserId(uid)
+      if (!uid) return
+      supabase
+        .from('saved_events')
+        .select('id')
+        .eq('user_id', uid)
+        .eq('event_id', eventId)
+        .maybeSingle()
+        .then(({ data: row }) => { if (row) setSaved(true) })
+    })
+  }, [eventId])
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({ title, url: window.location.href }).catch(() => {})
     } else {
       navigator.clipboard?.writeText(window.location.href)
+    }
+  }
+
+  const handleSave = async () => {
+    if (!userId) {
+      onAuthRequired?.()
+      return
+    }
+    const next = !saved
+    setSaved(next)
+    if (next) {
+      await supabase.from('saved_events').insert({ user_id: userId, event_id: eventId })
+    } else {
+      await supabase.from('saved_events').delete().eq('user_id', userId).eq('event_id', eventId)
     }
   }
 
@@ -69,7 +107,7 @@ export default function HeroActions({ title, eventId }: { title: string; eventId
         <IconArrowLeft />
       </button>
 
-      {/* Compartilhar + Curtir — topo direito */}
+      {/* Compartilhar + Salvar — topo direito */}
       <div style={{
         position: 'absolute',
         top: 'calc(env(safe-area-inset-top, 0px) + 16px)',
@@ -79,12 +117,8 @@ export default function HeroActions({ title, eventId }: { title: string; eventId
         <button onClick={handleShare} aria-label="Compartilhar" style={BTN}>
           <IconShare />
         </button>
-        <button
-          onClick={() => setLiked((v) => !v)}
-          aria-label="Curtir"
-          style={{ ...BTN, color: liked ? '#E26A6A' : '#1A1A1A' }}
-        >
-          <IconHeart filled={liked} />
+        <button onClick={handleSave} aria-label={saved ? 'Remover dos salvos' : 'Salvar evento'} style={BTN}>
+          <IconHeart saved={saved} />
         </button>
       </div>
     </>
