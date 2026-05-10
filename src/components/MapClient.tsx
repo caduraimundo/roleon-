@@ -358,6 +358,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const [events,          setEvents]          = useState<RoleonEvent[]>([])
   const [loading,         setLoading]         = useState(true)
   const [authed,          setAuthed]          = useState(false)
+  const [userId,          setUserId]          = useState<string | null>(null)
   const [showAuth,        setShowAuth]        = useState(false)
   const [activePin,       setActivePin]       = useState<string | null>(null)
   const [activeChip,      setActiveChip]      = useState<string | null>(null)
@@ -370,39 +371,38 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
 
   useEffect(() => {
     setLoading(true)
-    const { gte, lte } = getDateRange(filterDate)
-    let query = supabase
+    supabase
       .from('events')
-      .select('id, title, genre, price, location_lat, location_lng, location_name, event_date, is_free, status')
+      .select('*')
       .eq('status', 'active')
-    if (gte) query = query.gte('event_date', gte)
-    if (lte) query = query.lte('event_date', lte)
-
-    query.then(({ data }) => {
-      if (data) {
-        setEvents(data.map((row) => {
-          const d = row.event_date ? new Date(row.event_date) : null
-          return {
-            id:           String(row.id),
-            title:        row.title ?? '',
-            genre:        row.genre ?? '',
-            price:        row.is_free ? 0 : (row.price ?? 0),
-            fee:          0,
-            likes:        0,
-            lat:          row.location_lat ?? 0,
-            lng:          row.location_lng ?? 0,
-            venue:        row.location_name ?? '',
-            neighborhood: '',
-            address:      row.location_name ?? '',
-            date:         d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '',
-            time:         d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
-            color:        GENRE_COLORS[row.genre] ?? '#9E9E9E',
-          } satisfies RoleonEvent
-        }))
-      }
-      setLoading(false)
-    })
-  }, [filterDate, authed])
+      .then(({ data, error }) => {
+        if (error) {
+          console.log('[MapClient] erro ao buscar eventos:', error.message, error.code)
+        }
+        if (data) {
+          setEvents(data.map((row: Record<string, unknown>) => {
+            const d = row.event_date ? new Date(row.event_date as string) : null
+            return {
+              id:           String(row.id),
+              title:        (row.title as string) ?? '',
+              genre:        (row.genre as string) ?? '',
+              price:        row.is_free ? 0 : ((row.price as number) ?? 0),
+              fee:          0,
+              likes:        0,
+              lat:          (row.location_lat as number) ?? 0,
+              lng:          (row.location_lng as number) ?? 0,
+              venue:        (row.location_name as string) ?? '',
+              neighborhood: '',
+              address:      (row.location_name as string) ?? '',
+              date:         d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '',
+              time:         d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
+              color:        GENRE_COLORS[(row.genre as string)] ?? '#9E9E9E',
+            } satisfies RoleonEvent
+          }))
+        }
+        setLoading(false)
+      })
+  }, [userId])
 
   useEffect(() => {
     const el = document.createElement('div')
@@ -413,9 +413,13 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   }, [])
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setAuthed(!!data.session))
+    supabase.auth.getSession().then(({ data }) => {
+      setAuthed(!!data.session)
+      setUserId(data.session?.user?.id ?? null)
+    })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       setAuthed(!!session)
+      setUserId(session?.user?.id ?? null)
       if (session) setShowAuth(false)
     })
     return () => subscription.unsubscribe()

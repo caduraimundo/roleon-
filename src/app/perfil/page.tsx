@@ -63,12 +63,13 @@ function IconHelp() {
   )
 }
 
-function IconMegaphone() {
+function IconPencilSquare({ color = '#1A1A1A' }: { color?: string }) {
   return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-      <path d="M3 10v4h3l5 4V6L6 10H3z" stroke="#0EA5A0" strokeWidth="1.6" strokeLinejoin="round"/>
-      <path d="M18 7c1.2 1 2 2.4 2 4s-.8 3-2 4" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round"/>
-      <path d="M15 9c.6.5 1 1.2 1 2s-.4 1.5-1 2" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round"/>
+    <svg width="19" height="19" viewBox="0 0 22 22" fill="none">
+      <path d="M9 4H5a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-4"
+        stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M17.5 2.5l2 2-8.5 8.5H9v-2l8.5-8.5z"
+        stroke={color} strokeWidth="1.5" strokeLinejoin="round"/>
     </svg>
   )
 }
@@ -135,10 +136,11 @@ export default function PerfilPage() {
   const initials = getInitials(name)
 
   const menuItems = [
-    { icon: <IconTicket />,  label: 'Meus ingressos', onClick: () => {} },
-    { icon: <IconCard />,    label: 'Pagamentos',      onClick: () => {} },
-    { icon: <IconGear />,    label: 'Configurações',   onClick: () => {} },
-    { icon: <IconHelp />,    label: 'Ajuda',           onClick: () => {} },
+    { icon: <IconTicket />,                      label: 'Meus ingressos', onClick: () => {} },
+    { icon: <IconCard />,                        label: 'Pagamentos',     onClick: () => {} },
+    { icon: <IconPencilSquare />,                label: 'Editar perfil',  onClick: () => {} },
+    { icon: <IconGear />,                        label: 'Configurações',  onClick: () => {} },
+    { icon: <IconHelp />,                        label: 'Ajuda',          onClick: () => {} },
   ]
 
   return (
@@ -192,27 +194,14 @@ export default function PerfilPage() {
             {initials}
           </div>
 
-          {/* Nome + botão Editar */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div style={{ fontSize: 20, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.3 }}>
-              {name}
-            </div>
-            <button style={{
-              background: 'none',
-              border: '1px solid #E8E8E8',
-              borderRadius: 20,
-              padding: '4px 12px',
-              fontSize: 12, fontWeight: 600, color: '#1A1A1A',
-              cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
-              lineHeight: 1.4,
-            }}>
-              Editar
-            </button>
+          {/* Nome */}
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.3 }}>
+            {name}
           </div>
 
-          {/* Subtítulo */}
-          <div style={{ fontSize: 13, color: '#8A8A8A', fontWeight: 500, marginTop: -4 }}>
-            0 rolês curtidos · OP
+          {/* E-mail */}
+          <div style={{ fontSize: 14, color: '#6E6E73', marginTop: -4 }}>
+            {email}
           </div>
         </div>
 
@@ -262,7 +251,7 @@ export default function PerfilPage() {
             flexShrink: 0,
             boxShadow: '0 2px 8px rgba(14,165,160,0.12)',
           }}>
-            <IconMegaphone />
+            <IconPencilSquare color="#0EA5A0" />
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#0A7A76', letterSpacing: -0.2 }}>
