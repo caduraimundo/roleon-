@@ -124,22 +124,20 @@ export default function EventoPage() {
 
   // Carrega interesse do usuário + contagem total
   useEffect(() => {
-    // Contagem total de interessados
     supabase
       .from('saved_events')
-      .select('id', { count: 'exact', head: true })
+      .select('*', { count: 'exact', head: true })
       .eq('event_id', id)
-      .then(({ count }) => { if (count !== null) setInterestCount(count) })
+      .then(({ count }) => { setInterestCount(count || 0) })
 
-    // Interesse do usuário atual
-    supabase.auth.getSession().then(({ data }) => {
-      const uid = data.session?.user?.id
+    supabase.auth.getUser().then(({ data }) => {
+      const uid = data.user?.id
       if (!uid) return
       supabase
         .from('saved_events')
         .select('id')
-        .eq('user_id', uid)
         .eq('event_id', id)
+        .eq('user_id', uid)
         .maybeSingle()
         .then(({ data: row }) => { setIsInterested(!!row) })
     })
