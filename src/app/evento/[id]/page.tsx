@@ -156,14 +156,14 @@ export default function EventoPage() {
     setIsLoading(true)
 
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { user } } = await supabase.auth.getUser()
 
-      if (!session) {
+      if (!user) {
         setShowAuth(true)
         return
       }
 
-      const uid      = session.user.id
+      const uid      = user.id
       const next     = !isInterested
       setIsInterested(next)
       setInterestCount((c) => c + (next ? 1 : -1))
