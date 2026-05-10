@@ -63,7 +63,7 @@ export default function InteressesPage() {
           id,
           event_id,
           events (
-            id, title, genre, price, is_free, event_date, event_time, location_name, cover_image_url
+            id, title, genre, price, is_free, event_date, location_name, cover_image_url
           )
         `)
         .eq('user_id', user.id)
