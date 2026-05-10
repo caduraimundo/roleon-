@@ -352,7 +352,8 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const router         = useRouter()
   const mapRef         = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
-  const overlayRefs    = useRef<Map<string, { overlay: any; container: HTMLDivElement }>>(new Map())
+  const overlayRefs     = useRef<Map<string, { overlay: any; container: HTMLDivElement }>>(new Map())
+  const userLocationRef = useRef<{ lat: number; lng: number } | null>(null)
 
   const [events,          setEvents]          = useState<RoleonEvent[]>([])
   const [loading,         setLoading]         = useState(true)
@@ -401,7 +402,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       }
       setLoading(false)
     })
-  }, [filterDate])
+  }, [filterDate, authed])
 
   useEffect(() => {
     const el = document.createElement('div')
@@ -421,7 +422,11 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   }, [])
 
   const handleTabChange = (tab: TabId) => {
-    if (tab !== 'explorar' && !authed) { setShowAuth(true); return }
+    if (tab !== 'explorar' && !authed) {
+      try { sessionStorage.setItem('auth-redirect-tab', tab) } catch {}
+      setShowAuth(true)
+      return
+    }
     if (tab === 'perfil') { router.push('/perfil'); return }
     setActiveTab(tab)
   }
@@ -465,6 +470,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     const watchId = navigator.geolocation.watchPosition(
       ({ coords }) => {
         userPos = new google.maps.LatLng(coords.latitude, coords.longitude)
+        userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
         if (!dotOverlay.getMap()) dotOverlay.setMap(map)
         dotOverlay.draw()
       },
@@ -561,9 +567,15 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
 
       {/* FAB: localização */}
       <button
-        onClick={() => navigator.geolocation?.getCurrentPosition((p) =>
-          mapInstanceRef.current?.panTo({ lat: p.coords.latitude, lng: p.coords.longitude })
-        )}
+        onClick={() => {
+          if (userLocationRef.current) {
+            mapInstanceRef.current?.panTo(userLocationRef.current)
+          } else {
+            navigator.geolocation?.getCurrentPosition((p) =>
+              mapInstanceRef.current?.panTo({ lat: p.coords.latitude, lng: p.coords.longitude })
+            )
+          }
+        }}
         aria-label="Minha localização"
         style={{
           position: 'absolute', right: 14,

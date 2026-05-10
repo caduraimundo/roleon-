@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 
 // ── Ícones ────────────────────────────────────────────────────────────────────
@@ -71,7 +72,14 @@ function translateError(msg: string): string {
   return 'Algo deu errado. Tente novamente.'
 }
 
+const REDIRECT_ROUTES: Record<string, string> = {
+  salvos:    '/salvos',
+  ingressos: '/ingressos',
+  perfil:    '/perfil',
+}
+
 export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
+  const router = useRouter()
   const [mode,        setMode]        = useState<Mode>('signin')
   const [name,        setName]        = useState('')
   const [email,       setEmail]       = useState('')
@@ -80,6 +88,21 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
   const [loading,     setLoading]     = useState(false)
   const [error,       setError]       = useState<string | null>(null)
   const [resetSent,   setResetSent]   = useState(false)
+
+  // Redireciona para a aba certa após login (OAuth ou email/senha)
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (!session) return
+      try {
+        const tab = sessionStorage.getItem('auth-redirect-tab')
+        if (tab && REDIRECT_ROUTES[tab]) {
+          sessionStorage.removeItem('auth-redirect-tab')
+          router.push(REDIRECT_ROUTES[tab])
+        }
+      } catch {}
+    })
+    return () => subscription.unsubscribe()
+  }, [router])
 
   if (!isOpen) return null
 

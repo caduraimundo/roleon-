@@ -18,35 +18,57 @@ function IconArrowLeft() {
 function IconChevronRight() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M6 4l4 4-4 4" stroke="#C0C0C0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M6 4l4 4-4 4" stroke="#C8C8C8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
 }
 
 function IconTicket() {
   return (
-    <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+    <svg width="19" height="19" viewBox="0 0 22 22" fill="none">
       <path d="M3 8a2 2 0 012-2h12a2 2 0 012 2v1.5a1.5 1.5 0 000 3V14a2 2 0 01-2 2H5a2 2 0 01-2-2v-1.5a1.5 1.5 0 000-3V8z"
-        stroke="#0EA5A0" strokeWidth="1.6" strokeLinejoin="round"/>
-      <path d="M14 6.5v9" stroke="#0EA5A0" strokeWidth="1.6" strokeDasharray="1.5 1.8"/>
+        stroke="#1A1A1A" strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M14 6.5v9" stroke="#1A1A1A" strokeWidth="1.5" strokeDasharray="1.5 1.8"/>
     </svg>
   )
 }
 
-function IconHeart() {
+function IconCard() {
   return (
-    <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
-      <path d="M11 18.5s-6.5-4-6.5-9a3.8 3.8 0 016.5-2.7A3.8 3.8 0 0117.5 9.5c0 5-6.5 9-6.5 9z"
-        stroke="#0EA5A0" strokeWidth="1.7" strokeLinejoin="round"/>
+    <svg width="19" height="19" viewBox="0 0 22 22" fill="none">
+      <rect x="2" y="5" width="18" height="13" rx="2.5" stroke="#1A1A1A" strokeWidth="1.5"/>
+      <path d="M2 9h18" stroke="#1A1A1A" strokeWidth="1.5"/>
+      <path d="M6 14h4" stroke="#1A1A1A" strokeWidth="1.5" strokeLinecap="round"/>
     </svg>
   )
 }
 
-function IconPencil() {
+function IconGear() {
   return (
-    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-      <path d="M13.5 3.5l3 3L6 17H3v-3L13.5 3.5z" stroke="#0EA5A0" strokeWidth="1.6" strokeLinejoin="round"/>
-      <path d="M11 6l3 3" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round"/>
+    <svg width="19" height="19" viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="11" r="3" stroke="#1A1A1A" strokeWidth="1.5"/>
+      <path d="M11 2v2M11 18v2M2 11h2M18 11h2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M4.22 17.78l1.42-1.42M16.36 5.64l1.42-1.42"
+        stroke="#1A1A1A" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function IconHelp() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="11" r="8.5" stroke="#1A1A1A" strokeWidth="1.5"/>
+      <path d="M8.5 8.5a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 4" stroke="#1A1A1A" strokeWidth="1.5" strokeLinecap="round"/>
+      <circle cx="11" cy="16" r="0.8" fill="#1A1A1A"/>
+    </svg>
+  )
+}
+
+function IconMegaphone() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+      <path d="M3 10v4h3l5 4V6L6 10H3z" stroke="#0EA5A0" strokeWidth="1.6" strokeLinejoin="round"/>
+      <path d="M18 7c1.2 1 2 2.4 2 4s-.8 3-2 4" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round"/>
+      <path d="M15 9c.6.5 1 1.2 1 2s-.4 1.5-1 2" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round"/>
     </svg>
   )
 }
@@ -59,32 +81,20 @@ function getInitials(name: string): string {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
 }
 
-// ── Tipos ─────────────────────────────────────────────────────────────────────
-
-interface MenuItem {
-  icon: React.ReactNode
-  label: string
-  onClick: () => void
-}
-
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function PerfilPage() {
   const router = useRouter()
 
-  const [loading,   setLoading]   = useState(true)
-  const [showAuth,  setShowAuth]  = useState(false)
-  const [name,      setName]      = useState('')
-  const [email,     setEmail]     = useState('')
+  const [loading,  setLoading]  = useState(true)
+  const [showAuth, setShowAuth] = useState(false)
+  const [name,     setName]     = useState('')
+  const [email,    setEmail]    = useState('')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       const session = data.session
-      if (!session) {
-        setShowAuth(true)
-        setLoading(false)
-        return
-      }
+      if (!session) { setShowAuth(true); setLoading(false); return }
       const user = session.user
       setEmail(user.email ?? '')
       setName(
@@ -102,12 +112,6 @@ export default function PerfilPage() {
     router.push('/')
   }
 
-  const menuItems: MenuItem[] = [
-    { icon: <IconTicket />,  label: 'Meus ingressos', onClick: () => {} },
-    { icon: <IconHeart />,   label: 'Eventos salvos', onClick: () => {} },
-    { icon: <IconPencil />,  label: 'Editar perfil',  onClick: () => {} },
-  ]
-
   if (loading) {
     return (
       <div style={{
@@ -120,19 +124,22 @@ export default function PerfilPage() {
     )
   }
 
-  // Se não logado: mostra tela em branco com AuthSheet aberto
   if (showAuth) {
     return (
       <div style={{ minHeight: '100dvh', background: '#F9F9F9' }}>
-        <AuthSheet
-          isOpen
-          onClose={() => router.push('/')}
-        />
+        <AuthSheet isOpen onClose={() => router.push('/')} />
       </div>
     )
   }
 
   const initials = getInitials(name)
+
+  const menuItems = [
+    { icon: <IconTicket />,  label: 'Meus ingressos', onClick: () => {} },
+    { icon: <IconCard />,    label: 'Pagamentos',      onClick: () => {} },
+    { icon: <IconGear />,    label: 'Configurações',   onClick: () => {} },
+    { icon: <IconHelp />,    label: 'Ajuda',           onClick: () => {} },
+  ]
 
   return (
     <div style={{
@@ -169,34 +176,51 @@ export default function PerfilPage() {
       </div>
 
       {/* Conteúdo */}
-      <div style={{ flex: 1, padding: '32px 20px 40px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <div style={{ flex: 1, padding: '28px 20px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
-        {/* Avatar + nome + email */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+        {/* Avatar + nome + subtítulo */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+
+          {/* Avatar */}
           <div style={{
             width: 72, height: 72, borderRadius: 999,
             background: '#0EA5A0',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 26, fontWeight: 800, color: '#fff',
-            letterSpacing: -0.5,
+            letterSpacing: -0.5, flexShrink: 0,
           }}>
             {initials}
           </div>
-          <div style={{ textAlign: 'center' }}>
+
+          {/* Nome + botão Editar */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ fontSize: 20, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.3 }}>
               {name}
             </div>
-            <div style={{ fontSize: 14, color: '#6E6E73', marginTop: 3 }}>
-              {email}
-            </div>
+            <button style={{
+              background: 'none',
+              border: '1px solid #E8E8E8',
+              borderRadius: 20,
+              padding: '4px 12px',
+              fontSize: 12, fontWeight: 600, color: '#1A1A1A',
+              cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
+              lineHeight: 1.4,
+            }}>
+              Editar
+            </button>
+          </div>
+
+          {/* Subtítulo */}
+          <div style={{ fontSize: 13, color: '#8A8A8A', fontWeight: 500, marginTop: -4 }}>
+            0 rolês curtidos · OP
           </div>
         </div>
 
-        {/* Card de opções */}
+        {/* Card principal */}
         <div style={{
           background: '#fff',
           border: '1px solid #EFEFEF',
-          borderRadius: 14,
+          borderRadius: 16,
           overflow: 'hidden',
         }}>
           {menuItems.map((item, i) => (
@@ -206,11 +230,13 @@ export default function PerfilPage() {
                 onClick={item.onClick}
                 style={{
                   width: '100%', background: 'none', border: 0, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 12,
+                  display: 'flex', alignItems: 'center', gap: 13,
                   padding: '15px 16px', textAlign: 'left',
                 }}
               >
-                <div style={{ flexShrink: 0 }}>{item.icon}</div>
+                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                  {item.icon}
+                </div>
                 <div style={{ flex: 1, fontSize: 15, fontWeight: 500, color: '#1A1A1A' }}>
                   {item.label}
                 </div>
@@ -220,17 +246,60 @@ export default function PerfilPage() {
           ))}
         </div>
 
-        {/* Sair */}
+        {/* Card "Seja um produtor" */}
+        <div style={{
+          background: '#E8F7F6',
+          border: '1px solid #C4EAE9',
+          borderRadius: 16,
+          padding: '18px 18px',
+          display: 'flex', alignItems: 'center', gap: 14,
+          cursor: 'pointer',
+        }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 12,
+            background: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+            boxShadow: '0 2px 8px rgba(14,165,160,0.12)',
+          }}>
+            <IconMegaphone />
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#0A7A76', letterSpacing: -0.2 }}>
+              Seja um produtor
+            </div>
+            <div style={{ fontSize: 13, color: '#4AA8A4', marginTop: 2, fontWeight: 500 }}>
+              Publique seus rolês no Roleon.
+            </div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+
+        {/* Sair — pequeno e sutil */}
         <button
           onClick={handleSignOut}
           style={{
             background: 'none', border: 0, cursor: 'pointer',
-            fontSize: 15, fontWeight: 600, color: '#FF3B30',
-            padding: '10px 0', alignSelf: 'center',
+            fontSize: 13, fontWeight: 500, color: '#9A9A9A',
+            padding: '6px 0', alignSelf: 'center',
+            letterSpacing: 0.1,
           }}
         >
           Sair da conta
         </button>
+      </div>
+
+      {/* Rodapé */}
+      <div style={{
+        textAlign: 'center',
+        padding: 'calc(env(safe-area-inset-bottom, 0px) + 16px) 20px 20px',
+        fontSize: 11, fontWeight: 600, color: '#CACACA',
+        letterSpacing: 1.2, textTransform: 'uppercase',
+        fontFamily: "'Noto Sans', sans-serif",
+      }}>
+        Roleon · v0.1 · OP
       </div>
     </div>
   )
