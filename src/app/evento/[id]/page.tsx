@@ -19,60 +19,39 @@ const GENRE_COLORS: Record<string, string> = {
 const DEFAULT_COLOR = '#0EA5A0'
 
 interface FullEvent {
-  id: string
-  title: string
-  genre: string
-  price: number
-  isFree: boolean
-  fee: number
-  venue: string
-  dateStr: string | null
-  timeStr: string | null
-  yearStr: string | null
-  heroColor: string
-  likes: number
-  description?: string | null
-  policies?: string[] | null
+  id: string; title: string; genre: string; price: number
+  isFree: boolean; fee: number; venue: string
+  dateStr: string | null; timeStr: string | null; yearStr: string | null
+  heroColor: string; likes: number
+  description?: string | null; policies?: string[] | null
 }
 
 function fromCache(cached: RoleonEvent): FullEvent {
   return {
-    id:        cached.id,
-    title:     cached.title,
-    genre:     cached.genre,
-    price:     cached.price,
-    isFree:    cached.price === 0,
-    fee:       cached.fee,
-    venue:     cached.venue,
-    dateStr:   cached.date || null,
-    timeStr:   cached.time || null,
-    yearStr:   null,
-    heroColor: GENRE_COLORS[cached.genre] ?? DEFAULT_COLOR,
-    likes:     cached.likes,
-    description: cached.description ?? null,
-    policies:  null,
+    id: cached.id, title: cached.title, genre: cached.genre,
+    price: cached.price, isFree: cached.price === 0, fee: cached.fee,
+    venue: cached.venue, dateStr: cached.date || null, timeStr: cached.time || null,
+    yearStr: null, heroColor: GENRE_COLORS[cached.genre] ?? DEFAULT_COLOR,
+    likes: cached.likes, description: cached.description ?? null, policies: null,
   }
 }
 
 function fromSupabase(row: Record<string, unknown>): FullEvent {
-  const d      = row.event_date ? new Date(row.event_date as string) : null
-  const price  = Number(row.price) || 0
+  const d = row.event_date ? new Date(row.event_date as string) : null
+  const price = Number(row.price) || 0
   const isFree = !!(row.is_free) || price === 0
   return {
-    id:        String(row.id),
-    title:     (row.title as string) ?? '',
-    genre:     (row.genre as string) ?? '',
-    price,
-    isFree,
-    fee:       isFree ? 0 : Math.round(price * 0.05 * 100) / 100,
-    venue:     (row.location_name as string) ?? '',
-    dateStr:   d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }) : null,
-    timeStr:   d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : null,
-    yearStr:   d ? d.toLocaleDateString('pt-BR', { year: 'numeric' }) : null,
+    id: String(row.id), title: (row.title as string) ?? '',
+    genre: (row.genre as string) ?? '', price, isFree,
+    fee: isFree ? 0 : Math.round(price * 0.05 * 100) / 100,
+    venue: (row.location_name as string) ?? '',
+    dateStr: d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }) : null,
+    timeStr: d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : null,
+    yearStr: d ? d.toLocaleDateString('pt-BR', { year: 'numeric' }) : null,
     heroColor: GENRE_COLORS[(row.genre as string)] ?? DEFAULT_COLOR,
-    likes:     (row.likes_count as number) ?? 0,
+    likes: (row.likes_count as number) ?? 0,
     description: (row.description as string | null) ?? null,
-    policies:    Array.isArray(row.policies) ? (row.policies as string[]) : null,
+    policies: Array.isArray(row.policies) ? (row.policies as string[]) : null,
   }
 }
 
@@ -97,11 +76,14 @@ function IconPin() {
   )
 }
 
-function IconHeartSmall() {
+function IconStar({ filled }: { filled: boolean }) {
   return (
-    <svg width="13" height="13" viewBox="0 0 22 22" fill="#E26A6A">
-      <path d="M11 18.5s-6.5-4-6.5-9a3.8 3.8 0 016.5-2.7A3.8 3.8 0 0117.5 9.5c0 5-6.5 9-6.5 9z"
-        stroke="#E26A6A" strokeWidth="1.9" strokeLinejoin="round"/>
+    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+      <path
+        d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.3L10 14.3l-4.8 2.5.9-5.3L2.2 7.7l5.4-.8L10 2z"
+        stroke="#0EA5A0" strokeWidth="1.5" strokeLinejoin="round"
+        fill={filled ? '#0EA5A0' : 'none'}
+      />
     </svg>
   )
 }
@@ -112,14 +94,14 @@ export default function EventoPage() {
   const params = useParams()
   const id     = String(params.id)
 
-  const [ev,       setEv]       = useState<FullEvent | null>(null)
-  const [missing,  setMissing]  = useState(false)
-  const [showAuth, setShowAuth] = useState(false)
-  const [isSaved,  setIsSaved]  = useState(false)
-  const [toast,    setToast]    = useState<string | null>(null)
+  const [ev,             setEv]           = useState<FullEvent | null>(null)
+  const [missing,        setMissing]      = useState(false)
+  const [showAuth,       setShowAuth]     = useState(false)
+  const [isInterested,   setIsInterested] = useState(false)
+  const [interestCount,  setInterestCount] = useState(0)
+  const [toast,          setToast]        = useState<string | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Carrega evento
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem(`evento-${id}`)
@@ -139,8 +121,16 @@ export default function EventoPage() {
       })
   }, [id])
 
-  // Verifica se o evento já está salvo pelo usuário atual
+  // Carrega interesse do usuário + contagem total
   useEffect(() => {
+    // Contagem total de interessados
+    supabase
+      .from('saved_events')
+      .select('id', { count: 'exact', head: true })
+      .eq('event_id', id)
+      .then(({ count }) => { if (count !== null) setInterestCount(count) })
+
+    // Interesse do usuário atual
     supabase.auth.getSession().then(({ data }) => {
       const uid = data.session?.user?.id
       if (!uid) return
@@ -150,10 +140,7 @@ export default function EventoPage() {
         .eq('user_id', uid)
         .eq('event_id', id)
         .maybeSingle()
-        .then(({ data: row, error }) => {
-          if (error) console.error('[EventoPage] check saved:', error)
-          setIsSaved(!!row)
-        })
+        .then(({ data: row }) => { setIsInterested(!!row) })
     })
   }, [id])
 
@@ -163,9 +150,9 @@ export default function EventoPage() {
     toastTimer.current = setTimeout(() => setToast(null), 2000)
   }
 
-  const handleToggleSave = async () => {
+  const handleToggleInterest = async () => {
     const { data: { session } } = await supabase.auth.getSession()
-    console.log('[EventoPage] handleToggleSave — user:', session?.user?.id, 'event:', id, 'isSaved:', isSaved)
+    console.log('[EventoPage] toggleInterest — user:', session?.user?.id, 'event:', id, 'interested:', isInterested)
 
     if (!session) {
       setShowAuth(true)
@@ -173,8 +160,9 @@ export default function EventoPage() {
     }
 
     const uid  = session.user.id
-    const next = !isSaved
-    setIsSaved(next)  // optimistic
+    const next = !isInterested
+    setIsInterested(next)
+    setInterestCount((c) => c + (next ? 1 : -1))
 
     if (next) {
       const { error } = await supabase
@@ -182,10 +170,11 @@ export default function EventoPage() {
         .insert({ user_id: uid, event_id: id })
       if (error) {
         console.error('[EventoPage] insert error:', error)
-        setIsSaved(false)
+        setIsInterested(false)
+        setInterestCount((c) => c - 1)
         return
       }
-      showToast('Salvo!')
+      showToast('Interesse marcado!')
     } else {
       const { error } = await supabase
         .from('saved_events')
@@ -194,10 +183,11 @@ export default function EventoPage() {
         .eq('event_id', id)
       if (error) {
         console.error('[EventoPage] delete error:', error)
-        setIsSaved(true)
+        setIsInterested(true)
+        setInterestCount((c) => c + 1)
         return
       }
-      showToast('Removido dos salvos')
+      showToast('Interesse removido')
     }
   }
 
@@ -215,23 +205,19 @@ export default function EventoPage() {
 
   return (
     <div style={{
-      minHeight: '100dvh',
-      background: '#F9F9F9',
+      minHeight: '100dvh', background: '#F9F9F9',
       fontFamily: "'Noto Sans', sans-serif",
-      display: 'flex',
-      flexDirection: 'column',
+      display: 'flex', flexDirection: 'column',
       paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 90px)',
     }}>
 
       {/* ── HERO ── */}
       <div style={{ height: 260, background: ev.heroColor, position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
-
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: 100,
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.42) 0%, transparent 100%)',
           zIndex: 1, pointerEvents: 'none',
         }} />
-
         <svg viewBox="0 0 100 100" preserveAspectRatio="none"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.12, pointerEvents: 'none' }}>
           <g stroke="#fff" strokeWidth="0.5" fill="none">
@@ -239,38 +225,29 @@ export default function EventoPage() {
             <path d="M20 0 L20 100 M40 0 L40 100 M60 0 L60 100 M80 0 L80 100"/>
           </g>
         </svg>
-
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: 80,
           background: 'linear-gradient(to top, rgba(0,0,0,0.48) 0%, transparent 100%)',
           zIndex: 1, pointerEvents: 'none',
         }} />
-
         <div style={{
           position: 'absolute', bottom: 16, left: 18, zIndex: 2, pointerEvents: 'none',
           color: '#fff', opacity: 0.85,
           fontFamily: "'JetBrains Mono', 'Courier New', ui-monospace, monospace",
-          fontSize: 10, fontWeight: 500, letterSpacing: 1.2,
-          textTransform: 'uppercase',
+          fontSize: 10, fontWeight: 500, letterSpacing: 1.2, textTransform: 'uppercase',
         }}>
           {ev.genre} · FOTO DO EVENTO
         </div>
-
-        {/* Botões sobre o hero — z-index alto, sem wrapper que possa bloquear cliques */}
         <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
-          <HeroActions
-            title={ev.title}
-            isSaved={isSaved}
-            onToggleSave={handleToggleSave}
-          />
+          <HeroActions title={ev.title} />
         </div>
       </div>
 
       {/* ── CONTEÚDO ── */}
       <div style={{ flex: 1, padding: '22px 20px 0', display: 'flex', flexDirection: 'column', gap: 18 }}>
 
-        {/* Genre pill + likes */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {/* Genre pill */}
+        <div style={{ display: 'flex', alignItems: 'center' }}>
           <div style={{
             background: '#E6F7F6', color: '#0EA5A0',
             fontSize: 11, fontWeight: 700, letterSpacing: 0.7,
@@ -278,18 +255,11 @@ export default function EventoPage() {
           }}>
             {ev.genre}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 13, color: '#6E6E73', fontWeight: 600 }}>
-            <IconHeartSmall />
-            {ev.likes}
-          </div>
         </div>
 
-        {/* Título */}
+        {/* Título + venue */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: -6 }}>
-          <h1 style={{
-            margin: 0, fontSize: 24, fontWeight: 800,
-            color: '#1A1A1A', lineHeight: 1.2, letterSpacing: -0.5,
-          }}>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#1A1A1A', lineHeight: 1.2, letterSpacing: -0.5 }}>
             {ev.title}
           </h1>
           {ev.venue && (
@@ -297,6 +267,32 @@ export default function EventoPage() {
               por {ev.venue}
             </div>
           )}
+
+          {/* Botão "Tenho interesse" */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
+            <button
+              onClick={handleToggleInterest}
+              style={{
+                alignSelf: 'flex-start',
+                display: 'flex', alignItems: 'center', gap: 6,
+                background: isInterested ? '#E6F7F6' : 'transparent',
+                border: `1px solid ${isInterested ? '#0EA5A0' : '#E8E8E8'}`,
+                borderRadius: 20, padding: '8px 16px', cursor: 'pointer',
+                color: isInterested ? '#0EA5A0' : '#1A1A1A',
+                fontSize: 13, fontWeight: 600,
+                fontFamily: "'Noto Sans', sans-serif",
+                transition: 'all 180ms ease',
+              }}
+            >
+              <IconStar filled={isInterested} />
+              Tenho interesse
+            </button>
+            {interestCount > 0 && (
+              <div style={{ fontSize: 12, color: '#6E6E73', paddingLeft: 4 }}>
+                {interestCount} {interestCount === 1 ? 'pessoa tem' : 'pessoas têm'} interesse
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Card data + local */}
@@ -308,38 +304,27 @@ export default function EventoPage() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
                   Data
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>
-                  {dateLabel}
-                </div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>{dateLabel}</div>
               </div>
             </div>
           )}
-
-          {ev.dateStr && ev.venue && (
-            <div style={{ height: 1, background: '#F2F2F2', margin: '0 16px' }} />
-          )}
-
+          {ev.dateStr && ev.venue && <div style={{ height: 1, background: '#F2F2F2', margin: '0 16px' }} />}
           {ev.venue && (
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px' }}>
               <div style={{ marginTop: 2 }}><IconPin /></div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', marginBottom: 2 }}>
-                  {ev.venue}
-                </div>
-                <div style={{ fontSize: 12.5, color: '#9A9A9A' }}>
-                  Ouro Preto, MG
-                </div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', marginBottom: 2 }}>{ev.venue}</div>
+                <div style={{ fontSize: 12.5, color: '#9A9A9A' }}>Ouro Preto, MG</div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Botão "Como chegar" */}
+        {/* Como chegar */}
         {ev.venue && (
           <button style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-            background: 'transparent',
-            border: '1.5px solid #0EA5A0',
+            background: 'transparent', border: '1.5px solid #0EA5A0',
             borderRadius: 10, padding: '11px 18px',
             color: '#0EA5A0', fontSize: 14, fontWeight: 600,
             fontFamily: "'Noto Sans', sans-serif",
@@ -359,9 +344,7 @@ export default function EventoPage() {
             <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>
               O Ambiente
             </div>
-            <p style={{ margin: 0, fontSize: 14.5, color: '#3A3A3A', lineHeight: 1.7 }}>
-              {ev.description}
-            </p>
+            <p style={{ margin: 0, fontSize: 14.5, color: '#3A3A3A', lineHeight: 1.7 }}>{ev.description}</p>
           </div>
         )}
 
@@ -393,10 +376,8 @@ export default function EventoPage() {
       </div>
 
       <EventoCTA isFree={ev.isFree} price={ev.price} fee={ev.fee} />
-
       <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
 
-      {/* Toast de feedback */}
       {toast && (
         <div style={{
           position: 'fixed',

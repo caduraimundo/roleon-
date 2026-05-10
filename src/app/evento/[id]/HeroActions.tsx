@@ -21,21 +21,6 @@ function IconShare() {
   )
 }
 
-function IconHeart({ saved }: { saved: boolean }) {
-  const color = saved ? '#0EA5A0' : '#6E6E73'
-  return (
-    <svg width="17" height="17" viewBox="0 0 22 22" fill="none">
-      <path
-        d="M11 18.5s-6.5-4-6.5-9a3.8 3.8 0 016.5-2.7A3.8 3.8 0 0117.5 9.5c0 5-6.5 9-6.5 9z"
-        stroke={color}
-        strokeWidth="1.9"
-        strokeLinejoin="round"
-        fill={saved ? color : 'none'}
-      />
-    </svg>
-  )
-}
-
 const BTN: React.CSSProperties = {
   width: 36, height: 36, borderRadius: 999,
   background: 'rgba(255,255,255,0.92)',
@@ -44,18 +29,11 @@ const BTN: React.CSSProperties = {
   display: 'flex', alignItems: 'center', justifyContent: 'center',
   color: '#1A1A1A',
   boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
-  pointerEvents: 'auto',
 }
 
 const TOP = 'calc(env(safe-area-inset-top, 0px) + 16px)'
 
-interface HeroActionsProps {
-  title: string
-  isSaved: boolean
-  onToggleSave: () => void
-}
-
-export default function HeroActions({ title, isSaved, onToggleSave }: HeroActionsProps) {
+export default function HeroActions({ title }: { title: string }) {
   const router = useRouter()
 
   const handleShare = () => {
@@ -76,16 +54,9 @@ export default function HeroActions({ title, isSaved, onToggleSave }: HeroAction
         <IconArrowLeft />
       </button>
 
-      <div style={{ position: 'absolute', top: TOP, right: 16, display: 'flex', gap: 8, pointerEvents: 'auto' }}>
+      <div style={{ position: 'absolute', top: TOP, right: 16 }}>
         <button onClick={handleShare} aria-label="Compartilhar" style={BTN}>
           <IconShare />
-        </button>
-        <button
-          onClick={onToggleSave}
-          aria-label={isSaved ? 'Remover dos salvos' : 'Salvar evento'}
-          style={BTN}
-        >
-          <IconHeart saved={isSaved} />
         </button>
       </div>
     </>

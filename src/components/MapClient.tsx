@@ -431,8 +431,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       setShowAuth(true)
       return
     }
-    if (tab === 'perfil')  { router.push('/perfil');  return }
-    if (tab === 'salvos')  { router.push('/salvos');  return }
+    if (tab === 'perfil') { router.push('/perfil'); return }
     setActiveTab(tab)
   }
 

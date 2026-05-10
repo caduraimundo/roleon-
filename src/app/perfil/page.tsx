@@ -63,6 +63,17 @@ function IconHelp() {
   )
 }
 
+function IconStar() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 20 20" fill="none">
+      <path
+        d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.3L10 14.3l-4.8 2.5.9-5.3L2.2 7.7l5.4-.8L10 2z"
+        stroke="#0EA5A0" strokeWidth="1.5" strokeLinejoin="round" fill="none"
+      />
+    </svg>
+  )
+}
+
 function IconPencilSquare({ color = '#1A1A1A' }: { color?: string }) {
   return (
     <svg width="19" height="19" viewBox="0 0 22 22" fill="none">
@@ -136,11 +147,12 @@ export default function PerfilPage() {
   const initials = getInitials(name)
 
   const menuItems = [
-    { icon: <IconTicket />,                      label: 'Meus ingressos', onClick: () => {} },
-    { icon: <IconCard />,                        label: 'Pagamentos',     onClick: () => {} },
-    { icon: <IconPencilSquare />,                label: 'Editar perfil',  onClick: () => {} },
-    { icon: <IconGear />,                        label: 'Configurações',  onClick: () => {} },
-    { icon: <IconHelp />,                        label: 'Ajuda',          onClick: () => {} },
+    { icon: <IconStar />,                        label: 'Meus interesses', onClick: () => router.push('/interesses') },
+    { icon: <IconTicket />,                      label: 'Meus ingressos',  onClick: () => {} },
+    { icon: <IconCard />,                        label: 'Pagamentos',      onClick: () => {} },
+    { icon: <IconPencilSquare />,                label: 'Editar perfil',   onClick: () => {} },
+    { icon: <IconGear />,                        label: 'Configurações',   onClick: () => {} },
+    { icon: <IconHelp />,                        label: 'Ajuda',           onClick: () => {} },
   ]
 
   return (

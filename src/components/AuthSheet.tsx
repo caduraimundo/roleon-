@@ -73,7 +73,6 @@ function translateError(msg: string): string {
 }
 
 const REDIRECT_ROUTES: Record<string, string> = {
-  salvos:    '/salvos',
   ingressos: '/ingressos',
   perfil:    '/perfil',
 }
