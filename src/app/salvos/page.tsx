@@ -16,6 +16,14 @@ interface SavedEvent {
   eventId: string
 }
 
+function IconArrowLeft() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path d="M12 4L7 10l5 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
 function IconHeartEmpty() {
   return (
     <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -85,28 +93,15 @@ export default function SalvosPage() {
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (session && authed === false) {
+      if (session) {
         setAuthed(true)
         setShowAuth(false)
-        router.refresh()
-      } else if (!session) {
+      } else {
         setAuthed(false)
       }
     })
     return () => subscription.unsubscribe()
   }, [])
-
-  const headerStyle: React.CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 'calc(env(safe-area-inset-top, 0px) + 18px) 20px 14px',
-    borderBottom: '0.5px solid #EFEFEF',
-    background: '#F9F9F9',
-    position: 'sticky',
-    top: 0,
-    zIndex: 10,
-  }
 
   return (
     <div style={{
@@ -116,10 +111,34 @@ export default function SalvosPage() {
       paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 90px)',
     }}>
       {/* Header */}
-      <div style={headerStyle}>
-        <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.2 }}>
+      <div style={{
+        display: 'flex', alignItems: 'center',
+        height: 52,
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingLeft: 16, paddingRight: 16,
+        background: '#fff',
+        borderBottom: '0.5px solid #EFEFEF',
+        position: 'relative',
+      }}>
+        <button
+          onClick={() => router.back()}
+          aria-label="Voltar"
+          style={{
+            width: 36, height: 36, borderRadius: 999,
+            background: '#F2F2F2', border: 0, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#1A1A1A', flexShrink: 0,
+          }}
+        >
+          <IconArrowLeft />
+        </button>
+        <div style={{
+          position: 'absolute', left: '50%', transform: 'translateX(-50%)',
+          fontSize: 16, fontWeight: 700, color: '#1A1A1A',
+          fontFamily: "'Noto Sans', sans-serif",
+        }}>
           Salvos
-        </span>
+        </div>
       </div>
 
       {/* Conteúdo */}

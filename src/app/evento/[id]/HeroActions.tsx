@@ -55,9 +55,11 @@ interface HeroActionsProps {
 }
 
 export default function HeroActions({ title, eventId, onAuthRequired }: HeroActionsProps) {
-  const router  = useRouter()
-  const [saved,   setSaved]   = useState(false)
-  const [userId,  setUserId]  = useState<string | null>(null)
+  const router = useRouter()
+  const [saved,     setSaved]     = useState(false)
+  const [userId,    setUserId]    = useState<string | null>(null)
+  const [toast,     setToast]     = useState<string | null>(null)
+  const [toastTimer, setToastTimer] = useState<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -70,9 +72,21 @@ export default function HeroActions({ title, eventId, onAuthRequired }: HeroActi
         .eq('user_id', uid)
         .eq('event_id', eventId)
         .maybeSingle()
-        .then(({ data: row }) => { if (row) setSaved(true) })
+        .then(({ data: row, error }) => {
+          if (error) console.error('[HeroActions] check saved:', error)
+          if (row) setSaved(true)
+        })
     })
   }, [eventId])
+
+  useEffect(() => () => { if (toastTimer) clearTimeout(toastTimer) }, [toastTimer])
+
+  const showToast = (msg: string) => {
+    setToast(msg)
+    if (toastTimer) clearTimeout(toastTimer)
+    const t = setTimeout(() => setToast(null), 2000)
+    setToastTimer(t)
+  }
 
   const handleShare = () => {
     if (navigator.share) {
@@ -89,10 +103,29 @@ export default function HeroActions({ title, eventId, onAuthRequired }: HeroActi
     }
     const next = !saved
     setSaved(next)
+
     if (next) {
-      await supabase.from('saved_events').insert({ user_id: userId, event_id: eventId })
+      const { error } = await supabase
+        .from('saved_events')
+        .insert({ user_id: userId, event_id: eventId })
+      if (error) {
+        console.error('[HeroActions] insert saved_events:', error)
+        setSaved(false)
+        return
+      }
+      showToast('Salvo!')
     } else {
-      await supabase.from('saved_events').delete().eq('user_id', userId).eq('event_id', eventId)
+      const { error } = await supabase
+        .from('saved_events')
+        .delete()
+        .eq('user_id', userId)
+        .eq('event_id', eventId)
+      if (error) {
+        console.error('[HeroActions] delete saved_events:', error)
+        setSaved(true)
+        return
+      }
+      showToast('Removido dos salvos')
     }
   }
 
@@ -121,6 +154,27 @@ export default function HeroActions({ title, eventId, onAuthRequired }: HeroActi
           <IconHeart saved={saved} />
         </button>
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <div style={{
+          position: 'fixed',
+          bottom: 'calc(env(safe-area-inset-bottom, 0px) + 100px)',
+          left: '50%', transform: 'translateX(-50%)',
+          background: '#0EA5A0', color: '#fff',
+          fontSize: 13.5, fontWeight: 600,
+          fontFamily: "'Noto Sans', sans-serif",
+          padding: '10px 20px', borderRadius: 8,
+          boxShadow: '0 4px 16px rgba(14,165,160,0.35)',
+          zIndex: 9999,
+          whiteSpace: 'nowrap',
+          pointerEvents: 'none',
+          animation: 'toastIn 200ms ease',
+        }}>
+          <style>{`@keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(6px) } to { opacity:1; transform:translateX(-50%) translateY(0) } }`}</style>
+          {toast}
+        </div>
+      )}
     </>
   )
 }

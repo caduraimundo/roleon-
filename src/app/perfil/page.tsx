@@ -153,18 +153,22 @@ export default function PerfilPage() {
       {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center',
-        padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 16px 14px',
-        background: '#F9F9F9',
+        height: 52,
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        paddingLeft: 16, paddingRight: 16,
+        background: '#fff',
         borderBottom: '0.5px solid #EFEFEF',
         position: 'relative',
+        fontFamily: "'Noto Sans', sans-serif",
       }}>
         <button
           onClick={() => router.back()}
           aria-label="Voltar"
           style={{
-            background: 'none', border: 0, cursor: 'pointer',
-            color: '#1A1A1A', padding: 4,
-            display: 'flex', alignItems: 'center',
+            width: 36, height: 36, borderRadius: 999,
+            background: '#F2F2F2', border: 0, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#1A1A1A', flexShrink: 0,
           }}
         >
           <IconArrowLeft />
