@@ -100,6 +100,7 @@ export default function EventoPage() {
   const [isInterested,   setIsInterested] = useState(false)
   const [interestCount,  setInterestCount] = useState(0)
   const [toast,          setToast]        = useState<string | null>(null)
+  const [isLoading,      setIsLoading]    = useState(false)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -151,43 +152,47 @@ export default function EventoPage() {
   }
 
   const handleToggleInterest = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    console.log('[EventoPage] toggleInterest — user:', session?.user?.id, 'event:', id, 'interested:', isInterested)
+    if (isLoading) return
+    setIsLoading(true)
 
-    if (!session) {
-      setShowAuth(true)
-      return
-    }
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
 
-    const uid  = session.user.id
-    const next = !isInterested
-    setIsInterested(next)
-    setInterestCount((c) => c + (next ? 1 : -1))
-
-    if (next) {
-      const { error } = await supabase
-        .from('saved_events')
-        .insert({ user_id: uid, event_id: id })
-      if (error) {
-        console.error('[EventoPage] insert error:', error)
-        setIsInterested(false)
-        setInterestCount((c) => c - 1)
+      if (!session) {
+        setShowAuth(true)
         return
       }
-      showToast('Interesse marcado!')
-    } else {
-      const { error } = await supabase
-        .from('saved_events')
-        .delete()
-        .eq('user_id', uid)
-        .eq('event_id', id)
-      if (error) {
-        console.error('[EventoPage] delete error:', error)
-        setIsInterested(true)
-        setInterestCount((c) => c + 1)
-        return
+
+      const uid      = session.user.id
+      const next     = !isInterested
+      setIsInterested(next)
+      setInterestCount((c) => c + (next ? 1 : -1))
+
+      if (next) {
+        const { error } = await supabase
+          .from('saved_events')
+          .insert({ user_id: uid, event_id: id })
+        if (error) {
+          setIsInterested(isInterested)
+          setInterestCount((c) => c - 1)
+          return
+        }
+        showToast('Interesse marcado!')
+      } else {
+        const { error } = await supabase
+          .from('saved_events')
+          .delete()
+          .eq('user_id', uid)
+          .eq('event_id', id)
+        if (error) {
+          setIsInterested(isInterested)
+          setInterestCount((c) => c + 1)
+          return
+        }
+        showToast('Interesse removido')
       }
-      showToast('Interesse removido')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -272,16 +277,19 @@ export default function EventoPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
             <button
               onClick={handleToggleInterest}
+              disabled={isLoading}
               style={{
                 alignSelf: 'flex-start',
                 display: 'flex', alignItems: 'center', gap: 6,
                 background: isInterested ? '#E6F7F6' : 'transparent',
                 border: `1px solid ${isInterested ? '#0EA5A0' : '#E8E8E8'}`,
-                borderRadius: 20, padding: '8px 16px', cursor: 'pointer',
+                borderRadius: 20, padding: '8px 16px',
+                cursor: isLoading ? 'not-allowed' : 'pointer',
                 color: isInterested ? '#0EA5A0' : '#1A1A1A',
                 fontSize: 13, fontWeight: 600,
                 fontFamily: "'Noto Sans', sans-serif",
                 transition: 'all 180ms ease',
+                opacity: isLoading ? 0.6 : 1,
               }}
             >
               <IconStar filled={isInterested} />
