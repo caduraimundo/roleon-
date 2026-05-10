@@ -157,6 +157,8 @@ export default function EventoPage() {
 
     try {
       const { data: { user } } = await supabase.auth.getUser()
+      console.log('USER:', user)
+      console.log('EVENT ID:', id)
 
       if (!user) {
         setShowAuth(true)
@@ -169,9 +171,11 @@ export default function EventoPage() {
       setInterestCount((c) => c + (next ? 1 : -1))
 
       if (next) {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('saved_events')
           .insert({ user_id: uid, event_id: id })
+        console.log('INSERT ERROR:', error)
+        console.log('INSERT DATA:', data)
         if (error) {
           setIsInterested(isInterested)
           setInterestCount((c) => c - 1)
@@ -184,6 +188,7 @@ export default function EventoPage() {
           .delete()
           .eq('user_id', uid)
           .eq('event_id', id)
+        console.log('DELETE ERROR:', error)
         if (error) {
           setIsInterested(isInterested)
           setInterestCount((c) => c + 1)
