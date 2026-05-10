@@ -139,7 +139,7 @@ export default function EventoPage() {
         .eq('user_id', user.id)
         .maybeSingle() : { data: null }
 
-      setInterestCount(count || 0)
+      setInterestCount(count ?? 0)
       setIsInterested(!!userInterest)
     }
     load()
