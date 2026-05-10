@@ -124,23 +124,25 @@ export default function EventoPage() {
 
   // Carrega interesse do usuário + contagem total
   useEffect(() => {
-    supabase
-      .from('saved_events')
-      .select('*', { count: 'exact', head: true })
-      .eq('event_id', id)
-      .then(({ count }) => { setInterestCount(count || 0) })
+    async function load() {
+      const { data: { user } } = await supabase.auth.getUser()
 
-    supabase.auth.getUser().then(({ data }) => {
-      const uid = data.user?.id
-      if (!uid) return
-      supabase
+      const { count } = await supabase
+        .from('saved_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_id', id)
+
+      const { data: userInterest } = user ? await supabase
         .from('saved_events')
         .select('id')
         .eq('event_id', id)
-        .eq('user_id', uid)
-        .maybeSingle()
-        .then(({ data: row }) => { setIsInterested(!!row) })
-    })
+        .eq('user_id', user.id)
+        .maybeSingle() : { data: null }
+
+      setInterestCount(count || 0)
+      setIsInterested(!!userInterest)
+    }
+    load()
   }, [id])
 
   const showToast = (msg: string) => {
