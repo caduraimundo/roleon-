@@ -63,7 +63,7 @@ export default function InteressesPage() {
           id,
           event_id,
           events (
-            id, title, genre, price, is_free, event_date, location_name, cover_image_url
+            id, title, genre, price, is_free, event_date, location_name
           )
         `)
         .eq('user_id', user.id)
@@ -85,7 +85,7 @@ export default function InteressesPage() {
             price,
             isFree: !!(ev?.is_free) || price === 0,
             dateStr: d ? d.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' }) : null,
-            coverUrl: ev?.cover_image_url ?? null,
+            coverUrl: null,
           }
         }))
       }
