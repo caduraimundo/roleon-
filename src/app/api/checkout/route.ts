@@ -11,6 +11,13 @@ function getSupabase() {
 export async function POST(req: NextRequest) {
   const isMock = process.env.PAGARME_API_KEY === 'ak_test_placeholder'
 
+  console.log('ENV CHECK:', {
+    hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    isMock,
+  })
+
   try {
     const body = await req.json()
     const { event_id, quantity, user_id, user_email, user_name, payment_method } = body
