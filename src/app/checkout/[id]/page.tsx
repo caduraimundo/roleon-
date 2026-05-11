@@ -154,8 +154,6 @@ export default function CheckoutPage() {
   const totalFee = subtotal * 0.04 + subtotal * 0.0119 + 0.99
   const total    = subtotal + totalFee
 
-  const feePerTicket = price * 0.04 + price * 0.0119 + 0.99
-
   const parsed   = evento.event_date ? formatDate(evento.event_date) : null
 
   const handlePagar = async () => {
@@ -287,21 +285,21 @@ export default function CheckoutPage() {
         {!evento.is_free && (
           <div style={{ ...CARD, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', marginBottom: 3 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A' }}>
                 Pista — Lote 1
-              </div>
-              <div style={{ fontSize: 12, color: '#0EA5A0', fontWeight: 500 }}>
-                R$ {fmt(price)} + R$ {fmt(feePerTicket)} taxa
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <button
                 onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                disabled={quantity === 1}
                 style={{
                   width: 32, height: 32, borderRadius: 999,
-                  border: '1.5px solid #E8E8E8', background: '#fff',
+                  border: `1.5px solid ${quantity === 1 ? '#E8E8E8' : '#0EA5A0'}`,
+                  background: '#fff',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer',
+                  cursor: quantity === 1 ? 'not-allowed' : 'pointer',
+                  opacity: quantity === 1 ? 0.5 : 1,
                 }}
               >
                 <IconMinus />
@@ -328,10 +326,7 @@ export default function CheckoutPage() {
         {user && (
           <div>
             <div style={SECTION_LABEL}>E-mail para envio</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <div style={{ fontSize: 11, fontWeight: 600, color: '#6E6E73', textTransform: 'uppercase', letterSpacing: 0.6 }}>
-                E-mail
-              </div>
+            <div>
               <input
                 type="email"
                 inputMode="email"
