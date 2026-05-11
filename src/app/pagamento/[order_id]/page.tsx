@@ -25,9 +25,9 @@ function IconX() {
 function IconPix() {
   return (
     <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-      <path d="M26 4L48 26L26 48L4 26L26 4Z" fill="#32BCAD"/>
-      <path d="M17 22 Q21 17 26 22 Q31 27 35 22" stroke="white" strokeWidth="2.4" strokeLinecap="round" fill="none"/>
-      <path d="M17 30 Q21 25 26 30 Q31 35 35 30" stroke="white" strokeWidth="2.4" strokeLinecap="round" fill="none"/>
+      <path d="M26 4L48 26L26 48L4 26L26 4Z" stroke="#0EA5A0" strokeWidth="2.5"/>
+      <path d="M18 22 Q21.5 17.5 26 22 Q30.5 26.5 34 22" stroke="#0EA5A0" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+      <path d="M18 30 Q21.5 25.5 26 30 Q30.5 34.5 34 30" stroke="#0EA5A0" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
     </svg>
   )
 }

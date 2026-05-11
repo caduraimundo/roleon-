@@ -75,12 +75,12 @@ function IconPlus() {
 }
 
 function IconPix({ active }: { active: boolean }) {
-  const c = active ? '#0EA5A0' : '#8A8A8A'
+  const c = active ? '#0EA5A0' : '#6E6E73'
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M12 2L22 12L12 22L2 12L12 2Z" stroke={c} strokeWidth="1.5" fill="none"/>
-      <path d="M7 10 Q9 8 12 10 Q15 12 17 10" stroke={c} strokeWidth="1.4" strokeLinecap="round" fill="none"/>
-      <path d="M7 14 Q9 12 12 14 Q15 16 17 14" stroke={c} strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+      <path d="M12 2L22 12L12 22L2 12L12 2Z" stroke={c} strokeWidth="1.5"/>
+      <path d="M8.5 10.5 Q10 8.5 12 10.5 Q14 12.5 15.5 10.5" stroke={c} strokeWidth="1.3" strokeLinecap="round" fill="none"/>
+      <path d="M8.5 13.5 Q10 11.5 12 13.5 Q14 15.5 15.5 13.5" stroke={c} strokeWidth="1.3" strokeLinecap="round" fill="none"/>
     </svg>
   )
 }
@@ -160,6 +160,23 @@ export default function CheckoutPage() {
     if (loading || !user) return
     setLoading(true)
     try {
+      // Reutiliza pedido PIX existente para evitar chamadas duplicadas à API
+      if (payMethod === 'pix') {
+        const cached = sessionStorage.getItem(`roleon_order_${id}`)
+        if (cached) {
+          const order = JSON.parse(cached)
+          sessionStorage.setItem('roleon_checkout', JSON.stringify({
+            ...order,
+            event_id: id,
+            event_title: evento.title,
+            total,
+            quantity,
+          }))
+          router.push(`/pagamento/${order.order_id}`)
+          return
+        }
+      }
+
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -172,7 +189,7 @@ export default function CheckoutPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Erro')
 
-      sessionStorage.setItem('roleon_checkout', JSON.stringify({
+      const checkoutPayload = {
         order_id: data.order_id,
         event_id: id,
         event_title: evento.title,
@@ -182,7 +199,19 @@ export default function CheckoutPage() {
         qr_code_url: data.qr_code_url,
         pix_code: data.pix_code,
         expires_at: data.expires_at,
-      }))
+      }
+      sessionStorage.setItem('roleon_checkout', JSON.stringify(checkoutPayload))
+
+      // Persiste pedido PIX por event_id para reutilização
+      if (payMethod === 'pix') {
+        sessionStorage.setItem(`roleon_order_${id}`, JSON.stringify({
+          order_id: data.order_id,
+          qr_code_url: data.qr_code_url,
+          pix_code: data.pix_code,
+          amount: data.amount,
+          expires_at: data.expires_at,
+        }))
+      }
 
       if (payMethod === 'credit_card') {
         router.push(`/pagamento-cartao/${data.order_id}`)
