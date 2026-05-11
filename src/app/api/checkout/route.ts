@@ -9,7 +9,7 @@ function getSupabase() {
 }
 
 export async function POST(req: NextRequest) {
-  const isMock = process.env.PAGARME_API_KEY === 'ak_test_placeholder'
+  const isMock = process.env.PAGARME_API_KEY === 'ak_test_placeholder' || !process.env.PAGARME_API_KEY
 
   console.log('ENV CHECK:', {
     hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
