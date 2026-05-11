@@ -96,13 +96,6 @@ function IconCard({ active }: { active: boolean }) {
   )
 }
 
-function maskCard(v: string) {
-  return v.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()
-}
-function maskExpiry(v: string) {
-  const d = v.replace(/\D/g, '').slice(0, 4)
-  return d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d
-}
 
 const SECTION_LABEL: React.CSSProperties = {
   fontSize: 11, fontWeight: 600, color: '#6E6E73',
@@ -111,12 +104,6 @@ const SECTION_LABEL: React.CSSProperties = {
 }
 const CARD: React.CSSProperties = {
   background: '#fff', borderRadius: 12, border: '1px solid #EFEFEF',
-}
-const INPUT_STYLE: React.CSSProperties = {
-  border: '1px solid #E8E8E8', borderRadius: 10, padding: '12px 14px',
-  fontSize: 15, fontFamily: "'Noto Sans', sans-serif",
-  background: '#fff', color: '#1A1A1A', outline: 'none', width: '100%',
-  boxSizing: 'border-box',
 }
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -132,10 +119,6 @@ export default function CheckoutPage() {
   const [user,      setUser]      = useState<{ id: string; email: string; name: string } | null>(null)
   const [payMethod,   setPayMethod]   = useState<PaymentMethod>('pix')
   const [emailInput,  setEmailInput]  = useState('')
-  const [cardNumber,  setCardNumber]  = useState('')
-  const [cardExpiry,  setCardExpiry]  = useState('')
-  const [cardCvv,     setCardCvv]    = useState('')
-  const [cardName,    setCardName]   = useState('')
 
   useEffect(() => {
     supabase
@@ -190,14 +173,23 @@ export default function CheckoutPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Erro')
+
+      sessionStorage.setItem('roleon_checkout', JSON.stringify({
+        order_id: data.order_id,
+        event_id: id,
+        event_title: evento.title,
+        total,
+        quantity,
+        ticket_id: data.ticket_id,
+        qr_code_url: data.qr_code_url,
+        pix_code: data.pix_code,
+        expires_at: data.expires_at,
+      }))
+
       if (payMethod === 'credit_card') {
-        router.push(`/ingresso/${data.ticket_id}`)
+        router.push(`/pagamento-cartao/${data.order_id}`)
       } else {
-        const sp = new URLSearchParams({
-          qr_code_url: data.qr_code_url, pix_code: data.pix_code,
-          amount: String(data.amount), expires_at: data.expires_at,
-        })
-        router.push(`/pagamento/${data.order_id}?${sp.toString()}`)
+        router.push(`/pagamento/${data.order_id}`)
       }
     } catch {
       setLoading(false)
@@ -423,33 +415,6 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        {/* FORMULÁRIO DE CARTÃO */}
-        {!evento.is_free && payMethod === 'credit_card' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <input
-              type="text" inputMode="numeric" placeholder="Número do cartão"
-              value={cardNumber} onChange={e => setCardNumber(maskCard(e.target.value))}
-              style={INPUT_STYLE}
-            />
-            <div style={{ display: 'flex', gap: 10 }}>
-              <input
-                type="text" inputMode="numeric" placeholder="Validade (MM/AA)"
-                value={cardExpiry} onChange={e => setCardExpiry(maskExpiry(e.target.value))}
-                style={{ ...INPUT_STYLE, flex: 1 }}
-              />
-              <input
-                type="text" inputMode="numeric" placeholder="CVV" maxLength={3}
-                value={cardCvv} onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
-                style={{ ...INPUT_STYLE, flex: 1 }}
-              />
-            </div>
-            <input
-              type="text" placeholder="Nome no cartão"
-              value={cardName} onChange={e => setCardName(e.target.value.toUpperCase())}
-              style={INPUT_STYLE}
-            />
-          </div>
-        )}
       </div>
 
       {/* ── BOTÃO STICKY ── */}
