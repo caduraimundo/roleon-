@@ -7,7 +7,7 @@ const supabase = createClient(
 )
 
 export async function POST(req: NextRequest) {
-  const { event_id, quantity, user_id, user_email, user_name } = await req.json()
+  const { event_id, quantity, user_id, user_email, user_name, payment_method } = await req.json()
 
   if (!event_id || !quantity || !user_id) {
     return NextResponse.json({ error: 'Campos obrigatórios ausentes' }, { status: 400 })
@@ -33,7 +33,24 @@ export async function POST(req: NextRequest) {
   const isMock = process.env.PAGARME_API_KEY === 'ak_test_placeholder'
 
   if (isMock) {
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString()
+    if (payment_method === 'credit_card') {
+      const { data: ticket } = await supabase.from('tickets').insert({
+        event_id,
+        user_id,
+        price_paid: total,
+        qr_code: '',
+        status: 'paid',
+      }).select('id').single()
+
+      return NextResponse.json({
+        order_id: 'mock_card_123',
+        payment_method: 'credit_card',
+        status: 'paid',
+        ticket_id: ticket?.id ?? 'mock_ticket_card',
+      })
+    }
+
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString()
     const mockOrderId = `mock_order_${Date.now()}`
 
     await supabase.from('tickets').insert({

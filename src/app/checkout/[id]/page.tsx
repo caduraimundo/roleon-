@@ -14,6 +14,8 @@ interface EventoCheckout {
   is_free: boolean
 }
 
+type PaymentMethod = 'pix' | 'credit_card'
+
 function fmt(n: number) {
   return n.toFixed(2).replace('.', ',')
 }
@@ -42,6 +44,42 @@ function IconPlus() {
   )
 }
 
+function IconPix({ active }: { active: boolean }) {
+  const c = active ? '#0EA5A0' : '#8A8A8A'
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path d="M10 2l2 6h6l-5 4 2 6-5-4-5 4 2-6-5-4h6z" stroke={c} strokeWidth="1.5" strokeLinejoin="round" fill={active ? '#E6F7F6' : 'none'}/>
+    </svg>
+  )
+}
+
+function IconCard({ active }: { active: boolean }) {
+  const c = active ? '#0EA5A0' : '#8A8A8A'
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <rect x="1.5" y="4.5" width="17" height="12" rx="2" stroke={c} strokeWidth="1.5"/>
+      <path d="M1.5 8.5h17" stroke={c} strokeWidth="1.5"/>
+      <path d="M5 12.5h4" stroke={c} strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function maskCard(v: string) {
+  return v.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()
+}
+
+function maskExpiry(v: string) {
+  const d = v.replace(/\D/g, '').slice(0, 4)
+  return d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d
+}
+
+const INPUT_STYLE: React.CSSProperties = {
+  border: '1px solid #E8E8E8', borderRadius: 10, padding: '12px 14px',
+  fontSize: 15, fontFamily: "'Noto Sans', sans-serif",
+  background: '#fff', color: '#1A1A1A', outline: 'none', width: '100%',
+  boxSizing: 'border-box',
+}
+
 export default function CheckoutPage() {
   const params = useParams()
   const router = useRouter()
@@ -51,6 +89,11 @@ export default function CheckoutPage() {
   const [quantity, setQuantity] = useState(1)
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<{ id: string; email: string; name: string } | null>(null)
+  const [payMethod, setPayMethod] = useState<PaymentMethod>('pix')
+  const [cardNumber, setCardNumber] = useState('')
+  const [cardExpiry, setCardExpiry] = useState('')
+  const [cardCvv, setCardCvv] = useState('')
+  const [cardName, setCardName] = useState('')
 
   useEffect(() => {
     supabase
@@ -106,21 +149,31 @@ export default function CheckoutPage() {
           user_id: user.id,
           user_email: user.email,
           user_name: user.name,
+          payment_method: payMethod,
         }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Erro')
-      const params = new URLSearchParams({
-        qr_code_url: data.qr_code_url,
-        pix_code: data.pix_code,
-        amount: String(data.amount),
-        expires_at: data.expires_at,
-      })
-      router.push(`/pagamento/${data.order_id}?${params.toString()}`)
+
+      if (payMethod === 'credit_card') {
+        router.push(`/ingresso/${data.ticket_id}`)
+      } else {
+        const sp = new URLSearchParams({
+          qr_code_url: data.qr_code_url,
+          pix_code: data.pix_code,
+          amount: String(data.amount),
+          expires_at: data.expires_at,
+        })
+        router.push(`/pagamento/${data.order_id}?${sp.toString()}`)
+      }
     } catch {
       setLoading(false)
     }
   }
+
+  const btnLabel = loading
+    ? 'Processando...'
+    : payMethod === 'pix' ? 'Pagar com PIX' : 'Pagar com Cartão'
 
   return (
     <div style={{
@@ -158,28 +211,15 @@ export default function CheckoutPage() {
       <div style={{ padding: '20px 20px 0', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {/* Card do evento */}
-        <div style={{
-          background: '#fff', borderRadius: 16, overflow: 'hidden',
-          border: '1px solid #EFEFEF',
-        }}>
-          {evento.cover_image && (
-            <img
-              src={evento.cover_image}
-              alt={evento.title}
-              style={{ width: '100%', height: 160, objectFit: 'cover' }}
-            />
-          )}
-          {!evento.cover_image && (
-            <div style={{ height: 120, background: '#0EA5A0', opacity: 0.7 }} />
-          )}
+        <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', border: '1px solid #EFEFEF' }}>
+          {evento.cover_image
+            ? <img src={evento.cover_image} alt={evento.title} style={{ width: '100%', height: 160, objectFit: 'cover' }} />
+            : <div style={{ height: 120, background: '#0EA5A0', opacity: 0.7 }} />
+          }
           <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A' }}>{evento.title}</div>
-            {dateLabel && (
-              <div style={{ fontSize: 12.5, color: '#8A8A8A' }}>{dateLabel}</div>
-            )}
-            {evento.location_name && (
-              <div style={{ fontSize: 12.5, color: '#8A8A8A' }}>{evento.location_name}</div>
-            )}
+            {dateLabel && <div style={{ fontSize: 12.5, color: '#8A8A8A' }}>{dateLabel}</div>}
+            {evento.location_name && <div style={{ fontSize: 12.5, color: '#8A8A8A' }}>{evento.location_name}</div>}
           </div>
         </div>
 
@@ -187,33 +227,20 @@ export default function CheckoutPage() {
         {!evento.is_free && (
           <div style={{
             background: '#fff', borderRadius: 16, border: '1px solid #EFEFEF',
-            padding: '16px',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <span style={{ fontSize: 15, fontWeight: 600, color: '#1A1A1A' }}>Quantidade</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <button
                 onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                style={{
-                  width: 36, height: 36, borderRadius: 999,
-                  border: '1.5px solid #E8E8E8', background: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer',
-                }}
+                style={{ width: 36, height: 36, borderRadius: 999, border: '1.5px solid #E8E8E8', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
               >
                 <IconMinus />
               </button>
-              <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A', minWidth: 20, textAlign: 'center' }}>
-                {quantity}
-              </span>
+              <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A', minWidth: 20, textAlign: 'center' }}>{quantity}</span>
               <button
                 onClick={() => setQuantity(q => Math.min(10, q + 1))}
-                style={{
-                  width: 36, height: 36, borderRadius: 999,
-                  border: '1.5px solid #E8E8E8', background: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: 'pointer',
-                }}
+                style={{ width: 36, height: 36, borderRadius: 999, border: '1.5px solid #E8E8E8', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
               >
                 <IconPlus />
               </button>
@@ -223,11 +250,7 @@ export default function CheckoutPage() {
 
         {/* Breakdown de preço */}
         {!evento.is_free && (
-          <div style={{
-            background: '#fff', borderRadius: 16, border: '1px solid #EFEFEF',
-            padding: '16px',
-            display: 'flex', flexDirection: 'column', gap: 10,
-          }}>
+          <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #EFEFEF', padding: '16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 14, color: '#5A5A5A' }}>Ingresso × {quantity}</span>
               <span style={{ fontSize: 14, color: '#1A1A1A', fontWeight: 500 }}>R$ {fmt(subtotal)}</span>
@@ -245,6 +268,80 @@ export default function CheckoutPage() {
               <span style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>Total</span>
               <span style={{ fontSize: 15, fontWeight: 800, color: '#1A1A1A' }}>R$ {fmt(total)}</span>
             </div>
+          </div>
+        )}
+
+        {/* Seleção de forma de pagamento */}
+        {!evento.is_free && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: '#5A5A5A' }}>Forma de pagamento</div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              {(['pix', 'credit_card'] as PaymentMethod[]).map(method => {
+                const selected = payMethod === method
+                return (
+                  <button
+                    key={method}
+                    onClick={() => setPayMethod(method)}
+                    style={{
+                      flex: 1, display: 'flex', flexDirection: 'column',
+                      alignItems: 'center', gap: 6, padding: '14px 10px',
+                      borderRadius: 12,
+                      border: selected ? '2px solid #0EA5A0' : '1px solid #E8E8E8',
+                      background: selected ? '#E6F7F6' : '#fff',
+                      cursor: 'pointer', transition: 'all 150ms ease',
+                    }}
+                  >
+                    {method === 'pix' ? <IconPix active={selected} /> : <IconCard active={selected} />}
+                    <span style={{ fontSize: 14, fontWeight: 700, color: selected ? '#0EA5A0' : '#1A1A1A', fontFamily: "'Noto Sans', sans-serif" }}>
+                      {method === 'pix' ? 'PIX' : 'Cartão'}
+                    </span>
+                    <span style={{ fontSize: 11, color: '#8A8A8A', fontFamily: "'Noto Sans', sans-serif" }}>
+                      {method === 'pix' ? 'Aprovação imediata' : 'Crédito à vista'}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Formulário de cartão */}
+        {!evento.is_free && payMethod === 'credit_card' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <input
+              type="text"
+              inputMode="numeric"
+              placeholder="Número do cartão"
+              value={cardNumber}
+              onChange={e => setCardNumber(maskCard(e.target.value))}
+              style={INPUT_STYLE}
+            />
+            <div style={{ display: 'flex', gap: 10 }}>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="Validade (MM/AA)"
+                value={cardExpiry}
+                onChange={e => setCardExpiry(maskExpiry(e.target.value))}
+                style={{ ...INPUT_STYLE, flex: 1 }}
+              />
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="CVV"
+                maxLength={3}
+                value={cardCvv}
+                onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                style={{ ...INPUT_STYLE, flex: 1 }}
+              />
+            </div>
+            <input
+              type="text"
+              placeholder="Nome no cartão"
+              value={cardName}
+              onChange={e => setCardName(e.target.value.toUpperCase())}
+              style={INPUT_STYLE}
+            />
           </div>
         )}
       </div>
@@ -271,7 +368,7 @@ export default function CheckoutPage() {
             transition: 'background 200ms ease',
           }}
         >
-          {loading ? 'Processando...' : 'Pagar com PIX'}
+          {btnLabel}
         </button>
       </div>
     </div>

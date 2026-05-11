@@ -37,7 +37,7 @@ export default function PagamentoPage() {
 
   const [copied, setCopied] = useState(false)
   const [secondsLeft, setSecondsLeft] = useState(() => {
-    if (!expiresAt) return 3600
+    if (!expiresAt) return 900
     const diff = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)
     return Math.max(0, diff)
   })
@@ -77,7 +77,7 @@ export default function PagamentoPage() {
 
   const minutes = Math.floor(secondsLeft / 60)
   const seconds = secondsLeft % 60
-  const isUrgent = secondsLeft < 300
+  const isUrgent = secondsLeft < 120
 
   return (
     <div style={{
