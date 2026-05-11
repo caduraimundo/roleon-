@@ -388,7 +388,7 @@ export default function EventoPage() {
         )}
       </div>
 
-      <EventoCTA isFree={ev.isFree} price={ev.price} fee={ev.fee} />
+      <EventoCTA id={ev.id} isFree={ev.isFree} price={ev.price} fee={ev.fee} />
       <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
 
       {toast && (

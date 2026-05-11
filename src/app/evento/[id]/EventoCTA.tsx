@@ -1,16 +1,19 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import AuthSheet from '../../../components/AuthSheet'
 
 interface EventoCTAProps {
+  id: string
   isFree: boolean
   price: number
   fee: number
 }
 
-export default function EventoCTA({ isFree, price, fee }: EventoCTAProps) {
+export default function EventoCTA({ id, isFree, price, fee }: EventoCTAProps) {
+  const router = useRouter()
   const [authed,    setAuthed]    = useState(false)
   const [showAuth,  setShowAuth]  = useState(false)
 
@@ -27,7 +30,9 @@ export default function EventoCTA({ isFree, price, fee }: EventoCTAProps) {
 
   const handleCTA = () => {
     if (!authed) { setShowAuth(true); return }
-    // TODO: lógica de compra / participação
+    if (!isFree) {
+      router.push(`/checkout/${id}`)
+    }
   }
 
   return (
