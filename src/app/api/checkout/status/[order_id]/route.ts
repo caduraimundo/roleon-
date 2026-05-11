@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { order_id: string } }
+  { params }: { params: Promise<{ order_id: string }> }
 ) {
-  const { order_id } = params
+  const { order_id } = await params
   const isMock = process.env.PAGARME_API_KEY === 'ak_test_placeholder'
 
   if (isMock) {
