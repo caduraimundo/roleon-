@@ -130,11 +130,12 @@ export default function CheckoutPage() {
   const [quantity,  setQuantity]  = useState(1)
   const [loading,   setLoading]   = useState(false)
   const [user,      setUser]      = useState<{ id: string; email: string; name: string } | null>(null)
-  const [payMethod, setPayMethod] = useState<PaymentMethod>('pix')
-  const [cardNumber, setCardNumber] = useState('')
-  const [cardExpiry, setCardExpiry] = useState('')
-  const [cardCvv,    setCardCvv]   = useState('')
-  const [cardName,   setCardName]  = useState('')
+  const [payMethod,   setPayMethod]   = useState<PaymentMethod>('pix')
+  const [emailInput,  setEmailInput]  = useState('')
+  const [cardNumber,  setCardNumber]  = useState('')
+  const [cardExpiry,  setCardExpiry]  = useState('')
+  const [cardCvv,     setCardCvv]    = useState('')
+  const [cardName,    setCardName]   = useState('')
 
   useEffect(() => {
     supabase
@@ -146,11 +147,13 @@ export default function CheckoutPage() {
 
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
+        const email = data.user.email ?? ''
         setUser({
           id:    data.user.id,
-          email: data.user.email ?? '',
-          name:  data.user.user_metadata?.full_name ?? data.user.email ?? '',
+          email,
+          name:  data.user.user_metadata?.full_name ?? email,
         })
+        setEmailInput(email)
       }
     })
   }, [id])
@@ -181,7 +184,7 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           event_id: id, quantity,
-          user_id: user.id, user_email: user.email, user_name: user.name,
+          user_id: user.id, user_email: emailInput || user.email, user_name: user.name,
           payment_method: payMethod,
         }),
       })
@@ -333,16 +336,25 @@ export default function CheckoutPage() {
         {user && (
           <div>
             <div style={SECTION_LABEL}>E-mail para envio</div>
-            <div style={{ ...CARD, padding: '12px 14px' }}>
-              <div style={{ fontSize: 10, fontWeight: 600, color: '#6E6E73', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: '#6E6E73', textTransform: 'uppercase', letterSpacing: 0.6 }}>
                 E-mail
               </div>
-              <div style={{ fontSize: 14, color: '#1A1A1A', fontWeight: 500 }}>
-                {user.email}
-              </div>
+              <input
+                type="email"
+                inputMode="email"
+                value={emailInput}
+                onChange={e => setEmailInput(e.target.value)}
+                style={{
+                  border: '1px solid #E8E8E8', borderRadius: 10, padding: '12px 14px',
+                  fontSize: 14, fontFamily: "'Noto Sans', sans-serif",
+                  background: '#fff', color: '#1A1A1A', outline: 'none', width: '100%',
+                  boxSizing: 'border-box',
+                }}
+              />
             </div>
             <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 6 }}>
-              O ingresso será enviado pra esse e-mail
+              O ingresso será enviado para esse e-mail
             </div>
           </div>
         )}
