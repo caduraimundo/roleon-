@@ -295,11 +295,11 @@ export default function CheckoutPage() {
                 disabled={quantity === 1}
                 style={{
                   width: 32, height: 32, borderRadius: 999,
-                  border: `1.5px solid ${quantity === 1 ? '#E8E8E8' : '#0EA5A0'}`,
+                  border: '1.5px solid #E8E8E8',
                   background: '#fff',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   cursor: quantity === 1 ? 'not-allowed' : 'pointer',
-                  opacity: quantity === 1 ? 0.5 : 1,
+                  opacity: quantity === 1 ? 0.4 : 1,
                 }}
               >
                 <IconMinus />
