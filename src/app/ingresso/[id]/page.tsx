@@ -9,10 +9,12 @@ interface Ticket {
   event_id: string
   user_id: string
   price_paid: number
+  qr_code: string
   status: string
+  created_at: string
 }
 
-interface EventoInfo {
+interface EventInfo {
   title: string
   event_date: string | null
   location_name: string | null
@@ -20,9 +22,124 @@ interface EventoInfo {
 
 function IconArrowLeft() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M12 4L7 10l5 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+      <path fill="none" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M19 12H5M12 5l-7 7 7 7"/>
     </svg>
+  )
+}
+
+function IconCalendar() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+      <path fill="none" stroke="#6E6E73" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M8 2v3M16 2v3M3 8h18M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/>
+    </svg>
+  )
+}
+
+function IconLocation() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+      <path fill="none" stroke="#6E6E73" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+    </svg>
+  )
+}
+
+function capitalize(s: string) {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+function formatDate(dateStr: string) {
+  const d = new Date(dateStr)
+  return capitalize(
+    d.toLocaleDateString('pt-BR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  )
+}
+
+function formatTime(dateStr: string) {
+  const d = new Date(dateStr)
+  return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+}
+
+function formatTicketNumber(id: string) {
+  return `#${id.slice(-4).toUpperCase()}`
+}
+
+function LoadingScreen() {
+  return (
+    <div style={{
+      minHeight: '100dvh', background: '#F9F9F9',
+      fontFamily: "'Noto Sans', sans-serif",
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
+        <circle cx="16" cy="16" r="13" stroke="#E0E0E0" strokeWidth="3"/>
+        <path d="M16 3a13 13 0 0113 13" stroke="#0EA5A0" strokeWidth="3" strokeLinecap="round"/>
+        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      </svg>
+    </div>
+  )
+}
+
+function ErrorScreen({ message, onBack }: { message: string; onBack: () => void }) {
+  return (
+    <div style={{
+      minHeight: '100dvh', background: '#F9F9F9',
+      fontFamily: "'Noto Sans', sans-serif",
+      display: 'flex', flexDirection: 'column',
+    }}>
+      <div style={{
+        position: 'sticky', top: 0, zIndex: 50,
+        background: '#fff',
+        boxShadow: '0 1px 0 rgba(0,0,0,0.08)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
+      }}>
+        <button
+          onClick={onBack}
+          aria-label="Voltar"
+          style={{
+            position: 'absolute', left: 16,
+            top: 'calc(env(safe-area-inset-top, 0px) + 10px)',
+            width: 36, height: 36, borderRadius: 999,
+            background: 'transparent', border: 0, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          <IconArrowLeft />
+        </button>
+        <span style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A' }}>Meu Ingresso</span>
+      </div>
+      <div style={{
+        flex: 1, display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: '40px 24px', gap: 16,
+      }}>
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="20" stroke="#E53935" strokeWidth="2"/>
+          <path d="M24 14v14M24 32v3" stroke="#E53935" strokeWidth="2.5" strokeLinecap="round"/>
+        </svg>
+        <div style={{ fontSize: 16, fontWeight: 600, color: '#1A1A1A', textAlign: 'center' }}>
+          {message}
+        </div>
+        <button
+          onClick={onBack}
+          style={{
+            marginTop: 8, padding: '12px 28px', borderRadius: 12,
+            background: '#0EA5A0', color: '#fff',
+            border: 0, cursor: 'pointer',
+            fontSize: 15, fontWeight: 600,
+            fontFamily: "'Noto Sans', sans-serif",
+          }}
+        >
+          Voltar
+        </button>
+      </div>
+    </div>
   )
 }
 
@@ -32,18 +149,36 @@ export default function IngressoPage() {
   const ticketId = String(params.id)
 
   const [ticket, setTicket] = useState<Ticket | null>(null)
-  const [evento, setEvento] = useState<EventoInfo | null>(null)
-  const [userName, setUserName] = useState('')
+  const [evento, setEvento] = useState<EventInfo | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
-      const { data: t } = await supabase
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.replace('/login')
+        return
+      }
+
+      const { data: t, error: tErr } = await supabase
         .from('tickets')
-        .select('id, event_id, user_id, price_paid, status')
+        .select('id, event_id, user_id, price_paid, qr_code, status, created_at')
         .eq('id', ticketId)
         .single()
 
-      if (!t) return
+      if (tErr || !t) {
+        setError('Ingresso não encontrado.')
+        setLoading(false)
+        return
+      }
+
+      if ((t as Ticket).user_id !== user.id) {
+        setError('Este ingresso não pertence à sua conta.')
+        setLoading(false)
+        return
+      }
+
       setTicket(t as Ticket)
 
       const { data: ev } = await supabase
@@ -52,24 +187,18 @@ export default function IngressoPage() {
         .eq('id', (t as Ticket).event_id)
         .single()
 
-      if (ev) setEvento(ev as EventoInfo)
-
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setUserName(user.user_metadata?.full_name ?? user.email ?? '')
-      }
+      if (ev) setEvento(ev as EventInfo)
+      setLoading(false)
     }
     load()
-  }, [ticketId])
+  }, [ticketId, router])
 
-  const dateLabel = evento?.event_date
-    ? new Date(evento.event_date).toLocaleDateString('pt-BR', {
-        weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
-      })
-    : null
+  if (loading) return <LoadingScreen />
+  if (error) return <ErrorScreen message={error} onBack={() => router.back()} />
 
-  const shortId = ticketId.slice(-8).toUpperCase()
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ticketId}`
+  const isValid = ticket?.status !== 'used'
+  const qrData = ticket?.qr_code || ticketId
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`
 
   return (
     <div style={{
@@ -77,12 +206,12 @@ export default function IngressoPage() {
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
     }}>
-      {/* Header */}
+
+      {/* Header fixo */}
       <div style={{
         position: 'sticky', top: 0, zIndex: 50,
-        background: 'rgba(249,249,249,0.95)', backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        borderBottom: '0.5px solid rgba(0,0,0,0.08)',
+        background: '#fff',
+        boxShadow: '0 1px 0 rgba(0,0,0,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
       }}>
@@ -95,7 +224,6 @@ export default function IngressoPage() {
             width: 36, height: 36, borderRadius: 999,
             background: 'transparent', border: 0, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#1A1A1A',
           }}
         >
           <IconArrowLeft />
@@ -103,69 +231,120 @@ export default function IngressoPage() {
         <span style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A' }}>Meu Ingresso</span>
       </div>
 
-      <div style={{ flex: 1, padding: '24px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {/* Conteúdo */}
+      <div style={{
+        flex: 1, padding: '28px 20px 48px',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+      }}>
         <div style={{
-          background: '#fff', borderRadius: 16, width: '100%', maxWidth: 360,
-          overflow: 'hidden', boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
+          background: '#fff',
+          borderRadius: 16,
+          width: '100%', maxWidth: 380,
+          boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+          overflow: 'hidden',
         }}>
-          {/* Seção QR Code */}
+
+          {/* Seção superior: infos do evento */}
+          <div style={{ padding: '24px 24px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+            {/* Badge de status */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 5,
+                padding: '4px 10px', borderRadius: 99,
+                background: isValid ? '#E6F7F6' : '#FEE2E2',
+                fontSize: 12, fontWeight: 600,
+                color: isValid ? '#0EA5A0' : '#DC2626',
+              }}>
+                <span style={{
+                  width: 6, height: 6, borderRadius: '50%',
+                  background: isValid ? '#0EA5A0' : '#DC2626',
+                  display: 'inline-block',
+                }} />
+                {isValid ? 'Válido' : 'Utilizado'}
+              </span>
+            </div>
+
+            {/* Nome do evento */}
+            {evento?.title && (
+              <div style={{ fontSize: 20, fontWeight: 700, color: '#1A1A1A', lineHeight: 1.3 }}>
+                {evento.title}
+              </div>
+            )}
+
+            {/* Data e horário */}
+            {evento?.event_date && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                <div style={{ marginTop: 1, flexShrink: 0 }}>
+                  <IconCalendar />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span style={{ fontSize: 13, color: '#1A1A1A', fontWeight: 500 }}>
+                    {formatDate(evento.event_date)}
+                  </span>
+                  <span style={{ fontSize: 13, color: '#6E6E73' }}>
+                    {formatTime(evento.event_date)}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Local */}
+            {evento?.location_name && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ flexShrink: 0 }}>
+                  <IconLocation />
+                </div>
+                <span style={{ fontSize: 13, color: '#6E6E73' }}>{evento.location_name}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Divider estilo ticket perfurado */}
+          <div style={{ position: 'relative', height: 2 }}>
+            <div style={{
+              position: 'absolute', left: -10, top: '50%', transform: 'translateY(-50%)',
+              width: 20, height: 20, borderRadius: '50%',
+              background: '#F9F9F9', zIndex: 1,
+            }} />
+            <div style={{
+              position: 'absolute', right: -10, top: '50%', transform: 'translateY(-50%)',
+              width: 20, height: 20, borderRadius: '50%',
+              background: '#F9F9F9', zIndex: 1,
+            }} />
+            <div style={{ borderTop: '2px dashed #E5E7EB', margin: '0 16px', position: 'relative', top: 1 }} />
+          </div>
+
+          {/* Seção inferior: QR Code + número + rodapé */}
           <div style={{
-            padding: '28px 24px 20px',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
+            padding: '24px 24px 20px',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
           }}>
             <img
               src={qrUrl}
               alt="QR Code do ingresso"
               width={200}
               height={200}
-              style={{ borderRadius: 8 }}
+              style={{ borderRadius: 8, display: 'block' }}
             />
+
             <div style={{
-              fontFamily: 'monospace', fontSize: 13, fontWeight: 600,
-              color: '#5A5A5A', letterSpacing: 1,
+              fontFamily: 'monospace', fontSize: 14, fontWeight: 700,
+              color: '#1A1A1A', letterSpacing: 2,
             }}>
-              N° {shortId}
+              {formatTicketNumber(ticketId)}
+            </div>
+
+            <div style={{
+              width: '100%', paddingTop: 14,
+              borderTop: '1px solid #F2F2F2',
+              textAlign: 'center',
+              fontSize: 12, color: '#6E6E73', lineHeight: 1.5,
+            }}>
+              Apresente este QR Code na entrada do evento
             </div>
           </div>
 
-          {/* Linha tracejada */}
-          <div style={{ position: 'relative', height: 0, overflow: 'visible' }}>
-            <div style={{
-              position: 'absolute', left: -1, top: 0, width: 20, height: 20,
-              background: '#F9F9F9', borderRadius: '0 10px 10px 0',
-              border: '1px solid #EFEFEF', borderLeft: 'none',
-            }} />
-            <div style={{
-              position: 'absolute', right: -1, top: 0, width: 20, height: 20,
-              background: '#F9F9F9', borderRadius: '10px 0 0 10px',
-              border: '1px solid #EFEFEF', borderRight: 'none',
-            }} />
-            <div style={{
-              borderTop: '1.5px dashed #E0E0E0',
-              margin: '0 22px',
-            }} />
-          </div>
-
-          {/* Seção infos */}
-          <div style={{ padding: '20px 24px 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {evento?.title && (
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', lineHeight: 1.3 }}>
-                {evento.title}
-              </div>
-            )}
-            {dateLabel && (
-              <div style={{ fontSize: 12, color: '#8A8A8A' }}>{dateLabel}</div>
-            )}
-            {evento?.location_name && (
-              <div style={{ fontSize: 12, color: '#8A8A8A' }}>{evento.location_name}</div>
-            )}
-            {userName && (
-              <div style={{ fontSize: 12, color: '#8A8A8A' }}>{userName}</div>
-            )}
-            <div style={{ marginTop: 12, textAlign: 'center', fontSize: 12, color: '#B0B0B0' }}>
-              Apresente este QR Code na entrada
-            </div>
-          </div>
         </div>
       </div>
     </div>
