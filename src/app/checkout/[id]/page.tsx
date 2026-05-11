@@ -77,10 +77,10 @@ function IconPlus() {
 function IconPix({ active }: { active: boolean }) {
   const c = active ? '#0EA5A0' : '#6E6E73'
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path d="M12 2L22 12L12 22L2 12L12 2Z" stroke={c} strokeWidth="1.5"/>
-      <path d="M8.5 10.5 Q10 8.5 12 10.5 Q14 12.5 15.5 10.5" stroke={c} strokeWidth="1.3" strokeLinecap="round" fill="none"/>
-      <path d="M8.5 13.5 Q10 11.5 12 13.5 Q14 15.5 15.5 13.5" stroke={c} strokeWidth="1.3" strokeLinecap="round" fill="none"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="28" height="28" fill="none" color={c}>
+      <path fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" d="M11.9,12h-0.68l8.04-8.04c2.62-2.61,6.86-2.61,9.48,0L36.78,12H36.1c-1.6,0-3.11,0.62-4.24,1.76l-6.8,6.77c-0.59,0.59-1.53,0.59-2.12,0l-6.8-6.77C15.01,12.62,13.5,12,11.9,12z"/>
+      <path fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" d="M36.1,36h0.68l-8.04,8.04c-2.62,2.61-6.86,2.61-9.48,0L11.22,36h0.68c1.6,0,3.11-0.62,4.24-1.76l6.8-6.77c0.59-0.59,1.53-0.59,2.12,0l6.8,6.77C32.99,35.38,34.5,36,36.1,36z"/>
+      <path fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" d="M44.04,28.74L38.78,34H36.1c-1.07,0-2.07-0.42-2.83-1.17l-6.8-6.78c-1.36-1.36-3.58-1.36-4.94,0l-6.8,6.78C13.97,33.58,12.97,34,11.9,34H9.22l-5.26-5.26c-2.61-2.62-2.61-6.86,0-9.48L9.22,14h2.68c1.07,0,2.07,0.42,2.83,1.17l6.8,6.78c0.68,0.68,1.58,1.02,2.47,1.02s1.79-0.34,2.47-1.02l6.8-6.78C34.03,14.42,35.03,14,36.1,14h2.68l5.26,5.26C46.65,21.88,46.65,26.12,44.04,28.74z"/>
     </svg>
   )
 }

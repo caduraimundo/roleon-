@@ -9,20 +9,32 @@ function getSupabase() {
 }
 
 export async function POST(req: NextRequest) {
-  const isMock = process.env.PAGARME_API_KEY === 'ak_test_placeholder' || !process.env.PAGARME_API_KEY
+  const isMock = !process.env.PAGARME_API_KEY || process.env.PAGARME_API_KEY === 'ak_test_placeholder'
 
-  console.log('ENV CHECK:', {
-    hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-    hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    hasSupabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
-    isMock,
-  })
+  const body = await req.json()
 
+  if (isMock) {
+    if (body.payment_method === 'credit_card') {
+      return NextResponse.json({
+        order_id: 'mock_card_' + Date.now(),
+        payment_method: 'credit_card',
+        status: 'paid',
+        ticket_id: 'mock_ticket_' + Date.now(),
+      })
+    }
+
+    return NextResponse.json({
+      order_id: 'mock_order_' + Date.now(),
+      qr_code_url: 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ROLEON_PIX_MOCK',
+      pix_code: '00020101021226870014br.gov.bcb.pix',
+      amount: body.amount || 5000,
+      expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    })
+  }
+
+  // ── Pagar.me real ────────────────────────────────────────────────────────
   try {
-    const body = await req.json()
     const { event_id, quantity, user_id, user_email, user_name, payment_method } = body
-
-    console.log('[checkout] body:', { event_id, quantity, user_id, payment_method })
 
     if (!event_id || !quantity) {
       return NextResponse.json({ error: 'Campos obrigatórios ausentes: event_id, quantity' }, { status: 400 })
@@ -36,92 +48,16 @@ export async function POST(req: NextRequest) {
       .eq('id', event_id)
       .single()
 
-    if (eventError) {
+    if (eventError || !event) {
       console.error('[checkout] erro ao buscar evento:', eventError)
-      return NextResponse.json({ error: 'Evento não encontrado', detail: eventError.message }, { status: 404 })
-    }
-    if (!event) {
-      return NextResponse.json({ error: 'Evento não encontrado' }, { status: 404 })
+      return NextResponse.json({ error: 'Evento não encontrado', detail: eventError?.message }, { status: 404 })
     }
 
     const price = Number(event.price) || 0
     const subtotal = price * quantity
-    const roleonFee = subtotal * 0.04
-    const operationalFee = subtotal * 0.0119 + 0.99
-    const total = subtotal + roleonFee + operationalFee
+    const total = subtotal + subtotal * 0.04 + subtotal * 0.0119 + 0.99
     const amountCents = Math.round(total * 100)
 
-    if (isMock) {
-      if (payment_method === 'credit_card') {
-        const insertPayload: Record<string, unknown> = {
-          event_id,
-          price_paid: total,
-          status: 'paid',
-        }
-        if (user_id) insertPayload.user_id = user_id
-
-        console.log('[checkout] mock credit_card insert:', insertPayload)
-
-        const { data: ticket, error: ticketError } = await supabase
-          .from('tickets')
-          .insert(insertPayload)
-          .select('id')
-          .single()
-
-        if (ticketError) {
-          console.error('[checkout] erro insert ticket (credit_card):', ticketError)
-          return NextResponse.json(
-            { error: ticketError.message, detail: ticketError.details, hint: ticketError.hint },
-            { status: 500 }
-          )
-        }
-
-        console.log('[checkout] ticket criado:', ticket?.id)
-        return NextResponse.json({
-          order_id: 'mock_card_' + Date.now(),
-          payment_method: 'credit_card',
-          status: 'paid',
-          ticket_id: ticket?.id ?? 'mock_ticket_card',
-        })
-      }
-
-      // PIX mock
-      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString()
-      const mockOrderId = `mock_order_${Date.now()}`
-      const mockQrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ROLEON_PIX_MOCK'
-
-      const insertPayload: Record<string, unknown> = {
-        event_id,
-        price_paid: total,
-        qr_code: mockQrUrl,
-        status: 'pending',
-      }
-      if (user_id) insertPayload.user_id = user_id
-
-      console.log('[checkout] mock pix insert:', insertPayload)
-
-      const { error: ticketError } = await supabase
-        .from('tickets')
-        .insert(insertPayload)
-
-      if (ticketError) {
-        console.error('[checkout] erro insert ticket (pix):', ticketError)
-        return NextResponse.json(
-          { error: ticketError.message, detail: ticketError.details, hint: ticketError.hint },
-          { status: 500 }
-        )
-      }
-
-      return NextResponse.json({
-        order_id: mockOrderId,
-        qr_code_url: mockQrUrl,
-        pix_code: '00020101021226870014br.gov.bcb.pix2565api.roleon.com.br/pix/v2/key/roleon5204000053039865802BR5925Roleon Eventos Ltda6009Sao Paulo62070503***63041234',
-        amount: amountCents,
-        expires_at: expiresAt,
-      })
-    }
-
-    // ── Pagar.me real ────────────────────────────────────────────────────────
     const pagarmeRes = await fetch('https://api.pagar.me/core/v5/orders', {
       method: 'POST',
       headers: {
@@ -132,8 +68,8 @@ export async function POST(req: NextRequest) {
         customer: { name: user_name, email: user_email },
         items: [{ amount: amountCents, description: event.title, quantity: 1 }],
         payments: [{
-          payment_method: 'pix',
-          pix: { expires_in: 3600 },
+          payment_method: payment_method === 'credit_card' ? 'credit_card' : 'pix',
+          pix: payment_method !== 'credit_card' ? { expires_in: 3600 } : undefined,
         }],
       }),
     })
@@ -156,9 +92,7 @@ export async function POST(req: NextRequest) {
     if (user_id) insertPayload.user_id = user_id
 
     const { error: ticketError } = await supabase.from('tickets').insert(insertPayload)
-    if (ticketError) {
-      console.error('[checkout] erro insert ticket (pagar.me):', ticketError)
-    }
+    if (ticketError) console.error('[checkout] erro insert ticket:', ticketError)
 
     return NextResponse.json({
       order_id: order.id,
@@ -171,9 +105,6 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     const error = err instanceof Error ? err : new Error(String(err))
     console.error('[checkout] erro inesperado:', error)
-    if (process.env.PAGARME_API_KEY === 'ak_test_placeholder') {
-      return NextResponse.json({ error: error.message, stack: error.stack }, { status: 500 })
-    }
-    return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
