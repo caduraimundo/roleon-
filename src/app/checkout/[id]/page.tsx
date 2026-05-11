@@ -20,22 +20,14 @@ function fmt(n: number) {
   return n.toFixed(2).replace('.', ',')
 }
 
-function initials(title: string) {
-  const words = title.trim().split(/\s+/)
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
-  return (words[0][0] + words[1][0]).toUpperCase()
-}
-
 function formatDate(iso: string) {
   const d = new Date(iso)
-  const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
-  const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
-  const wd = weekdays[d.getDay()]
+  const wds = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+  const mons = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
   const day = String(d.getDate()).padStart(2, '0')
-  const mon = months[d.getMonth()]
-  const hh = String(d.getHours()).padStart(2, '0')
-  const mm = String(d.getMinutes()).padStart(2, '0')
-  return `${wd}, ${day} ${mon} · ${hh}:${mm}`
+  const hh  = String(d.getHours()).padStart(2, '0')
+  const mm  = String(d.getMinutes()).padStart(2, '0')
+  return { date: `${wds[d.getDay()]}, ${day} ${mons[d.getMonth()]}`, time: `${hh}:${mm}` }
 }
 
 // ── Ícones ────────────────────────────────────────────────────────────────────
@@ -44,6 +36,24 @@ function IconArrowLeft() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
       <path d="M11 4L6 9l5 5" stroke="#1A1A1A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
+function IconCalendar() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
+      <rect x="1" y="2" width="10" height="9" rx="1.5" stroke="#6E6E73" strokeWidth="1.2"/>
+      <path d="M1 5h10M4 1v2M8 1v2" stroke="#6E6E73" strokeWidth="1.2" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function IconClock() {
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ flexShrink: 0 }}>
+      <circle cx="6" cy="6" r="4.5" stroke="#6E6E73" strokeWidth="1.2"/>
+      <path d="M6 3.5v2.5l1.5 1.5" stroke="#6E6E73" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
 }
@@ -68,21 +78,9 @@ function IconPix({ active }: { active: boolean }) {
   const c = active ? '#0EA5A0' : '#8A8A8A'
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      {/* Losango externo */}
-      <path
-        d="M12 2L22 12L12 22L2 12L12 2Z"
-        stroke={c} strokeWidth="1.5" fill="none"
-      />
-      {/* Onda superior */}
-      <path
-        d="M7 10 Q9 8 12 10 Q15 12 17 10"
-        stroke={c} strokeWidth="1.4" strokeLinecap="round" fill="none"
-      />
-      {/* Onda inferior */}
-      <path
-        d="M7 14 Q9 12 12 14 Q15 16 17 14"
-        stroke={c} strokeWidth="1.4" strokeLinecap="round" fill="none"
-      />
+      <path d="M12 2L22 12L12 22L2 12L12 2Z" stroke={c} strokeWidth="1.5" fill="none"/>
+      <path d="M7 10 Q9 8 12 10 Q15 12 17 10" stroke={c} strokeWidth="1.4" strokeLinecap="round" fill="none"/>
+      <path d="M7 14 Q9 12 12 14 Q15 16 17 14" stroke={c} strokeWidth="1.4" strokeLinecap="round" fill="none"/>
     </svg>
   )
 }
@@ -101,21 +99,19 @@ function IconCard({ active }: { active: boolean }) {
 function maskCard(v: string) {
   return v.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim()
 }
-
 function maskExpiry(v: string) {
   const d = v.replace(/\D/g, '').slice(0, 4)
   return d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d
 }
 
-const LABEL: React.CSSProperties = {
+const SECTION_LABEL: React.CSSProperties = {
   fontSize: 11, fontWeight: 600, color: '#6E6E73',
-  textTransform: 'uppercase', letterSpacing: 0.6,
+  textTransform: 'uppercase', letterSpacing: 0.7,
+  marginBottom: 8,
 }
-
 const CARD: React.CSSProperties = {
   background: '#fff', borderRadius: 12, border: '1px solid #EFEFEF',
 }
-
 const INPUT_STYLE: React.CSSProperties = {
   border: '1px solid #E8E8E8', borderRadius: 10, padding: '12px 14px',
   fontSize: 15, fontFamily: "'Noto Sans', sans-serif",
@@ -126,19 +122,19 @@ const INPUT_STYLE: React.CSSProperties = {
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function CheckoutPage() {
-  const params = useParams()
-  const router = useRouter()
-  const id = String(params.id)
+  const params  = useParams()
+  const router  = useRouter()
+  const id      = String(params.id)
 
-  const [evento, setEvento] = useState<EventoCheckout | null>(null)
-  const [quantity, setQuantity] = useState(1)
-  const [loading, setLoading] = useState(false)
-  const [user, setUser] = useState<{ id: string; email: string; name: string } | null>(null)
+  const [evento,    setEvento]    = useState<EventoCheckout | null>(null)
+  const [quantity,  setQuantity]  = useState(1)
+  const [loading,   setLoading]   = useState(false)
+  const [user,      setUser]      = useState<{ id: string; email: string; name: string } | null>(null)
   const [payMethod, setPayMethod] = useState<PaymentMethod>('pix')
   const [cardNumber, setCardNumber] = useState('')
   const [cardExpiry, setCardExpiry] = useState('')
-  const [cardCvv, setCardCvv] = useState('')
-  const [cardName, setCardName] = useState('')
+  const [cardCvv,    setCardCvv]   = useState('')
+  const [cardName,   setCardName]  = useState('')
 
   useEffect(() => {
     supabase
@@ -151,9 +147,9 @@ export default function CheckoutPage() {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) {
         setUser({
-          id: data.user.id,
+          id:    data.user.id,
           email: data.user.email ?? '',
-          name: data.user.user_metadata?.full_name ?? data.user.email ?? '',
+          name:  data.user.user_metadata?.full_name ?? data.user.email ?? '',
         })
       }
     })
@@ -162,18 +158,19 @@ export default function CheckoutPage() {
   if (!evento) {
     return (
       <div style={{ minHeight: '100dvh', background: '#F9F9F9', fontFamily: "'Noto Sans', sans-serif" }}>
-        <div style={{ height: 80, background: '#fff', borderBottom: '0.5px solid #EFEFEF' }} />
+        <div style={{ height: 60, background: '#fff', borderBottom: '0.5px solid #EFEFEF' }} />
       </div>
     )
   }
 
-  const price = Number(evento.price) || 0
+  const price    = Number(evento.price) || 0
   const subtotal = price * quantity
   const totalFee = subtotal * 0.04 + subtotal * 0.0119 + 0.99
-  const total = subtotal + totalFee
+  const total    = subtotal + totalFee
 
-  const dateLabel = evento.event_date ? formatDate(evento.event_date) : null
-  const initStr = initials(evento.title)
+  const feePerTicket = price * 0.04 + price * 0.0119 + 0.99
+
+  const parsed   = evento.event_date ? formatDate(evento.event_date) : null
 
   const handlePagar = async () => {
     if (loading || !user) return
@@ -183,25 +180,19 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          event_id: id,
-          quantity,
-          user_id: user.id,
-          user_email: user.email,
-          user_name: user.name,
+          event_id: id, quantity,
+          user_id: user.id, user_email: user.email, user_name: user.name,
           payment_method: payMethod,
         }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Erro')
-
       if (payMethod === 'credit_card') {
         router.push(`/ingresso/${data.ticket_id}`)
       } else {
         const sp = new URLSearchParams({
-          qr_code_url: data.qr_code_url,
-          pix_code: data.pix_code,
-          amount: String(data.amount),
-          expires_at: data.expires_at,
+          qr_code_url: data.qr_code_url, pix_code: data.pix_code,
+          amount: String(data.amount), expires_at: data.expires_at,
         })
         router.push(`/pagamento/${data.order_id}?${sp.toString()}`)
       }
@@ -219,170 +210,177 @@ export default function CheckoutPage() {
       minHeight: '100dvh', background: '#F9F9F9',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
-      paddingBottom: 100,
+      paddingBottom: 96,
     }}>
 
       {/* ── HEADER ── */}
       <div style={{
         background: '#fff',
         borderBottom: '0.5px solid rgba(0,0,0,0.07)',
-        padding: 'calc(env(safe-area-inset-top, 0px) + 16px) 20px 14px',
+        display: 'flex', alignItems: 'center',
+        padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
+        gap: 12,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-
-          {/* Botão voltar */}
-          <button
-            onClick={() => router.back()}
-            aria-label="Voltar"
-            style={{
-              width: 36, height: 36, borderRadius: 999,
-              background: '#F2F2F2', border: 0, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <IconArrowLeft />
-          </button>
-
-          {/* Título central */}
-          <div style={{ textAlign: 'center', flex: 1, padding: '0 12px' }}>
-            <div style={{ fontSize: 11, fontWeight: 600, color: '#6E6E73', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 2 }}>
-              Passo 1 de 2
-            </div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#1A1A1A', lineHeight: 1.2 }}>
-              Ingressos
-            </div>
-          </div>
-
-          {/* Barra de progresso */}
-          <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-            <div style={{ width: 20, height: 4, borderRadius: 2, background: '#0EA5A0' }} />
-            <div style={{ width: 20, height: 4, borderRadius: 2, background: '#E8E8E8' }} />
-          </div>
-        </div>
+        <button
+          onClick={() => router.back()}
+          aria-label="Voltar"
+          style={{
+            width: 32, height: 32, borderRadius: 999,
+            background: 'transparent', border: 0, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0, padding: 0,
+          }}
+        >
+          <IconArrowLeft />
+        </button>
+        <span style={{ fontSize: 18, fontWeight: 700, color: '#1A1A1A' }}>Checkout</span>
       </div>
 
       {/* ── CONTEÚDO ── */}
-      <div style={{ flex: 1, padding: '20px 16px 0', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ flex: 1, padding: '20px 16px 0', display: 'flex', flexDirection: 'column', gap: 24 }}>
 
-        {/* Card do evento */}
-        <div style={{ ...CARD, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{
-            width: 56, height: 56, borderRadius: 8, flexShrink: 0,
-            background: '#0EA5A0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18, fontWeight: 800, color: '#fff',
-            letterSpacing: -0.5,
-          }}>
-            {initStr}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {evento.title}
-            </div>
-            {dateLabel && (
-              <div style={{ fontSize: 12, color: '#6E6E73', marginBottom: 2 }}>{dateLabel}</div>
-            )}
-            {evento.location_name && (
-              <div style={{ fontSize: 12, color: '#6E6E73', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {evento.location_name}
+        {/* RESUMO DO INGRESSO */}
+        <div>
+          <div style={SECTION_LABEL}>Resumo do ingresso</div>
+          <div style={{ ...CARD, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
+            {/* Thumbnail */}
+            {evento.cover_image ? (
+              <img
+                src={evento.cover_image}
+                alt={evento.title}
+                style={{ width: 72, height: 72, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }}
+              />
+            ) : (
+              <div style={{
+                width: 72, height: 72, borderRadius: 8, flexShrink: 0,
+                background: '#0EA5A0',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: 0.5,
+                textTransform: 'uppercase', textAlign: 'center', padding: 4,
+              }}>
+                {evento.title.split(/\s+/).slice(0, 2).join('\n')}
               </div>
             )}
+
+            {/* Info */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {evento.title}
+              </div>
+              {parsed && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6 }}>
+                  <IconCalendar />
+                  <span style={{ fontSize: 12, color: '#6E6E73' }}>{parsed.date}</span>
+                  <IconClock />
+                  <span style={{ fontSize: 12, color: '#6E6E73' }}>{parsed.time}</span>
+                </div>
+              )}
+              {/* Badge quantidade */}
+              <div style={{
+                display: 'inline-flex', alignItems: 'center',
+                background: '#F2F2F2', borderRadius: 6,
+                padding: '3px 8px',
+                fontSize: 12, fontWeight: 600, color: '#3A3A3A',
+              }}>
+                {quantity} ingresso{quantity !== 1 ? 's' : ''} · Pista
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Seletor de lote / quantidade */}
+        {/* SELETOR DE QUANTIDADE */}
         {!evento.is_free && (
-          <div style={{ ...CARD, padding: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', marginBottom: 3 }}>
-                  Pista — Lote 1
-                </div>
-                <div style={{ fontSize: 12, color: '#6E6E73' }}>
-                  R$ {fmt(price)} + R$ {fmt(totalFee / quantity)} taxa
-                </div>
+          <div style={{ ...CARD, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A', marginBottom: 3 }}>
+                Pista — Lote 1
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <button
-                  onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                  style={{
-                    width: 32, height: 32, borderRadius: 999,
-                    border: '1.5px solid #E8E8E8', background: '#fff',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <IconMinus />
-                </button>
-                <span style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', minWidth: 18, textAlign: 'center' }}>
-                  {quantity}
-                </span>
-                <button
-                  onClick={() => setQuantity(q => Math.min(10, q + 1))}
-                  style={{
-                    width: 32, height: 32, borderRadius: 999,
-                    border: '1.5px solid #E8E8E8', background: '#fff',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <IconPlus />
-                </button>
+              <div style={{ fontSize: 12, color: '#0EA5A0', fontWeight: 500 }}>
+                R$ {fmt(price)} + R$ {fmt(feePerTicket)} taxa
               </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <button
+                onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                style={{
+                  width: 32, height: 32, borderRadius: 999,
+                  border: '1.5px solid #E8E8E8', background: '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                <IconMinus />
+              </button>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', minWidth: 16, textAlign: 'center' }}>
+                {quantity}
+              </span>
+              <button
+                onClick={() => setQuantity(q => Math.min(10, q + 1))}
+                style={{
+                  width: 32, height: 32, borderRadius: 999,
+                  border: '1.5px solid #E8E8E8', background: '#fff',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                <IconPlus />
+              </button>
             </div>
           </div>
         )}
 
-        {/* E-mail para envio */}
+        {/* E-MAIL PARA ENVIO */}
         {user && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={LABEL}>E-mail para envio</div>
-            <div style={{
-              background: '#F9F9F9', border: '1px solid #EFEFEF', borderRadius: 10, padding: '12px 14px',
-            }}>
-              <div style={{ fontSize: 14, color: '#1A1A1A', fontWeight: 500 }}>{user.email}</div>
+          <div>
+            <div style={SECTION_LABEL}>E-mail para envio</div>
+            <div style={{ ...CARD, padding: '12px 14px' }}>
+              <div style={{ fontSize: 10, fontWeight: 600, color: '#6E6E73', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>
+                E-mail
+              </div>
+              <div style={{ fontSize: 14, color: '#1A1A1A', fontWeight: 500 }}>
+                {user.email}
+              </div>
             </div>
-            <div style={{ fontSize: 12, color: '#6E6E73' }}>
-              O ingresso será enviado para esse e-mail
+            <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 6 }}>
+              O ingresso será enviado pra esse e-mail
             </div>
           </div>
         )}
 
-        {/* Detalhes do preço */}
+        {/* DETALHES DO PREÇO */}
         {!evento.is_free && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={LABEL}>Detalhes do preço</div>
-            <div style={{ ...CARD, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: 13, color: '#3A3A3A' }}>Ingresso × {quantity}</span>
+          <div>
+            <div style={SECTION_LABEL}>Detalhes do preço</div>
+            <div style={{ ...CARD, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 13, color: '#3A3A3A' }}>Ingresso</span>
                 <span style={{ fontSize: 13, color: '#3A3A3A' }}>R$ {fmt(subtotal)}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: 13, color: '#3A3A3A' }}>Taxa de serviço</span>
                 <span style={{ fontSize: 13, color: '#3A3A3A' }}>R$ {fmt(totalFee)}</span>
               </div>
               <div style={{ height: 1, background: '#EFEFEF' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>Total</span>
-                <span style={{ fontSize: 15, fontWeight: 800, color: '#0EA5A0' }}>R$ {fmt(total)}</span>
+                <span style={{ fontSize: 15, fontWeight: 800, color: '#1A1A1A' }}>R$ {fmt(total)}</span>
               </div>
             </div>
           </div>
         )}
 
-        {/* Aviso legal */}
-        <div style={{ fontSize: 11, color: '#8A8A8A', textAlign: 'center', lineHeight: 1.6, padding: '0 4px' }}>
+        {/* AVISO LEGAL */}
+        <div style={{ fontSize: 11, color: '#8A8A8A', lineHeight: 1.6 }}>
           Ao continuar, você concorda com os{' '}
           <span style={{ color: '#0EA5A0', fontWeight: 600 }}>Termos de compra</span>
           {' '}e a{' '}
           <span style={{ color: '#0EA5A0', fontWeight: 600 }}>Política de reembolso</span>.
         </div>
 
-        {/* Forma de pagamento */}
+        {/* FORMA DE PAGAMENTO */}
         {!evento.is_free && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={LABEL}>Forma de pagamento</div>
+          <div>
+            <div style={SECTION_LABEL}>Forma de pagamento</div>
             <div style={{ display: 'flex', gap: 10 }}>
               {(['pix', 'credit_card'] as PaymentMethod[]).map(method => {
                 const sel = payMethod === method
@@ -400,11 +398,7 @@ export default function CheckoutPage() {
                     }}
                   >
                     {method === 'pix' ? <IconPix active={sel} /> : <IconCard active={sel} />}
-                    <span style={{
-                      fontSize: 14, fontWeight: 700,
-                      color: sel ? '#0EA5A0' : '#1A1A1A',
-                      fontFamily: "'Noto Sans', sans-serif",
-                    }}>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: sel ? '#0EA5A0' : '#1A1A1A', fontFamily: "'Noto Sans', sans-serif" }}>
                       {method === 'pix' ? 'PIX' : 'Cartão'}
                     </span>
                     <span style={{ fontSize: 11, color: '#8A8A8A', fontFamily: "'Noto Sans', sans-serif" }}>
@@ -417,38 +411,29 @@ export default function CheckoutPage() {
           </div>
         )}
 
-        {/* Formulário de cartão */}
+        {/* FORMULÁRIO DE CARTÃO */}
         {!evento.is_free && payMethod === 'credit_card' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             <input
-              type="text" inputMode="numeric"
-              placeholder="Número do cartão"
-              value={cardNumber}
-              onChange={e => setCardNumber(maskCard(e.target.value))}
+              type="text" inputMode="numeric" placeholder="Número do cartão"
+              value={cardNumber} onChange={e => setCardNumber(maskCard(e.target.value))}
               style={INPUT_STYLE}
             />
             <div style={{ display: 'flex', gap: 10 }}>
               <input
-                type="text" inputMode="numeric"
-                placeholder="Validade (MM/AA)"
-                value={cardExpiry}
-                onChange={e => setCardExpiry(maskExpiry(e.target.value))}
+                type="text" inputMode="numeric" placeholder="Validade (MM/AA)"
+                value={cardExpiry} onChange={e => setCardExpiry(maskExpiry(e.target.value))}
                 style={{ ...INPUT_STYLE, flex: 1 }}
               />
               <input
-                type="text" inputMode="numeric"
-                placeholder="CVV"
-                maxLength={3}
-                value={cardCvv}
-                onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
+                type="text" inputMode="numeric" placeholder="CVV" maxLength={3}
+                value={cardCvv} onChange={e => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 3))}
                 style={{ ...INPUT_STYLE, flex: 1 }}
               />
             </div>
             <input
-              type="text"
-              placeholder="Nome no cartão"
-              value={cardName}
-              onChange={e => setCardName(e.target.value.toUpperCase())}
+              type="text" placeholder="Nome no cartão"
+              value={cardName} onChange={e => setCardName(e.target.value.toUpperCase())}
               style={INPUT_STYLE}
             />
           </div>
@@ -460,7 +445,7 @@ export default function CheckoutPage() {
         position: 'fixed', bottom: 0, left: 0, right: 0,
         background: '#fff',
         borderTop: '0.5px solid rgba(0,0,0,0.07)',
-        padding: '16px 16px calc(env(safe-area-inset-bottom, 0px) + 16px)',
+        padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 12px)',
         zIndex: 50,
       }}>
         <button
