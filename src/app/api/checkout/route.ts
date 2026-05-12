@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
       event_id,
       price_paid: total,
       order_id: order.id,
-      qr_code: txn?.qr_code_url ?? '',
+      qr_code: isPix ? (txn?.qr_code_url ?? '') : (order.id || `card_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`),
       status: isPix ? 'pending' : (order.status === 'paid' ? 'paid' : 'pending'),
     }
     if (user_id) insertPayload.user_id = user_id
