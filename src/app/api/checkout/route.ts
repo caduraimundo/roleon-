@@ -109,15 +109,17 @@ export async function POST(req: NextRequest) {
     }
     if (user_id) insertPayload.user_id = user_id
 
+    console.log('[checkout] inserindo ticket:', JSON.stringify(insertPayload))
     const { data: ticket, error: ticketError } = await supabase
       .from('tickets')
       .insert(insertPayload)
       .select('id')
       .single()
     if (ticketError) {
-      console.error('[checkout] erro insert ticket:', ticketError)
-      return NextResponse.json({ error: 'Falha ao salvar ticket', detail: ticketError.message }, { status: 500 })
+      console.error('TICKET INSERT ERROR:', JSON.stringify(ticketError))
+      return NextResponse.json({ error: 'Falha ao salvar ticket', detail: ticketError.message, hint: ticketError.hint }, { status: 500 })
     }
+    console.log('[checkout] ticket criado:', ticket?.id)
 
     if (isPix) {
       return NextResponse.json({
