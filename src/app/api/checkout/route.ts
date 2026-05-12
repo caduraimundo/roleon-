@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
     const amountCents = Math.round(total * 100)
 
     const isPix = payment_method !== 'credit_card'
-    const { card_token, installments = 1 } = body
+    const { card_token, installments = 1, customer_document } = body
 
     const pagarmePayment = isPix
       ? { payment_method: 'pix', pix: { expires_in: 900 } }
@@ -79,7 +79,13 @@ export async function POST(req: NextRequest) {
         Authorization: `Basic ${Buffer.from(process.env.PAGARME_API_KEY! + ':').toString('base64')}`,
       },
       body: JSON.stringify({
-        customer: { name: user_name, email: user_email },
+        customer: {
+          name: user_name || 'Cliente',
+          email: user_email,
+          document: customer_document || '00000000000',
+          document_type: 'CPF',
+          type: 'individual',
+        },
         items: [{ amount: amountCents, description: event.title, quantity: 1 }],
         payments: [pagarmePayment],
       }),
