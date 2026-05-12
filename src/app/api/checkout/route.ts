@@ -108,7 +108,10 @@ export async function POST(req: NextRequest) {
       .insert(insertPayload)
       .select('id')
       .single()
-    if (ticketError) console.error('[checkout] erro insert ticket:', ticketError)
+    if (ticketError) {
+      console.error('[checkout] erro insert ticket:', ticketError)
+      return NextResponse.json({ error: 'Falha ao salvar ticket', detail: ticketError.message }, { status: 500 })
+    }
 
     if (isPix) {
       return NextResponse.json({

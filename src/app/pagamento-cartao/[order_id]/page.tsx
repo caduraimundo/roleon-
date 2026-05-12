@@ -85,6 +85,10 @@ export default function PagamentoCartaoPage() {
 
   const handleConfirm = async () => {
     if (!validate() || loading) return
+    if (!session?.event_id || !session?.quantity) {
+      setErrors({ form: 'Sessão expirada. Volte e tente novamente.' })
+      return
+    }
     setLoading(true)
     try {
       const tokenRes = await fetch(
