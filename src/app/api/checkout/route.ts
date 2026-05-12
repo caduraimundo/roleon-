@@ -103,12 +103,17 @@ export async function POST(req: NextRequest) {
     }
     if (user_id) insertPayload.user_id = user_id
 
-    const { error: ticketError } = await supabase.from('tickets').insert(insertPayload)
+    const { data: ticket, error: ticketError } = await supabase
+      .from('tickets')
+      .insert(insertPayload)
+      .select('id')
+      .single()
     if (ticketError) console.error('[checkout] erro insert ticket:', ticketError)
 
     if (isPix) {
       return NextResponse.json({
         order_id: order.id,
+        ticket_id: ticket?.id ?? '',
         qr_code_url: txn?.qr_code_url ?? '',
         pix_code: txn?.qr_code ?? '',
         amount: amountCents,
@@ -118,6 +123,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       order_id: order.id,
+      ticket_id: ticket?.id ?? '',
       payment_method: 'credit_card',
       status: order.status,
     })

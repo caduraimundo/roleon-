@@ -7,9 +7,14 @@ import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 
 interface CheckoutSession {
+  event_id?: string
   event_title?: string
   total?: number
   ticket_id?: string
+  quantity?: number
+  user_id?: string
+  user_email?: string
+  user_name?: string
 }
 
 function IconArrowLeft() {
@@ -81,8 +86,53 @@ export default function PagamentoCartaoPage() {
   const handleConfirm = async () => {
     if (!validate() || loading) return
     setLoading(true)
-    await new Promise(r => setTimeout(r, 2000))
-    router.push(`/ingresso/${ticketId}`)
+    try {
+      const tokenRes = await fetch(
+        `https://api.pagar.me/core/v5/tokens?appId=${process.env.NEXT_PUBLIC_PAGARME_PUBLIC_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'card',
+            card: {
+              number: cardNumber.replace(/\s/g, ''),
+              holder_name: cardName,
+              exp_month: cardExpiry.split('/')[0],
+              exp_year: cardExpiry.split('/')[1],
+              cvv: cardCvv,
+            },
+          }),
+        }
+      )
+      if (!tokenRes.ok) {
+        const tokenErr = await tokenRes.json()
+        throw new Error(tokenErr?.message ?? 'Falha ao tokenizar cartão')
+      }
+      const tokenData = await tokenRes.json()
+      const cardToken = tokenData.id
+
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event_id: session?.event_id,
+          quantity: session?.quantity,
+          user_id: session?.user_id,
+          user_email: session?.user_email,
+          user_name: session?.user_name,
+          payment_method: 'credit_card',
+          card_token: cardToken,
+          installments,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Erro no pagamento')
+
+      router.push(`/ingresso/${data.ticket_id || ticketId}`)
+    } catch (err) {
+      setErrors({ form: err instanceof Error ? err.message : 'Erro ao processar pagamento' })
+      setLoading(false)
+    }
   }
 
   return (
@@ -231,7 +281,7 @@ export default function PagamentoCartaoPage() {
             transition: 'background 200ms ease',
           }}
         >
-          {loading ? 'Processando...' : 'Confirmar pagamento'}
+          {loading ? 'Processando...' : errors.form ? errors.form : 'Confirmar pagamento'}
         </button>
       </div>
     </div>

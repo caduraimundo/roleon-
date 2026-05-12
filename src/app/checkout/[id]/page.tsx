@@ -160,21 +160,34 @@ export default function CheckoutPage() {
     if (loading || !user) return
     setLoading(true)
     try {
+      // Para cartão: salva dados no session e vai para formulário (tokenização acontece lá)
+      if (payMethod === 'credit_card') {
+        sessionStorage.setItem('roleon_checkout', JSON.stringify({
+          event_id: id,
+          quantity,
+          user_id: user.id,
+          user_email: emailInput || user.email,
+          user_name: user.name,
+          event_title: evento.title,
+          total,
+        }))
+        router.push(`/pagamento-cartao/${id}`)
+        return
+      }
+
       // Reutiliza pedido PIX existente para evitar chamadas duplicadas à API
-      if (payMethod === 'pix') {
-        const cached = sessionStorage.getItem(`roleon_order_${id}`)
-        if (cached) {
-          const order = JSON.parse(cached)
-          sessionStorage.setItem('roleon_checkout', JSON.stringify({
-            ...order,
-            event_id: id,
-            event_title: evento.title,
-            total,
-            quantity,
-          }))
-          router.push(`/pagamento/${order.order_id}`)
-          return
-        }
+      const cached = sessionStorage.getItem(`roleon_order_${id}`)
+      if (cached) {
+        const order = JSON.parse(cached)
+        sessionStorage.setItem('roleon_checkout', JSON.stringify({
+          ...order,
+          event_id: id,
+          event_title: evento.title,
+          total,
+          quantity,
+        }))
+        router.push(`/pagamento/${order.order_id}`)
+        return
       }
 
       const res = await fetch('/api/checkout', {
@@ -183,13 +196,13 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           event_id: id, quantity,
           user_id: user.id, user_email: emailInput || user.email, user_name: user.name,
-          payment_method: payMethod,
+          payment_method: 'pix',
         }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Erro')
 
-      const checkoutPayload = {
+      sessionStorage.setItem('roleon_checkout', JSON.stringify({
         order_id: data.order_id,
         event_id: id,
         event_title: evento.title,
@@ -199,25 +212,16 @@ export default function CheckoutPage() {
         qr_code_url: data.qr_code_url,
         pix_code: data.pix_code,
         expires_at: data.expires_at,
-      }
-      sessionStorage.setItem('roleon_checkout', JSON.stringify(checkoutPayload))
+      }))
+      sessionStorage.setItem(`roleon_order_${id}`, JSON.stringify({
+        order_id: data.order_id,
+        qr_code_url: data.qr_code_url,
+        pix_code: data.pix_code,
+        amount: data.amount,
+        expires_at: data.expires_at,
+      }))
 
-      // Persiste pedido PIX por event_id para reutilização
-      if (payMethod === 'pix') {
-        sessionStorage.setItem(`roleon_order_${id}`, JSON.stringify({
-          order_id: data.order_id,
-          qr_code_url: data.qr_code_url,
-          pix_code: data.pix_code,
-          amount: data.amount,
-          expires_at: data.expires_at,
-        }))
-      }
-
-      if (payMethod === 'credit_card') {
-        router.push(`/pagamento-cartao/${data.order_id}`)
-      } else {
-        router.push(`/pagamento/${data.order_id}`)
-      }
+      router.push(`/pagamento/${data.order_id}`)
     } catch {
       setLoading(false)
     }
