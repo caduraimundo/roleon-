@@ -58,6 +58,20 @@ export async function POST(req: NextRequest) {
     const total = subtotal + subtotal * 0.04 + subtotal * 0.0119 + 0.99
     const amountCents = Math.round(total * 100)
 
+    const isPix = payment_method !== 'credit_card'
+    const { card_token, installments = 1 } = body
+
+    const pagarmePayment = isPix
+      ? { payment_method: 'pix', pix: { expires_in: 900 } }
+      : {
+          payment_method: 'credit_card',
+          credit_card: {
+            card_token,
+            installments,
+            statement_descriptor: 'ROLEON',
+          },
+        }
+
     const pagarmeRes = await fetch('https://api.pagar.me/core/v5/orders', {
       method: 'POST',
       headers: {
@@ -67,10 +81,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         customer: { name: user_name, email: user_email },
         items: [{ amount: amountCents, description: event.title, quantity: 1 }],
-        payments: [{
-          payment_method: payment_method === 'credit_card' ? 'credit_card' : 'pix',
-          pix: payment_method !== 'credit_card' ? { expires_in: 3600 } : undefined,
-        }],
+        payments: [pagarmePayment],
       }),
     })
 
@@ -81,25 +92,34 @@ export async function POST(req: NextRequest) {
     }
 
     const order = await pagarmeRes.json()
-    const pixData = order.charges?.[0]?.last_transaction
+    const txn = order.charges?.[0]?.last_transaction
 
     const insertPayload: Record<string, unknown> = {
       event_id,
       price_paid: total,
-      qr_code: pixData?.qr_code_url ?? '',
-      status: 'pending',
+      order_id: order.id,
+      qr_code: txn?.qr_code_url ?? '',
+      status: isPix ? 'pending' : (order.status === 'paid' ? 'paid' : 'pending'),
     }
     if (user_id) insertPayload.user_id = user_id
 
     const { error: ticketError } = await supabase.from('tickets').insert(insertPayload)
     if (ticketError) console.error('[checkout] erro insert ticket:', ticketError)
 
+    if (isPix) {
+      return NextResponse.json({
+        order_id: order.id,
+        qr_code_url: txn?.qr_code_url ?? '',
+        pix_code: txn?.qr_code ?? '',
+        amount: amountCents,
+        expires_at: txn?.expires_at ?? '',
+      })
+    }
+
     return NextResponse.json({
       order_id: order.id,
-      qr_code_url: pixData?.qr_code_url ?? '',
-      pix_code: pixData?.qr_code ?? '',
-      amount: amountCents,
-      expires_at: pixData?.expires_at ?? '',
+      payment_method: 'credit_card',
+      status: order.status,
     })
 
   } catch (err: unknown) {
