@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-function getSupabase() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  if (!url || !key) throw new Error(`Supabase env vars missing: url=${!!url} key=${!!key}`)
-  return createClient(url, key)
-}
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function POST(req: NextRequest) {
   const isMock = !process.env.PAGARME_API_KEY || process.env.PAGARME_API_KEY === 'ak_test_placeholder'
@@ -40,9 +38,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Campos obrigatórios ausentes: event_id, quantity' }, { status: 400 })
     }
 
-    const supabase = getSupabase()
-
-    const { data: event, error: eventError } = await supabase
+    const { data: event, error: eventError } = await supabaseAdmin
       .from('events')
       .select('price, is_free, title')
       .eq('id', event_id)
@@ -110,7 +106,7 @@ export async function POST(req: NextRequest) {
     if (user_id) insertPayload.user_id = user_id
 
     console.log('[checkout] inserindo ticket:', JSON.stringify(insertPayload))
-    const { data: ticket, error: ticketError } = await supabase
+    const { data: ticket, error: ticketError } = await supabaseAdmin
       .from('tickets')
       .insert(insertPayload)
       .select('id')
