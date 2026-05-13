@@ -120,7 +120,6 @@ interface PinSheetProps {
 }
 
 export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight }: PinSheetProps) {
-  const total = ev.price + ev.fee
 
   return (
     <div
@@ -216,12 +215,6 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight }: 
             <span style={{ fontSize: 17, fontWeight: 700, color: T.text }}>
               R$ {ev.price.toFixed(2).replace('.', ',')}
             </span>
-            <span style={{ fontSize: 11, color: T.textMute, fontWeight: 500 }}>
-              + R$ {ev.fee.toFixed(2).replace('.', ',')} taxa
-            </span>
-          </div>
-          <div style={{ fontSize: 10.5, color: T.textMute, fontWeight: 500, marginTop: 1 }}>
-            Total: R$ {total.toFixed(2).replace('.', ',')}
           </div>
         </div>
         <button
