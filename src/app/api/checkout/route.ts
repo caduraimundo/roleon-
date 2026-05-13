@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   // ── Pagar.me real ────────────────────────────────────────────────────────
   try {
-    const { event_id, quantity, user_email, user_name, payment_method } = body
+    const { event_id, quantity, user_email, user_name, user_phone, payment_method } = body
 
     if (!event_id || !quantity) {
       return NextResponse.json({ error: 'Campos obrigatórios ausentes: event_id, quantity' }, { status: 400 })
@@ -85,6 +85,13 @@ export async function POST(req: NextRequest) {
           document: customer_document || '00000000000',
           document_type: 'CPF',
           type: 'individual',
+          phones: {
+            mobile_phone: {
+              country_code: '55',
+              area_code: user_phone?.replace(/\D/g, '').slice(0, 2) || '31',
+              number: user_phone?.replace(/\D/g, '').slice(2) || '999999999',
+            },
+          },
         },
         items: [{ amount: amountCents, description: event.title, quantity: 1 }],
         payments: [pagarmePayment],
