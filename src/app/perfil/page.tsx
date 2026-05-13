@@ -9,8 +9,8 @@ import AuthSheet from '../../components/AuthSheet'
 
 function IconArrowLeft() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M12 4L7 10l5 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 12H5M12 5l-7 7 7 7"/>
     </svg>
   )
 }
@@ -148,7 +148,7 @@ export default function PerfilPage() {
 
   const menuItems = [
     { icon: <IconStar />,                        label: 'Meus interesses', onClick: () => router.push('/interesses') },
-    { icon: <IconTicket />,                      label: 'Meus ingressos',  onClick: () => {} },
+    { icon: <IconTicket />,                      label: 'Meus ingressos',  onClick: () => router.push('/ingressos') },
     { icon: <IconCard />,                        label: 'Pagamentos',      onClick: () => {} },
     { icon: <IconPencilSquare />,                label: 'Editar perfil',   onClick: () => {} },
     { icon: <IconGear />,                        label: 'Configurações',   onClick: () => {} },
@@ -177,9 +177,10 @@ export default function PerfilPage() {
           onClick={() => router.back()}
           aria-label="Voltar"
           style={{
+            position: 'absolute', left: 16,
             background: 'transparent', border: 0, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 8, flexShrink: 0,
+            padding: 8,
           }}
         >
           <IconArrowLeft />

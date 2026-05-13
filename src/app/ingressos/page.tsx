@@ -8,7 +8,7 @@ const TEAL = '#0EA5A0'
 const TEXT = '#1A1A1A'
 const DIM  = '#6E6E73'
 
-type Tab = 'proximos' | 'historico'
+type Tab = 'proximos' | 'passados'
 
 interface TicketWithEvent {
   id: string
@@ -120,7 +120,7 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
       <div style={{ width: 4, background: TEAL, flexShrink: 0 }} />
       <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: TEXT, lineHeight: 1.3, flex: 1 }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, lineHeight: 1.3, flex: 1 }}>
             {ev?.title ?? 'Evento'}
           </div>
           <StatusBadge status={ticket.status} />
@@ -189,7 +189,7 @@ export default function IngressosPage() {
       return da - db
     })
 
-  const historico = tickets
+  const passados = tickets
     .filter(t => {
       const d = t.events?.event_date ? new Date(t.events.event_date) : null
       const created = new Date(t.created_at)
@@ -201,7 +201,7 @@ export default function IngressosPage() {
       return db - da
     })
 
-  const list = activeTab === 'proximos' ? proximos : historico
+  const list = activeTab === 'proximos' ? proximos : passados
 
   return (
     <div style={{
@@ -219,10 +219,10 @@ export default function IngressosPage() {
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
         <button
-          onClick={() => router.push('/')}
+          onClick={() => router.back()}
           aria-label="Voltar"
           style={{
-            position: 'absolute', left: 8,
+            position: 'absolute', left: 16,
             background: 'transparent', border: 0, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: 8,
@@ -243,15 +243,15 @@ export default function IngressosPage() {
         paddingTop: 12,
         gap: 0,
       }}>
-        {(['proximos', 'historico'] as Tab[]).map((tab) => {
+        {(['proximos', 'passados'] as Tab[]).map((tab) => {
           const active = activeTab === tab
-          const label = tab === 'proximos' ? 'Próximos' : 'Histórico'
+          const label = tab === 'proximos' ? 'Próximos' : 'Passados'
           return (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               style={{
-                flex: 1, background: active ? '#fff' : 'transparent',
+                flex: 1, background: 'transparent',
                 border: 0, borderBottom: active ? `2px solid ${TEAL}` : '2px solid transparent',
                 cursor: 'pointer', padding: '10px 0',
                 fontSize: 14, fontWeight: active ? 700 : 500,
@@ -275,7 +275,7 @@ export default function IngressosPage() {
         }}>
           <IconTicketEmpty />
           <div style={{ fontSize: 16, fontWeight: 600, color: TEXT, textAlign: 'center' }}>
-            {activeTab === 'proximos' ? 'Nenhum ingresso próximo' : 'Nenhum ingresso no histórico'}
+            {activeTab === 'proximos' ? 'Nenhum ingresso próximo' : 'Nenhum ingresso passado'}
           </div>
           {activeTab === 'proximos' && (
             <button

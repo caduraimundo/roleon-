@@ -219,7 +219,7 @@ export default function IngressoPage() {
           onClick={() => router.back()}
           aria-label="Voltar"
           style={{
-            position: 'absolute', left: 8,
+            position: 'absolute', left: 16,
             top: 'calc(env(safe-area-inset-top, 0px) + 6px)',
             background: 'transparent', border: 0, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
