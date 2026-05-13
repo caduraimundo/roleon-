@@ -96,11 +96,22 @@ export async function POST(req: NextRequest) {
     const order = await pagarmeRes.json()
     const txn = order.charges?.[0]?.last_transaction
 
+    // Remove ticket pendente anterior do mesmo usuário/evento para evitar duplicatas
+    if (user_id) {
+      await supabaseAdmin
+        .from('tickets')
+        .delete()
+        .eq('user_id', user_id)
+        .eq('event_id', event_id)
+        .eq('status', 'pending')
+    }
+
+    const pixQrCode = txn?.qr_code_url || txn?.qr_code || ''
     const insertPayload: Record<string, unknown> = {
       event_id,
       price_paid: total,
       order_id: order.id,
-      qr_code: isPix ? (txn?.qr_code_url ?? '') : (order.id || `card_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`),
+      qr_code: isPix ? pixQrCode : (order.id || `card_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`),
       status: isPix ? 'pending' : (order.status === 'paid' ? 'paid' : 'pending'),
     }
     if (user_id) insertPayload.user_id = user_id
@@ -121,10 +132,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         order_id: order.id,
         ticket_id: ticket?.id ?? '',
-        qr_code_url: txn?.qr_code_url ?? '',
-        pix_code: txn?.qr_code ?? '',
+        qr_code_url: txn?.qr_code_url || '',
+        pix_code: txn?.qr_code || '',
         amount: amountCents,
-        expires_at: txn?.expires_at ?? '',
+        expires_at: txn?.expires_at || '',
       })
     }
 
