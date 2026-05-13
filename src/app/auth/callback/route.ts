@@ -5,9 +5,10 @@ import { NextResponse } from 'next/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
+  const type = searchParams.get('type')
 
   if (code) {
-    const cookieStore = await cookies()
+    const cookieStore = cookies()
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -18,11 +19,15 @@ export async function GET(request: Request) {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
             )
-          }
-        }
+          },
+        },
       }
     )
     await supabase.auth.exchangeCodeForSession(code)
+
+    if (type === 'recovery') {
+      return NextResponse.redirect(`${origin}/auth/reset-password`)
+    }
   }
 
   return NextResponse.redirect(`${origin}/`)
