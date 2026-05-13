@@ -229,7 +229,7 @@ export default function IngressosPage() {
       <div style={{
         margin: '12px 16px 4px',
         background: '#EEEEEE',
-        borderRadius: 999,
+        borderRadius: 12,
         padding: 4,
         display: 'flex',
       }}>
@@ -243,7 +243,7 @@ export default function IngressosPage() {
               style={{
                 flex: 1,
                 background: active ? '#FFFFFF' : 'transparent',
-                borderRadius: 999,
+                borderRadius: 10,
                 border: 0,
                 cursor: 'pointer',
                 padding: '8px 0',
