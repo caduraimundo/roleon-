@@ -11,6 +11,10 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json()
 
+  const token = req.headers.get('Authorization')?.replace('Bearer ', '') || ''
+  const { data: { user } } = await supabaseAdmin.auth.getUser(token)
+  const userId = user?.id || body.user_id
+
   if (isMock) {
     if (body.payment_method === 'credit_card') {
       return NextResponse.json({
@@ -32,7 +36,7 @@ export async function POST(req: NextRequest) {
 
   // ── Pagar.me real ────────────────────────────────────────────────────────
   try {
-    const { event_id, quantity, user_id, user_email, user_name, payment_method } = body
+    const { event_id, quantity, user_email, user_name, payment_method } = body
 
     if (!event_id || !quantity) {
       return NextResponse.json({ error: 'Campos obrigatórios ausentes: event_id, quantity' }, { status: 400 })
@@ -97,16 +101,16 @@ export async function POST(req: NextRequest) {
     const txn = order.charges?.[0]?.last_transaction
 
     // Remove ticket pendente anterior do mesmo usuário/evento para evitar duplicatas
-    if (user_id) {
+    if (userId) {
       await supabaseAdmin
         .from('tickets')
         .delete()
-        .eq('user_id', user_id)
+        .eq('user_id', userId)
         .eq('event_id', event_id)
         .eq('status', 'pending')
     }
 
-    const pixQrCode = txn?.qr_code_url || txn?.qr_code || ''
+    const pixQrCode = txn?.qr_code_url || txn?.qr_code || `pix_${order.id}_${Date.now()}`
     const insertPayload: Record<string, unknown> = {
       event_id,
       price_paid: total,
@@ -114,7 +118,7 @@ export async function POST(req: NextRequest) {
       qr_code: isPix ? pixQrCode : (order.id || `card_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`),
       status: isPix ? 'pending' : (order.status === 'paid' ? 'paid' : 'pending'),
     }
-    if (user_id) insertPayload.user_id = user_id
+    if (userId) insertPayload.user_id = userId
 
     console.log('[checkout] inserindo ticket:', JSON.stringify(insertPayload))
     const { data: ticket, error: ticketError } = await supabaseAdmin
