@@ -101,19 +101,9 @@ function ErrorScreen({ message, onBack }: { message: string; onBack: () => void 
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
       }}>
-        <button
-          onClick={onBack}
-          aria-label="Voltar"
-          style={{
-            position: 'absolute', left: 16,
-            top: 'calc(env(safe-area-inset-top, 0px) + 10px)',
-            width: 36, height: 36, borderRadius: 999,
-            background: 'transparent', border: 0, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}
-        >
-          <IconArrowLeft />
-        </button>
+        <div style={{ position: 'absolute', left: 8 }}>
+          <BackButton />
+        </div>
         <span style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A' }}>Meu Ingresso</span>
       </div>
       <div style={{
