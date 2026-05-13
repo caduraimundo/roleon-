@@ -4,6 +4,12 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 
+interface EventInfo {
+  title: string
+  event_date: string | null
+  location_name: string | null
+}
+
 interface Ticket {
   id: string
   event_id: string
@@ -12,12 +18,7 @@ interface Ticket {
   qr_code: string
   status: string
   created_at: string
-}
-
-interface EventInfo {
-  title: string
-  event_date: string | null
-  location_name: string | null
+  events: EventInfo | null
 }
 
 function IconArrowLeft() {
@@ -163,7 +164,7 @@ export default function IngressoPage() {
 
       const { data: t, error: tErr } = await supabase
         .from('tickets')
-        .select('id, event_id, user_id, price_paid, qr_code, status, created_at')
+        .select('*, events(*)')
         .eq('id', ticketId)
         .single()
 
@@ -173,21 +174,15 @@ export default function IngressoPage() {
         return
       }
 
-      if ((t as Ticket).user_id !== user.id) {
+      const ticket = t as Ticket
+      if (ticket.user_id !== user.id) {
         setError('Este ingresso não pertence à sua conta.')
         setLoading(false)
         return
       }
 
-      setTicket(t as Ticket)
-
-      const { data: ev } = await supabase
-        .from('events')
-        .select('title, event_date, location_name')
-        .eq('id', (t as Ticket).event_id)
-        .single()
-
-      if (ev) setEvento(ev as EventInfo)
+      setTicket(ticket)
+      if (ticket.events) setEvento(ticket.events)
       setLoading(false)
     }
     load()

@@ -142,7 +142,8 @@ export default function PagamentoCartaoPage() {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Erro no pagamento')
 
-      router.push(`/ingresso/${data.ticket_id || ticketId}`)
+      if (!data.ticket_id) throw new Error('Pagamento aprovado mas ticket não gerado. Contate o suporte.')
+      router.push(`/ingresso/${data.ticket_id}`)
     } catch (err) {
       setErrors({ form: err instanceof Error ? err.message : 'Erro ao processar pagamento' })
       setLoading(false)
