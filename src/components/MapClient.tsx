@@ -431,6 +431,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       setShowAuth(true)
       return
     }
+    if (tab === 'ingressos') { router.push('/ingressos'); return }
     if (tab === 'perfil') { router.push('/perfil'); return }
     setActiveTab(tab)
   }
