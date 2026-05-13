@@ -75,7 +75,10 @@ const ERROR_MAP: Record<string, string> = {
   'already registered':         'Este e-mail já está em uso. Tente entrar.',
 }
 
-function translateError(msg: string): string {
+function translateError(msg: string, status?: number): string {
+  if (status === 429 || msg.includes('429') || msg.includes('Too Many Requests')) {
+    return 'Muitas tentativas. Aguarde alguns minutos e tente novamente.'
+  }
   for (const [en, pt] of Object.entries(ERROR_MAP)) {
     if (msg.includes(en)) return pt
   }
@@ -151,7 +154,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
     if (mode === 'signin') {
       const { error: err } = await supabase.auth.signInWithPassword({ email, password })
       setLoading(false)
-      if (err) { setError(translateError(err.message)); return }
+      if (err) { setError(translateError(err.message, err.status)); return }
       onClose()
     } else {
       const { error: err } = await supabase.auth.signUp({
@@ -160,7 +163,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       })
       setLoading(false)
       if (err) {
-        const msg = translateError(err.message)
+        const msg = translateError(err.message, err.status)
         if (msg.includes('e-mail já está em uso')) setEmailError(msg)
         else setError(msg)
         return
@@ -348,9 +351,13 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                     <IconEye hidden={!showPwd} />
                   </button>
                 </div>
-                {passwordError && (
+                {passwordError ? (
                   <span style={{ fontSize: 12, color: '#E05555', fontWeight: 500, paddingLeft: 4 }}>
                     {passwordError}
+                  </span>
+                ) : (
+                  <span style={{ fontSize: 12, color: '#6E6E73', marginTop: 4, paddingLeft: 4 }}>
+                    Mínimo 8 caracteres
                   </span>
                 )}
               </div>
