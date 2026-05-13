@@ -8,6 +8,8 @@ const TEAL = '#0EA5A0'
 const TEXT = '#1A1A1A'
 const DIM  = '#6E6E73'
 
+type Tab = 'proximos' | 'historico'
+
 interface TicketWithEvent {
   id: string
   event_id: string
@@ -101,36 +103,6 @@ function LoadingScreen() {
   )
 }
 
-function EmptyState({ onExplore }: { onExplore: () => void }) {
-  return (
-    <div style={{
-      flex: 1, display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center',
-      padding: '40px 32px', gap: 16,
-    }}>
-      <IconTicketEmpty />
-      <div style={{ fontSize: 16, fontWeight: 600, color: TEXT, textAlign: 'center' }}>
-        Você ainda não tem ingressos
-      </div>
-      <div style={{ fontSize: 14, color: DIM, textAlign: 'center', lineHeight: 1.5 }}>
-        Explore eventos e garanta seu lugar
-      </div>
-      <button
-        onClick={onExplore}
-        style={{
-          marginTop: 8, padding: '12px 28px', borderRadius: 12,
-          background: TEAL, color: '#fff',
-          border: 0, cursor: 'pointer',
-          fontSize: 15, fontWeight: 600,
-          fontFamily: "'Noto Sans', sans-serif",
-        }}
-      >
-        Explorar eventos
-      </button>
-    </div>
-  )
-}
-
 function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () => void }) {
   const ev = ticket.events
   return (
@@ -145,10 +117,7 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
         fontFamily: "'Noto Sans', sans-serif",
       }}
     >
-      {/* Faixa lateral teal */}
       <div style={{ width: 4, background: TEAL, flexShrink: 0 }} />
-
-      {/* Conteúdo */}
       <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
           <div style={{ fontSize: 15, fontWeight: 700, color: TEXT, lineHeight: 1.3, flex: 1 }}>
@@ -183,6 +152,7 @@ export default function IngressosPage() {
   const router = useRouter()
   const [tickets, setTickets] = useState<TicketWithEvent[]>([])
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState<Tab>('proximos')
 
   useEffect(() => {
     async function load() {
@@ -196,7 +166,6 @@ export default function IngressosPage() {
         .from('tickets')
         .select('id, event_id, price_paid, status, created_at, events(title, event_date, location_name)')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
 
       setTickets((data as unknown as TicketWithEvent[]) ?? [])
       setLoading(false)
@@ -205,6 +174,34 @@ export default function IngressosPage() {
   }, [router])
 
   if (loading) return <LoadingScreen />
+
+  const now = new Date()
+  const cutoff = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
+
+  const proximos = tickets
+    .filter(t => {
+      const d = t.events?.event_date ? new Date(t.events.event_date) : null
+      return d !== null && d >= now
+    })
+    .sort((a, b) => {
+      const da = new Date(a.events!.event_date!).getTime()
+      const db = new Date(b.events!.event_date!).getTime()
+      return da - db
+    })
+
+  const historico = tickets
+    .filter(t => {
+      const d = t.events?.event_date ? new Date(t.events.event_date) : null
+      const created = new Date(t.created_at)
+      return d !== null && d < now && created >= cutoff
+    })
+    .sort((a, b) => {
+      const da = new Date(a.events!.event_date!).getTime()
+      const db = new Date(b.events!.event_date!).getTime()
+      return db - da
+    })
+
+  const list = activeTab === 'proximos' ? proximos : historico
 
   return (
     <div style={{
@@ -238,11 +235,66 @@ export default function IngressosPage() {
         <span style={{ fontSize: 16, fontWeight: 700, color: TEXT }}>Meus Ingressos</span>
       </div>
 
-      {tickets.length === 0 ? (
-        <EmptyState onExplore={() => router.push('/')} />
+      {/* Tabs */}
+      <div style={{
+        background: '#F9F9F9',
+        display: 'flex',
+        paddingLeft: 16, paddingRight: 16,
+        paddingTop: 12,
+        gap: 0,
+      }}>
+        {(['proximos', 'historico'] as Tab[]).map((tab) => {
+          const active = activeTab === tab
+          const label = tab === 'proximos' ? 'Próximos' : 'Histórico'
+          return (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              style={{
+                flex: 1, background: active ? '#fff' : 'transparent',
+                border: 0, borderBottom: active ? `2px solid ${TEAL}` : '2px solid transparent',
+                cursor: 'pointer', padding: '10px 0',
+                fontSize: 14, fontWeight: active ? 700 : 500,
+                color: active ? TEAL : DIM,
+                fontFamily: "'Noto Sans', sans-serif",
+                transition: 'color 150ms, border-color 150ms',
+              }}
+            >
+              {label}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Conteúdo */}
+      {list.length === 0 ? (
+        <div style={{
+          flex: 1, display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          padding: '40px 32px', gap: 16,
+        }}>
+          <IconTicketEmpty />
+          <div style={{ fontSize: 16, fontWeight: 600, color: TEXT, textAlign: 'center' }}>
+            {activeTab === 'proximos' ? 'Nenhum ingresso próximo' : 'Nenhum ingresso no histórico'}
+          </div>
+          {activeTab === 'proximos' && (
+            <button
+              onClick={() => router.push('/')}
+              style={{
+                marginTop: 8, padding: '12px 28px', borderRadius: 12,
+                background: TEAL, color: '#fff',
+                border: 0, cursor: 'pointer',
+                fontSize: 15, fontWeight: 600,
+                fontFamily: "'Noto Sans', sans-serif",
+              }}
+            >
+              Explorar eventos
+            </button>
+          )}
+        </div>
       ) : (
-        <div style={{ flex: 1, padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {tickets.map((t) => (
+        <div style={{ flex: 1, padding: '16px 16px 32px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {list.map((t) => (
             <TicketCard
               key={t.id}
               ticket={t}
