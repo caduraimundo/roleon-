@@ -191,7 +191,12 @@ export default function IngressoPage() {
   if (loading) return <LoadingScreen />
   if (error) return <ErrorScreen message={error} onBack={() => router.back()} />
 
-  const isValid = ticket?.status !== 'used'
+  const statusMap: Record<string, { label: string; bg: string; color: string; dot: string }> = {
+    paid:    { label: 'Válido',    bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
+    used:    { label: 'Utilizado', bg: '#F2F2F2', color: '#6E6E73', dot: '#6E6E73' },
+    pending: { label: 'Pendente',  bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
+  }
+  const badgeStyle = statusMap[ticket?.status ?? ''] ?? statusMap['pending']
   const qrData = ticket?.qr_code || ticketId
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`
 
@@ -214,11 +219,11 @@ export default function IngressoPage() {
           onClick={() => router.back()}
           aria-label="Voltar"
           style={{
-            position: 'absolute', left: 16,
-            top: 'calc(env(safe-area-inset-top, 0px) + 10px)',
-            width: 36, height: 36, borderRadius: 999,
+            position: 'absolute', left: 8,
+            top: 'calc(env(safe-area-inset-top, 0px) + 6px)',
             background: 'transparent', border: 0, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 8,
           }}
         >
           <IconArrowLeft />
@@ -247,16 +252,16 @@ export default function IngressoPage() {
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: 5,
                 padding: '4px 10px', borderRadius: 99,
-                background: isValid ? '#E6F7F6' : '#FEE2E2',
+                background: badgeStyle.bg,
                 fontSize: 12, fontWeight: 600,
-                color: isValid ? '#0EA5A0' : '#DC2626',
+                color: badgeStyle.color,
               }}>
                 <span style={{
                   width: 6, height: 6, borderRadius: '50%',
-                  background: isValid ? '#0EA5A0' : '#DC2626',
+                  background: badgeStyle.dot,
                   display: 'inline-block',
                 }} />
-                {isValid ? 'Válido' : 'Utilizado'}
+                {badgeStyle.label}
               </span>
             </div>
 

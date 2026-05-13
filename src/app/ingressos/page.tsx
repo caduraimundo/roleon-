@@ -218,8 +218,23 @@ export default function IngressosPage() {
         background: '#fff',
         boxShadow: '0 1px 0 rgba(0,0,0,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
+        height: 56,
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
+        <button
+          onClick={() => router.push('/')}
+          aria-label="Voltar"
+          style={{
+            position: 'absolute', left: 8,
+            background: 'transparent', border: 0, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: 8,
+          }}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+        </button>
         <span style={{ fontSize: 16, fontWeight: 700, color: TEXT }}>Meus Ingressos</span>
       </div>
 

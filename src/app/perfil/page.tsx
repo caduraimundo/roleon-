@@ -177,10 +177,9 @@ export default function PerfilPage() {
           onClick={() => router.back()}
           aria-label="Voltar"
           style={{
-            width: 36, height: 36, borderRadius: 999,
-            background: '#F2F2F2', border: 0, cursor: 'pointer',
+            background: 'transparent', border: 0, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#1A1A1A', flexShrink: 0,
+            padding: 8, flexShrink: 0,
           }}
         >
           <IconArrowLeft />
