@@ -198,7 +198,7 @@ export default function IngressosPage() {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
 
-      setTickets((data as TicketWithEvent[]) ?? [])
+      setTickets((data as unknown as TicketWithEvent[]) ?? [])
       setLoading(false)
     }
     load()
