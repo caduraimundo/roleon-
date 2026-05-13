@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
+import { BackButton } from '../../components/BackButton'
 
 const TEAL = '#0EA5A0'
 const TEXT = '#1A1A1A'
 const DIM  = '#6E6E73'
 
-type Tab = 'proximos' | 'passados'
+type Tab = 'proximos' | 'historico'
 
 interface TicketWithEvent {
   id: string
@@ -189,7 +190,7 @@ export default function IngressosPage() {
       return da - db
     })
 
-  const passados = tickets
+  const historico = tickets
     .filter(t => {
       const d = t.events?.event_date ? new Date(t.events.event_date) : null
       const created = new Date(t.created_at)
@@ -201,7 +202,7 @@ export default function IngressosPage() {
       return db - da
     })
 
-  const list = activeTab === 'proximos' ? proximos : passados
+  const list = activeTab === 'proximos' ? proximos : historico
 
   return (
     <div style={{
@@ -218,46 +219,40 @@ export default function IngressosPage() {
         height: 56,
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
-        <button
-          onClick={() => router.back()}
-          aria-label="Voltar"
-          style={{
-            position: 'absolute', left: 16,
-            background: 'transparent', border: 0, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 8,
-          }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#1A1A1A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 5l-7 7 7 7"/>
-          </svg>
-        </button>
+        <div style={{ position: 'absolute', left: 8 }}>
+          <BackButton />
+        </div>
         <span style={{ fontSize: 16, fontWeight: 700, color: TEXT }}>Meus Ingressos</span>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs — pill/segmented */}
       <div style={{
-        background: '#F9F9F9',
+        margin: '12px 16px 4px',
+        background: '#EEEEEE',
+        borderRadius: 999,
+        padding: 4,
         display: 'flex',
-        paddingLeft: 16, paddingRight: 16,
-        paddingTop: 12,
-        gap: 0,
       }}>
-        {(['proximos', 'passados'] as Tab[]).map((tab) => {
+        {(['proximos', 'historico'] as Tab[]).map((tab) => {
           const active = activeTab === tab
-          const label = tab === 'proximos' ? 'Próximos' : 'Passados'
+          const label = tab === 'proximos' ? 'Próximos' : 'Histórico'
           return (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               style={{
-                flex: 1, background: 'transparent',
-                border: 0, borderBottom: active ? `2px solid ${TEAL}` : '2px solid transparent',
-                cursor: 'pointer', padding: '10px 0',
-                fontSize: 14, fontWeight: active ? 700 : 500,
-                color: active ? TEAL : DIM,
+                flex: 1,
+                background: active ? '#FFFFFF' : 'transparent',
+                borderRadius: 999,
+                border: 0,
+                cursor: 'pointer',
+                padding: '8px 0',
+                fontSize: 14,
+                fontWeight: active ? 600 : 400,
+                color: active ? '#1A1A1A' : DIM,
                 fontFamily: "'Noto Sans', sans-serif",
-                transition: 'color 150ms, border-color 150ms',
+                boxShadow: active ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
+                transition: 'all 180ms ease',
               }}
             >
               {label}
@@ -275,7 +270,7 @@ export default function IngressosPage() {
         }}>
           <IconTicketEmpty />
           <div style={{ fontSize: 16, fontWeight: 600, color: TEXT, textAlign: 'center' }}>
-            {activeTab === 'proximos' ? 'Nenhum ingresso próximo' : 'Nenhum ingresso passado'}
+            {activeTab === 'proximos' ? 'Nenhum ingresso próximo' : 'Nenhum ingresso no histórico'}
           </div>
           {activeTab === 'proximos' && (
             <button

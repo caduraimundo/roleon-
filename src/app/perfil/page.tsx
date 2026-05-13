@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import AuthSheet from '../../components/AuthSheet'
+import { BackButton } from '../../components/BackButton'
 
 // ── Ícones ────────────────────────────────────────────────────────────────────
 
@@ -162,18 +163,9 @@ export default function PerfilPage() {
         position: 'relative',
         fontFamily: "'Noto Sans', sans-serif",
       }}>
-        <button
-          onClick={() => router.back()}
-          aria-label="Voltar"
-          style={{
-            position: 'absolute', left: 16,
-            background: 'transparent', border: 0, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 8,
-          }}
-        >
-          <IconArrowLeft />
-        </button>
+        <div style={{ position: 'absolute', left: 8 }}>
+          <BackButton />
+        </div>
         <div style={{
           position: 'absolute', left: '50%', transform: 'translateX(-50%)',
           fontSize: 16, fontWeight: 700, color: '#1A1A1A',

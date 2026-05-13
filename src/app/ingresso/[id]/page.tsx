@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
+import { BackButton } from '../../../components/BackButton'
 
 interface EventInfo {
   title: string
@@ -215,19 +216,9 @@ export default function IngressoPage() {
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
       }}>
-        <button
-          onClick={() => router.back()}
-          aria-label="Voltar"
-          style={{
-            position: 'absolute', left: 16,
-            top: 'calc(env(safe-area-inset-top, 0px) + 6px)',
-            background: 'transparent', border: 0, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: 8,
-          }}
-        >
-          <IconArrowLeft />
-        </button>
+        <div style={{ position: 'absolute', left: 8 }}>
+          <BackButton />
+        </div>
         <span style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A' }}>Meu Ingresso</span>
       </div>
 

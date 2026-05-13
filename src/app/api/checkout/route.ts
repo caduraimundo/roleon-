@@ -105,6 +105,12 @@ export async function POST(req: NextRequest) {
     }
 
     const order = await pagarmeRes.json()
+
+    if (order.status === 'failed') {
+      console.error('[checkout] pedido recusado:', order)
+      return NextResponse.json({ error: 'Pagamento recusado', detail: order }, { status: 400 })
+    }
+
     const txn = order.charges?.[0]?.last_transaction
 
     // Remove ticket pendente anterior do mesmo usuário/evento para evitar duplicatas

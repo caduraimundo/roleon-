@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
+import { BackButton } from '../../../components/BackButton'
 
 interface EventoCheckout {
   id: string
@@ -247,18 +248,7 @@ export default function CheckoutPage() {
         padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
         gap: 12,
       }}>
-        <button
-          onClick={() => router.back()}
-          aria-label="Voltar"
-          style={{
-            width: 32, height: 32, borderRadius: 999,
-            background: 'transparent', border: 0, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, padding: 0,
-          }}
-        >
-          <IconArrowLeft />
-        </button>
+        <BackButton />
         <span style={{ fontSize: 18, fontWeight: 700, color: '#1A1A1A' }}>Checkout</span>
       </div>
 
