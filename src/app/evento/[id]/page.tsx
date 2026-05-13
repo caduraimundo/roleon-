@@ -22,7 +22,7 @@ interface FullEvent {
   id: string; title: string; genre: string; price: number
   isFree: boolean; fee: number; venue: string
   dateStr: string | null; timeStr: string | null; yearStr: string | null
-  heroColor: string; likes: number
+  heroColor: string
   description?: string | null; policies?: string[] | null
 }
 
@@ -32,7 +32,7 @@ function fromCache(cached: RoleonEvent): FullEvent {
     price: cached.price, isFree: cached.price === 0, fee: cached.fee,
     venue: cached.venue, dateStr: cached.date || null, timeStr: cached.time || null,
     yearStr: null, heroColor: GENRE_COLORS[cached.genre] ?? DEFAULT_COLOR,
-    likes: cached.likes, description: cached.description ?? null, policies: null,
+    description: cached.description ?? null, policies: null,
   }
 }
 
@@ -49,7 +49,6 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
     timeStr: d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : null,
     yearStr: d ? d.toLocaleDateString('pt-BR', { year: 'numeric' }) : null,
     heroColor: GENRE_COLORS[(row.genre as string)] ?? DEFAULT_COLOR,
-    likes: (row.likes_count as number) ?? 0,
     description: (row.description as string | null) ?? null,
     policies: Array.isArray(row.policies) ? (row.policies as string[]) : null,
   }
@@ -76,17 +75,6 @@ function IconPin() {
   )
 }
 
-function IconStar({ filled }: { filled: boolean }) {
-  return (
-    <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
-      <path
-        d="M10 2l2.4 4.9 5.4.8-3.9 3.8.9 5.3L10 14.3l-4.8 2.5.9-5.3L2.2 7.7l5.4-.8L10 2z"
-        stroke="#0EA5A0" strokeWidth="1.5" strokeLinejoin="round"
-        fill={filled ? '#0EA5A0' : 'none'}
-      />
-    </svg>
-  )
-}
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
@@ -97,10 +85,7 @@ export default function EventoPage() {
   const [ev,             setEv]           = useState<FullEvent | null>(null)
   const [missing,        setMissing]      = useState(false)
   const [showAuth,       setShowAuth]     = useState(false)
-  const [isInterested,   setIsInterested] = useState(false)
-  const [interestCount,  setInterestCount] = useState(0)
   const [toast,          setToast]        = useState<string | null>(null)
-  const [isLoading,      setIsLoading]    = useState(false)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -111,7 +96,7 @@ export default function EventoPage() {
 
     supabase
       .from('events')
-      .select('id, title, genre, price, location_name, event_date, is_free, description, likes_count, policies')
+      .select('id, title, genre, price, location_name, event_date, is_free, description, policies')
       .eq('id', id)
       .single()
       .then(({ data }) => {
@@ -122,83 +107,10 @@ export default function EventoPage() {
       })
   }, [id])
 
-  // Carrega interesse do usuário + contagem total
-  useEffect(() => {
-    async function load() {
-      const { data: { user } } = await supabase.auth.getUser()
-
-      const { count } = await supabase
-        .from('saved_events')
-        .select('*', { count: 'exact', head: true })
-        .eq('event_id', id)
-
-      const { data: userInterest } = user ? await supabase
-        .from('saved_events')
-        .select('id')
-        .eq('event_id', id)
-        .eq('user_id', user.id)
-        .maybeSingle() : { data: null }
-
-      setInterestCount(count ?? 0)
-      setIsInterested(!!userInterest)
-    }
-    load()
-  }, [id])
-
   const showToast = (msg: string) => {
     setToast(msg)
     if (toastTimer.current) clearTimeout(toastTimer.current)
     toastTimer.current = setTimeout(() => setToast(null), 2000)
-  }
-
-  const handleToggleInterest = async () => {
-    if (isLoading) return
-    setIsLoading(true)
-
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      console.log('USER:', user)
-      console.log('EVENT ID:', id)
-
-      if (!user) {
-        setShowAuth(true)
-        return
-      }
-
-      const uid      = user.id
-      const next     = !isInterested
-      setIsInterested(next)
-      setInterestCount((c) => c + (next ? 1 : -1))
-
-      if (next) {
-        const { data, error } = await supabase
-          .from('saved_events')
-          .insert({ user_id: uid, event_id: id })
-        console.log('INSERT ERROR:', error)
-        console.log('INSERT DATA:', data)
-        if (error) {
-          setIsInterested(isInterested)
-          setInterestCount((c) => c - 1)
-          return
-        }
-        showToast('Interesse marcado!')
-      } else {
-        const { error } = await supabase
-          .from('saved_events')
-          .delete()
-          .eq('user_id', uid)
-          .eq('event_id', id)
-        console.log('DELETE ERROR:', error)
-        if (error) {
-          setIsInterested(isInterested)
-          setInterestCount((c) => c + 1)
-          return
-        }
-        showToast('Interesse removido')
-      }
-    } finally {
-      setIsLoading(false)
-    }
   }
 
   if (missing) notFound()
@@ -278,34 +190,6 @@ export default function EventoPage() {
             </div>
           )}
 
-          {/* Botão "Tenho interesse" */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 8 }}>
-            <button
-              onClick={handleToggleInterest}
-              disabled={isLoading}
-              style={{
-                alignSelf: 'flex-start',
-                display: 'flex', alignItems: 'center', gap: 6,
-                background: isInterested ? '#E6F7F6' : 'transparent',
-                border: `1px solid ${isInterested ? '#0EA5A0' : '#E8E8E8'}`,
-                borderRadius: 20, padding: '8px 16px',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                color: isInterested ? '#0EA5A0' : '#1A1A1A',
-                fontSize: 13, fontWeight: 600,
-                fontFamily: "'Noto Sans', sans-serif",
-                transition: 'all 180ms ease',
-                opacity: isLoading ? 0.6 : 1,
-              }}
-            >
-              <IconStar filled={isInterested} />
-              Tenho interesse
-            </button>
-            {interestCount > 0 && (
-              <div style={{ fontSize: 12, color: '#6E6E73', paddingLeft: 4 }}>
-                {interestCount} {interestCount === 1 ? 'pessoa tem' : 'pessoas têm'} interesse
-              </div>
-            )}
-          </div>
         </div>
 
         {/* Card data + local */}
