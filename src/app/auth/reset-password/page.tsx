@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../../lib/supabase'
+import { createBrowserClient } from '@supabase/ssr'
 
 function IconEye({ hidden }: { hidden: boolean }) {
   return hidden ? (
@@ -27,14 +27,18 @@ const INPUT: React.CSSProperties = {
 
 export default function ResetPasswordPage() {
   const router = useRouter()
-  const [password,    setPassword]    = useState('')
-  const [confirm,     setConfirm]     = useState('')
-  const [showPwd,     setShowPwd]     = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [pwdError,    setPwdError]    = useState<string | null>(null)
-  const [confirmError,setConfirmError]= useState<string | null>(null)
-  const [error,       setError]       = useState<string | null>(null)
-  const [loading,     setLoading]     = useState(false)
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+  const [password,     setPassword]     = useState('')
+  const [confirm,      setConfirm]      = useState('')
+  const [showPwd,      setShowPwd]      = useState(false)
+  const [showConfirm,  setShowConfirm]  = useState(false)
+  const [pwdError,     setPwdError]     = useState<string | null>(null)
+  const [confirmError, setConfirmError] = useState<string | null>(null)
+  const [error,        setError]        = useState<string | null>(null)
+  const [loading,      setLoading]      = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
