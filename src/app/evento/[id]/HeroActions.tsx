@@ -1,14 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-
-function IconArrowLeft() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  )
-}
+import { BackButton } from '../../../components/BackButton'
 
 function IconShare() {
   return (
@@ -46,13 +39,9 @@ export default function HeroActions({ title }: { title: string }) {
 
   return (
     <>
-      <button
-        onClick={() => router.back()}
-        aria-label="Voltar"
-        style={{ ...BTN, position: 'absolute', top: TOP, left: 16 }}
-      >
-        <IconArrowLeft />
-      </button>
+      <div style={{ position: 'absolute', top: TOP, left: 16 }}>
+        <BackButton variant="overlay" />
+      </div>
 
       <div style={{ position: 'absolute', top: TOP, right: 16 }}>
         <button onClick={handleShare} aria-label="Compartilhar" style={BTN}>
