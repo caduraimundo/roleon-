@@ -39,6 +39,15 @@ function IconEye({ hidden }: { hidden: boolean }) {
   )
 }
 
+function IconEnvelope() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#0EA5A0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="4" width="20" height="16" rx="2"/>
+      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+    </svg>
+  )
+}
+
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
 interface AuthSheetProps {
@@ -62,7 +71,8 @@ const INPUT: React.CSSProperties = {
 const ERROR_MAP: Record<string, string> = {
   'Invalid login credentials':  'E-mail ou senha incorretos',
   'Email not confirmed':        'Confirme seu e-mail antes de entrar',
-  'User already registered':    'Este e-mail já está cadastrado',
+  'User already registered':    'Este e-mail já está em uso. Tente entrar.',
+  'already registered':         'Este e-mail já está em uso. Tente entrar.',
 }
 
 function translateError(msg: string): string {
@@ -72,6 +82,10 @@ function translateError(msg: string): string {
   return 'Algo deu errado. Tente novamente.'
 }
 
+function isValidEmail(v: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+}
+
 const REDIRECT_ROUTES: Record<string, string> = {
   ingressos: '/ingressos',
   perfil:    '/perfil',
@@ -79,16 +93,18 @@ const REDIRECT_ROUTES: Record<string, string> = {
 
 export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
   const router = useRouter()
-  const [mode,        setMode]        = useState<Mode>('signin')
-  const [name,        setName]        = useState('')
-  const [email,       setEmail]       = useState('')
-  const [password,    setPassword]    = useState('')
-  const [showPwd,     setShowPwd]     = useState(false)
-  const [loading,     setLoading]     = useState(false)
-  const [error,       setError]       = useState<string | null>(null)
-  const [resetSent,   setResetSent]   = useState(false)
+  const [mode,         setMode]         = useState<Mode>('signin')
+  const [name,         setName]         = useState('')
+  const [email,        setEmail]        = useState('')
+  const [password,     setPassword]     = useState('')
+  const [showPwd,      setShowPwd]      = useState(false)
+  const [loading,      setLoading]      = useState(false)
+  const [error,        setError]        = useState<string | null>(null)
+  const [emailError,   setEmailError]   = useState<string | null>(null)
+  const [passwordError,setPasswordError]= useState<string | null>(null)
+  const [resetSent,    setResetSent]    = useState(false)
+  const [signupDone,   setSignupDone]   = useState(false)
 
-  // Redireciona para a aba certa após login (OAuth ou email/senha)
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       if (!session) return
@@ -105,7 +121,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
 
   if (!isOpen) return null
 
-  const reset = () => { setError(null); setResetSent(false) }
+  const reset = () => { setError(null); setEmailError(null); setPasswordError(null); setResetSent(false) }
 
   const handleGoogle = async () => {
     reset()
@@ -118,14 +134,39 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     reset()
+
+    // Validações inline
+    let hasError = false
+    if (!isValidEmail(email)) {
+      setEmailError('Digite um e-mail válido')
+      hasError = true
+    }
+    if (mode === 'signup' && password.length < 8) {
+      setPasswordError('Mínimo 8 caracteres')
+      hasError = true
+    }
+    if (hasError) return
+
     setLoading(true)
-    const fn = mode === 'signin'
-      ? supabase.auth.signInWithPassword({ email, password })
-      : supabase.auth.signUp({ email, password, options: { data: { full_name: name } } })
-    const { error: err } = await fn
-    setLoading(false)
-    if (err) { setError(translateError(err.message)); return }
-    onClose()
+    if (mode === 'signin') {
+      const { error: err } = await supabase.auth.signInWithPassword({ email, password })
+      setLoading(false)
+      if (err) { setError(translateError(err.message)); return }
+      onClose()
+    } else {
+      const { error: err } = await supabase.auth.signUp({
+        email, password,
+        options: { data: { full_name: name } },
+      })
+      setLoading(false)
+      if (err) {
+        const msg = translateError(err.message)
+        if (msg.includes('e-mail já está em uso')) setEmailError(msg)
+        else setError(msg)
+        return
+      }
+      setSignupDone(true)
+    }
   }
 
   const handleForgot = async () => {
@@ -191,134 +232,182 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
           <IconClose />
         </button>
 
-        {/* Título */}
-        <div style={{ marginTop: 8, marginBottom: 6 }}>
-          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.3 }}>
-            Acesse o Roleon
-          </h2>
-          <p style={{ margin: '6px 0 0', fontSize: 13, color: '#6E6E73', lineHeight: 1.5 }}>
-            Entre para comprar ingressos e salvar eventos
-          </p>
-        </div>
-
-        {/* Google */}
-        <button
-          onClick={handleGoogle}
-          style={{
-            width: '100%', marginTop: 20,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-            background: '#fff', border: '1.5px solid #E8E8E8',
-            borderRadius: 12, padding: '13px 18px',
-            fontSize: 14.5, fontWeight: 600, color: '#1A1A1A',
-            fontFamily: "'Noto Sans', sans-serif",
-            cursor: 'pointer',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-          }}
-        >
-          <IconGoogleG />
-          Continuar com Google
-        </button>
-
-        {/* Divisor "ou" */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0' }}>
-          <div style={{ flex: 1, height: 1, background: '#EFEFEF' }} />
-          <span style={{ fontSize: 12, color: '#9A9A9A', fontWeight: 600 }}>ou</span>
-          <div style={{ flex: 1, height: 1, background: '#EFEFEF' }} />
-        </div>
-
-        {/* Formulário */}
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {mode === 'signup' && (
-            <input
-              type="text"
-              placeholder="Nome completo"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              style={INPUT}
-            />
-          )}
-          <input
-            type="email"
-            placeholder="E-mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={INPUT}
-          />
-          <div style={{ position: 'relative' }}>
-            <input
-              type={showPwd ? 'text' : 'password'}
-              placeholder="Senha"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={{ ...INPUT, paddingRight: 44 }}
-            />
+        {/* ── Tela de sucesso pós-cadastro ── */}
+        {signupDone ? (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center',
+            textAlign: 'center', padding: '32px 8px 8px', gap: 16,
+          }}>
+            <IconEnvelope />
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.3 }}>
+              Verifique seu e-mail
+            </div>
+            <p style={{ margin: 0, fontSize: 14, color: '#6E6E73', lineHeight: 1.6 }}>
+              Enviamos um link de confirmação para{' '}
+              <strong style={{ color: '#1A1A1A' }}>{email}</strong>.
+              {' '}Clique no link para ativar sua conta.
+            </p>
             <button
-              type="button"
-              onClick={() => setShowPwd((v) => !v)}
+              onClick={onClose}
               style={{
-                position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
-                background: 'none', border: 0, cursor: 'pointer', color: '#9A9A9A',
-                display: 'flex', alignItems: 'center', padding: 0,
+                marginTop: 8, width: '100%',
+                background: '#F2F2F2', border: 'none', cursor: 'pointer',
+                padding: '14px 18px', borderRadius: 12,
+                fontSize: 15, fontWeight: 700, color: '#1A1A1A',
+                fontFamily: "'Noto Sans', sans-serif",
               }}
             >
-              <IconEye hidden={!showPwd} />
+              Fechar
             </button>
           </div>
-
-          {/* Erro */}
-          {error && (
-            <div style={{ fontSize: 12.5, color: '#E05555', fontWeight: 500 }}>{error}</div>
-          )}
-          {resetSent && (
-            <div style={{ fontSize: 12.5, color: '#0EA5A0', fontWeight: 500 }}>
-              E-mail de redefinição enviado!
+        ) : (
+          <>
+            {/* Título */}
+            <div style={{ marginTop: 8, marginBottom: 6 }}>
+              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.3 }}>
+                Acesse o Roleon
+              </h2>
+              <p style={{ margin: '6px 0 0', fontSize: 13, color: '#6E6E73', lineHeight: 1.5 }}>
+                Entre para comprar ingressos e salvar eventos
+              </p>
             </div>
-          )}
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%', background: loading ? '#7DCFCD' : '#0EA5A0',
-              color: '#fff', border: 0, cursor: loading ? 'default' : 'pointer',
-              padding: '14px 18px', borderRadius: 12,
-              fontSize: 15, fontWeight: 700,
-              fontFamily: "'Noto Sans', sans-serif",
-              boxShadow: '0 6px 16px rgba(14,165,160,0.25)',
-              marginTop: 2,
-              transition: 'background 200ms',
-            }}
-          >
-            {loading ? 'Aguarde...' : mode === 'signin' ? 'Entrar' : 'Criar conta'}
-          </button>
-        </form>
-
-        {/* Links secundários */}
-        <div style={{
-          display: 'flex', justifyContent: 'space-between',
-          marginTop: 16, fontSize: 13, fontWeight: 600,
-        }}>
-          <button
-            type="button"
-            onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); reset() }}
-            style={{ background: 'none', border: 0, cursor: 'pointer', color: '#0EA5A0', padding: 0 }}
-          >
-            {mode === 'signin' ? 'Criar conta' : 'Já tenho conta'}
-          </button>
-          {mode === 'signin' && (
+            {/* Google */}
             <button
-              type="button"
-              onClick={handleForgot}
-              style={{ background: 'none', border: 0, cursor: 'pointer', color: '#0EA5A0', padding: 0 }}
+              onClick={handleGoogle}
+              style={{
+                width: '100%', marginTop: 20,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                background: '#fff', border: '1.5px solid #E8E8E8',
+                borderRadius: 12, padding: '13px 18px',
+                fontSize: 14.5, fontWeight: 600, color: '#1A1A1A',
+                fontFamily: "'Noto Sans', sans-serif",
+                cursor: 'pointer',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+              }}
             >
-              Esqueci a senha
+              <IconGoogleG />
+              Continuar com Google
             </button>
-          )}
-        </div>
+
+            {/* Divisor "ou" */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0' }}>
+              <div style={{ flex: 1, height: 1, background: '#EFEFEF' }} />
+              <span style={{ fontSize: 12, color: '#9A9A9A', fontWeight: 600 }}>ou</span>
+              <div style={{ flex: 1, height: 1, background: '#EFEFEF' }} />
+            </div>
+
+            {/* Formulário */}
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {mode === 'signup' && (
+                <input
+                  type="text"
+                  placeholder="Nome completo"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  style={INPUT}
+                />
+              )}
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <input
+                  type="email"
+                  placeholder="E-mail"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setEmailError(null) }}
+                  required
+                  style={{ ...INPUT, ...(emailError ? { border: '1.5px solid #E05555' } : {}) }}
+                />
+                {emailError && (
+                  <span style={{ fontSize: 12, color: '#E05555', fontWeight: 500, paddingLeft: 4 }}>
+                    {emailError}
+                  </span>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPwd ? 'text' : 'password'}
+                    placeholder="Senha"
+                    value={password}
+                    onChange={(e) => { setPassword(e.target.value); setPasswordError(null) }}
+                    required
+                    style={{ ...INPUT, paddingRight: 44, ...(passwordError ? { border: '1.5px solid #E05555' } : {}) }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPwd((v) => !v)}
+                    style={{
+                      position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+                      background: 'none', border: 0, cursor: 'pointer', color: '#9A9A9A',
+                      display: 'flex', alignItems: 'center', padding: 0,
+                    }}
+                  >
+                    <IconEye hidden={!showPwd} />
+                  </button>
+                </div>
+                {passwordError && (
+                  <span style={{ fontSize: 12, color: '#E05555', fontWeight: 500, paddingLeft: 4 }}>
+                    {passwordError}
+                  </span>
+                )}
+              </div>
+
+              {/* Erro geral */}
+              {error && (
+                <div style={{ fontSize: 12.5, color: '#E05555', fontWeight: 500 }}>{error}</div>
+              )}
+              {resetSent && (
+                <div style={{ fontSize: 12.5, color: '#0EA5A0', fontWeight: 500 }}>
+                  E-mail de redefinição enviado!
+                </div>
+              )}
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  width: '100%', background: loading ? '#7DCFCD' : '#0EA5A0',
+                  color: '#fff', border: 0, cursor: loading ? 'default' : 'pointer',
+                  padding: '14px 18px', borderRadius: 12,
+                  fontSize: 15, fontWeight: 700,
+                  fontFamily: "'Noto Sans', sans-serif",
+                  boxShadow: '0 6px 16px rgba(14,165,160,0.25)',
+                  marginTop: 2,
+                  transition: 'background 200ms',
+                }}
+              >
+                {loading ? 'Aguarde...' : mode === 'signin' ? 'Entrar' : 'Criar conta'}
+              </button>
+            </form>
+
+            {/* Links secundários */}
+            <div style={{
+              display: 'flex', justifyContent: 'space-between',
+              marginTop: 16, fontSize: 13, fontWeight: 600,
+            }}>
+              <button
+                type="button"
+                onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); reset() }}
+                style={{ background: 'none', border: 0, cursor: 'pointer', color: '#0EA5A0', padding: 0 }}
+              >
+                {mode === 'signin' ? 'Criar conta' : 'Já tenho conta'}
+              </button>
+              {mode === 'signin' && (
+                <button
+                  type="button"
+                  onClick={handleForgot}
+                  style={{ background: 'none', border: 0, cursor: 'pointer', color: '#0EA5A0', padding: 0 }}
+                >
+                  Esqueci a senha
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </>
   )
