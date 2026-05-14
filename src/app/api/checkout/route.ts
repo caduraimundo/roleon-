@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
     const order = await pagarmeRes.json()
 
     if (order.status === 'failed') {
-      console.error('[checkout] pedido recusado:', order)
+      console.log('[checkout] pedido recusado:', JSON.stringify(order, null, 2))
       return NextResponse.json({ error: 'Pagamento recusado', detail: order }, { status: 400 })
     }
 
