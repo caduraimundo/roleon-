@@ -10,12 +10,15 @@ interface EventoCTAProps {
   isFree: boolean
   price: number
   fee: number
+  ticketTypeId?: string
+  ticketTypeName?: string
+  selectedPrice?: number
 }
 
-export default function EventoCTA({ id, isFree, price, fee }: EventoCTAProps) {
+export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeName, selectedPrice }: EventoCTAProps) {
   const router = useRouter()
-  const [authed,    setAuthed]    = useState(false)
-  const [showAuth,  setShowAuth]  = useState(false)
+  const [authed,   setAuthed]   = useState(false)
+  const [showAuth, setShowAuth] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -28,12 +31,23 @@ export default function EventoCTA({ id, isFree, price, fee }: EventoCTAProps) {
     return () => subscription.unsubscribe()
   }, [])
 
+  const displayPrice = selectedPrice ?? price
+
   const handleCTA = () => {
     if (!authed) { setShowAuth(true); return }
     if (!isFree) {
+      if (ticketTypeId) {
+        sessionStorage.setItem(`roleon_ticket_type_${id}`, JSON.stringify({
+          ticket_type_id: ticketTypeId,
+          ticket_type_name: ticketTypeName ?? '',
+          price: displayPrice,
+        }))
+      }
       router.push(`/checkout/${id}`)
     }
   }
+
+  const priceLabel = `R$ ${displayPrice.toFixed(2).replace('.', ',')}`
 
   return (
     <>
@@ -56,15 +70,9 @@ export default function EventoCTA({ id, isFree, price, fee }: EventoCTAProps) {
             <button onClick={handleCTA} style={BTN_TEAL}>Participar</button>
           </div>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, color: '#8A8A8A', fontWeight: 500 }}>Ingresso</div>
-              <div style={{ fontSize: 19, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.5 }}>
-                R$ {price.toFixed(2).replace('.', ',')}
-              </div>
-            </div>
-            <button onClick={handleCTA} style={BTN_TEAL}>Comprar ingresso</button>
-          </div>
+          <button onClick={handleCTA} style={{ ...BTN_TEAL, width: '100%', justifyContent: 'center' }}>
+            Comprar ingresso - {priceLabel}
+          </button>
         )}
       </div>
 
@@ -76,9 +84,10 @@ export default function EventoCTA({ id, isFree, price, fee }: EventoCTAProps) {
 const BTN_TEAL: React.CSSProperties = {
   background: '#0EA5A0', color: '#fff',
   border: 0, cursor: 'pointer',
-  padding: '13px 22px', borderRadius: 12,
-  fontSize: 15, fontWeight: 700,
+  padding: '15px 22px', borderRadius: 12,
+  fontSize: 16, fontWeight: 700,
   fontFamily: "'Noto Sans', sans-serif",
   boxShadow: '0 6px 18px rgba(14,165,160,0.28)',
   whiteSpace: 'nowrap',
+  display: 'flex', alignItems: 'center',
 }

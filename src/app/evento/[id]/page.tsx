@@ -19,6 +19,12 @@ const GENRE_COLORS: Record<string, string> = {
 }
 const DEFAULT_COLOR = '#0EA5A0'
 
+interface TicketType {
+  id: string
+  name: string
+  price: number
+}
+
 interface FullEvent {
   id: string; title: string; genre: string; price: number
   isFree: boolean; fee: number; venue: string
@@ -55,7 +61,7 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
   }
 }
 
-// ── Ícones ────────────────────────────────────────────────────────────────────
+// -- Icones -------------------------------------------------------------------
 
 function IconCalendar() {
   return (
@@ -76,17 +82,77 @@ function IconPin() {
   )
 }
 
+// -- Seletor de tipo de ingresso ----------------------------------------------
 
-// ── Page ─────────────────────────────────────────────────────────────────────
+function TicketTypeSelector({ types, selectedId, onSelect }: {
+  types: TicketType[]
+  selectedId: string
+  onSelect: (t: TicketType) => void
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{
+        fontSize: 12, fontWeight: 700, color: '#6E6E73',
+        textTransform: 'uppercase', letterSpacing: '0.08em',
+      }}>
+        Tipos de ingresso
+      </div>
+      {types.map((t) => {
+        const sel = t.id === selectedId
+        return (
+          <button
+            key={t.id}
+            onClick={() => onSelect(t)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              padding: 16, borderRadius: 12,
+              border: `1.5px solid ${sel ? '#0EA5A0' : '#E5E5E5'}`,
+              background: sel ? '#F0FAFA' : '#fff',
+              cursor: 'pointer', textAlign: 'left',
+              fontFamily: "'Noto Sans', sans-serif",
+            }}
+          >
+            {/* Radio */}
+            <div style={{
+              width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+              border: `2px solid ${sel ? '#0EA5A0' : '#E5E5E5'}`,
+              background: sel ? '#0EA5A0' : '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              {sel && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff' }} />}
+            </div>
+
+            {/* Nome */}
+            <div style={{ flex: 1, fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>
+              {t.name}
+            </div>
+
+            {/* Preco */}
+            <div style={{ textAlign: 'right', flexShrink: 0 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>
+                R$ {t.price.toFixed(2).replace('.', ',')}
+              </div>
+              <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 1 }}>+ taxa</div>
+            </div>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+// -- Page ---------------------------------------------------------------------
 
 export default function EventoPage() {
   const params = useParams()
   const id     = String(params.id)
 
-  const [ev,             setEv]           = useState<FullEvent | null>(null)
-  const [missing,        setMissing]      = useState(false)
-  const [showAuth,       setShowAuth]     = useState(false)
-  const [toast,          setToast]        = useState<string | null>(null)
+  const [ev,             setEv]             = useState<FullEvent | null>(null)
+  const [ticketTypes,    setTicketTypes]    = useState<TicketType[]>([])
+  const [selectedTypeId, setSelectedTypeId] = useState<string>('')
+  const [missing,        setMissing]        = useState(false)
+  const [showAuth,       setShowAuth]       = useState(false)
+  const [toast,          setToast]          = useState<string | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -106,6 +172,19 @@ export default function EventoPage() {
         setEv(full)
         try { sessionStorage.setItem(`evento-${id}`, JSON.stringify(full)) } catch {}
       })
+
+    supabase
+      .from('ticket_types')
+      .select('id, name, price')
+      .eq('event_id', id)
+      .order('price', { ascending: true })
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const types = data.map(r => ({ id: String(r.id), name: String(r.name), price: Number(r.price) }))
+          setTicketTypes(types)
+          setSelectedTypeId(types[0].id)
+        }
+      })
   }, [id])
 
   const showToast = (msg: string) => {
@@ -113,6 +192,7 @@ export default function EventoPage() {
     if (toastTimer.current) clearTimeout(toastTimer.current)
     toastTimer.current = setTimeout(() => setToast(null), 2000)
   }
+  void showToast
 
   if (missing) notFound()
 
@@ -126,6 +206,10 @@ export default function EventoPage() {
 
   const dateLabel = [ev.dateStr, ev.yearStr].filter(Boolean).join(', ') + (ev.timeStr ? ` · ${ev.timeStr}` : '')
 
+  const selectedType = ticketTypes.find(t => t.id === selectedTypeId)
+  const ctaPrice = selectedType ? selectedType.price : ev.price
+  const ctaFee   = ev.isFree ? 0 : (() => { const f = calcFees(ctaPrice, 1, 'pix'); return f.roleonFee + f.pagarmeFee })()
+
   return (
     <div style={{
       minHeight: '100dvh', background: '#F9F9F9',
@@ -134,7 +218,7 @@ export default function EventoPage() {
       paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 90px)',
     }}>
 
-      {/* ── HERO ── */}
+      {/* HERO */}
       <div style={{ height: 260, background: ev.heroColor, position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: 100,
@@ -166,7 +250,7 @@ export default function EventoPage() {
         </div>
       </div>
 
-      {/* ── CONTEÚDO ── */}
+      {/* CONTEUDO */}
       <div style={{ flex: 1, padding: '22px 20px 0', display: 'flex', flexDirection: 'column', gap: 18 }}>
 
         {/* Genre pill */}
@@ -180,7 +264,7 @@ export default function EventoPage() {
           </div>
         </div>
 
-        {/* Título + venue */}
+        {/* Titulo + venue */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: -6 }}>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#1A1A1A', lineHeight: 1.2, letterSpacing: -0.5 }}>
             {ev.title}
@@ -190,7 +274,6 @@ export default function EventoPage() {
               por {ev.venue}
             </div>
           )}
-
         </div>
 
         {/* Card data + local */}
@@ -236,7 +319,16 @@ export default function EventoPage() {
           </button>
         )}
 
-        {/* Descrição */}
+        {/* Seletor de tipos de ingresso */}
+        {!ev.isFree && ticketTypes.length > 0 && (
+          <TicketTypeSelector
+            types={ticketTypes}
+            selectedId={selectedTypeId}
+            onSelect={(t) => setSelectedTypeId(t.id)}
+          />
+        )}
+
+        {/* Descricao */}
         {ev.description && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>
@@ -246,11 +338,11 @@ export default function EventoPage() {
           </div>
         )}
 
-        {/* Políticas */}
+        {/* Politicas */}
         {ev.policies && ev.policies.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 6 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>
-              Políticas do evento
+              Politicas do evento
             </div>
             <div style={{ background: '#fff', border: '1px solid #EFEFEF', borderRadius: 14, overflow: 'hidden' }}>
               {ev.policies.map((policy, i) => (
@@ -273,7 +365,15 @@ export default function EventoPage() {
         )}
       </div>
 
-      <EventoCTA id={ev.id} isFree={ev.isFree} price={ev.price} fee={ev.fee} />
+      <EventoCTA
+        id={ev.id}
+        isFree={ev.isFree}
+        price={ev.price}
+        fee={ctaFee}
+        ticketTypeId={selectedType?.id}
+        ticketTypeName={selectedType?.name}
+        selectedPrice={ctaPrice}
+      />
       <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
 
       {toast && (
