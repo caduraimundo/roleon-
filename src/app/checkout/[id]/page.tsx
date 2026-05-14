@@ -132,6 +132,7 @@ export default function CheckoutPage() {
   const [emailInput,  setEmailInput]  = useState('')
   const [cpfInput,    setCpfInput]    = useState('')
   const [cpfError,    setCpfError]    = useState('')
+  const [ticketTypeName, setTicketTypeName] = useState<string>('')
 
   useEffect(() => {
     supabase
@@ -152,6 +153,14 @@ export default function CheckoutPage() {
         setEmailInput(email)
       }
     })
+
+    try {
+      const raw = sessionStorage.getItem(`roleon_ticket_type_${id}`)
+      if (raw) {
+        const tt = JSON.parse(raw)
+        if (tt.ticket_type_name) setTicketTypeName(tt.ticket_type_name)
+      }
+    } catch {}
   }, [id])
 
   if (!evento) {
@@ -191,6 +200,7 @@ export default function CheckoutPage() {
           event_title: evento.title,
           total,
           customer_document: cpfInput.replace(/\D/g, ''),
+          ticket_type_name: ticketTypeName || undefined,
         }))
         router.push(`/pagamento-cartao/${id}`)
         return
@@ -219,6 +229,7 @@ export default function CheckoutPage() {
           user_id: user.id, user_email: emailInput || user.email, user_name: user.name,
           payment_method: 'pix',
           customer_document: cpfInput.replace(/\D/g, ''),
+          ticket_type_name: ticketTypeName || undefined,
         }),
       })
       const data = await res.json()
@@ -319,7 +330,7 @@ export default function CheckoutPage() {
                 padding: '3px 8px',
                 fontSize: 12, fontWeight: 600, color: '#3A3A3A',
               }}>
-                {quantity} ingresso{quantity !== 1 ? 's' : ''} · Pista
+                {quantity} ingresso{quantity !== 1 ? 's' : ''}{ticketTypeName ? ` · ${ticketTypeName}` : ''}
               </div>
             </div>
           </div>
@@ -330,7 +341,7 @@ export default function CheckoutPage() {
           <div style={{ ...CARD, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A' }}>
-                Pista — Lote 1
+                {ticketTypeName || 'Ingresso'}
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
