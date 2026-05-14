@@ -178,7 +178,8 @@ export default function EventoPage() {
       .select('id, name, price')
       .eq('event_id', id)
       .order('price', { ascending: true })
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        console.log('ticket_types:', data, 'error:', error)
         if (data && data.length > 0) {
           const types = data.map(r => ({ id: String(r.id), name: String(r.name), price: Number(r.price) }))
           setTicketTypes(types)
@@ -203,6 +204,8 @@ export default function EventoPage() {
       </div>
     )
   }
+
+  console.log('ticket_types state:', ticketTypes, 'isFree:', ev.isFree)
 
   const dateLabel = [ev.dateStr, ev.yearStr].filter(Boolean).join(', ') + (ev.timeStr ? ` · ${ev.timeStr}` : '')
 
