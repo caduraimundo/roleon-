@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { calcFees } from '../../../lib/pricing'
+import { validateCPF } from '../../../lib/cpf'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,6 +43,10 @@ export async function POST(req: NextRequest) {
 
     if (!event_id || !quantity) {
       return NextResponse.json({ error: 'Campos obrigatórios ausentes: event_id, quantity' }, { status: 400 })
+    }
+
+    if (body.customer_document && !validateCPF(body.customer_document)) {
+      return NextResponse.json({ error: 'CPF inválido' }, { status: 400 })
     }
 
     const { data: event, error: eventError } = await supabaseAdmin

@@ -4,6 +4,7 @@
 const TAXA_PARCELAMENTO_PLACEHOLDER = 0.0199
 
 import { useState } from 'react'
+import { validateCPF } from '../../../lib/cpf'
 import { useParams, useRouter } from 'next/navigation'
 
 interface CheckoutSession {
@@ -87,7 +88,7 @@ export default function PagamentoCartaoPage() {
     if (!cardName.trim()) e.cardName = 'Nome obrigatório'
     if (cardExpiry.length < 5) e.cardExpiry = 'Validade inválida'
     if (cardCvv.length < 3) e.cardCvv = 'CVV inválido'
-    if (cardCpf.replace(/\D/g, '').length < 11) e.cardCpf = 'CPF inválido'
+    if (!validateCPF(cardCpf)) e.cardCpf = 'CPF inválido'
     setErrors(e)
     return Object.keys(e).length === 0
   }

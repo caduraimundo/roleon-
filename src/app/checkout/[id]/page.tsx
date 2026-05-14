@@ -5,6 +5,15 @@ import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { BackButton } from '../../../components/BackButton'
 import { calcFees } from '../../../lib/pricing'
+import { validateCPF } from '../../../lib/cpf'
+
+function maskCpf(v: string) {
+  const d = v.replace(/\D/g, '').slice(0, 11)
+  if (d.length <= 3) return d
+  if (d.length <= 6) return d.slice(0, 3) + '.' + d.slice(3)
+  if (d.length <= 9) return d.slice(0, 3) + '.' + d.slice(3, 6) + '.' + d.slice(6)
+  return d.slice(0, 3) + '.' + d.slice(3, 6) + '.' + d.slice(6, 9) + '-' + d.slice(9)
+}
 
 interface EventoCheckout {
   id: string
@@ -121,6 +130,8 @@ export default function CheckoutPage() {
   const [user,      setUser]      = useState<{ id: string; email: string; name: string } | null>(null)
   const [payMethod,   setPayMethod]   = useState<PaymentMethod>('pix')
   const [emailInput,  setEmailInput]  = useState('')
+  const [cpfInput,    setCpfInput]    = useState('')
+  const [cpfError,    setCpfError]    = useState('')
 
   useEffect(() => {
     supabase
@@ -160,6 +171,13 @@ export default function CheckoutPage() {
 
   const handlePagar = async () => {
     if (loading || !user) return
+
+    if (!validateCPF(cpfInput)) {
+      setCpfError('CPF inválido')
+      return
+    }
+    setCpfError('')
+
     setLoading(true)
     try {
       // Para cartão: salva dados no session e vai para formulário (tokenização acontece lá)
@@ -172,6 +190,7 @@ export default function CheckoutPage() {
           user_name: user.name,
           event_title: evento.title,
           total,
+          customer_document: cpfInput.replace(/\D/g, ''),
         }))
         router.push(`/pagamento-cartao/${id}`)
         return
@@ -199,6 +218,7 @@ export default function CheckoutPage() {
           event_id: id, quantity,
           user_id: user.id, user_email: emailInput || user.email, user_name: user.name,
           payment_method: 'pix',
+          customer_document: cpfInput.replace(/\D/g, ''),
         }),
       })
       const data = await res.json()
@@ -366,6 +386,31 @@ export default function CheckoutPage() {
             </div>
             <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 6 }}>
               O ingresso será enviado para esse e-mail
+            </div>
+          </div>
+        )}
+
+        {/* CPF */}
+        {!evento.is_free && (
+          <div>
+            <div style={SECTION_LABEL}>CPF do comprador</div>
+            <div>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="000.000.000-00"
+                value={cpfInput}
+                onChange={e => { setCpfInput(maskCpf(e.target.value)); setCpfError('') }}
+                style={{
+                  border: `1px solid ${cpfError ? '#E53935' : '#E8E8E8'}`, borderRadius: 10, padding: '12px 14px',
+                  fontSize: 14, fontFamily: "'Noto Sans', sans-serif",
+                  background: '#fff', color: '#1A1A1A', outline: 'none', width: '100%',
+                  boxSizing: 'border-box',
+                }}
+              />
+              {cpfError && (
+                <div style={{ fontSize: 11, color: '#E53935', marginTop: 4 }}>{cpfError}</div>
+              )}
             </div>
           </div>
         )}
