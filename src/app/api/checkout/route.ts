@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { calcFees } from '../../../lib/pricing'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -53,12 +54,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Evento não encontrado', detail: eventError?.message }, { status: 404 })
     }
 
-    const price = Number(event.price) || 0
-    const subtotal = price * quantity
-    const total = subtotal + subtotal * 0.04 + subtotal * 0.0119 + 0.99
-    const amountCents = Math.round(total * 100)
-
     const isPix = payment_method !== 'credit_card'
+    const price = Number(event.price) || 0
+    const { total } = calcFees(price, quantity, isPix ? 'pix' : 'card')
+    const amountCents = Math.round(total * 100)
     const { card_token, installments = 1, customer_document } = body
 
     const pagarmePayment = isPix

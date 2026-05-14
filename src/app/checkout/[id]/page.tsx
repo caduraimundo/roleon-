@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { BackButton } from '../../../components/BackButton'
+import { calcFees } from '../../../lib/pricing'
 
 interface EventoCheckout {
   id: string
@@ -151,9 +152,9 @@ export default function CheckoutPage() {
   }
 
   const price    = Number(evento.price) || 0
-  const subtotal = price * quantity
-  const totalFee = subtotal * 0.04 + subtotal * 0.0119 + 0.99
-  const total    = subtotal + totalFee
+  const method   = payMethod === 'credit_card' ? 'card' : 'pix'
+  const { subtotal, roleonFee, pagarmeFee, total } = calcFees(price, quantity, method)
+  const totalFee = roleonFee + pagarmeFee
 
   const parsed   = evento.event_date ? formatDate(evento.event_date) : null
 
@@ -375,7 +376,7 @@ export default function CheckoutPage() {
             <div style={SECTION_LABEL}>Detalhes do preço</div>
             <div style={{ ...CARD, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 13, color: '#3A3A3A' }}>Ingresso</span>
+                <span style={{ fontSize: 13, color: '#3A3A3A' }}>{quantity} × ingresso</span>
                 <span style={{ fontSize: 13, color: '#3A3A3A' }}>R$ {fmt(subtotal)}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>

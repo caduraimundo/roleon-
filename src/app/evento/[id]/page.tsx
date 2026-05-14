@@ -7,6 +7,7 @@ import HeroActions from './HeroActions'
 import EventoCTA from './EventoCTA'
 import AuthSheet from '../../../components/AuthSheet'
 import type { RoleonEvent } from '../../../components/EventBottomSheet'
+import { calcFees } from '../../../lib/pricing'
 
 const GENRE_COLORS: Record<string, string> = {
   'Samba/Pagode': '#7B5E57',
@@ -43,7 +44,7 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
   return {
     id: String(row.id), title: (row.title as string) ?? '',
     genre: (row.genre as string) ?? '', price, isFree,
-    fee: isFree ? 0 : Math.round(price * 0.05 * 100) / 100,
+    fee: isFree ? 0 : (() => { const f = calcFees(price, 1, 'pix'); return f.roleonFee + f.pagarmeFee })(),
     venue: (row.location_name as string) ?? '',
     dateStr: d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }) : null,
     timeStr: d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : null,
