@@ -176,13 +176,13 @@ export default function IngressosPage() {
 
   if (loading) return <LoadingScreen />
 
-  const now = new Date()
-  const cutoff = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
   const proximos = tickets
     .filter(t => {
       const d = t.events?.event_date ? new Date(t.events.event_date) : null
-      return d !== null && d >= now
+      return d !== null && d >= today && t.status !== 'used'
     })
     .sort((a, b) => {
       const da = new Date(a.events!.event_date!).getTime()
@@ -193,8 +193,7 @@ export default function IngressosPage() {
   const historico = tickets
     .filter(t => {
       const d = t.events?.event_date ? new Date(t.events.event_date) : null
-      const created = new Date(t.created_at)
-      return d !== null && d < now && created >= cutoff
+      return (d !== null && d < today) || t.status === 'used'
     })
     .sort((a, b) => {
       const da = new Date(a.events!.event_date!).getTime()
