@@ -251,7 +251,7 @@ export function MapHint({ count, bottomNavHeight }: MapHintProps) {
         position: 'absolute',
         left: 14,
         right: 14,
-        bottom: bottomNavHeight + 14,
+        bottom: bottomNavHeight + 24,
         background: '#ffffff',
         borderRadius: 14,
         padding: '11px 14px',
