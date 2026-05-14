@@ -301,13 +301,33 @@ export default function IngressoPage() {
             padding: '24px 24px 20px',
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
           }}>
-            <img
-              src={qrUrl}
-              alt="QR Code do ingresso"
-              width={200}
-              height={200}
-              style={{ borderRadius: 8, display: 'block' }}
-            />
+            {ticket?.status === 'paid' || ticket?.status === 'valid' ? (
+              <img
+                src={qrUrl}
+                alt="QR Code do ingresso"
+                width={200}
+                height={200}
+                style={{ borderRadius: 8, display: 'block' }}
+              />
+            ) : ticket?.status === 'pending' ? (
+              <div style={{
+                width: 200, height: 200,
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: 12, textAlign: 'center',
+              }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#1A1A1A', lineHeight: 1.4 }}>
+                  Aguardando confirmação do pagamento
+                </div>
+                <div style={{ fontSize: 11, color: '#6E6E73', lineHeight: 1.5 }}>
+                  Seu ingresso será liberado assim que o pagamento for confirmado.
+                </div>
+              </div>
+            ) : null}
 
             <div style={{
               fontFamily: 'monospace', fontSize: 14, fontWeight: 700,
