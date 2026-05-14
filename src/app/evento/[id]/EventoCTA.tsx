@@ -70,9 +70,15 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
             <button onClick={handleCTA} style={BTN_TEAL}>Participar</button>
           </div>
         ) : (
-          <button onClick={handleCTA} style={{ ...BTN_TEAL, width: '100%', justifyContent: 'center' }}>
-            Comprar ingresso - {priceLabel}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, color: '#8A8A8A', fontWeight: 500 }}>Ingresso</div>
+              <div style={{ fontSize: 19, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.5 }}>
+                {priceLabel}
+              </div>
+            </div>
+            <button onClick={handleCTA} style={BTN_TEAL}>Comprar ingresso</button>
+          </div>
         )}
       </div>
 
