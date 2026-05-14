@@ -58,12 +58,9 @@ export default function EventoCTA({ id, isFree, price, fee }: EventoCTAProps) {
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, color: '#8A8A8A', fontWeight: 500 }}>Total</div>
+              <div style={{ fontSize: 12, color: '#8A8A8A', fontWeight: 500 }}>Ingresso</div>
               <div style={{ fontSize: 19, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.5 }}>
-                R$ {(price + fee).toFixed(2).replace('.', ',')}
-              </div>
-              <div style={{ fontSize: 11, color: '#9A9A9A', marginTop: 1 }}>
-                R$ {price.toFixed(2).replace('.', ',')} + R$ {fee.toFixed(2).replace('.', ',')} taxa
+                R$ {price.toFixed(2).replace('.', ',')}
               </div>
             </div>
             <button onClick={handleCTA} style={BTN_TEAL}>Comprar ingresso</button>
