@@ -128,11 +128,8 @@ function TicketTypeSelector({ types, selectedId, onSelect }: {
             </div>
 
             {/* Preco */}
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>
-                R$ {t.price.toFixed(2).replace('.', ',')}
-              </div>
-              <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 1 }}>+ taxa</div>
+            <div style={{ textAlign: 'right', flexShrink: 0, fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>
+              R$ {t.price.toFixed(2).replace('.', ',')}
             </div>
           </button>
         )

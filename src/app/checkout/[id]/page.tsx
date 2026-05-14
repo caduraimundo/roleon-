@@ -124,14 +124,17 @@ export default function CheckoutPage() {
   const router  = useRouter()
   const id      = String(params.id)
 
-  const [evento,    setEvento]    = useState<EventoCheckout | null>(null)
-  const [quantity,  setQuantity]  = useState(1)
-  const [loading,   setLoading]   = useState(false)
-  const [user,      setUser]      = useState<{ id: string; email: string; name: string } | null>(null)
-  const [payMethod,   setPayMethod]   = useState<PaymentMethod>('pix')
-  const [emailInput,  setEmailInput]  = useState('')
-  const [cpfInput,    setCpfInput]    = useState('')
-  const [cpfError,    setCpfError]    = useState('')
+  const [evento,       setEvento]       = useState<EventoCheckout | null>(null)
+  const [quantity,     setQuantity]     = useState(1)
+  const [loading,      setLoading]      = useState(false)
+  const [user,         setUser]         = useState<{ id: string; email: string; name: string } | null>(null)
+  const [payMethod,    setPayMethod]    = useState<PaymentMethod>('pix')
+  const [emailInput,   setEmailInput]   = useState('')
+  const [cpfInput,     setCpfInput]     = useState('')
+  const [cpfError,     setCpfError]     = useState('')
+  const [ticketTypeId,   setTicketTypeId]   = useState<string | null>(null)
+  const [ticketTypeName, setTicketTypeName] = useState<string | null>(null)
+  const [ticketTypePrice, setTicketTypePrice] = useState<number | null>(null)
 
   useEffect(() => {
     supabase
@@ -152,6 +155,16 @@ export default function CheckoutPage() {
         setEmailInput(email)
       }
     })
+
+    try {
+      const raw = sessionStorage.getItem(`roleon_ticket_type_${id}`)
+      if (raw) {
+        const tt = JSON.parse(raw)
+        if (tt.ticket_type_id)   setTicketTypeId(tt.ticket_type_id)
+        if (tt.ticket_type_name) setTicketTypeName(tt.ticket_type_name)
+        if (tt.price)            setTicketTypePrice(Number(tt.price))
+      }
+    } catch {}
   }, [id])
 
   if (!evento) {
@@ -162,7 +175,7 @@ export default function CheckoutPage() {
     )
   }
 
-  const price    = Number(evento.price) || 0
+  const price    = ticketTypePrice ?? Number(evento.price) ?? 0
   const method   = payMethod === 'credit_card' ? 'card' : 'pix'
   const { subtotal, roleonFee, pagarmeFee, total } = calcFees(price, quantity, method)
   const totalFee = roleonFee + pagarmeFee
@@ -191,6 +204,7 @@ export default function CheckoutPage() {
           event_title: evento.title,
           total,
           customer_document: cpfInput.replace(/\D/g, ''),
+          ticket_type_name: ticketTypeName ?? undefined,
         }))
         router.push(`/pagamento-cartao/${id}`)
         return
@@ -219,6 +233,7 @@ export default function CheckoutPage() {
           user_id: user.id, user_email: emailInput || user.email, user_name: user.name,
           payment_method: 'pix',
           customer_document: cpfInput.replace(/\D/g, ''),
+          ticket_type_name: ticketTypeName ?? undefined,
         }),
       })
       const data = await res.json()
@@ -319,7 +334,7 @@ export default function CheckoutPage() {
                 padding: '3px 8px',
                 fontSize: 12, fontWeight: 600, color: '#3A3A3A',
               }}>
-                {quantity} ingresso{quantity !== 1 ? 's' : ''} · Pista
+                {quantity} ingresso{quantity !== 1 ? 's' : ''}{ticketTypeName ? ` · ${ticketTypeName}` : ''}
               </div>
             </div>
           </div>
