@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
-import { BackButton } from '../../components/BackButton'
 
 const TEAL = '#0EA5A0'
 const TEXT = '#1A1A1A'
@@ -17,6 +16,7 @@ interface TicketWithEvent {
   price_paid: number
   status: string
   created_at: string
+  ticket_type_name: string | null
   events: {
     title: string
     event_date: string | null
@@ -35,9 +35,9 @@ function formatDate(dateStr: string) {
   )
 }
 
-function formatPrice(price: number) {
-  if (!price || price === 0) return 'Gratuito'
-  return price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+function formatTime(dateStr: string) {
+  const d = new Date(dateStr)
+  return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -53,6 +53,7 @@ function StatusBadge({ status }: { status: string }) {
       padding: '3px 9px', borderRadius: 99,
       background: s.bg, color: s.color,
       fontSize: 11, fontWeight: 600,
+      flexShrink: 0,
     }}>
       <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.dot, display: 'inline-block' }} />
       {s.label}
@@ -107,19 +108,19 @@ function LoadingScreen() {
 function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () => void }) {
   const ev = ticket.events
   return (
-    <button
-      onClick={onClick}
+    <div
       style={{
         width: '100%', background: '#fff',
-        borderRadius: 12, border: 0, cursor: 'pointer',
+        borderRadius: 12, border: 0,
         boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
-        display: 'flex', overflow: 'hidden', textAlign: 'left',
-        padding: 0,
+        display: 'flex', overflow: 'hidden',
         fontFamily: "'Noto Sans', sans-serif",
       }}
     >
       <div style={{ width: 4, background: TEAL, flexShrink: 0 }} />
-      <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 7 }}>
+
+        {/* Linha 1: nome do evento + badge de status */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, lineHeight: 1.3, flex: 1 }}>
             {ev?.title ?? 'Evento'}
@@ -127,25 +128,52 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
           <StatusBadge status={ticket.status} />
         </div>
 
-        {ev?.event_date && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <IconCalendar />
-            <span style={{ fontSize: 12, color: DIM }}>{formatDate(ev.event_date)}</span>
-          </div>
-        )}
+        {/* Linha 2: data + localização */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+          {ev?.event_date && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <IconCalendar />
+              <span style={{ fontSize: 12, color: DIM }}>
+                {formatDate(ev.event_date)} · {formatTime(ev.event_date)}
+              </span>
+            </div>
+          )}
+          {ev?.location_name && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <IconPin />
+              <span style={{ fontSize: 12, color: DIM }}>{ev.location_name}</span>
+            </div>
+          )}
+        </div>
 
-        {ev?.location_name && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <IconPin />
-            <span style={{ fontSize: 12, color: DIM }}>{ev.location_name}</span>
+        {/* Linha 3: badge do tipo + botão ver ingresso */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 }}>
+          <div>
+            {ticket.ticket_type_name && (
+              <span style={{
+                display: 'inline-block',
+                background: '#F0F0F0', color: '#1A1A1A',
+                borderRadius: 20, padding: '4px 10px',
+                fontSize: 12, fontWeight: 500,
+              }}>
+                {ticket.ticket_type_name}
+              </span>
+            )}
           </div>
-        )}
-
-        <div style={{ fontSize: 13, fontWeight: 600, color: TEAL, marginTop: 2 }}>
-          {formatPrice(ticket.price_paid)}
+          <button
+            onClick={onClick}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: TEAL, fontSize: 14, fontWeight: 600,
+              fontFamily: "'Noto Sans', sans-serif",
+              padding: 0,
+            }}
+          >
+            Ver ingresso →
+          </button>
         </div>
       </div>
-    </button>
+    </div>
   )
 }
 
@@ -165,7 +193,7 @@ export default function IngressosPage() {
 
       const { data } = await supabase
         .from('tickets')
-        .select('id, event_id, price_paid, status, created_at, events(title, event_date, location_name)')
+        .select('id, event_id, price_paid, status, created_at, ticket_type_name, events(title, event_date, location_name)')
         .eq('user_id', user.id)
 
       setTickets((data as unknown as TicketWithEvent[]) ?? [])

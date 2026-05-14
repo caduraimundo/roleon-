@@ -137,6 +137,7 @@ export async function POST(req: NextRequest) {
       status: isPix ? 'pending' : (order.status === 'paid' ? 'paid' : 'pending'),
     }
     if (userId) insertPayload.user_id = userId
+    if (body.ticket_type_name) insertPayload.ticket_type_name = body.ticket_type_name
 
     console.log('[checkout] inserindo ticket:', JSON.stringify(insertPayload))
     const { data: ticket, error: ticketError } = await supabaseAdmin
