@@ -584,7 +584,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         aria-label="Minha localização"
         style={{
           position: 'absolute', right: 14,
-          bottom: `calc(${bottomNavHeight + (activeEvent ? 203 : 82)}px + env(safe-area-inset-bottom, 0px))`,
+          bottom: `calc(${bottomNavHeight + (activeEvent ? 177 : 82)}px + env(safe-area-inset-bottom, 0px))`,
           width: 42, height: 42, borderRadius: 999,
           background: '#fff', border: 0, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',

@@ -125,8 +125,8 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight }: 
     <div
       style={{
         position: 'absolute',
-        left: 12,
-        right: 12,
+        left: 8,
+        right: 8,
         bottom: `calc(${bottomNavHeight + 8}px + env(safe-area-inset-bottom, 0px))`,
         background: '#ffffff',
         borderRadius: 18,
@@ -249,8 +249,8 @@ export function MapHint({ count, bottomNavHeight }: MapHintProps) {
     <div
       style={{
         position: 'absolute',
-        left: 16,
-        right: 16,
+        left: 14,
+        right: 14,
         bottom: bottomNavHeight + 14,
         background: '#ffffff',
         borderRadius: 14,
