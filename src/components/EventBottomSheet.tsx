@@ -125,9 +125,9 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight }: 
     <div
       style={{
         position: 'absolute',
-        left: 8,
-        right: 8,
-        bottom: `calc(${bottomNavHeight + 8}px + env(safe-area-inset-bottom, 0px))`,
+        left: 16,
+        right: 16,
+        bottom: `calc(${bottomNavHeight + 12}px + env(safe-area-inset-bottom, 0px))`,
         background: '#ffffff',
         borderRadius: 18,
         boxShadow: '0 16px 40px rgba(0,0,0,0.16), 0 0 0 0.5px rgba(0,0,0,0.05)',
