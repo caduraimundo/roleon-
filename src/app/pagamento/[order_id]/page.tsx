@@ -80,6 +80,7 @@ export default function PagamentoPage() {
 
   const [copied, setCopied] = useState(false)
   const [expired, setExpired] = useState(false)
+  const [paid, setPaid] = useState(false)
   const [secondsLeft, setSecondsLeft] = useState(() => {
     if (!expiresAt) return 900
     const diff = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)
@@ -115,7 +116,8 @@ export default function PagamentoPage() {
         const data = await res.json()
         if (data.status === 'paid') {
           clearInterval(pollingRef.current!)
-          router.replace('/ingressos')
+          clearInterval(timerRef.current!)
+          setPaid(true)
         } else if (data.status === 'expired') {
           clearInterval(pollingRef.current!)
           setExpired(true)
@@ -135,6 +137,30 @@ export default function PagamentoPage() {
   const minutes = Math.floor(secondsLeft / 60)
   const seconds = secondsLeft % 60
   const isUrgent = secondsLeft > 0 && secondsLeft < 300
+
+  if (paid) return (
+    <div style={{
+      minHeight: '100dvh', background: '#F9F9F9',
+      fontFamily: "'Noto Sans', sans-serif",
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      padding: '40px 24px', gap: 24, textAlign: 'center',
+    }}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#0EA5A0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/>
+      </svg>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ fontSize: 22, fontWeight: 700, color: '#1A1A1A' }}>Pagamento confirmado!</div>
+        <div style={{ fontSize: 14, color: '#6E6E73', lineHeight: 1.5 }}>Seu ingresso está garantido. Aproveite o rolê!</div>
+      </div>
+      <button onClick={() => router.replace('/ingressos')} style={{ width: '100%', maxWidth: 320, height: 52, background: '#0EA5A0', color: '#fff', border: 0, borderRadius: 14, fontSize: 16, fontWeight: 700, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
+        Ver meu ingresso
+      </button>
+      <button onClick={() => router.replace('/')} style={{ background: 'none', border: 0, cursor: 'pointer', fontSize: 15, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif", fontWeight: 500 }}>
+        Voltar ao mapa
+      </button>
+    </div>
+  )
 
   return (
     <div style={{
