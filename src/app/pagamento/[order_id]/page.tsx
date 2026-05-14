@@ -111,7 +111,7 @@ export default function PagamentoPage() {
     }
     pollingRef.current = setInterval(async () => {
       try {
-        const res = await fetch(`/api/checkout/status/${orderId}`)
+        const res = await fetch(`/api/checkout/status?order_id=${orderId}`)
         const data = await res.json()
         if (data.status === 'paid') {
           clearInterval(pollingRef.current!)
@@ -121,7 +121,7 @@ export default function PagamentoPage() {
           setExpired(true)
         }
       } catch {}
-    }, 5000)
+    }, 3000)
     return () => { if (pollingRef.current) clearInterval(pollingRef.current) }
   }, [orderId, router, expired, ticketId])
 
@@ -152,7 +152,7 @@ export default function PagamentoPage() {
         padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
       }}>
         <button
-          onClick={() => router.back()}
+          onClick={() => router.replace('/')}
           aria-label="Cancelar"
           style={{
             position: 'absolute', left: 16,
@@ -211,7 +211,7 @@ export default function PagamentoPage() {
           {/* Timer */}
           <div style={{ padding: '16px 20px 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             {expired ? (
-              <div style={{ fontSize: 13, color: '#E53935', fontWeight: 600 }}>QR Code expirado</div>
+              <div style={{ fontSize: 13, color: '#E53935', fontWeight: 600 }}>PIX expirado. Tente novamente.</div>
             ) : (
               <>
                 <div style={{ fontSize: 12, color: '#8A8A8A' }}>Expira em</div>
@@ -272,10 +272,13 @@ export default function PagamentoPage() {
           </div>
         </div>
 
-        {/* Botão gerar novo se expirado */}
+        {/* Botão voltar ao checkout se expirado */}
         {expired && (
           <button
-            onClick={() => window.location.reload()}
+            onClick={() => session?.event_id
+              ? router.replace(`/checkout/${session.event_id}`)
+              : router.replace('/')
+            }
             style={{
               padding: '14px 32px', borderRadius: 12,
               background: '#0EA5A0', color: '#fff',
@@ -284,7 +287,7 @@ export default function PagamentoPage() {
               fontFamily: "'Noto Sans', sans-serif",
             }}
           >
-            Gerar novo código
+            Tentar novamente
           </button>
         )}
 
