@@ -589,7 +589,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
           background: '#fff', border: 0, cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: TEXT,
-          boxShadow: '0 6px 16px rgba(0,0,0,0.14), 0 0 0 0.5px rgba(0,0,0,0.04)',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
           zIndex: 18,
           transition: 'bottom 320ms cubic-bezier(.2,.9,.3,1.1)',
         }}
@@ -602,7 +602,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         <PinSheet event={activeEvent} onClose={() => setActivePin(null)} onViewDetail={handleViewDetail} bottomNavHeight={bottomNavHeight} />
       ) : loading ? (
         <div style={{
-          position: 'absolute', left: 16, right: 16, bottom: bottomNavHeight + 14,
+          position: 'absolute', left: 16, right: 16, bottom: bottomNavHeight + 8,
           background: '#ffffff', borderRadius: 14,
           padding: '11px 14px',
           boxShadow: '0 10px 28px rgba(0,0,0,0.10), 0 0 0 0.5px rgba(0,0,0,0.04)',
