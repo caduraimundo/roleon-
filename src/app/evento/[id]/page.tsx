@@ -92,8 +92,8 @@ function TicketTypeSelector({ types, selectedId, onSelect }: {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <div style={{
-        fontSize: 12, fontWeight: 700, color: '#6E6E73',
-        textTransform: 'uppercase', letterSpacing: '0.08em',
+        fontSize: 11, fontWeight: 700, color: '#9A9A9A',
+        textTransform: 'uppercase', letterSpacing: 0.8,
       }}>
         Tipos de ingresso
       </div>
@@ -319,15 +319,6 @@ export default function EventoPage() {
           </button>
         )}
 
-        {/* Seletor de tipos de ingresso */}
-        {!ev.isFree && ticketTypes.length > 0 && (
-          <TicketTypeSelector
-            types={ticketTypes}
-            selectedId={selectedTypeId}
-            onSelect={(t) => setSelectedTypeId(t.id)}
-          />
-        )}
-
         {/* Descricao */}
         {ev.description && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -336,6 +327,15 @@ export default function EventoPage() {
             </div>
             <p style={{ margin: 0, fontSize: 14.5, color: '#3A3A3A', lineHeight: 1.7 }}>{ev.description}</p>
           </div>
+        )}
+
+        {/* Seletor de tipos de ingresso */}
+        {!ev.isFree && ticketTypes.length > 0 && (
+          <TicketTypeSelector
+            types={ticketTypes}
+            selectedId={selectedTypeId}
+            onSelect={(t) => setSelectedTypeId(t.id)}
+          />
         )}
 
         {/* Politicas */}
