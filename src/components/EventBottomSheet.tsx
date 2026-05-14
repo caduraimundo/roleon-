@@ -127,7 +127,7 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight }: 
         position: 'absolute',
         left: 12,
         right: 12,
-        bottom: bottomNavHeight + 24,
+        bottom: `calc(${bottomNavHeight + 24}px + env(safe-area-inset-bottom, 0px))`,
         background: '#ffffff',
         borderRadius: 18,
         boxShadow: '0 16px 40px rgba(0,0,0,0.16), 0 0 0 0.5px rgba(0,0,0,0.05)',
