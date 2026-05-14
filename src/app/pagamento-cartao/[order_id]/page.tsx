@@ -144,7 +144,7 @@ export default function PagamentoCartaoPage() {
       if (!res.ok) throw new Error(data.error ?? 'Erro no pagamento')
 
       if (!data.ticket_id) throw new Error('Pagamento aprovado mas ticket não gerado. Contate o suporte.')
-      router.push(`/ingresso/${data.ticket_id}`)
+      router.replace('/ingressos')
     } catch (err) {
       setErrors({ form: err instanceof Error ? err.message : 'Erro ao processar pagamento' })
       setLoading(false)

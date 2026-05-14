@@ -115,7 +115,7 @@ export default function PagamentoPage() {
         const data = await res.json()
         if (data.status === 'paid') {
           clearInterval(pollingRef.current!)
-          router.push(`/ingresso/${ticketId}`)
+          router.replace('/ingressos')
         } else if (data.status === 'expired') {
           clearInterval(pollingRef.current!)
           setExpired(true)
