@@ -228,7 +228,7 @@ export default function IngressosPage() {
         <span style={{ fontSize: 16, fontWeight: 700, color: TEXT }}>Meus Ingressos</span>
       </div>
 
-      {/* Tabs — pill/segmented */}
+      {/* Tabs - pill/segmented */}
       <div style={{
         margin: '12px 16px 4px',
         background: '#EEEEEE',

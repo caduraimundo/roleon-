@@ -46,7 +46,7 @@ export const events: Event[] = [
   },
   {
     id: "3",
-    name: "MPB Ao Vivo — Vozes de Minas",
+    name: "MPB Ao Vivo - Vozes de Minas",
     venue: "Teatro Municipal de Ouro Preto",
     lat: -20.3862,
     lng: -43.5055,
@@ -116,7 +116,7 @@ export const events: Event[] = [
   },
   {
     id: "8",
-    name: "MPB e Vinho — Encontro Cultural",
+    name: "MPB e Vinho - Encontro Cultural",
     venue: "Museu da Inconfidência",
     lat: -20.3843,
     lng: -43.5036,
@@ -158,7 +158,7 @@ export const events: Event[] = [
   },
   {
     id: "11",
-    name: "Rock Clássico — Tributo ao Brasil",
+    name: "Rock Clássico - Tributo ao Brasil",
     venue: "Clube Recreativo Ouropretano",
     lat: -20.3880,
     lng: -43.5005,

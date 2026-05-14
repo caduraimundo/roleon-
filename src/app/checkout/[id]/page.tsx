@@ -330,7 +330,7 @@ export default function CheckoutPage() {
           <div style={{ ...CARD, padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A' }}>
-                Pista — Lote 1
+                Pista - Lote 1
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>

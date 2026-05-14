@@ -1,6 +1,6 @@
 'use client'
 
-// Tipagem do evento — adapte aos campos do seu banco de dados
+// Tipagem do evento - adapte aos campos do seu banco de dados
 export interface RoleonEvent {
   id: string
   title: string

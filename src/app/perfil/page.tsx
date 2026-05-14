@@ -263,7 +263,7 @@ export default function PerfilPage() {
           </svg>
         </div>
 
-        {/* Sair — pequeno e sutil */}
+        {/* Sair - pequeno e sutil */}
         <button
           onClick={handleSignOut}
           style={{
