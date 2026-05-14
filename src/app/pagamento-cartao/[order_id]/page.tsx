@@ -4,7 +4,6 @@
 const TAXA_PARCELAMENTO_PLACEHOLDER = 0.0199
 
 import { useState } from 'react'
-import { validateCPF } from '../../../lib/cpf'
 import { useParams, useRouter } from 'next/navigation'
 
 interface CheckoutSession {
@@ -16,6 +15,7 @@ interface CheckoutSession {
   user_id?: string
   user_email?: string
   user_name?: string
+  customer_document?: string
 }
 
 function IconArrowLeft() {
@@ -32,13 +32,6 @@ function maskCard(v: string) {
 function maskExpiry(v: string) {
   const d = v.replace(/\D/g, '').slice(0, 4)
   return d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d
-}
-function maskCpf(v: string) {
-  const d = v.replace(/\D/g, '').slice(0, 11)
-  if (d.length <= 3) return d
-  if (d.length <= 6) return d.slice(0, 3) + '.' + d.slice(3)
-  if (d.length <= 9) return d.slice(0, 3) + '.' + d.slice(3, 6) + '.' + d.slice(6)
-  return d.slice(0, 3) + '.' + d.slice(3, 6) + '.' + d.slice(6, 9) + '-' + d.slice(9)
 }
 function fmt(n: number) {
   return n.toFixed(2).replace('.', ',')
@@ -77,7 +70,6 @@ export default function PagamentoCartaoPage() {
   const [cardName, setCardName] = useState('')
   const [cardExpiry, setCardExpiry] = useState('')
   const [cardCvv, setCardCvv] = useState('')
-  const [cardCpf, setCardCpf] = useState('')
   const [installments, setInstallments] = useState(1)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -89,7 +81,6 @@ export default function PagamentoCartaoPage() {
     if (!cardName.trim()) e.cardName = 'Nome obrigatório'
     if (cardExpiry.length < 5) e.cardExpiry = 'Validade inválida'
     if (cardCvv.length < 3) e.cardCvv = 'CVV inválido'
-    if (!validateCPF(cardCpf)) e.cardCpf = 'CPF inválido'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -138,7 +129,7 @@ export default function PagamentoCartaoPage() {
           payment_method: 'credit_card',
           card_token: cardToken,
           installments,
-          customer_document: cardCpf.replace(/\D/g, ''),
+          customer_document: session?.customer_document || '',
         }),
       })
       const data = await res.json()
@@ -259,18 +250,6 @@ export default function PagamentoCartaoPage() {
                 <div style={{ fontSize: 11, color: '#E53935', marginTop: 4 }}>{errors.cardCvv}</div>
               )}
             </div>
-          </div>
-
-          {/* CPF */}
-          <div>
-            <input
-              type="text" inputMode="numeric" placeholder="CPF (000.000.000-00)"
-              value={cardCpf} onChange={e => setCardCpf(maskCpf(e.target.value))}
-              style={{ ...INPUT_STYLE, borderColor: errors.cardCpf ? '#E53935' : '#E8E8E8' }}
-            />
-            {errors.cardCpf && (
-              <div style={{ fontSize: 11, color: '#E53935', marginTop: 4 }}>{errors.cardCpf}</div>
-            )}
           </div>
 
           {/* Parcelas */}
