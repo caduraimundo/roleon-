@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
   const isMock = !process.env.PAGARME_API_KEY || process.env.PAGARME_API_KEY === 'ak_test_placeholder'
 
   const body = await req.json()
+  console.log('CHECKOUT BODY:', JSON.stringify(body, null, 2))
 
   const token = req.headers.get('Authorization')?.replace('Bearer ', '') || ''
   const { data: { user } } = await supabaseAdmin.auth.getUser(token)
@@ -165,6 +166,7 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     const error = err instanceof Error ? err : new Error(String(err))
     console.error('[checkout] erro inesperado:', error)
+    console.log('PAGARME ERROR:', JSON.stringify(err, null, 2))
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
