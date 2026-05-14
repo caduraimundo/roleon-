@@ -19,12 +19,6 @@ const GENRE_COLORS: Record<string, string> = {
 }
 const DEFAULT_COLOR = '#0EA5A0'
 
-interface TicketType {
-  id: string
-  name: string
-  price: number
-}
-
 interface FullEvent {
   id: string; title: string; genre: string; price: number
   isFree: boolean; fee: number; venue: string
@@ -82,71 +76,6 @@ function IconPin() {
   )
 }
 
-// ── Seletor de tipo de ingresso ───────────────────────────────────────────────
-
-function TicketTypeSelector({
-  types,
-  selectedId,
-  onSelect,
-}: {
-  types: TicketType[]
-  selectedId: string
-  onSelect: (t: TicketType) => void
-}) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <div style={{
-        fontSize: 12, fontWeight: 700, color: '#6E6E73',
-        textTransform: 'uppercase', letterSpacing: 0.8,
-      }}>
-        Tipos de ingresso
-      </div>
-      {types.map((t) => {
-        const selected = t.id === selectedId
-        return (
-          <button
-            key={t.id}
-            onClick={() => onSelect(t)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 14,
-              padding: '16px', borderRadius: 12,
-              border: `1.5px solid ${selected ? '#0EA5A0' : '#E5E5E5'}`,
-              background: selected ? '#F0FAFA' : '#fff',
-              cursor: 'pointer', textAlign: 'left',
-              fontFamily: "'Noto Sans', sans-serif",
-              transition: 'all 150ms ease',
-            }}
-          >
-            {/* Radio */}
-            <div style={{
-              width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
-              border: `2px solid ${selected ? '#0EA5A0' : '#E5E5E5'}`,
-              background: selected ? '#0EA5A0' : '#fff',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              {selected && (
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff' }} />
-              )}
-            </div>
-
-            {/* Nome */}
-            <div style={{ flex: 1, fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>
-              {t.name}
-            </div>
-
-            {/* Preço */}
-            <div style={{ textAlign: 'right', flexShrink: 0 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>
-                R$ {t.price.toFixed(2).replace('.', ',')}
-              </div>
-              <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 1 }}>+ taxa</div>
-            </div>
-          </button>
-        )
-      })}
-    </div>
-  )
-}
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
@@ -155,8 +84,6 @@ export default function EventoPage() {
   const id     = String(params.id)
 
   const [ev,             setEv]           = useState<FullEvent | null>(null)
-  const [ticketTypes,    setTicketTypes]  = useState<TicketType[]>([])
-  const [selectedTypeId, setSelectedTypeId] = useState<string>('')
   const [missing,        setMissing]      = useState(false)
   const [showAuth,       setShowAuth]     = useState(false)
   const [toast,          setToast]        = useState<string | null>(null)
@@ -179,19 +106,6 @@ export default function EventoPage() {
         setEv(full)
         try { sessionStorage.setItem(`evento-${id}`, JSON.stringify(full)) } catch {}
       })
-
-    supabase
-      .from('ticket_types')
-      .select('id, name, price')
-      .eq('event_id', id)
-      .order('price', { ascending: true })
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          const types = data.map(r => ({ id: String(r.id), name: String(r.name), price: Number(r.price) }))
-          setTicketTypes(types)
-          setSelectedTypeId(types[0].id)
-        }
-      })
   }, [id])
 
   const showToast = (msg: string) => {
@@ -199,7 +113,6 @@ export default function EventoPage() {
     if (toastTimer.current) clearTimeout(toastTimer.current)
     toastTimer.current = setTimeout(() => setToast(null), 2000)
   }
-  void showToast
 
   if (missing) notFound()
 
@@ -212,12 +125,6 @@ export default function EventoPage() {
   }
 
   const dateLabel = [ev.dateStr, ev.yearStr].filter(Boolean).join(', ') + (ev.timeStr ? ` · ${ev.timeStr}` : '')
-
-  const selectedType = ticketTypes.find(t => t.id === selectedTypeId)
-
-  // Se há ticket types, usa o preço do tipo selecionado; senão, usa o preço do evento
-  const ctaPrice = selectedType ? selectedType.price : ev.price
-  const ctaFee   = ev.isFree ? 0 : (() => { const f = calcFees(ctaPrice, 1, 'pix'); return f.roleonFee + f.pagarmeFee })()
 
   return (
     <div style={{
@@ -283,6 +190,7 @@ export default function EventoPage() {
               por {ev.venue}
             </div>
           )}
+
         </div>
 
         {/* Card data + local */}
@@ -328,15 +236,6 @@ export default function EventoPage() {
           </button>
         )}
 
-        {/* Seletor de tipos de ingresso */}
-        {!ev.isFree && ticketTypes.length > 0 && (
-          <TicketTypeSelector
-            types={ticketTypes}
-            selectedId={selectedTypeId}
-            onSelect={(t) => setSelectedTypeId(t.id)}
-          />
-        )}
-
         {/* Descrição */}
         {ev.description && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -374,15 +273,7 @@ export default function EventoPage() {
         )}
       </div>
 
-      <EventoCTA
-        id={ev.id}
-        isFree={ev.isFree}
-        price={ev.price}
-        fee={ctaFee}
-        ticketTypeId={selectedType?.id}
-        ticketTypeName={selectedType?.name}
-        selectedPrice={ctaPrice}
-      />
+      <EventoCTA id={ev.id} isFree={ev.isFree} price={ev.price} fee={ev.fee} />
       <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
 
       {toast && (
