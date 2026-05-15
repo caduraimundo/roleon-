@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { supabase } from '../../../lib/supabase'
 
 interface CheckoutSession {
   order_id?: string
   event_id?: string
   event_title?: string
   total?: number
+  quantity?: number
   ticket_id?: string
   qr_code_url?: string
   pix_code?: string
@@ -61,15 +63,17 @@ export default function PagamentoPage() {
     } catch { return null }
   })
 
-  const qrCodeUrl =
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>(
     session?.qr_code_url ||
     searchParams.get('qr_code_url') ||
     'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=ROLEON_PIX_MOCK'
+  )
 
-  const pixCode =
+  const [pixCode, setPixCode] = useState<string>(
     session?.pix_code ||
     searchParams.get('pix_code') ||
     '00020101021226870014br.gov.bcb.pix2565api.roleon.com.br/pix/v2/key/roleon5204000053039865802BR5925Roleon Eventos Ltda6009Sao Paulo62070503***63041234'
+  )
 
   const expiresAt =
     session?.expires_at ||
@@ -78,6 +82,8 @@ export default function PagamentoPage() {
 
   const ticketId = session?.ticket_id || 'mock_ticket_001'
 
+  const [currentOrderId, setCurrentOrderId] = useState(orderId)
+  const [retrying, setRetrying] = useState(false)
   const [copied, setCopied] = useState(false)
   const [expired, setExpired] = useState(false)
   const [paid, setPaid] = useState(false)
@@ -112,7 +118,7 @@ export default function PagamentoPage() {
     }
     pollingRef.current = setInterval(async () => {
       try {
-        const res = await fetch(`/api/checkout/status?order_id=${orderId}`)
+        const res = await fetch(`/api/checkout/status?order_id=${currentOrderId}`)
         const data = await res.json()
         if (data.status === 'paid') {
           clearInterval(pollingRef.current!)
@@ -125,7 +131,49 @@ export default function PagamentoPage() {
       } catch {}
     }, 3000)
     return () => { if (pollingRef.current) clearInterval(pollingRef.current) }
-  }, [orderId, router, expired, ticketId])
+  }, [currentOrderId, router, expired, ticketId])
+
+  const handleRetry = async () => {
+    if (retrying) return
+    setRetrying(true)
+    try {
+      const { data: { session: authSession } } = await supabase.auth.getSession()
+      const token = authSession?.access_token || ''
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          event_id: session?.event_id,
+          quantity: session?.quantity ?? 1,
+          payment_method: 'pix',
+        }),
+      })
+      if (!res.ok) throw new Error('Falha ao gerar novo PIX')
+      const data = await res.json()
+      setQrCodeUrl(data.qr_code_url || '')
+      setPixCode(data.pix_code || '')
+      setCurrentOrderId(data.order_id || orderId)
+      setExpired(false)
+      setSecondsLeft(900)
+      if (timerRef.current) clearInterval(timerRef.current)
+      timerRef.current = setInterval(() => {
+        setSecondsLeft(s => {
+          if (s <= 1) {
+            clearInterval(timerRef.current!)
+            setExpired(true)
+            return 0
+          }
+          return s - 1
+        })
+      }, 1000)
+    } catch (e) {
+      console.error('[retry pix]', e)
+    }
+    setRetrying(false)
+  }
 
   const handleCopy = () => {
     navigator.clipboard?.writeText(pixCode).catch(() => {})
@@ -301,19 +349,18 @@ export default function PagamentoPage() {
         {/* Botão voltar ao checkout se expirado */}
         {expired && (
           <button
-            onClick={() => session?.event_id
-              ? router.replace(`/checkout/${session.event_id}`)
-              : router.replace('/')
-            }
+            onClick={handleRetry}
+            disabled={retrying}
             style={{
               padding: '14px 32px', borderRadius: 12,
               background: '#0EA5A0', color: '#fff',
-              border: 0, cursor: 'pointer',
+              border: 0, cursor: retrying ? 'not-allowed' : 'pointer',
               fontSize: 15, fontWeight: 700,
               fontFamily: "'Noto Sans', sans-serif",
+              opacity: retrying ? 0.7 : 1,
             }}
           >
-            Tentar novamente
+            {retrying ? 'Gerando...' : 'Tentar novamente'}
           </button>
         )}
 
