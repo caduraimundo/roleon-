@@ -181,6 +181,11 @@ export default function EventoPage() {
           const types = data.map(r => ({ id: String(r.id), name: String(r.name), price: Number(r.price) }))
           setTicketTypes(types)
           setSelectedTypeId(types[0].id)
+          sessionStorage.setItem('ticket_type_name', JSON.stringify({
+            ticket_type_id: types[0].id,
+            ticket_type_name: types[0].name,
+            price: types[0].price,
+          }))
         }
       })
   }, [id])
