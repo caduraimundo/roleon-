@@ -143,7 +143,7 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
           </div>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {ticket.ticket_type_name && (
               <span style={{
