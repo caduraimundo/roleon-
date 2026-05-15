@@ -157,7 +157,7 @@ export default function CheckoutPage() {
     })
 
     try {
-      const raw = sessionStorage.getItem(`roleon_ticket_type_${id}`)
+      const raw = sessionStorage.getItem('ticket_type_name')
       if (raw) {
         const tt = JSON.parse(raw)
         if (tt.ticket_type_id)   setTicketTypeId(tt.ticket_type_id)

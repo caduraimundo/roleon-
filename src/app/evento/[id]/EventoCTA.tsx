@@ -37,7 +37,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
     if (!authed) { setShowAuth(true); return }
     if (!isFree) {
       if (ticketTypeId) {
-        sessionStorage.setItem(`roleon_ticket_type_${id}`, JSON.stringify({
+        sessionStorage.setItem('ticket_type_name', JSON.stringify({
           ticket_type_id: ticketTypeId,
           ticket_type_name: ticketTypeName ?? '',
           price: displayPrice,
