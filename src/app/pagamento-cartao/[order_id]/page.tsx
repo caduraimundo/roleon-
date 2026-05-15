@@ -118,9 +118,14 @@ export default function PagamentoCartaoPage() {
       const cardToken = tokenData.id
 
       let ticketTypeName: string | null = null
+      let ticketTypePrice: number | null = null
       try {
         const ttRaw = sessionStorage.getItem('ticket_type_name')
-        if (ttRaw) ticketTypeName = JSON.parse(ttRaw)?.ticket_type_name || null
+        if (ttRaw) {
+          const tt = JSON.parse(ttRaw)
+          ticketTypeName = tt?.ticket_type_name || null
+          ticketTypePrice = Number(tt?.price) || null
+        }
       } catch {}
 
       const res = await fetch('/api/checkout', {
@@ -137,6 +142,7 @@ export default function PagamentoCartaoPage() {
           installments,
           customer_document: session?.customer_document || '',
           ticket_type_name: ticketTypeName,
+          ticket_type_price: ticketTypePrice ?? undefined,
         }),
       })
       const data = await res.json()

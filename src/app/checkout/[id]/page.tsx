@@ -234,6 +234,7 @@ export default function CheckoutPage() {
           payment_method: 'pix',
           customer_document: cpfInput.replace(/\D/g, ''),
           ticket_type_name: ticketTypeName ?? undefined,
+          ticket_type_price: ticketTypePrice ?? undefined,
         }),
       })
       const data = await res.json()

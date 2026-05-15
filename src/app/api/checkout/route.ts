@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     const isPix = payment_method !== 'credit_card'
-    const price = Number(event.price) || 0
+    const price = Number(body.ticket_type_price) || Number(event.price) || 0
     const { total } = calcFees(price, quantity, isPix ? 'pix' : 'card')
     const amountCents = Math.round(total * 100)
     const { card_token, installments = 1, customer_document } = body
