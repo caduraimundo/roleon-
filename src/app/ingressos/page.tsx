@@ -121,7 +121,7 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
       }}
     >
       <div style={{ width: 4, background: TEAL, flexShrink: 0 }} />
-      <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, lineHeight: 1.3, flex: 1 }}>
             {ev?.title ?? 'Evento'}
@@ -159,7 +159,7 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
             </div>
           </div>
           {ticket.payment_method && (
-            <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73' }}>
+            <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73', display: 'inline-flex', alignItems: 'center' }}>
               {ticket.payment_method === 'pix' ? 'PIX' : 'Cartão'}
             </span>
           )}
