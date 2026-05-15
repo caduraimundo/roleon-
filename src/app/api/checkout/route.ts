@@ -139,6 +139,7 @@ export async function POST(req: NextRequest) {
     }
     if (userId) insertPayload.user_id = userId
     if (body.ticket_type_name) insertPayload.ticket_type_name = body.ticket_type_name
+    insertPayload.payment_method = isPix ? 'pix' : 'credit_card'
 
     console.log('[checkout] inserindo ticket:', JSON.stringify(insertPayload))
     const { data: ticket, error: ticketError } = await supabaseAdmin

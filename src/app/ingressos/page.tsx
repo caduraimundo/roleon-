@@ -18,6 +18,7 @@ interface TicketWithEvent {
   status: string
   created_at: string
   ticket_type_name: string | null
+  payment_method: string | null
   events: {
     title: string
     event_date: string | null
@@ -152,6 +153,11 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
               {ticket.ticket_type_name}
             </span>
           )}
+          {ticket.payment_method && (
+            <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73' }}>
+              {ticket.payment_method === 'pix' ? 'PIX' : 'Cartão'}
+            </span>
+          )}
           <div style={{ fontSize: 13, fontWeight: 600, color: TEAL }}>
             {formatPrice(ticket.price_paid)}
           </div>
@@ -177,7 +183,7 @@ export default function IngressosPage() {
 
       const { data } = await supabase
         .from('tickets')
-        .select('id, event_id, price_paid, status, created_at, ticket_type_name, events(title, event_date, location_name)')
+        .select('id, event_id, price_paid, status, created_at, ticket_type_name, payment_method, events(title, event_date, location_name)')
         .eq('user_id', user.id)
 
       setTickets((data as unknown as TicketWithEvent[]) ?? [])
