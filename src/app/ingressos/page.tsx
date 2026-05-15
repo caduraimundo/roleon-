@@ -144,7 +144,7 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
         )}
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {ticket.ticket_type_name && (
               <span style={{
                 background: '#F0F0F0', color: '#1A1A1A',
@@ -154,20 +154,15 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
                 {ticket.ticket_type_name}
               </span>
             )}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: TEAL }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: TEAL }}>
               {formatPrice(ticket.price_paid)}
-            </span>
-            {ticket.payment_method && (
-              <>
-                <span style={{ fontSize: 12, color: '#6E6E73' }}>·</span>
-                <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73' }}>
-                  {ticket.payment_method === 'pix' ? 'PIX' : 'Cartão'}
-                </span>
-              </>
-            )}
+            </div>
           </div>
+          {ticket.payment_method && (
+            <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73' }}>
+              {ticket.payment_method === 'pix' ? 'PIX' : 'Cartão'}
+            </span>
+          )}
         </div>
       </div>
     </button>
