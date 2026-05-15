@@ -118,35 +118,45 @@ export async function POST(req: NextRequest) {
     }
 
     const txn = order.charges?.[0]?.last_transaction
+    const ticketStatus = isPix ? 'pending' : (order.status === 'paid' ? 'paid' : 'pending')
+    const { total: unitTotal } = calcFees(price, 1, isPix ? 'pix' : 'card')
 
-    const pixQrCode = txn?.qr_code_url || txn?.qr_code || `pix_${order.id}_${Date.now()}`
-    const insertPayload: Record<string, unknown> = {
-      event_id,
-      price_paid: total,
-      order_id: order.id,
-      qr_code: isPix ? pixQrCode : (order.id || `card_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`),
-      status: isPix ? 'pending' : (order.status === 'paid' ? 'paid' : 'pending'),
-    }
-    if (userId) insertPayload.user_id = userId
-    if (body.ticket_type_name) insertPayload.ticket_type_name = body.ticket_type_name
-    insertPayload.payment_method = isPix ? 'pix' : 'credit_card'
+    const ticketIds: string[] = []
+    for (let i = 0; i < quantity; i++) {
+      const uniqueSuffix = `${Date.now()}_${i}_${Math.random().toString(36).substr(2, 9)}`
+      const qrCode = isPix
+        ? (txn?.qr_code_url || txn?.qr_code || `pix_${order.id}_${uniqueSuffix}`)
+        : `card_${order.id}_${uniqueSuffix}`
+      const insertPayload: Record<string, unknown> = {
+        event_id,
+        price_paid: unitTotal,
+        order_id: order.id,
+        qr_code: qrCode,
+        status: ticketStatus,
+        payment_method: isPix ? 'pix' : 'credit_card',
+      }
+      if (userId) insertPayload.user_id = userId
+      if (body.ticket_type_name) insertPayload.ticket_type_name = body.ticket_type_name
 
-    console.log('[checkout] inserindo ticket:', JSON.stringify(insertPayload))
-    const { data: ticket, error: ticketError } = await supabaseAdmin
-      .from('tickets')
-      .insert(insertPayload)
-      .select('id')
-      .single()
-    if (ticketError) {
-      console.error('TICKET INSERT ERROR:', JSON.stringify(ticketError))
-      return NextResponse.json({ error: 'Falha ao salvar ticket', detail: ticketError.message, hint: ticketError.hint }, { status: 500 })
+      console.log(`[checkout] inserindo ticket ${i + 1}/${quantity}:`, JSON.stringify(insertPayload))
+      const { data: ticket, error: ticketError } = await supabaseAdmin
+        .from('tickets')
+        .insert(insertPayload)
+        .select('id')
+        .single()
+      if (ticketError) {
+        console.error('TICKET INSERT ERROR:', JSON.stringify(ticketError))
+        return NextResponse.json({ error: 'Falha ao salvar ticket', detail: ticketError.message, hint: ticketError.hint }, { status: 500 })
+      }
+      console.log(`[checkout] ticket ${i + 1} criado:`, ticket?.id)
+      if (ticket?.id) ticketIds.push(ticket.id)
     }
-    console.log('[checkout] ticket criado:', ticket?.id)
 
     if (isPix) {
       return NextResponse.json({
         order_id: order.id,
-        ticket_id: ticket?.id ?? '',
+        ticket_id: ticketIds[0] ?? '',
+        ticket_ids: ticketIds,
         qr_code_url: txn?.qr_code_url || '',
         pix_code: txn?.qr_code || '',
         amount: amountCents,
@@ -156,7 +166,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       order_id: order.id,
-      ticket_id: ticket?.id ?? '',
+      ticket_id: ticketIds[0] ?? '',
+      ticket_ids: ticketIds,
       payment_method: 'credit_card',
       status: order.status,
     })
