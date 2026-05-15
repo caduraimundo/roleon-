@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json()
   console.log('CHECKOUT BODY:', JSON.stringify(body, null, 2))
+  console.log('ticket_type_name recebido:', body.ticket_type_name)
 
   const token = req.headers.get('Authorization')?.replace('Bearer ', '') || ''
   const { data: { user } } = await supabaseAdmin.auth.getUser(token)
@@ -137,6 +138,7 @@ export async function POST(req: NextRequest) {
       status: isPix ? 'pending' : (order.status === 'paid' ? 'paid' : 'pending'),
     }
     if (userId) insertPayload.user_id = userId
+    if (body.ticket_type_name) insertPayload.ticket_type_name = body.ticket_type_name
 
     console.log('[checkout] inserindo ticket:', JSON.stringify(insertPayload))
     const { data: ticket, error: ticketError } = await supabaseAdmin
