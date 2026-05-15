@@ -117,6 +117,12 @@ export default function PagamentoCartaoPage() {
       const tokenData = await tokenRes.json()
       const cardToken = tokenData.id
 
+      let ticketTypeName: string | null = null
+      try {
+        const ttRaw = sessionStorage.getItem('ticket_type_name')
+        if (ttRaw) ticketTypeName = JSON.parse(ttRaw)?.ticket_type_name || null
+      } catch {}
+
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -130,6 +136,7 @@ export default function PagamentoCartaoPage() {
           card_token: cardToken,
           installments,
           customer_document: session?.customer_document || '',
+          ticket_type_name: ticketTypeName,
         }),
       })
       const data = await res.json()
