@@ -17,6 +17,7 @@ interface TicketWithEvent {
   price_paid: number
   status: string
   created_at: string
+  ticket_type_name: string | null
   events: {
     title: string
     event_date: string | null
@@ -141,8 +142,19 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
           </div>
         )}
 
-        <div style={{ fontSize: 13, fontWeight: 600, color: TEAL, marginTop: 2 }}>
-          {formatPrice(ticket.price_paid)}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
+          {ticket.ticket_type_name && (
+            <span style={{
+              background: '#F0F0F0', color: '#1A1A1A',
+              borderRadius: 20, padding: '4px 10px',
+              fontSize: 12, fontWeight: 500,
+            }}>
+              {ticket.ticket_type_name}
+            </span>
+          )}
+          <div style={{ fontSize: 13, fontWeight: 600, color: TEAL }}>
+            {formatPrice(ticket.price_paid)}
+          </div>
         </div>
       </div>
     </button>
@@ -165,7 +177,7 @@ export default function IngressosPage() {
 
       const { data } = await supabase
         .from('tickets')
-        .select('id, event_id, price_paid, status, created_at, events(title, event_date, location_name)')
+        .select('id, event_id, price_paid, status, created_at, ticket_type_name, events(title, event_date, location_name)')
         .eq('user_id', user.id)
 
       setTickets((data as unknown as TicketWithEvent[]) ?? [])
