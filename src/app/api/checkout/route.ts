@@ -119,16 +119,6 @@ export async function POST(req: NextRequest) {
 
     const txn = order.charges?.[0]?.last_transaction
 
-    // Remove ticket pendente anterior do mesmo usuário/evento para evitar duplicatas
-    if (userId) {
-      await supabaseAdmin
-        .from('tickets')
-        .delete()
-        .eq('user_id', userId)
-        .eq('event_id', event_id)
-        .eq('status', 'pending')
-    }
-
     const pixQrCode = txn?.qr_code_url || txn?.qr_code || `pix_${order.id}_${Date.now()}`
     const insertPayload: Record<string, unknown> = {
       event_id,
