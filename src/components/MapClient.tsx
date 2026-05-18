@@ -95,7 +95,7 @@ function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistan
         display: 'flex', alignItems: 'center', gap: 8,
         background: '#fff', borderRadius: 999,
         padding: '10px 14px',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.04)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
         pointerEvents: 'auto',
       }}>
         <span style={{ color: DIM, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
@@ -730,7 +730,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
                 background: '#fff', border: 0, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: TEXT,
-                boxShadow: '0 6px 16px rgba(0,0,0,0.14), 0 0 0 0.5px rgba(0,0,0,0.04)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08), 0 0 0 0.5px rgba(0,0,0,0.04)',
               }}
             >
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
