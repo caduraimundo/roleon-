@@ -716,7 +716,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       {!activePin && (
         <div style={{
           position: 'absolute', right: 14,
-          bottom: `calc(${bottomNavHeight + 100}px + env(safe-area-inset-bottom, 0px))`,
+          bottom: `calc(${bottomNavHeight + 80}px + env(safe-area-inset-bottom, 0px))`,
           display: 'flex', flexDirection: 'column', gap: 8,
           zIndex: 18,
         }}>
