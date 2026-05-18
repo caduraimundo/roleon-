@@ -480,7 +480,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const [filterCategoria, setFilterCategoria] = useState<string | null>(null)
   const [filterDate,      setFilterDate]      = useState<string | null>(null)
   const [filterPreco,     setFilterPreco]     = useState<string | null>(null)
-  const [distance,        setDistance]        = useState(25)
+  const [distance,        setDistance]        = useState(10)
   const [userLocation,    setUserLocation]    = useState<{ lat: number; lng: number } | null>(null)
   const [safeTop,         setSafeTop]         = useState(56)
 
@@ -692,36 +692,37 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       }}>
         <div style={{ pointerEvents: 'auto' }}>
           <SearchBar safeTop={safeTop} hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} />
-          <ChipBar activeChip={activeChip} onChipChange={setActiveChip} />
+          {!activePin && <ChipBar activeChip={activeChip} onChipChange={setActiveChip} />}
         </div>
       </div>
 
       {/* FAB: localização */}
-      <button
-        onClick={() => {
-          if (userLocationRef.current) {
-            mapInstanceRef.current?.panTo(userLocationRef.current)
-          } else {
-            navigator.geolocation?.getCurrentPosition((p) =>
-              mapInstanceRef.current?.panTo({ lat: p.coords.latitude, lng: p.coords.longitude })
-            )
-          }
-        }}
-        aria-label="Minha localização"
-        style={{
-          position: 'absolute', right: 14,
-          bottom: `calc(${bottomNavHeight + (activeEvent ? 189 : 92)}px + env(safe-area-inset-bottom, 0px))`,
-          width: 42, height: 42, borderRadius: 999,
-          background: '#fff', border: 0, cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: TEXT,
-          boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
-          zIndex: 18,
-          transition: 'bottom 320ms cubic-bezier(.2,.9,.3,1.1)',
-        }}
-      >
-        <IconLocate />
-      </button>
+      {!activePin && (
+        <button
+          onClick={() => {
+            if (userLocationRef.current) {
+              mapInstanceRef.current?.panTo(userLocationRef.current)
+            } else {
+              navigator.geolocation?.getCurrentPosition((p) =>
+                mapInstanceRef.current?.panTo({ lat: p.coords.latitude, lng: p.coords.longitude })
+              )
+            }
+          }}
+          aria-label="Minha localização"
+          style={{
+            position: 'absolute', right: 14,
+            bottom: `calc(${bottomNavHeight + 64 + 12}px + env(safe-area-inset-bottom, 0px))`,
+            width: 42, height: 42, borderRadius: 999,
+            background: '#fff', border: 0, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: TEXT,
+            boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
+            zIndex: 18,
+          }}
+        >
+          <IconLocate />
+        </button>
+      )}
 
       {/* Card de evento ou hint */}
       {activeEvent ? (
