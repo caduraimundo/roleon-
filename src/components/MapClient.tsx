@@ -107,19 +107,6 @@ function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistan
         }}>
           Ouro Preto
         </div>
-        <div style={{ width: 1, height: 18, background: '#E4E4E4', flexShrink: 0 }} />
-        <button
-          onClick={onFilterOpen}
-          aria-label="Filtros"
-          style={{
-            background: 'transparent', border: 0, cursor: 'pointer',
-            padding: '0 2px', display: 'flex', alignItems: 'center',
-            color: hasActiveFilter ? PRIMARY : DIM,
-          }}
-        >
-          <IconSliders />
-        </button>
-
         {/* divisor */}
         <div style={{ width: 1, height: 22, background: 'rgba(0,0,0,0.10)', flexShrink: 0 }} />
 
@@ -274,7 +261,7 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, distanceValue }: {
         borderTopLeftRadius: 20, borderTopRightRadius: 20,
         borderBottomLeftRadius: 20, borderBottomRightRadius: 20,
         zIndex: 90,
-        maxHeight: 'calc(100dvh - 120px)',
+        maxHeight: '92vh',
         overflowY: 'auto', paddingBottom: 30,
         animation: 'fsUp 280ms cubic-bezier(.2,.9,.3,1)',
         fontFamily: "'Noto Sans', sans-serif",
