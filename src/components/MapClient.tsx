@@ -221,14 +221,14 @@ function ChipBar({ activeChip, onChipChange }: {
 
 const CATEGORIAS  = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Axé', 'República']
 const PRECOS      = ['Grátis', 'Até R$30', 'Até R$50']
-const DATE_CHIPS  = ['Hoje', 'Amanhã', 'Este fim de semana', 'Esta semana']
+const DATE_CHIPS  = ['Hoje', 'Amanhã', 'Este fim de semana', 'Este mês']
 
 function FilterChip({ label, active, onToggle }: { label: string; active: boolean; onToggle: () => void }) {
   return (
     <button onClick={onToggle} style={{
-      border: `1.5px solid ${active ? TEXT : '#E8E8E8'}`,
-      background: active ? TEXT : '#fff',
-      color: active ? '#fff' : '#404040',
+      border: `1.4px solid ${active ? PRIMARY : '#E0E0E0'}`,
+      background: active ? '#E6F7F6' : '#fff',
+      color: active ? PRIMARY : '#404040',
       padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
       fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
       whiteSpace: 'nowrap',
@@ -296,8 +296,8 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, initial }: {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {CATEGORIAS.map((c) => (
                 <button key={c} onClick={() => toggleGenre(c)} style={{
-                  border: `1.5px solid ${genres.has(c) ? PRIMARY : '#E0E0E0'}`,
-                  background: genres.has(c) ? `${PRIMARY}18` : '#fff',
+                  border: `1.4px solid ${genres.has(c) ? PRIMARY : '#E0E0E0'}`,
+                  background: genres.has(c) ? '#E6F7F6' : '#fff',
                   color: genres.has(c) ? PRIMARY : '#404040',
                   padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
                   fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
@@ -333,8 +333,8 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, initial }: {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {PRECOS.map((p) => (
                 <button key={p} onClick={() => setPreco(preco === p ? null : p)} style={{
-                  border: `1.5px solid ${preco === p ? PRIMARY : '#E0E0E0'}`,
-                  background: preco === p ? `${PRIMARY}18` : '#fff',
+                  border: `1.4px solid ${preco === p ? PRIMARY : '#E0E0E0'}`,
+                  background: preco === p ? '#E6F7F6' : '#fff',
                   color: preco === p ? PRIMARY : '#404040',
                   padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
                   fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
@@ -353,8 +353,8 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, initial }: {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {DISTANCES.map(d => (
                 <button key={d} onClick={() => setLocalDistance(d)} style={{
-                  border: `1.5px solid ${localDistance === d ? PRIMARY : '#E0E0E0'}`,
-                  background: localDistance === d ? `${PRIMARY}18` : '#fff',
+                  border: `1.4px solid ${localDistance === d ? PRIMARY : '#E0E0E0'}`,
+                  background: localDistance === d ? '#E6F7F6' : '#fff',
                   color: localDistance === d ? PRIMARY : '#404040',
                   padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
                   fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
