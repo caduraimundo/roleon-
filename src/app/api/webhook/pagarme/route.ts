@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseAdmin = createClient(
@@ -8,27 +7,20 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(req: NextRequest) {
-  const rawBody = await req.text();
+  const authHeader = req.headers.get('authorization') || '';
+  const base64 = authHeader.replace('Basic ', '');
+  const decoded = Buffer.from(base64, 'base64').toString('utf-8');
+  const [user, pass] = decoded.split(':');
 
-  const signature = req.headers.get('x-hub-signature') || '';
-  const secret = process.env.PAGARME_WEBHOOK_SECRET || '';
+  const expectedUser = process.env.PAGARME_WEBHOOK_USER || '';
+  const expectedPass = process.env.PAGARME_WEBHOOK_SECRET || '';
 
-  const expectedSignature =
-    'sha1=' +
-    crypto.createHmac('sha1', secret).update(rawBody).digest('hex');
-
-  const sigBuffer = Buffer.from(signature);
-  const expectedBuffer = Buffer.from(expectedSignature);
-
-  const isValid =
-    sigBuffer.length === expectedBuffer.length &&
-    crypto.timingSafeEqual(sigBuffer, expectedBuffer);
-
-  if (!isValid) {
-    console.error('[Webhook] Assinatura HMAC inválida');
+  if (user !== expectedUser || pass !== expectedPass) {
+    console.error('[Webhook] Autenticação Basic Auth inválida');
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const rawBody = await req.text();
   const payload = JSON.parse(rawBody);
   const eventType = payload?.type;
 
