@@ -329,21 +329,25 @@ export default function IngressoPage() {
               </div>
             ) : null}
 
-            <div style={{
-              fontFamily: 'monospace', fontSize: 14, fontWeight: 700,
-              color: '#1A1A1A', letterSpacing: 2,
-            }}>
-              {formatTicketNumber(ticketId)}
-            </div>
+            {ticket?.status !== 'pending' && (
+              <div style={{
+                fontFamily: 'monospace', fontSize: 14, fontWeight: 700,
+                color: '#1A1A1A', letterSpacing: 2,
+              }}>
+                {formatTicketNumber(ticketId)}
+              </div>
+            )}
 
-            <div style={{
-              width: '100%', paddingTop: 14,
-              borderTop: '1px solid #F2F2F2',
-              textAlign: 'center',
-              fontSize: 12, color: '#6E6E73', lineHeight: 1.5,
-            }}>
-              Apresente este QR Code na entrada do evento
-            </div>
+            {ticket?.status !== 'pending' && (
+              <div style={{
+                width: '100%', paddingTop: 14,
+                borderTop: '1px solid #F2F2F2',
+                textAlign: 'center',
+                fontSize: 12, color: '#6E6E73', lineHeight: 1.5,
+              }}>
+                Apresente este QR Code na entrada do evento
+              </div>
+            )}
           </div>
 
         </div>
