@@ -238,16 +238,16 @@ function FilterChip({ label, active, onToggle }: { label: string; active: boolea
   )
 }
 
-function FilterSheet({ onClose, bottomNavHeight, onApply, distanceValue }: {
+function FilterSheet({ onClose, bottomNavHeight, onApply, initial }: {
   onClose: () => void
   bottomNavHeight: number
   onApply: (genres: string[], date: string | null, price: string | null, distance: number) => void
-  distanceValue: number
+  initial: { genres: string[]; when: string | null; price: string | null; distance: number }
 }) {
-  const [genres,        setGenres]        = useState<Set<string>>(new Set())
-  const [selectedDate,  setSelectedDate]  = useState<string | null>(null)
-  const [preco,         setPreco]         = useState<string | null>(null)
-  const [localDistance, setLocalDistance] = useState(distanceValue)
+  const [genres,        setGenres]        = useState<Set<string>>(new Set(initial.genres))
+  const [selectedDate,  setSelectedDate]  = useState<string | null>(initial.when)
+  const [preco,         setPreco]         = useState<string | null>(initial.price)
+  const [localDistance, setLocalDistance] = useState(initial.distance)
 
   const toggleGenre = (g: string) =>
     setGenres(prev => { const s = new Set(prev); s.has(g) ? s.delete(g) : s.add(g); return s })
@@ -374,7 +374,7 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, distanceValue }: {
           display: 'flex', gap: 10,
         }}>
           <button
-            onClick={() => { setGenres(new Set()); setSelectedDate(null); setPreco(null); setLocalDistance(distanceValue) }}
+            onClick={() => { setGenres(new Set()); setSelectedDate(null); setPreco(null); setLocalDistance(10) }}
             style={{
               flex: 1, background: '#F5F5F5', color: TEXT,
               border: 0, cursor: 'pointer', padding: '14px 18px', borderRadius: 12,
@@ -804,7 +804,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         <FilterSheet
           onClose={() => setShowFilter(false)}
           bottomNavHeight={bottomNavHeight}
-          distanceValue={distance}
+          initial={{ genres: filterGenres, when: filterDate, price: filterPreco, distance }}
           onApply={(genres, date, price, dist) => { setFilterGenres(genres); setFilterDate(date); setFilterPreco(price); setDistance(dist) }}
         />
       )}
