@@ -219,7 +219,7 @@ function ChipBar({ activeChip, onChipChange }: {
 
 // ── Filter Sheet ─────────────────────────────────────────────────────────────
 
-const CATEGORIAS  = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Indie', 'Axé', 'República']
+const CATEGORIAS  = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Indie', 'Axé']
 const PRECOS      = ['Grátis', 'Até R$30', 'Até R$50']
 const DATE_CHIPS  = ['Hoje', 'Amanhã', 'Este fim de semana', 'Esta semana']
 
@@ -265,21 +265,21 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, distanceValue }: {
         borderBottomLeftRadius: 20, borderBottomRightRadius: 20,
         zIndex: 90,
         maxHeight: '92vh',
-        overflowY: 'auto', paddingBottom: 30,
+        display: 'flex', flexDirection: 'column',
         animation: 'fsUp 280ms cubic-bezier(.2,.9,.3,1)',
         fontFamily: "'Noto Sans', sans-serif",
       }}>
         <style>{`@keyframes fsUp { from { transform: translateY(100%); } to { transform: none; } }`}</style>
 
         {/* Grabber */}
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 6px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 6px', flexShrink: 0 }}>
           <div style={{ width: 40, height: 4, borderRadius: 999, background: '#D6D6D6' }} />
         </div>
 
         {/* Header */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '4px 20px 16px', borderBottom: `0.5px solid ${BORDER}`,
+          padding: '4px 20px 16px', borderBottom: `0.5px solid ${BORDER}`, flexShrink: 0,
         }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: TEXT }}>Filtros</div>
           <button onClick={onClose} style={{ border: 0, background: 'transparent', cursor: 'pointer', color: DIM }}>
@@ -287,91 +287,112 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, distanceValue }: {
           </button>
         </div>
 
-        {/* Categoria */}
-        <div style={{ padding: '18px 20px 0' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
-            Categoria
+        {/* Conteúdo scrollável */}
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {/* Categoria */}
+          <div style={{ padding: '18px 20px 0' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
+              Categoria
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {CATEGORIAS.map((c) => (
+                <button key={c} onClick={() => toggleGenre(c)} style={{
+                  border: `1.5px solid ${genres.has(c) ? PRIMARY : '#E0E0E0'}`,
+                  background: genres.has(c) ? `${PRIMARY}18` : '#fff',
+                  color: genres.has(c) ? PRIMARY : '#404040',
+                  padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
+                  fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
+                }}>
+                  {c}
+                </button>
+              ))}
+            </div>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {CATEGORIAS.map((c) => (
-              <button key={c} onClick={() => toggleGenre(c)} style={{
-                border: `1.5px solid ${genres.has(c) ? PRIMARY : '#E0E0E0'}`,
-                background: genres.has(c) ? `${PRIMARY}18` : '#fff',
-                color: genres.has(c) ? PRIMARY : '#404040',
-                padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
-                fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
-              }}>
-                {c}
-              </button>
-            ))}
+
+          {/* Quando */}
+          <div style={{ padding: '18px 20px 0' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
+              Quando
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {DATE_CHIPS.map((d) => (
+                <FilterChip
+                  key={d}
+                  label={d}
+                  active={selectedDate === d}
+                  onToggle={() => setSelectedDate(selectedDate === d ? null : d)}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Preço */}
+          <div style={{ padding: '18px 20px 0' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
+              Preço
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {PRECOS.map((p) => (
+                <button key={p} onClick={() => setPreco(preco === p ? null : p)} style={{
+                  border: `1.5px solid ${preco === p ? PRIMARY : '#E0E0E0'}`,
+                  background: preco === p ? `${PRIMARY}18` : '#fff',
+                  color: preco === p ? PRIMARY : '#404040',
+                  padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
+                  fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
+                }}>
+                  {p}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Distância */}
+          <div style={{ padding: '18px 20px 22px' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
+              Distância
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {DISTANCES.map(d => (
+                <button key={d} onClick={() => setLocalDistance(d)} style={{
+                  border: `1.5px solid ${localDistance === d ? PRIMARY : '#E0E0E0'}`,
+                  background: localDistance === d ? `${PRIMARY}18` : '#fff',
+                  color: localDistance === d ? PRIMARY : '#404040',
+                  padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
+                  fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
+                }}>
+                  {d}km
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Quando */}
-        <div style={{ padding: '18px 20px 0' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
-            Quando
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {DATE_CHIPS.map((d) => (
-              <FilterChip
-                key={d}
-                label={d}
-                active={selectedDate === d}
-                onToggle={() => setSelectedDate(selectedDate === d ? null : d)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* Preço */}
-        <div style={{ padding: '18px 20px 0' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
-            Preço
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {PRECOS.map((p) => (
-              <button key={p} onClick={() => setPreco(preco === p ? null : p)} style={{
-                border: `1.5px solid ${preco === p ? PRIMARY : '#E0E0E0'}`,
-                background: preco === p ? `${PRIMARY}18` : '#fff',
-                color: preco === p ? PRIMARY : '#404040',
-                padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
-                fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
-              }}>
-                {p}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Distância */}
-        <div style={{ padding: '18px 20px 0' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
-            Distância
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {DISTANCES.map(d => (
-              <button key={d} onClick={() => setLocalDistance(d)} style={{
-                border: `1.5px solid ${localDistance === d ? PRIMARY : '#E0E0E0'}`,
-                background: localDistance === d ? `${PRIMARY}18` : '#fff',
-                color: localDistance === d ? PRIMARY : '#404040',
-                padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
-                fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
-              }}>
-                {d}km
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Aplicar */}
-        <div style={{ padding: '24px 20px 0' }}>
-          <button onClick={() => { onApply(Array.from(genres), selectedDate, preco, localDistance); onClose() }} style={{
-            width: '100%', background: PRIMARY, color: '#fff',
-            border: 0, cursor: 'pointer', padding: '14px 18px', borderRadius: 12,
-            fontSize: 15, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
-            boxShadow: '0 6px 16px rgba(14,165,160,0.25)',
-          }}>
+        {/* Footer fixo */}
+        <div style={{
+          flexShrink: 0,
+          padding: '12px 20px 16px',
+          borderTop: `0.5px solid ${BORDER}`,
+          display: 'flex', gap: 10,
+        }}>
+          <button
+            onClick={() => { setGenres(new Set()); setSelectedDate(null); setPreco(null); setLocalDistance(distanceValue) }}
+            style={{
+              flex: 1, background: '#F5F5F5', color: TEXT,
+              border: 0, cursor: 'pointer', padding: '14px 18px', borderRadius: 12,
+              fontSize: 15, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
+            }}
+          >
+            Limpar
+          </button>
+          <button
+            onClick={() => { onApply(Array.from(genres), selectedDate, preco, localDistance); onClose() }}
+            style={{
+              flex: 2, background: PRIMARY, color: '#fff',
+              border: 0, cursor: 'pointer', padding: '14px 18px', borderRadius: 12,
+              fontSize: 15, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
+              boxShadow: '0 6px 16px rgba(14,165,160,0.25)',
+            }}
+          >
             Aplicar filtros
           </button>
         </div>
