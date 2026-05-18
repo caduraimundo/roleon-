@@ -24,7 +24,7 @@ const BTN: React.CSSProperties = {
   boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
 }
 
-const TOP = 'calc(env(safe-area-inset-top, 0px) + 16px)'
+const TOP = 'calc(env(safe-area-inset-top, 0px) + 10px)'
 
 export default function HeroActions({ title }: { title: string }) {
   const router = useRouter()

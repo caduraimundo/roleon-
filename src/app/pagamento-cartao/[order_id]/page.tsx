@@ -196,7 +196,7 @@ export default function PagamentoCartaoPage() {
         paddingTop: 'env(safe-area-inset-top, 0px)',
         position: 'relative',
       }}>
-        <div style={{ position: 'absolute', left: 8 }}>
+        <div style={{ position: 'absolute', left: 16 }}>
           <button
             onClick={() => router.back()}
             aria-label="Voltar"

@@ -164,7 +164,7 @@ export default function PerfilPage() {
         position: 'relative',
         fontFamily: "'Noto Sans', sans-serif",
       }}>
-        <div style={{ position: 'absolute', left: 8 }}>
+        <div style={{ position: 'absolute', left: 16 }}>
           <BackButton />
         </div>
         <div style={{

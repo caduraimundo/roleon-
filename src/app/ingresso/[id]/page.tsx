@@ -102,7 +102,7 @@ function ErrorScreen({ message, onBack }: { message: string; onBack: () => void 
         height: 56,
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
-        <div style={{ position: 'absolute', left: 8 }}>
+        <div style={{ position: 'absolute', left: 16 }}>
           <BackButton />
         </div>
         <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>Meu Ingresso</span>
@@ -209,7 +209,7 @@ export default function IngressoPage() {
         height: 56,
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
-        <div style={{ position: 'absolute', left: 8 }}>
+        <div style={{ position: 'absolute', left: 16 }}>
           <BackButton />
         </div>
         <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>Meu Ingresso</span>

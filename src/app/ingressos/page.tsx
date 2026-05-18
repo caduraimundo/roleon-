@@ -267,7 +267,7 @@ export default function IngressosPage() {
         height: 56,
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
-        <div style={{ position: 'absolute', left: 8 }}>
+        <div style={{ position: 'absolute', left: 16 }}>
           <button onClick={() => router.push('/')} aria-label="Voltar" style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F2F2F2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none', flexShrink: 0 }}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 18l-6-6 6-6"/>

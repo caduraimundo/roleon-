@@ -238,7 +238,7 @@ export default function PagamentoPage() {
         height: 56,
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
-        <div style={{ position: 'absolute', left: 8 }}>
+        <div style={{ position: 'absolute', left: 16 }}>
           <button
             onClick={() => router.replace('/')}
             aria-label="Cancelar"

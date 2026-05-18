@@ -286,7 +286,7 @@ export default function CheckoutPage() {
         paddingTop: 'env(safe-area-inset-top, 0px)',
         position: 'relative',
       }}>
-        <div style={{ position: 'absolute', left: 8 }}>
+        <div style={{ position: 'absolute', left: 16 }}>
           <BackButton />
         </div>
         <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>Checkout</span>
