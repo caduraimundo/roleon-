@@ -255,16 +255,15 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, distanceValue }: {
   return (
     <>
       <div onClick={onClose} style={{
-        position: 'absolute', inset: 0,
-        background: 'rgba(0,0,0,0.35)', zIndex: 85,
-      }} />
-      <div style={{
-        position: 'absolute', left: 0, right: 0, bottom: bottomNavHeight,
+        position: 'fixed', inset: 0, zIndex: 240,
+        background: 'rgba(0,0,0,0.35)',
+        display: 'flex', alignItems: 'flex-end',
+      }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        width: '100%',
         background: '#fff',
-        borderTopLeftRadius: 20, borderTopRightRadius: 20,
-        borderBottomLeftRadius: 20, borderBottomRightRadius: 20,
-        zIndex: 90,
-        maxHeight: '92vh',
+        borderTopLeftRadius: 22, borderTopRightRadius: 22,
+        maxHeight: '90vh',
         display: 'flex', flexDirection: 'column',
         animation: 'fsUp 280ms cubic-bezier(.2,.9,.3,1)',
         fontFamily: "'Noto Sans', sans-serif",
@@ -396,6 +395,7 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, distanceValue }: {
             Aplicar filtros
           </button>
         </div>
+      </div>
       </div>
     </>
   )
