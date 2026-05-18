@@ -72,19 +72,26 @@ function IconLocate() {
   )
 }
 
+const DISTANCES = [10, 25, 50, 100]
+
 // ── Search Bar ───────────────────────────────────────────────────────────────
 
-function SearchBar({ safeTop, hasActiveFilter, onFilterOpen }: {
+function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistance }: {
   safeTop: number
   hasActiveFilter: boolean
   onFilterOpen: () => void
+  distance: number
+  setDistance: (d: number) => void
 }) {
+  const [open, setOpen] = useState(false)
+
   return (
     <div style={{
       padding: `${safeTop + 4}px 16px 10px`,
       pointerEvents: 'none',
     }}>
       <div style={{
+        position: 'relative',
         display: 'flex', alignItems: 'center', gap: 8,
         background: '#fff', borderRadius: 999,
         padding: '10px 14px',
@@ -112,6 +119,76 @@ function SearchBar({ safeTop, hasActiveFilter, onFilterOpen }: {
         >
           <IconSliders />
         </button>
+
+        {/* divisor */}
+        <div style={{ width: 1, height: 22, background: 'rgba(0,0,0,0.10)', flexShrink: 0 }} />
+
+        {/* chip distância */}
+        <button
+          onClick={() => setOpen(s => !s)}
+          style={{
+            marginLeft: 4, flexShrink: 0,
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            padding: '7px 10px',
+            border: 0, borderRadius: 999, cursor: 'pointer',
+            background: 'transparent',
+            color: TEXT,
+            fontFamily: "'Noto Sans', sans-serif",
+            fontSize: 14.5, fontWeight: 500,
+            lineHeight: 1,
+          }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+            style={{ color: PRIMARY, flexShrink: 0, display: 'block' }}>
+            <path d="M8 1.6c2.65 0 4.8 2.1 4.8 4.7 0 3.5-4.8 7.1-4.8 7.1S3.2 9.8 3.2 6.3c0-2.6 2.15-4.7 4.8-4.7z"
+              stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+            <circle cx="8" cy="6.3" r="1.7" stroke="currentColor" strokeWidth="1.5"/>
+          </svg>
+          <span>{distance}km</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+            style={{ color: DIM, marginLeft: -1, flexShrink: 0 }}>
+            <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.5"
+              strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+
+        {/* dropdown */}
+        {open && (
+          <>
+            <div onClick={() => setOpen(false)}
+              style={{ position: 'fixed', inset: 0, zIndex: 22 }} />
+            <div style={{
+              position: 'absolute', right: 0, top: 'calc(100% + 6px)',
+              background: '#fff', borderRadius: 12,
+              boxShadow: '0 10px 28px rgba(0,0,0,0.16), 0 0 0 0.5px rgba(0,0,0,0.05)',
+              padding: 6, zIndex: 25, minWidth: 160,
+            }}>
+              <div style={{
+                fontSize: 10, fontWeight: 700, letterSpacing: 0.6,
+                textTransform: 'uppercase', color: '#9E9EA7',
+                padding: '8px 10px 4px',
+              }}>Distância máxima</div>
+              {DISTANCES.map(d => {
+                const isActive = distance === d
+                return (
+                  <button key={d}
+                    onClick={() => { setDistance(d); setOpen(false) }}
+                    style={{
+                      display: 'block', width: '100%',
+                      textAlign: 'left', padding: '9px 10px',
+                      border: 0, borderRadius: 7,
+                      background: isActive ? '#F0FAF9' : 'transparent',
+                      color: isActive ? PRIMARY : TEXT,
+                      fontSize: 13.5, fontWeight: isActive ? 700 : 500,
+                      fontFamily: "'Noto Sans', sans-serif",
+                      cursor: 'pointer',
+                    }}>
+                    {d}km
+                  </button>
+                )
+              })}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
@@ -174,14 +251,16 @@ function FilterChip({ label, active, onToggle }: { label: string; active: boolea
   )
 }
 
-function FilterSheet({ onClose, bottomNavHeight, onApply }: {
+function FilterSheet({ onClose, bottomNavHeight, onApply, distanceValue }: {
   onClose: () => void
   bottomNavHeight: number
-  onApply: (cat: string | null, date: string | null, price: string | null) => void
+  onApply: (cat: string | null, date: string | null, price: string | null, distance: number) => void
+  distanceValue: number
 }) {
   const [categoria,     setCategoria]     = useState<string | null>(null)
   const [selectedDate,  setSelectedDate]  = useState<string | null>(null)
   const [preco,         setPreco]         = useState<string | null>(null)
+  const [localDistance, setLocalDistance] = useState(distanceValue)
 
   return (
     <>
@@ -275,9 +354,29 @@ function FilterSheet({ onClose, bottomNavHeight, onApply }: {
           </div>
         </div>
 
+        {/* Distância */}
+        <div style={{ padding: '18px 20px 0' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.7, marginBottom: 10 }}>
+            Distância
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {DISTANCES.map(d => (
+              <button key={d} onClick={() => setLocalDistance(d)} style={{
+                border: `1.5px solid ${localDistance === d ? PRIMARY : '#E0E0E0'}`,
+                background: localDistance === d ? `${PRIMARY}18` : '#fff',
+                color: localDistance === d ? PRIMARY : '#404040',
+                padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
+                fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
+              }}>
+                {d}km
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Aplicar */}
         <div style={{ padding: '24px 20px 0' }}>
-          <button onClick={() => { onApply(categoria, selectedDate, preco); onClose() }} style={{
+          <button onClick={() => { onApply(categoria, selectedDate, preco, localDistance); onClose() }} style={{
             width: '100%', background: PRIMARY, color: '#fff',
             border: 0, cursor: 'pointer', padding: '14px 18px', borderRadius: 12,
             fontSize: 15, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
@@ -334,6 +433,20 @@ function getDateRange(filter: string | null): { gte?: string; lte?: string } {
   return {}
 }
 
+// ── Haversine ────────────────────────────────────────────────────────────────
+
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371
+  const dLat = ((lat2 - lat1) * Math.PI) / 180
+  const dLng = ((lng2 - lng1) * Math.PI) / 180
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLng / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
 // ── MapClient (componente principal exportado) ───────────────────────────────
 
 const GENRE_COLORS: Record<string, string> = {
@@ -367,6 +480,8 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const [filterCategoria, setFilterCategoria] = useState<string | null>(null)
   const [filterDate,      setFilterDate]      = useState<string | null>(null)
   const [filterPreco,     setFilterPreco]     = useState<string | null>(null)
+  const [distance,        setDistance]        = useState(25)
+  const [userLocation,    setUserLocation]    = useState<{ lat: number; lng: number } | null>(null)
   const [safeTop,         setSafeTop]         = useState(56)
 
   useEffect(() => {
@@ -413,6 +528,14 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   }, [])
 
   useEffect(() => {
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => setUserLocation(null),
+    )
+  }, [])
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setAuthed(!!data.session)
       setUserId(data.session?.user?.id ?? null)
@@ -441,6 +564,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     if (activeChip && !['Hoje', 'Grátis'].includes(activeChip) &&
         ev.genre.toLowerCase() !== activeChip.toLowerCase()) return false
     if (filterCategoria && ev.genre !== filterCategoria) return false
+    if (userLocation && ev.lat && ev.lng) {
+      if (haversineKm(userLocation.lat, userLocation.lng, ev.lat, ev.lng) > distance) return false
+    }
     return true
   })
 
@@ -565,7 +691,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         pointerEvents: 'none',
       }}>
         <div style={{ pointerEvents: 'auto' }}>
-          <SearchBar safeTop={safeTop} hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} />
+          <SearchBar safeTop={safeTop} hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} />
           <ChipBar activeChip={activeChip} onChipChange={setActiveChip} />
         </div>
       </div>
@@ -621,7 +747,8 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         <FilterSheet
           onClose={() => setShowFilter(false)}
           bottomNavHeight={bottomNavHeight}
-          onApply={(cat, date, price) => { setFilterCategoria(cat); setFilterDate(date); setFilterPreco(price) }}
+          distanceValue={distance}
+          onApply={(cat, date, price, dist) => { setFilterCategoria(cat); setFilterDate(date); setFilterPreco(price); setDistance(dist) }}
         />
       )}
 
