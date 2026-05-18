@@ -93,7 +93,7 @@ function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistan
       <div style={{
         position: 'relative',
         display: 'flex', alignItems: 'center', gap: 8,
-        background: '#fff', borderRadius: 999,
+        background: '#fff', borderRadius: 16,
         padding: '10px 14px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
         pointerEvents: 'auto',
