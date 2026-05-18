@@ -241,13 +241,16 @@ function FilterChip({ label, active, onToggle }: { label: string; active: boolea
 function FilterSheet({ onClose, bottomNavHeight, onApply, distanceValue }: {
   onClose: () => void
   bottomNavHeight: number
-  onApply: (cat: string | null, date: string | null, price: string | null, distance: number) => void
+  onApply: (genres: string[], date: string | null, price: string | null, distance: number) => void
   distanceValue: number
 }) {
-  const [categoria,     setCategoria]     = useState<string | null>(null)
+  const [genres,        setGenres]        = useState<Set<string>>(new Set())
   const [selectedDate,  setSelectedDate]  = useState<string | null>(null)
   const [preco,         setPreco]         = useState<string | null>(null)
   const [localDistance, setLocalDistance] = useState(distanceValue)
+
+  const toggleGenre = (g: string) =>
+    setGenres(prev => { const s = new Set(prev); s.has(g) ? s.delete(g) : s.add(g); return s })
 
   return (
     <>
@@ -291,10 +294,10 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, distanceValue }: {
           </div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {CATEGORIAS.map((c) => (
-              <button key={c} onClick={() => setCategoria(categoria === c ? null : c)} style={{
-                border: `1.5px solid ${categoria === c ? PRIMARY : '#E0E0E0'}`,
-                background: categoria === c ? `${PRIMARY}18` : '#fff',
-                color: categoria === c ? PRIMARY : '#404040',
+              <button key={c} onClick={() => toggleGenre(c)} style={{
+                border: `1.5px solid ${genres.has(c) ? PRIMARY : '#E0E0E0'}`,
+                background: genres.has(c) ? `${PRIMARY}18` : '#fff',
+                color: genres.has(c) ? PRIMARY : '#404040',
                 padding: '8px 16px', borderRadius: 999, cursor: 'pointer',
                 fontSize: 13.5, fontWeight: 500, fontFamily: "'Noto Sans', sans-serif",
               }}>
@@ -363,7 +366,7 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, distanceValue }: {
 
         {/* Aplicar */}
         <div style={{ padding: '24px 20px 0' }}>
-          <button onClick={() => { onApply(categoria, selectedDate, preco, localDistance); onClose() }} style={{
+          <button onClick={() => { onApply(Array.from(genres), selectedDate, preco, localDistance); onClose() }} style={{
             width: '100%', background: PRIMARY, color: '#fff',
             border: 0, cursor: 'pointer', padding: '14px 18px', borderRadius: 12,
             fontSize: 15, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
@@ -464,7 +467,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const [activeChip,      setActiveChip]      = useState<string | null>(null)
   const [activeTab,       setActiveTab]       = useState<TabId>('explorar')
   const [showFilter,      setShowFilter]      = useState(false)
-  const [filterCategoria, setFilterCategoria] = useState<string | null>(null)
+  const [filterGenres,    setFilterGenres]    = useState<string[]>([])
   const [filterDate,      setFilterDate]      = useState<string | null>(null)
   const [filterPreco,     setFilterPreco]     = useState<string | null>(null)
   const [distance,        setDistance]        = useState(10)
@@ -550,7 +553,13 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     if (activeChip === 'Grátis' && ev.price > 0) return false
     if (activeChip && !['Hoje', 'Grátis'].includes(activeChip) &&
         ev.genre.toLowerCase() !== activeChip.toLowerCase()) return false
-    if (filterCategoria && ev.genre !== filterCategoria) return false
+    if (filterGenres.length > 0) {
+      const match = filterGenres.some(g =>
+        (ev.genre || '').toLowerCase().includes(g.toLowerCase()) ||
+        g.toLowerCase().includes((ev.genre || '').toLowerCase())
+      )
+      if (!match) return false
+    }
     if (userLocation && ev.lat && ev.lng) {
       if (haversineKm(userLocation.lat, userLocation.lng, ev.lat, ev.lng) > distance) return false
     }
@@ -558,7 +567,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   })
 
   const activeEvent = filteredEvents.find((e) => e.id === activePin) ?? null
-  const hasActiveFilter = !!(filterCategoria || filterPreco || filterDate)
+  const hasActiveFilter = filterGenres.length > 0 || !!(filterPreco || filterDate)
 
   // Inicializa o mapa + marcador de localização do usuário
   useEffect(() => {
@@ -735,7 +744,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
           onClose={() => setShowFilter(false)}
           bottomNavHeight={bottomNavHeight}
           distanceValue={distance}
-          onApply={(cat, date, price, dist) => { setFilterCategoria(cat); setFilterDate(date); setFilterPreco(price); setDistance(dist) }}
+          onApply={(genres, date, price, dist) => { setFilterGenres(genres); setFilterDate(date); setFilterPreco(price); setDistance(dist) }}
         />
       )}
 
