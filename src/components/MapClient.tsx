@@ -76,12 +76,14 @@ const DISTANCES = [10, 25, 50, 100]
 
 // ── Search Bar ───────────────────────────────────────────────────────────────
 
-function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistance }: {
+function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistance, searchValue, onSearchChange }: {
   safeTop: number
   hasActiveFilter: boolean
   onFilterOpen: () => void
   distance: number
   setDistance: (d: number) => void
+  searchValue: string
+  onSearchChange: (v: string) => void
 }) {
   const [open, setOpen] = useState(false)
 
@@ -101,12 +103,18 @@ function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistan
         <span style={{ color: DIM, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
           <IconSearch />
         </span>
-        <div style={{
-          flex: 1, fontSize: 14.5, fontWeight: 500, color: TEXT,
-          fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer', userSelect: 'none',
-        }}>
-          Ouro Preto
-        </div>
+        <input
+          type="text"
+          value={searchValue}
+          onChange={e => onSearchChange(e.target.value)}
+          placeholder="Buscar local ou evento..."
+          style={{
+            flex: 1, fontSize: 14.5, fontWeight: 500, color: TEXT,
+            fontFamily: "'Noto Sans', sans-serif",
+            border: 'none', outline: 'none', background: 'transparent',
+            padding: 0, margin: 0,
+          }}
+        />
         {/* divisor */}
         <div style={{ width: 1, height: 22, background: 'rgba(0,0,0,0.10)', flexShrink: 0 }} />
 
@@ -492,6 +500,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const [filterDate,      setFilterDate]      = useState<string | null>(null)
   const [filterPreco,     setFilterPreco]     = useState<string | null>(null)
   const [distance,        setDistance]        = useState(10)
+  const [searchValue,     setSearchValue]     = useState('')
   const [userLocation,    setUserLocation]    = useState<{ lat: number; lng: number } | null>(null)
   const [safeTop,         setSafeTop]         = useState(56)
 
@@ -708,7 +717,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         pointerEvents: 'none',
       }}>
         <div style={{ pointerEvents: 'auto' }}>
-          <SearchBar safeTop={safeTop} hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} />
+          <SearchBar safeTop={safeTop} hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} searchValue={searchValue} onSearchChange={setSearchValue} />
         </div>
       </div>
 
