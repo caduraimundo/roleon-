@@ -112,6 +112,18 @@ export default function PagamentoPage() {
   }, [])
 
   useEffect(() => {
+    if (!expired || paid) return
+    if (!ticketId || ticketId.startsWith('mock_')) return
+    supabase
+      .from('tickets')
+      .update({ status: 'expired' })
+      .eq('id', ticketId)
+      .then(({ error }) => {
+        if (error) console.error('[pagamento] erro ao expirar ticket:', error)
+      })
+  }, [expired, paid, ticketId])
+
+  useEffect(() => {
     if (expired) {
       if (pollingRef.current) clearInterval(pollingRef.current)
       return

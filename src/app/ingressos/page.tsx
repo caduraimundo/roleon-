@@ -47,6 +47,7 @@ function StatusBadge({ status }: { status: string }) {
     paid:    { label: 'Válido',    bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
     used:    { label: 'Utilizado', bg: '#F2F2F2', color: '#6E6E73', dot: '#6E6E73' },
     pending: { label: 'Pendente',  bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
+    expired: { label: 'Expirado', bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
   }
   const s = map[status] ?? map['pending']
   return (
@@ -198,13 +199,20 @@ export default function IngressosPage() {
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
+  const cutoff24h = new Date(Date.now() - 24 * 60 * 60 * 1000)
 
   const proximos = tickets
     .filter(t => {
+      if (t.status === 'expired') return new Date(t.created_at) > cutoff24h
       const d = t.events?.event_date ? new Date(t.events.event_date) : null
       return d !== null && d >= today && t.status !== 'used'
     })
     .sort((a, b) => {
+      if (a.status === 'expired' && b.status !== 'expired') return 1
+      if (b.status === 'expired' && a.status !== 'expired') return -1
+      if (a.status === 'expired' && b.status === 'expired') {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      }
       const da = new Date(a.events!.event_date!).getTime()
       const db = new Date(b.events!.event_date!).getTime()
       return da - db
@@ -212,12 +220,13 @@ export default function IngressosPage() {
 
   const historico = tickets
     .filter(t => {
+      if (t.status === 'expired') return new Date(t.created_at) <= cutoff24h
       const d = t.events?.event_date ? new Date(t.events.event_date) : null
       return (d !== null && d < today) || t.status === 'used'
     })
     .sort((a, b) => {
-      const da = new Date(a.events!.event_date!).getTime()
-      const db = new Date(b.events!.event_date!).getTime()
+      const da = a.events?.event_date ? new Date(a.events.event_date).getTime() : new Date(a.created_at).getTime()
+      const db = b.events?.event_date ? new Date(b.events.event_date).getTime() : new Date(b.created_at).getTime()
       return db - da
     })
 
