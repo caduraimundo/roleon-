@@ -369,7 +369,7 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, distanceValue }: {
         {/* Footer fixo */}
         <div style={{
           flexShrink: 0,
-          padding: '12px 20px 16px',
+          padding: '20px 20px 28px',
           borderTop: `0.5px solid ${BORDER}`,
           display: 'flex', gap: 10,
         }}>
