@@ -186,6 +186,7 @@ export default function IngressoPage() {
     paid:    { label: 'Válido',    bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
     used:    { label: 'Utilizado', bg: '#F2F2F2', color: '#6E6E73', dot: '#6E6E73' },
     pending: { label: 'Pendente',  bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
+    expired: { label: 'Expirado', bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
   }
   const badgeStyle = statusMap[ticket?.status ?? ''] ?? statusMap['pending']
   const qrData = ticket?.qr_code || ticketId
@@ -302,13 +303,29 @@ export default function IngressoPage() {
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
           }}>
             {ticket?.status === 'paid' || ticket?.status === 'valid' ? (
-              <img
-                src={qrUrl}
-                alt="QR Code do ingresso"
-                width={200}
-                height={200}
-                style={{ borderRadius: 8, display: 'block' }}
-              />
+              <>
+                <img
+                  src={qrUrl}
+                  alt="QR Code do ingresso"
+                  width={200}
+                  height={200}
+                  style={{ borderRadius: 8, display: 'block' }}
+                />
+                <div style={{
+                  fontFamily: 'monospace', fontSize: 14, fontWeight: 700,
+                  color: '#1A1A1A', letterSpacing: 2,
+                }}>
+                  {formatTicketNumber(ticketId)}
+                </div>
+                <div style={{
+                  width: '100%', paddingTop: 14,
+                  borderTop: '1px solid #F2F2F2',
+                  textAlign: 'center',
+                  fontSize: 12, color: '#6E6E73', lineHeight: 1.5,
+                }}>
+                  Apresente este QR Code na entrada do evento
+                </div>
+              </>
             ) : ticket?.status === 'pending' ? (
               <div style={{
                 width: 200, height: 200,
@@ -327,27 +344,36 @@ export default function IngressoPage() {
                   Seu ingresso será liberado assim que o pagamento for confirmado.
                 </div>
               </div>
+            ) : ticket?.status === 'expired' ? (
+              <div style={{
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: 12, textAlign: 'center', padding: '8px 0',
+              }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <path d="M15 9l-6 6M9 9l6 6"/>
+                </svg>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', lineHeight: 1.4 }}>
+                  PIX expirado
+                </div>
+                <div style={{ fontSize: 11, color: '#6E6E73', lineHeight: 1.5 }}>
+                  O prazo de pagamento encerrou. Você pode tentar comprar novamente.
+                </div>
+                <button
+                  onClick={() => router.push(`/evento/${ticket.event_id}`)}
+                  style={{
+                    marginTop: 4, padding: '10px 24px', borderRadius: 12,
+                    background: '#0EA5A0', color: '#fff',
+                    border: 0, cursor: 'pointer',
+                    fontSize: 14, fontWeight: 600,
+                    fontFamily: "'Noto Sans', sans-serif",
+                  }}
+                >
+                  Comprar novamente
+                </button>
+              </div>
             ) : null}
-
-            {ticket?.status !== 'pending' && (
-              <div style={{
-                fontFamily: 'monospace', fontSize: 14, fontWeight: 700,
-                color: '#1A1A1A', letterSpacing: 2,
-              }}>
-                {formatTicketNumber(ticketId)}
-              </div>
-            )}
-
-            {ticket?.status !== 'pending' && (
-              <div style={{
-                width: '100%', paddingTop: 14,
-                borderTop: '1px solid #F2F2F2',
-                textAlign: 'center',
-                fontSize: 12, color: '#6E6E73', lineHeight: 1.5,
-              }}>
-                Apresente este QR Code na entrada do evento
-              </div>
-            )}
           </div>
 
         </div>
