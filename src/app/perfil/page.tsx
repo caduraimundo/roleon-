@@ -286,7 +286,7 @@ export default function PerfilPage() {
         letterSpacing: 1.2, textTransform: 'uppercase',
         fontFamily: "'Noto Sans', sans-serif",
       }}>
-        Roleon · v0.1 · OP
+        Roleon · v1.0.0
       </div>
 
       <BottomNav activeTab="perfil" onTabChange={(tab) => {
