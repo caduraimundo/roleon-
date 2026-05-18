@@ -189,7 +189,26 @@ export default function IngressosPage() {
         .select('id, event_id, price_paid, status, created_at, ticket_type_name, payment_method, events(title, event_date, location_name)')
         .eq('user_id', user.id)
 
-      setTickets((data as unknown as TicketWithEvent[]) ?? [])
+      const rows = (data as unknown as TicketWithEvent[]) ?? []
+
+      // Expirar automaticamente tickets pendentes com mais de 15 minutos
+      const cutoff15min = new Date(Date.now() - 15 * 60 * 1000)
+      const toExpire = rows
+        .filter(t => t.status === 'pending' && new Date(t.created_at) < cutoff15min)
+        .map(t => t.id)
+
+      if (toExpire.length > 0) {
+        await supabase
+          .from('tickets')
+          .update({ status: 'expired' })
+          .in('id', toExpire)
+        toExpire.forEach(id => {
+          const t = rows.find(r => r.id === id)
+          if (t) t.status = 'expired'
+        })
+      }
+
+      setTickets(rows)
       setLoading(false)
     }
     load()
