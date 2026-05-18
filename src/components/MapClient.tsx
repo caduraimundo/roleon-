@@ -109,7 +109,7 @@ function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistan
           onChange={e => onSearchChange(e.target.value)}
           placeholder="Buscar local ou evento..."
           style={{
-            flex: 1, fontSize: 14.5, fontWeight: 500, color: TEXT,
+            flex: 1, fontSize: 16, fontWeight: 500, color: TEXT,
             fontFamily: "'Noto Sans', sans-serif",
             border: 'none', outline: 'none', background: 'transparent',
             padding: 0, margin: 0,
