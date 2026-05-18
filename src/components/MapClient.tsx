@@ -692,7 +692,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       }}>
         <div style={{ pointerEvents: 'auto' }}>
           <SearchBar safeTop={safeTop} hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} />
-          {!activePin && <ChipBar activeChip={activeChip} onChipChange={setActiveChip} />}
         </div>
       </div>
 
