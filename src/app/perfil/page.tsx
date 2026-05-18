@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import AuthSheet from '../../components/AuthSheet'
 import { BackButton } from '../../components/BackButton'
+import BottomNav from '../../components/BottomNav'
 
 // ── Ícones ────────────────────────────────────────────────────────────────────
 
@@ -175,7 +176,7 @@ export default function PerfilPage() {
       </div>
 
       {/* Conteúdo */}
-      <div style={{ flex: 1, padding: '28px 20px 40px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ flex: 1, padding: '28px 20px 96px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* Avatar + nome + subtítulo */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
@@ -280,13 +281,18 @@ export default function PerfilPage() {
       {/* Rodapé */}
       <div style={{
         textAlign: 'center',
-        padding: 'calc(env(safe-area-inset-bottom, 0px) + 16px) 20px 20px',
+        padding: '16px 20px 20px',
         fontSize: 11, fontWeight: 600, color: '#CACACA',
         letterSpacing: 1.2, textTransform: 'uppercase',
         fontFamily: "'Noto Sans', sans-serif",
       }}>
         Roleon · v0.1 · OP
       </div>
+
+      <BottomNav activeTab="perfil" onTabChange={(tab) => {
+        if (tab === 'explorar')  router.push('/')
+        if (tab === 'ingressos') router.push('/ingressos')
+      }} />
     </div>
   )
 }

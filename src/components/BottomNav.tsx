@@ -60,7 +60,7 @@ function NavIcon({ id, active }: { id: TabId; active: boolean }) {
 export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
   return (
     <div style={{
-      position: 'absolute', left: 0, right: 0, bottom: 0,
+      position: 'fixed', left: 0, right: 0, bottom: 0,
       background: '#ffffff', borderTop: '0.5px solid #EAEAEA',
       paddingTop: 6,
       paddingBottom: 'max(20px, env(safe-area-inset-bottom))',

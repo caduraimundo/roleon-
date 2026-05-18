@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { BackButton } from '../../components/BackButton'
+import BottomNav from '../../components/BottomNav'
 
 const TEAL = '#0EA5A0'
 const TEXT = '#1A1A1A'
@@ -339,7 +340,7 @@ export default function IngressosPage() {
           )}
         </div>
       ) : (
-        <div style={{ flex: 1, padding: '16px 16px 32px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ flex: 1, padding: '16px 16px 96px', display: 'flex', flexDirection: 'column', gap: 12 }}>
           {list.map((t) => (
             <TicketCard
               key={t.id}
@@ -349,6 +350,11 @@ export default function IngressosPage() {
           ))}
         </div>
       )}
+
+      <BottomNav activeTab="ingressos" onTabChange={(tab) => {
+        if (tab === 'explorar') router.push('/')
+        if (tab === 'perfil')   router.push('/perfil')
+      }} />
     </div>
   )
 }
