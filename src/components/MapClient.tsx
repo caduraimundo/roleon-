@@ -219,7 +219,7 @@ function ChipBar({ activeChip, onChipChange }: {
 
 // ── Filter Sheet ─────────────────────────────────────────────────────────────
 
-const CATEGORIAS  = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Axé']
+const CATEGORIAS  = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Axé', 'República']
 const PRECOS      = ['Grátis', 'Até R$30', 'Até R$50']
 const DATE_CHIPS  = ['Hoje', 'Amanhã', 'Este fim de semana', 'Esta semana']
 
