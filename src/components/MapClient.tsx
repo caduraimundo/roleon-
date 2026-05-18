@@ -691,32 +691,72 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         </div>
       </div>
 
-      {/* FAB: localização */}
+      {/* FABs: filtros + localização */}
       {!activePin && (
-        <button
-          onClick={() => {
-            if (userLocationRef.current) {
-              mapInstanceRef.current?.panTo(userLocationRef.current)
-            } else {
-              navigator.geolocation?.getCurrentPosition((p) =>
-                mapInstanceRef.current?.panTo({ lat: p.coords.latitude, lng: p.coords.longitude })
-              )
-            }
-          }}
-          aria-label="Minha localização"
-          style={{
-            position: 'absolute', right: 14,
-            bottom: `calc(${bottomNavHeight + 64 + 12}px + env(safe-area-inset-bottom, 0px))`,
-            width: 42, height: 42, borderRadius: 999,
-            background: '#fff', border: 0, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: TEXT,
-            boxShadow: '0 2px 6px rgba(0,0,0,0.10)',
-            zIndex: 18,
-          }}
-        >
-          <IconLocate />
-        </button>
+        <div style={{
+          position: 'absolute', right: 14,
+          bottom: `calc(${bottomNavHeight + 80}px + env(safe-area-inset-bottom, 0px))`,
+          display: 'flex', flexDirection: 'column', gap: 8,
+          zIndex: 18,
+        }}>
+          {/* FAB filtros */}
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setShowFilter(true)}
+              aria-label="Filtros"
+              style={{
+                width: 42, height: 42, borderRadius: 999,
+                background: '#fff', border: 0, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: TEXT,
+                boxShadow: '0 6px 16px rgba(0,0,0,0.14), 0 0 0 0.5px rgba(0,0,0,0.04)',
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                <path d="M3 6h7M14 6h3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+                <circle cx="12" cy="6" r="2" stroke="currentColor" strokeWidth="1.7"/>
+                <path d="M3 14h3M10 14h7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+                <circle cx="8" cy="14" r="2" stroke="currentColor" strokeWidth="1.7"/>
+              </svg>
+            </button>
+            {filterGenres.length > 0 && (
+              <div style={{
+                position: 'absolute', top: -4, right: -4,
+                width: 18, height: 18, borderRadius: 999,
+                background: PRIMARY, color: '#fff',
+                fontSize: 10, fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: "'Noto Sans', sans-serif",
+                pointerEvents: 'none',
+              }}>
+                {filterGenres.length}
+              </div>
+            )}
+          </div>
+
+          {/* FAB localização */}
+          <button
+            onClick={() => {
+              if (userLocationRef.current) {
+                mapInstanceRef.current?.panTo(userLocationRef.current)
+              } else {
+                navigator.geolocation?.getCurrentPosition((p) =>
+                  mapInstanceRef.current?.panTo({ lat: p.coords.latitude, lng: p.coords.longitude })
+                )
+              }
+            }}
+            aria-label="Minha localização"
+            style={{
+              width: 42, height: 42, borderRadius: 999,
+              background: '#fff', border: 0, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: TEXT,
+              boxShadow: '0 6px 16px rgba(0,0,0,0.14), 0 0 0 0.5px rgba(0,0,0,0.04)',
+            }}
+          >
+            <IconLocate />
+          </button>
+        </div>
       )}
 
       {/* Card de evento ou hint */}
