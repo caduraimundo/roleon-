@@ -108,7 +108,7 @@ export default function InteressesPage() {
       {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center',
-        height: 52,
+        height: 56,
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingLeft: 16, paddingRight: 16,
         background: '#fff', borderBottom: '0.5px solid #EFEFEF',
@@ -128,7 +128,7 @@ export default function InteressesPage() {
         </button>
         <div style={{
           position: 'absolute', left: '50%', transform: 'translateX(-50%)',
-          fontSize: 16, fontWeight: 700, color: '#1A1A1A',
+          fontSize: 17, fontWeight: 700, color: '#1A1A1A',
         }}>
           Meus interesses
         </div>

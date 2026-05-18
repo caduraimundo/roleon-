@@ -274,7 +274,7 @@ export default function IngressosPage() {
               </svg>
             </button>
         </div>
-        <span style={{ fontSize: 16, fontWeight: 700, color: TEXT }}>Meus Ingressos</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: TEXT }}>Meus Ingressos</span>
       </div>
 
       {/* Tabs - pill/segmented */}

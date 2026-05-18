@@ -281,12 +281,15 @@ export default function CheckoutPage() {
       <div style={{
         background: '#fff',
         borderBottom: '0.5px solid rgba(0,0,0,0.07)',
-        display: 'flex', alignItems: 'center',
-        padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
-        gap: 12,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        height: 56,
+        paddingTop: 'env(safe-area-inset-top, 0px)',
+        position: 'relative',
       }}>
-        <BackButton />
-        <span style={{ fontSize: 18, fontWeight: 700, color: '#1A1A1A' }}>Checkout</span>
+        <div style={{ position: 'absolute', left: 8 }}>
+          <BackButton />
+        </div>
+        <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>Checkout</span>
       </div>
 
       {/* ── CONTEÚDO ── */}

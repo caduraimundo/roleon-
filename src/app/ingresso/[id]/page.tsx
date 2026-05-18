@@ -99,12 +99,13 @@ function ErrorScreen({ message, onBack }: { message: string; onBack: () => void 
         background: '#fff',
         boxShadow: '0 1px 0 rgba(0,0,0,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
+        height: 56,
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
         <div style={{ position: 'absolute', left: 8 }}>
           <BackButton />
         </div>
-        <span style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A' }}>Meu Ingresso</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>Meu Ingresso</span>
       </div>
       <div style={{
         flex: 1, display: 'flex', flexDirection: 'column',
@@ -205,12 +206,13 @@ export default function IngressoPage() {
         background: '#fff',
         boxShadow: '0 1px 0 rgba(0,0,0,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
+        height: 56,
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
         <div style={{ position: 'absolute', left: 8 }}>
           <BackButton />
         </div>
-        <span style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A' }}>Meu Ingresso</span>
+        <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>Meu Ingresso</span>
       </div>
 
       {/* Conteúdo */}

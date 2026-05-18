@@ -113,7 +113,7 @@ export default function SalvosPage() {
       {/* Header */}
       <div style={{
         display: 'flex', alignItems: 'center',
-        height: 52,
+        height: 56,
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingLeft: 16, paddingRight: 16,
         background: '#fff',
@@ -134,7 +134,7 @@ export default function SalvosPage() {
         </button>
         <div style={{
           position: 'absolute', left: '50%', transform: 'translateX(-50%)',
-          fontSize: 16, fontWeight: 700, color: '#1A1A1A',
+          fontSize: 17, fontWeight: 700, color: '#1A1A1A',
           fontFamily: "'Noto Sans', sans-serif",
         }}>
           Salvos

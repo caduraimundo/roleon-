@@ -235,23 +235,24 @@ export default function PagamentoPage() {
         WebkitBackdropFilter: 'blur(12px)',
         borderBottom: '0.5px solid rgba(0,0,0,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 'calc(env(safe-area-inset-top, 0px) + 14px) 20px 14px',
+        height: 56,
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
-        <button
-          onClick={() => router.replace('/')}
-          aria-label="Cancelar"
-          style={{
-            position: 'absolute', left: 16,
-            top: 'calc(env(safe-area-inset-top, 0px) + 10px)',
-            width: 36, height: 36, borderRadius: 999,
-            background: 'transparent', border: 0, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: '#1A1A1A',
-          }}
-        >
-          <IconX />
-        </button>
-        <span style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A' }}>Pagar com PIX</span>
+        <div style={{ position: 'absolute', left: 8 }}>
+          <button
+            onClick={() => router.replace('/')}
+            aria-label="Cancelar"
+            style={{
+              width: 36, height: 36, borderRadius: 999,
+              background: '#F2F2F2', border: 0, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#1A1A1A',
+            }}
+          >
+            <IconX />
+          </button>
+        </div>
+        <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>Pagar com PIX</span>
       </div>
 
       <div style={{ flex: 1, padding: '28px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
