@@ -118,10 +118,17 @@ export async function POST(req: NextRequest) {
             },
           },
         },
-        items: [{ amount: amountCents, description: event.title, quantity: 1 }],
+        items: [{ amount: Math.round(unitTotal * 100), description: event.title, quantity }],
         payments: [{ payment_method: 'pix', pix: { expires_in: 900 } }],
       }
-      console.log('[checkout pix] enviando para Pagar.me:', JSON.stringify({ amountCents, quantity, tempOrderId, ticketIds }))
+      console.log('[checkout pix] enviando para Pagar.me:', JSON.stringify({
+        unitAmountCents: Math.round(unitTotal * 100),
+        totalAmountCents: amountCents,
+        quantity,
+        tempOrderId,
+        ticketIds,
+        pixPayload,
+      }))
 
       let pagarmeRes: Response
       try {
@@ -149,10 +156,15 @@ export async function POST(req: NextRequest) {
       }
 
       const order = await pagarmeRes.json()
-      console.log('[checkout pix] order recebido:', order.id, '| status:', order.status)
+      const isRealOrderId = order.id?.startsWith('or_')
+      console.log('[checkout pix] order recebido:', JSON.stringify({ id: order.id, status: order.status, isRealOrderId }))
+
+      if (!isRealOrderId) {
+        console.error('[checkout pix] order.id parece UUID temporário, Pagar.me pode ter rejeitado:', JSON.stringify(order, null, 2))
+      }
 
       if (order.status === 'failed') {
-        console.log('[checkout pix] pedido recusado:', JSON.stringify(order, null, 2))
+        console.error('[checkout pix] pedido recusado pelo Pagar.me:', JSON.stringify(order, null, 2))
         await supabaseAdmin.from('tickets').delete().eq('order_id', tempOrderId)
         return NextResponse.json({ error: 'Pagamento recusado', detail: order }, { status: 400 })
       }
@@ -160,12 +172,16 @@ export async function POST(req: NextRequest) {
       // Passo 3: atualizar todos os tickets com o order_id real e QR code
       const txn = order.charges?.[0]?.last_transaction
       const qrCodePix = txn?.qr_code_url || txn?.qr_code || ''
-      await supabaseAdmin
+      const { error: updateError } = await supabaseAdmin
         .from('tickets')
         .update({ order_id: order.id, qr_code: qrCodePix })
         .eq('order_id', tempOrderId)
 
-      console.log('[checkout pix] order criado:', order.id, '| tickets:', ticketIds)
+      if (updateError) {
+        console.error('[checkout pix] erro ao atualizar tickets com order_id real:', JSON.stringify(updateError))
+      }
+
+      console.log('[checkout pix] order criado:', order.id, '| tickets:', ticketIds, '| txn:', JSON.stringify({ qr_code_url: txn?.qr_code_url, qr_code: txn?.qr_code }))
       return NextResponse.json({
         order_id: order.id,
         ticket_id: ticketIds[0] ?? '',
