@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
           .eq('id', ticket.id)
           .single();
 
-        if ((ticketCompleto?.user as any)?.email) {
+        if (ticketCompleto && (ticketCompleto.user as any)?.email) {
           const evento = ticketCompleto.event as any;
           const usuario = ticketCompleto.user as any;
           const dateObj = new Date((evento.event_date as string).replace(' ', 'T'));
