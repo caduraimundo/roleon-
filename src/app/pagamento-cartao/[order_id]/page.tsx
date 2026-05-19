@@ -1,8 +1,5 @@
 'use client'
 
-// Substituir pela taxa real do Pagar.me quando as chaves chegarem
-const TAXA_PARCELAMENTO_PLACEHOLDER = 0.0199
-
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 
@@ -36,9 +33,19 @@ function maskExpiry(v: string) {
 function fmt(n: number) {
   return n.toFixed(2).replace('.', ',')
 }
-function calcInstallment(total: number, n: number): number {
-  if (n === 1) return total
-  return (total * (1 + TAXA_PARCELAMENTO_PLACEHOLDER)) / n
+// total1x = preco * 1.0819 + 0.99  →  preco = (total1x - 0.99) / 1.0819
+// totalComTaxa (2x-6x) = preco * 1.0949 + 0.99
+function calcInstallment(total1x: number, n: number): number {
+  if (n === 1) return total1x
+  const preco = (total1x - 0.99) / 1.0819
+  const totalComTaxa = preco * 1.0949 + 0.99
+  return totalComTaxa / n
+}
+
+function calcTotalForInstallments(total1x: number, n: number): number {
+  if (n === 1) return total1x
+  const preco = (total1x - 0.99) / 1.0819
+  return preco * 1.0949 + 0.99
 }
 
 const INPUT_STYLE: React.CSSProperties = {
@@ -303,7 +310,7 @@ export default function PagamentoCartaoPage() {
         }}>
           <div style={{ fontSize: 14, color: '#3A3A3A', marginBottom: 6 }}>{eventTitle}</div>
           <div style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A' }}>
-            Total: R$ {fmt(total)}
+            Total: R$ {fmt(calcTotalForInstallments(total, installments))}
           </div>
         </div>
       </div>
