@@ -211,7 +211,7 @@ export async function POST(req: NextRequest) {
         <!-- Footer -->
         <tr>
           <td style="padding:24px;text-align:center;background:#F9F9F9;">
-            <p style="margin:0;color:#6E6E73;font-size:12px;">Roleon - Ouro Preto e Mariana</p>
+            <p style="margin:0;color:#6E6E73;font-size:12px;">Roleon</p>
             <p style="margin:4px 0 0;color:#6E6E73;font-size:12px;">Em caso de duvidas, responda este e-mail.</p>
           </td>
         </tr>
