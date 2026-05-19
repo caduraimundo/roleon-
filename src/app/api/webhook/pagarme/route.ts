@@ -113,7 +113,7 @@ export async function POST(req: NextRequest) {
           user:user_id (email, name)
         `)
         .eq('id', ticket.id)
-        .single();
+        .single() as { data: any };
 
       if (ticketCompleto?.user?.email) {
         const evento = ticketCompleto.event as any;
