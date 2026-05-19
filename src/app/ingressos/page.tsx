@@ -45,10 +45,12 @@ function formatPrice(price: number) {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; bg: string; color: string; dot: string }> = {
-    paid:    { label: 'Válido',    bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
-    used:    { label: 'Utilizado', bg: '#F2F2F2', color: '#6E6E73', dot: '#6E6E73' },
-    pending: { label: 'Pendente',  bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
-    expired: { label: 'Expirado', bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
+    paid:         { label: 'Válido',     bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
+    used:         { label: 'Utilizado',  bg: '#F2F2F2', color: '#6E6E73', dot: '#6E6E73' },
+    pending:      { label: 'Pendente',   bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
+    expired:      { label: 'Expirado',   bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
+    refunded:     { label: 'Estornado',  bg: '#EFF6FF', color: '#1D4ED8', dot: '#3B82F6' },
+    chargebacked: { label: 'Chargeback', bg: '#FFF7ED', color: '#92400E', dot: '#F97316' },
   }
   const s = map[status] ?? map['pending']
   return (
