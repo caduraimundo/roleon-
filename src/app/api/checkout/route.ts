@@ -103,42 +103,57 @@ export async function POST(req: NextRequest) {
       }
 
       // Passo 2: único pedido Pagar.me com valor total
-      const pagarmeRes = await fetch('https://api.pagar.me/core/v5/orders', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Basic ${Buffer.from(process.env.PAGARME_API_KEY! + ':').toString('base64')}`,
-        },
-        body: JSON.stringify({
-          customer: {
-            name: user_name || 'Cliente',
-            email: user_email,
-            document: customer_document || '00000000000',
-            document_type: 'CPF',
-            type: 'individual',
-            phones: {
-              mobile_phone: {
-                country_code: '55',
-                area_code: user_phone?.replace(/\D/g, '').slice(0, 2) || '31',
-                number: user_phone?.replace(/\D/g, '').slice(2) || '999999999',
-              },
+      const pixPayload = {
+        customer: {
+          name: user_name || 'Cliente',
+          email: user_email,
+          document: customer_document || '00000000000',
+          document_type: 'CPF',
+          type: 'individual',
+          phones: {
+            mobile_phone: {
+              country_code: '55',
+              area_code: user_phone?.replace(/\D/g, '').slice(0, 2) || '31',
+              number: user_phone?.replace(/\D/g, '').slice(2) || '999999999',
             },
           },
-          items: [{ amount: amountCents, description: event.title, quantity: 1 }],
-          payments: [{ payment_method: 'pix', pix: { expires_in: 900 } }],
-        }),
-      })
+        },
+        items: [{ amount: amountCents, description: event.title, quantity: 1 }],
+        payments: [{ payment_method: 'pix', pix: { expires_in: 900 } }],
+      }
+      console.log('[checkout pix] enviando para Pagar.me:', JSON.stringify({ amountCents, quantity, tempOrderId, ticketIds }))
+
+      let pagarmeRes: Response
+      try {
+        pagarmeRes = await fetch('https://api.pagar.me/core/v5/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Basic ${Buffer.from(process.env.PAGARME_API_KEY! + ':').toString('base64')}`,
+          },
+          body: JSON.stringify(pixPayload),
+        })
+      } catch (fetchErr) {
+        console.error('[checkout pix] fetch falhou:', fetchErr)
+        await supabaseAdmin.from('tickets').delete().eq('order_id', tempOrderId)
+        return NextResponse.json({ error: 'Falha ao criar pedido PIX' }, { status: 500 })
+      }
+
+      console.log('[checkout pix] resposta Pagar.me status HTTP:', pagarmeRes.status)
 
       if (!pagarmeRes.ok) {
         const err = await pagarmeRes.json()
-        console.error('[checkout pix] erro pagar.me:', err)
+        console.error('[checkout pix] erro pagar.me:', JSON.stringify(err))
+        await supabaseAdmin.from('tickets').delete().eq('order_id', tempOrderId)
         return NextResponse.json({ error: 'Falha ao criar pedido', detail: err }, { status: 500 })
       }
 
       const order = await pagarmeRes.json()
+      console.log('[checkout pix] order recebido:', order.id, '| status:', order.status)
 
       if (order.status === 'failed') {
         console.log('[checkout pix] pedido recusado:', JSON.stringify(order, null, 2))
+        await supabaseAdmin.from('tickets').delete().eq('order_id', tempOrderId)
         return NextResponse.json({ error: 'Pagamento recusado', detail: order }, { status: 400 })
       }
 
