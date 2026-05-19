@@ -8,6 +8,7 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(req: NextRequest) {
+  console.log('[Webhook] RESEND_API_KEY presente:', !!process.env.RESEND_API_KEY);
   const resend = new Resend(process.env.RESEND_API_KEY);
   const rawBody = await req.text();
 
