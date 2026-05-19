@@ -225,6 +225,7 @@ export default function IngressosPage() {
 
   const proximos = tickets
     .filter(t => {
+      if (t.status === 'refunded' || t.status === 'chargebacked') return false
       if (t.status === 'expired') return new Date(t.created_at) > cutoff24h
       const d = t.events?.event_date ? new Date(t.events.event_date) : null
       return d !== null && d >= today && t.status !== 'used'
@@ -242,6 +243,7 @@ export default function IngressosPage() {
 
   const historico = tickets
     .filter(t => {
+      if (t.status === 'refunded' || t.status === 'chargebacked') return true
       if (t.status === 'expired') return new Date(t.created_at) <= cutoff24h
       const d = t.events?.event_date ? new Date(t.events.event_date) : null
       return (d !== null && d < today) || t.status === 'used'
