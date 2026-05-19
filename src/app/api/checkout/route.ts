@@ -139,6 +139,7 @@ export async function POST(req: NextRequest) {
       }
       if (userId) insertPayload.user_id = userId
       if (body.ticket_type_name) insertPayload.ticket_type_name = body.ticket_type_name
+      if (user_email) insertPayload.recipient_email = user_email
 
       console.log(`[checkout] inserindo ticket ${i + 1}/${quantity}:`, JSON.stringify(insertPayload))
       const { data: ticket, error: ticketError } = await supabaseAdmin
@@ -157,14 +158,15 @@ export async function POST(req: NextRequest) {
         const { data: ticketCompleto } = await supabaseAdmin
           .from('tickets')
           .select(`
-            id, ticket_type_name, price_paid, payment_method,
+            id, ticket_type_name, price_paid, payment_method, recipient_email,
             event:event_id (title, event_date, location_name),
             user:user_id (email, name)
           `)
           .eq('id', ticket.id)
           .single();
 
-        if (ticketCompleto && (ticketCompleto.user as any)?.email) {
+        const emailDestino = (ticketCompleto as any)?.recipient_email || (ticketCompleto?.user as any)?.email;
+        if (ticketCompleto && emailDestino) {
           const evento = ticketCompleto.event as any;
           const usuario = ticketCompleto.user as any;
           const dateObj = new Date((evento.event_date as string).replace(' ', 'T'));
@@ -182,11 +184,11 @@ export async function POST(req: NextRequest) {
 
           await resend.emails.send({
             from: 'Roleon <noreply@roleon.com.br>',
-            to: usuario.email,
+            to: emailDestino,
             subject: `Seu ingresso para ${evento.title} está confirmado`,
             html: `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body style="margin:0;padding:0;background:#F9F9F9;font-family:'Noto Sans',Arial,sans-serif;"><table width="100%" cellpadding="0" cellspacing="0" style="background:#F9F9F9;padding:32px 16px;"><tr><td align="center"><table width="100%" style="max-width:480px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);"><tr><td style="background:#0EA5A0;padding:24px;text-align:center;"><p style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:2px;">ROLEON</p></td></tr><tr><td style="padding:32px 24px 8px;text-align:center;"><p style="margin:0 0 8px;color:#6E6E73;font-size:14px;">Ingresso confirmado</p><h1 style="margin:0;color:#1A1A1A;font-size:22px;font-weight:700;">${evento.title}</h1></td></tr><tr><td style="padding:16px 24px;"><table width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:8px 0;border-bottom:1px solid #F0F0F0;"><span style="color:#6E6E73;font-size:13px;">Data</span><br><span style="color:#1A1A1A;font-size:15px;font-weight:600;">${dataEvento}</span></td></tr><tr><td style="padding:8px 0;border-bottom:1px solid #F0F0F0;"><span style="color:#6E6E73;font-size:13px;">Horario</span><br><span style="color:#1A1A1A;font-size:15px;font-weight:600;">${horaEvento}</span></td></tr><tr><td style="padding:8px 0;border-bottom:1px solid #F0F0F0;"><span style="color:#6E6E73;font-size:13px;">Local</span><br><span style="color:#1A1A1A;font-size:15px;font-weight:600;">${evento.location_name}</span></td></tr><tr><td style="padding:8px 0;border-bottom:1px solid #F0F0F0;"><span style="color:#6E6E73;font-size:13px;">Tipo</span><br><span style="color:#1A1A1A;font-size:15px;font-weight:600;">${ticketCompleto.ticket_type_name || 'Pista'}</span></td></tr><tr><td style="padding:8px 0;"><span style="color:#6E6E73;font-size:13px;">Valor pago</span><br><span style="color:#1A1A1A;font-size:15px;font-weight:600;">R$ ${Number(ticketCompleto.price_paid).toFixed(2).replace('.', ',')}</span></td></tr></table></td></tr><tr><td style="padding:24px;text-align:center;border-top:2px dashed #E5E5E5;"><p style="margin:0 0 16px;color:#6E6E73;font-size:13px;">Apresente este QR Code na entrada</p><img src="${qrUrl}" width="160" height="160" alt="QR Code" style="border-radius:8px;"><p style="margin:12px 0 0;color:#1A1A1A;font-size:16px;font-weight:700;letter-spacing:2px;">${numeroIngresso}</p></td></tr><tr><td style="padding:24px;text-align:center;background:#F9F9F9;"><p style="margin:0;color:#6E6E73;font-size:12px;">Roleon - Ouro Preto e Mariana</p><p style="margin:4px 0 0;color:#6E6E73;font-size:12px;">Em caso de duvidas, responda este e-mail.</p></td></tr></table></td></tr></table></body></html>`
           });
-          console.log('[Checkout Cartao] E-mail enviado para:', usuario.email);
+          console.log('[Checkout Cartao] E-mail enviado para:', emailDestino);
         }
       }
     }

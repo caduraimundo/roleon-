@@ -108,14 +108,15 @@ export async function POST(req: NextRequest) {
       const { data: ticketCompleto } = await supabaseAdmin
         .from('tickets')
         .select(`
-          id, qr_code, ticket_type_name, price_paid, payment_method,
+          id, qr_code, ticket_type_name, price_paid, payment_method, recipient_email,
           event:event_id (title, event_date, location_name),
           user:user_id (email, name)
         `)
         .eq('id', ticket.id)
         .single() as { data: any };
 
-      if (ticketCompleto?.user?.email) {
+      const emailDestino = ticketCompleto?.recipient_email ?? ticketCompleto?.user?.email;
+      if (emailDestino) {
         const evento = ticketCompleto.event as any;
         const usuario = ticketCompleto.user as any;
         const dateObj = new Date(evento.event_date.replace(' ', 'T'));
@@ -133,7 +134,7 @@ export async function POST(req: NextRequest) {
 
         await resend.emails.send({
           from: 'Roleon <noreply@roleon.com.br>',
-          to: usuario.email,
+          to: emailDestino,
           subject: `Seu ingresso para ${evento.title} está confirmado`,
           html: `
 <!DOCTYPE html>
@@ -224,7 +225,7 @@ export async function POST(req: NextRequest) {
           `
         });
 
-        console.log('[Webhook] E-mail enviado para:', usuario.email);
+        console.log('[Webhook] E-mail enviado para:', emailDestino);
       }
     }
 
