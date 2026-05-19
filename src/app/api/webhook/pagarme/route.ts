@@ -118,11 +118,12 @@ export async function POST(req: NextRequest) {
       if (ticketCompleto?.user?.email) {
         const evento = ticketCompleto.event as any;
         const usuario = ticketCompleto.user as any;
-        const dataEvento = new Date(evento.event_date + 'Z').toLocaleDateString('pt-BR', {
+        const dateObj = new Date(evento.event_date.replace(' ', 'T'));
+        const dataEvento = dateObj.toLocaleDateString('pt-BR', {
           weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
           timeZone: 'America/Sao_Paulo'
         });
-        const horaEvento = new Date(evento.event_date + 'Z').toLocaleTimeString('pt-BR', {
+        const horaEvento = dateObj.toLocaleTimeString('pt-BR', {
           hour: '2-digit', minute: '2-digit',
           timeZone: 'America/Sao_Paulo'
         });
