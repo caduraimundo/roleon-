@@ -66,13 +66,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    const { data: ticket, error: fetchError } = await supabaseAdmin
+    const { data: tickets, error: fetchError } = await supabaseAdmin
       .from('tickets')
-      .select('id, status')
-      .eq('order_id', orderId)
-      .maybeSingle();
+      .select('id, status, recipient_email')
+      .eq('order_id', orderId);
 
-    if (fetchError || !ticket) {
+    if (fetchError || !tickets || tickets.length === 0) {
       await supabaseAdmin.from('webhook_logs').insert({
         pagarme_event_id: pagarmeEventId,
         event_type: eventType,
@@ -84,24 +83,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    if (ticket.status === 'pending') {
+    let anyProcessed = false;
+
+    for (const ticket of tickets) {
+      if (ticket.status !== 'pending') continue;
+
       const { error: updateError } = await supabaseAdmin
         .from('tickets')
         .update({ status: 'paid' })
         .eq('id', ticket.id);
 
       if (updateError) {
-        await supabaseAdmin.from('webhook_logs').insert({
-          pagarme_event_id: pagarmeEventId,
-          event_type: eventType,
-          order_id: orderId,
-          status: 'error',
-          error_message: updateError.message,
-          raw_payload: payload,
-        });
-        return NextResponse.json({ error: 'DB error' }, { status: 500 });
+        console.error('[Webhook] Erro ao atualizar ticket:', ticket.id, updateError.message);
+        continue;
       }
 
+      anyProcessed = true;
       console.log('[Webhook] Ticket atualizado para paid:', ticket.id);
 
       // Buscar dados do ticket + evento + usuário para o e-mail
@@ -118,7 +115,6 @@ export async function POST(req: NextRequest) {
       const emailDestino = ticketCompleto?.recipient_email ?? ticketCompleto?.user?.email;
       if (emailDestino) {
         const evento = ticketCompleto.event as any;
-        const usuario = ticketCompleto.user as any;
         const dateObj = new Date(evento.event_date.replace(' ', 'T'));
         const dataEvento = dateObj.toLocaleDateString('pt-BR', {
           weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
@@ -233,8 +229,8 @@ export async function POST(req: NextRequest) {
       pagarme_event_id: pagarmeEventId,
       event_type: eventType,
       order_id: orderId,
-      status: ticket.status === 'pending' ? 'processed' : 'ignored',
-      error_message: ticket.status !== 'pending' ? `Ticket já estava ${ticket.status}` : null,
+      status: anyProcessed ? 'processed' : 'ignored',
+      error_message: anyProcessed ? null : 'Tickets já estavam pagos',
       raw_payload: payload,
     });
   } else if (eventType === 'order.chargedback' || eventType === 'charge.refunded') {

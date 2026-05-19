@@ -68,18 +68,101 @@ export async function POST(req: NextRequest) {
     const { total } = calcFees(price, quantity, isPix ? 'pix' : 'card')
     const amountCents = Math.round(total * 100)
     const { card_token, installments = 1, customer_document } = body
+    const { total: unitTotal } = calcFees(price, 1, isPix ? 'pix' : 'card')
 
-    const pagarmePayment = isPix
-      ? { payment_method: 'pix', pix: { expires_in: 900 } }
-      : {
-          payment_method: 'credit_card',
-          credit_card: {
-            card_token,
-            installments,
-            statement_descriptor: 'ROLEON',
-          },
+    // ── PIX ───────────────────────────────────────────────────────────────────
+    if (isPix) {
+      // Passo 1: pré-inserir todos os tickets com order_id temporário
+      const tempOrderId = crypto.randomUUID()
+      const ticketIds: string[] = []
+
+      for (let i = 0; i < quantity; i++) {
+        const insertPayload: Record<string, unknown> = {
+          event_id,
+          price_paid: unitTotal,
+          order_id: tempOrderId,
+          qr_code: `pix_pending_${tempOrderId}_${i}`,
+          status: 'pending',
+          payment_method: 'pix',
         }
+        if (userId) insertPayload.user_id = userId
+        if (body.ticket_type_name) insertPayload.ticket_type_name = body.ticket_type_name
+        if (user_email) insertPayload.recipient_email = user_email
 
+        console.log(`[checkout pix] inserindo ticket ${i + 1}/${quantity}`)
+        const { data: ticket, error: ticketError } = await supabaseAdmin
+          .from('tickets')
+          .insert(insertPayload)
+          .select('id')
+          .single()
+        if (ticketError) {
+          console.error('TICKET INSERT ERROR:', JSON.stringify(ticketError))
+          return NextResponse.json({ error: 'Falha ao salvar ticket', detail: ticketError.message, hint: ticketError.hint }, { status: 500 })
+        }
+        if (ticket?.id) ticketIds.push(ticket.id)
+      }
+
+      // Passo 2: único pedido Pagar.me com valor total
+      const pagarmeRes = await fetch('https://api.pagar.me/core/v5/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Basic ${Buffer.from(process.env.PAGARME_API_KEY! + ':').toString('base64')}`,
+        },
+        body: JSON.stringify({
+          customer: {
+            name: user_name || 'Cliente',
+            email: user_email,
+            document: customer_document || '00000000000',
+            document_type: 'CPF',
+            type: 'individual',
+            phones: {
+              mobile_phone: {
+                country_code: '55',
+                area_code: user_phone?.replace(/\D/g, '').slice(0, 2) || '31',
+                number: user_phone?.replace(/\D/g, '').slice(2) || '999999999',
+              },
+            },
+          },
+          items: [{ amount: amountCents, description: event.title, quantity: 1 }],
+          payments: [{ payment_method: 'pix', pix: { expires_in: 900 } }],
+        }),
+      })
+
+      if (!pagarmeRes.ok) {
+        const err = await pagarmeRes.json()
+        console.error('[checkout pix] erro pagar.me:', err)
+        return NextResponse.json({ error: 'Falha ao criar pedido', detail: err }, { status: 500 })
+      }
+
+      const order = await pagarmeRes.json()
+
+      if (order.status === 'failed') {
+        console.log('[checkout pix] pedido recusado:', JSON.stringify(order, null, 2))
+        return NextResponse.json({ error: 'Pagamento recusado', detail: order }, { status: 400 })
+      }
+
+      // Passo 3: atualizar todos os tickets com o order_id real e QR code
+      const txn = order.charges?.[0]?.last_transaction
+      const qrCodePix = txn?.qr_code_url || txn?.qr_code || ''
+      await supabaseAdmin
+        .from('tickets')
+        .update({ order_id: order.id, qr_code: qrCodePix })
+        .eq('order_id', tempOrderId)
+
+      console.log('[checkout pix] order criado:', order.id, '| tickets:', ticketIds)
+      return NextResponse.json({
+        order_id: order.id,
+        ticket_id: ticketIds[0] ?? '',
+        ticket_ids: ticketIds,
+        qr_code_url: txn?.qr_code_url || '',
+        pix_code: txn?.qr_code || '',
+        amount: amountCents,
+        expires_at: txn?.expires_at || '',
+      })
+    }
+
+    // ── Cartão ────────────────────────────────────────────────────────────────
     const pagarmeRes = await fetch('https://api.pagar.me/core/v5/orders', {
       method: 'POST',
       headers: {
@@ -102,40 +185,38 @@ export async function POST(req: NextRequest) {
           },
         },
         items: [{ amount: amountCents, description: event.title, quantity: 1 }],
-        payments: [pagarmePayment],
+        payments: [{
+          payment_method: 'credit_card',
+          credit_card: { card_token, installments, statement_descriptor: 'ROLEON' },
+        }],
       }),
     })
 
     if (!pagarmeRes.ok) {
       const err = await pagarmeRes.json()
-      console.error('[checkout] erro pagar.me:', err)
+      console.error('[checkout cartão] erro pagar.me:', err)
       return NextResponse.json({ error: 'Falha ao criar pedido', detail: err }, { status: 500 })
     }
 
     const order = await pagarmeRes.json()
 
     if (order.status === 'failed') {
-      console.log('[checkout] pedido recusado:', JSON.stringify(order, null, 2))
+      console.log('[checkout cartão] pedido recusado:', JSON.stringify(order, null, 2))
       return NextResponse.json({ error: 'Pagamento recusado', detail: order }, { status: 400 })
     }
 
-    const txn = order.charges?.[0]?.last_transaction
-    const ticketStatus = isPix ? 'pending' : (order.status === 'paid' ? 'paid' : 'pending')
-    const { total: unitTotal } = calcFees(price, 1, isPix ? 'pix' : 'card')
-
+    const ticketStatus = order.status === 'paid' ? 'paid' : 'pending'
     const ticketIds: string[] = []
+
     for (let i = 0; i < quantity; i++) {
       const uniqueSuffix = `${Date.now()}_${i}_${Math.random().toString(36).substr(2, 9)}`
-      const qrCode = isPix
-        ? (txn?.qr_code_url || txn?.qr_code || `pix_${order.id}_${uniqueSuffix}`)
-        : `card_${order.id}_${uniqueSuffix}`
       const insertPayload: Record<string, unknown> = {
         event_id,
         price_paid: unitTotal,
         order_id: order.id,
-        qr_code: qrCode,
+        qr_code: `card_${order.id}_${uniqueSuffix}`,
         status: ticketStatus,
-        payment_method: isPix ? 'pix' : 'credit_card',
+        payment_method: 'credit_card',
       }
       if (userId) insertPayload.user_id = userId
       if (body.ticket_type_name) insertPayload.ticket_type_name = body.ticket_type_name
@@ -154,7 +235,7 @@ export async function POST(req: NextRequest) {
       console.log(`[checkout] ticket ${i + 1} criado:`, ticket?.id)
       if (ticket?.id) ticketIds.push(ticket.id)
 
-      if (!isPix && ticket?.id) {
+      if (ticket?.id) {
         const { data: ticketCompleto } = await supabaseAdmin
           .from('tickets')
           .select(`
@@ -168,7 +249,6 @@ export async function POST(req: NextRequest) {
         const emailDestino = (ticketCompleto as any)?.recipient_email || (ticketCompleto?.user as any)?.email;
         if (ticketCompleto && emailDestino) {
           const evento = ticketCompleto.event as any;
-          const usuario = ticketCompleto.user as any;
           const dateObj = new Date((evento.event_date as string).replace(' ', 'T'));
           const dataEvento = dateObj.toLocaleDateString('pt-BR', {
             weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
@@ -191,18 +271,6 @@ export async function POST(req: NextRequest) {
           console.log('[Checkout Cartao] E-mail enviado para:', emailDestino);
         }
       }
-    }
-
-    if (isPix) {
-      return NextResponse.json({
-        order_id: order.id,
-        ticket_id: ticketIds[0] ?? '',
-        ticket_ids: ticketIds,
-        qr_code_url: txn?.qr_code_url || '',
-        pix_code: txn?.qr_code || '',
-        amount: amountCents,
-        expires_at: txn?.expires_at || '',
-      })
     }
 
     return NextResponse.json({
