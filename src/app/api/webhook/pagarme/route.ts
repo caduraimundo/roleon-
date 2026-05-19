@@ -118,14 +118,17 @@ export async function POST(req: NextRequest) {
       if (ticketCompleto?.user?.email) {
         const evento = ticketCompleto.event as any;
         const usuario = ticketCompleto.user as any;
-        const dataEvento = new Date(evento.event_date).toLocaleDateString('pt-BR', {
-          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        const dataEvento = new Date(evento.event_date + 'Z').toLocaleDateString('pt-BR', {
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+          timeZone: 'America/Sao_Paulo'
         });
-        const horaEvento = new Date(evento.event_date).toLocaleTimeString('pt-BR', {
-          hour: '2-digit', minute: '2-digit'
+        const horaEvento = new Date(evento.event_date + 'Z').toLocaleTimeString('pt-BR', {
+          hour: '2-digit', minute: '2-digit',
+          timeZone: 'America/Sao_Paulo'
         });
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(ticketCompleto.qr_code)}`;
-        const numeroIngresso = ticketCompleto.qr_code.replace('ROLEON-', '#');
+        const codigoIngresso = 'ROLEON-' + ticketCompleto.id.slice(-4).toUpperCase();
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(codigoIngresso)}`;
+        const numeroIngresso = '#' + ticketCompleto.id.slice(-4).toUpperCase();
 
         await resend.emails.send({
           from: 'Roleon <noreply@roleon.com.br>',
