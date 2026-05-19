@@ -184,10 +184,12 @@ export default function IngressoPage() {
   if (error) return <ErrorScreen message={error} onBack={() => router.back()} />
 
   const statusMap: Record<string, { label: string; bg: string; color: string; dot: string }> = {
-    paid:    { label: 'Válido',    bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
-    used:    { label: 'Utilizado', bg: '#F2F2F2', color: '#6E6E73', dot: '#6E6E73' },
-    pending: { label: 'Pendente',  bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
-    expired: { label: 'Expirado', bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
+    paid:         { label: 'Válido',     bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
+    used:         { label: 'Utilizado',  bg: '#F2F2F2', color: '#6E6E73', dot: '#6E6E73' },
+    pending:      { label: 'Pendente',   bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
+    expired:      { label: 'Expirado',   bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
+    refunded:     { label: 'Estornado',  bg: '#EFF6FF', color: '#1D4ED8', dot: '#3B82F6' },
+    chargebacked: { label: 'Chargeback', bg: '#FFF7ED', color: '#92400E', dot: '#F97316' },
   }
   const badgeStyle = statusMap[ticket?.status ?? ''] ?? statusMap['pending']
   const qrData = ticket?.qr_code || ticketId
@@ -374,6 +376,41 @@ export default function IngressoPage() {
                 >
                   Comprar novamente
                 </button>
+              </div>
+            ) : ticket?.status === 'refunded' ? (
+              <div style={{
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: 12, textAlign: 'center', padding: '8px 0',
+              }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                </svg>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', lineHeight: 1.4 }}>
+                  Pagamento estornado
+                </div>
+                <div style={{ fontSize: 11, color: '#6E6E73', lineHeight: 1.5 }}>
+                  O valor foi devolvido para você. Entre em contato com o suporte se tiver dúvidas.
+                </div>
+              </div>
+            ) : ticket?.status === 'chargebacked' ? (
+              <div style={{
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center',
+                gap: 12, textAlign: 'center', padding: '8px 0',
+              }}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', lineHeight: 1.4 }}>
+                  Chargeback aberto
+                </div>
+                <div style={{ fontSize: 11, color: '#6E6E73', lineHeight: 1.5 }}>
+                  Uma disputa foi aberta para este pagamento. Aguarde a resolução.
+                </div>
               </div>
             ) : null}
           </div>

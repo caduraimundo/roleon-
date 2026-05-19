@@ -111,6 +111,55 @@ export async function POST(req: NextRequest) {
       error_message: ticket.status !== 'pending' ? `Ticket já estava ${ticket.status}` : null,
       raw_payload: payload,
     });
+  } else if (eventType === 'order.chargedback' || eventType === 'charge.refunded') {
+    if (!orderId) {
+      await supabaseAdmin.from('webhook_logs').insert({
+        pagarme_event_id: pagarmeEventId,
+        event_type: eventType,
+        order_id: null,
+        status: 'error',
+        error_message: 'order_id ausente no payload',
+        raw_payload: payload,
+      });
+      return NextResponse.json({ ok: true });
+    }
+
+    const newStatus = eventType === 'order.chargedback' ? 'chargebacked' : 'refunded';
+
+    const { data: ticket, error: fetchError } = await supabaseAdmin
+      .from('tickets')
+      .select('id, status')
+      .eq('order_id', orderId)
+      .maybeSingle();
+
+    if (fetchError || !ticket) {
+      await supabaseAdmin.from('webhook_logs').insert({
+        pagarme_event_id: pagarmeEventId,
+        event_type: eventType,
+        order_id: orderId,
+        status: 'error',
+        error_message: 'Ticket não encontrado',
+        raw_payload: payload,
+      });
+      return NextResponse.json({ ok: true });
+    }
+
+    await supabaseAdmin
+      .from('tickets')
+      .update({ status: newStatus })
+      .eq('id', ticket.id);
+
+    await supabaseAdmin.from('webhook_logs').insert({
+      pagarme_event_id: pagarmeEventId,
+      event_type: eventType,
+      order_id: orderId,
+      status: 'processed',
+      error_message: null,
+      raw_payload: payload,
+    });
+
+    console.log(`[Webhook] Ticket atualizado para ${newStatus}:`, ticket.id);
+    return NextResponse.json({ ok: true });
   } else {
     await supabaseAdmin.from('webhook_logs').insert({
       pagarme_event_id: pagarmeEventId,
