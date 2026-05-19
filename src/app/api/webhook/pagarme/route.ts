@@ -201,7 +201,9 @@ export async function POST(req: NextRequest) {
         <tr>
           <td style="padding:24px;text-align:center;border-top:2px dashed #E5E5E5;">
             <p style="margin:0 0 16px;color:#6E6E73;font-size:13px;">Apresente este QR Code na entrada</p>
-            <img src="${qrUrl}" width="160" height="160" alt="QR Code" style="border-radius:8px;">
+            <div style="background:#ffffff;display:inline-block;padding:12px;border-radius:8px;">
+              <img src="${qrUrl}" width="160" height="160" alt="QR Code" style="display:block;">
+            </div>
             <p style="margin:12px 0 0;color:#1A1A1A;font-size:16px;font-weight:700;letter-spacing:2px;">${numeroIngresso}</p>
           </td>
         </tr>
