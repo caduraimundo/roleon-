@@ -7,6 +7,8 @@ const supabaseAdmin = createClient(
 );
 
 export async function POST(req: NextRequest) {
+  const rawBody = await req.text();
+
   const authHeader = req.headers.get('authorization') || '';
   const base64 = authHeader.replace('Basic ', '');
   const decoded = Buffer.from(base64, 'base64').toString('utf-8');
@@ -16,21 +18,49 @@ export async function POST(req: NextRequest) {
   const expectedPass = process.env.PAGARME_WEBHOOK_SECRET || '';
 
   if (user !== expectedUser || pass !== expectedPass) {
-    console.error('[Webhook] Autenticação Basic Auth inválida');
+    console.error('[Webhook] Autenticação inválida');
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const rawBody = await req.text();
   const payload = JSON.parse(rawBody);
-  const eventType = payload?.type;
+  const eventType = payload?.type || 'unknown';
+  const pagarmeEventId = payload?.id || null;
+  const orderId = payload?.data?.id || payload?.data?.order?.id || null;
 
-  console.log('[Webhook] Evento recebido:', eventType);
+  // Idempotência: se já processamos esse evento, ignora
+  if (pagarmeEventId) {
+    const { data: existing } = await supabaseAdmin
+      .from('webhook_logs')
+      .select('id, status')
+      .eq('pagarme_event_id', pagarmeEventId)
+      .maybeSingle();
+
+    if (existing) {
+      console.log('[Webhook] Evento já processado, ignorando:', pagarmeEventId);
+      await supabaseAdmin.from('webhook_logs').insert({
+        pagarme_event_id: pagarmeEventId + '_duplicate_' + Date.now(),
+        event_type: eventType,
+        order_id: orderId,
+        status: 'ignored',
+        error_message: 'Duplicate event',
+        raw_payload: payload,
+      });
+      return NextResponse.json({ ok: true });
+    }
+  }
+
+  console.log('[Webhook] Evento recebido:', eventType, pagarmeEventId);
 
   if (eventType === 'order.paid' || eventType === 'charge.paid') {
-    const orderId = payload?.data?.id || payload?.data?.order?.id;
-
     if (!orderId) {
-      console.error('[Webhook] order_id não encontrado no payload');
+      await supabaseAdmin.from('webhook_logs').insert({
+        pagarme_event_id: pagarmeEventId,
+        event_type: eventType,
+        order_id: null,
+        status: 'error',
+        error_message: 'order_id ausente no payload',
+        raw_payload: payload,
+      });
       return NextResponse.json({ ok: true });
     }
 
@@ -38,10 +68,17 @@ export async function POST(req: NextRequest) {
       .from('tickets')
       .select('id, status')
       .eq('order_id', orderId)
-      .single();
+      .maybeSingle();
 
     if (fetchError || !ticket) {
-      console.error('[Webhook] Ticket não encontrado para order_id:', orderId);
+      await supabaseAdmin.from('webhook_logs').insert({
+        pagarme_event_id: pagarmeEventId,
+        event_type: eventType,
+        order_id: orderId,
+        status: 'error',
+        error_message: 'Ticket não encontrado',
+        raw_payload: payload,
+      });
       return NextResponse.json({ ok: true });
     }
 
@@ -52,12 +89,37 @@ export async function POST(req: NextRequest) {
         .eq('id', ticket.id);
 
       if (updateError) {
-        console.error('[Webhook] Erro ao atualizar ticket:', updateError);
+        await supabaseAdmin.from('webhook_logs').insert({
+          pagarme_event_id: pagarmeEventId,
+          event_type: eventType,
+          order_id: orderId,
+          status: 'error',
+          error_message: updateError.message,
+          raw_payload: payload,
+        });
         return NextResponse.json({ error: 'DB error' }, { status: 500 });
       }
 
       console.log('[Webhook] Ticket atualizado para paid:', ticket.id);
     }
+
+    await supabaseAdmin.from('webhook_logs').insert({
+      pagarme_event_id: pagarmeEventId,
+      event_type: eventType,
+      order_id: orderId,
+      status: ticket.status === 'pending' ? 'processed' : 'ignored',
+      error_message: ticket.status !== 'pending' ? `Ticket já estava ${ticket.status}` : null,
+      raw_payload: payload,
+    });
+  } else {
+    await supabaseAdmin.from('webhook_logs').insert({
+      pagarme_event_id: pagarmeEventId,
+      event_type: eventType,
+      order_id: orderId,
+      status: 'ignored',
+      error_message: 'Tipo de evento não tratado',
+      raw_payload: payload,
+    });
   }
 
   return NextResponse.json({ ok: true });
