@@ -72,11 +72,20 @@ export async function GET(
 
   const buffer = await renderToBuffer(element)
 
+  const rawTitle = evento?.title ?? 'roleon'
+  const slug = rawTitle
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+
   return new NextResponse(new Uint8Array(buffer), {
     status: 200,
     headers: {
       'Content-Type': 'application/pdf',
-      'Content-Disposition': 'attachment; filename="ingresso-roleon.pdf"',
+      'Content-Disposition': `attachment; filename="ingresso-${slug}.pdf"`,
     },
   })
 }

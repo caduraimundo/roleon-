@@ -17,7 +17,7 @@ Font.register({
 const s = StyleSheet.create({
   page: {
     backgroundColor: '#F9F9F9',
-    padding: 36,
+    padding: 24,
     fontFamily: 'Noto Sans',
   },
   card: {
@@ -141,7 +141,7 @@ export function TicketPDF({
   return (
     <Document>
       <Page size="A5" style={s.page}>
-        <View style={s.card}>
+        <View style={s.card} wrap={false}>
 
           {/* Cabeçalho */}
           <View style={s.header}>
