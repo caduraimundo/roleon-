@@ -285,7 +285,9 @@ export default function EventoPage() {
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EFEFEF', overflow: 'hidden' }}>
           {ev.dateStr && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
-              <IconCalendar />
+              <div style={{ width: 36, height: 36, borderRadius: 8, backgroundColor: '#F2F2F7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <IconCalendar />
+              </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
                   Data
@@ -296,8 +298,10 @@ export default function EventoPage() {
           )}
           {ev.dateStr && ev.venue && <div style={{ height: 1, background: '#F2F2F2', margin: '0 16px' }} />}
           {ev.venue && (
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '14px 16px' }}>
-              <div style={{ marginTop: 2 }}><IconPin /></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+              <div style={{ width: 36, height: 36, borderRadius: 8, backgroundColor: '#F2F2F7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <IconPin />
+              </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', marginBottom: 2 }}>{ev.venue}</div>
                 <div style={{ fontSize: 12.5, color: '#9A9A9A' }}>Ouro Preto, MG</div>
