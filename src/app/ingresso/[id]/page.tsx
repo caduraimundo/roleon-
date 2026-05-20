@@ -19,6 +19,7 @@ interface Ticket {
   qr_code: string
   status: string
   created_at: string
+  ticket_type_name: string | null
   events: EventInfo | null
 }
 
@@ -282,6 +283,14 @@ export default function IngressoPage() {
                   <IconLocation />
                 </div>
                 <span style={{ fontSize: 13, color: '#6E6E73' }}>{evento.location_name}</span>
+              </div>
+            )}
+
+            {/* Tipo do ingresso */}
+            {ticket?.ticket_type_name && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <p style={{ margin: 0, color: '#6E6E73', fontSize: 13 }}>Tipo</p>
+                <p style={{ margin: 0, color: '#1A1A1A', fontWeight: 600, fontSize: 13 }}>{ticket.ticket_type_name}</p>
               </div>
             )}
           </div>
