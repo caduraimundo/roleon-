@@ -339,6 +339,28 @@ export default function IngressoPage() {
                 }}>
                   Apresente este QR Code na entrada do evento
                 </div>
+                <button
+                  onClick={() => window.open(`/api/ingresso/${ticket.id}/pdf`, '_blank')}
+                  style={{
+                    width: '100%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    padding: '14px 0',
+                    background: '#fff',
+                    border: '1.5px solid #0EA5A0',
+                    borderRadius: 12,
+                    color: '#0EA5A0',
+                    fontSize: 15, fontWeight: 600,
+                    fontFamily: "'Noto Sans', sans-serif",
+                    cursor: 'pointer',
+                    marginTop: 4,
+                  }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0EA5A0" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 5v14M5 12l7 7 7-7"/>
+                    <line x1="5" y1="21" x2="19" y2="21"/>
+                  </svg>
+                  Baixar ingresso
+                </button>
               </>
             ) : ticket?.status === 'pending' ? (
               <div style={{
