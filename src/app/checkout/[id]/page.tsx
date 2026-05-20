@@ -233,6 +233,7 @@ export default function CheckoutPage() {
           user_id: user.id, user_email: emailInput || user.email, user_name: user.name,
           payment_method: 'pix',
           customer_document: cpfInput.replace(/\D/g, ''),
+          ticket_type_id: ticketTypeId ?? undefined,
           ticket_type_name: ticketTypeName ?? undefined,
           ticket_type_price: ticketTypePrice ?? undefined,
         }),

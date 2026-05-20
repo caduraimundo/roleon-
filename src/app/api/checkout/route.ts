@@ -76,18 +76,18 @@ export async function POST(req: NextRequest) {
       const tempOrderId = crypto.randomUUID()
       const ticketIds: string[] = []
 
-      // Bug 1 + 2: resolver nome e preço do tipo de ingresso pelo banco quando o body não envia
+      // Resolver nome e preço do tipo de ingresso pelo banco
       let resolvedTypeName: string | null = body.ticket_type_name || null
       if (!body.ticket_type_price) {
-        const { data: ttList } = await supabaseAdmin
-          .from('ticket_types')
-          .select('name, price')
-          .eq('event_id', event_id)
-          .order('price', { ascending: true })
+        let ttQuery = supabaseAdmin.from('ticket_types').select('name, price')
+        if (body.ticket_type_id) {
+          ttQuery = ttQuery.eq('id', body.ticket_type_id)
+        } else {
+          ttQuery = ttQuery.eq('event_id', event_id).order('price', { ascending: true })
+        }
+        const { data: ttList } = await ttQuery
         if (ttList && ttList.length > 0) {
-          const tt = resolvedTypeName
-            ? (ttList.find((t: { name: string | null }) => t.name === resolvedTypeName) ?? ttList[0])
-            : ttList[0]
+          const tt = ttList[0]
           const ttPrice = Number((tt as { price: unknown }).price)
           if (ttPrice) {
             price = ttPrice
@@ -181,7 +181,7 @@ export async function POST(req: NextRequest) {
       console.log('[checkout pix] order recebido:', JSON.stringify({ id: order.id, status: order.status, isRealOrderId }))
 
       if (!isRealOrderId) {
-        console.error('[checkout pix] order.id parece UUID temporário, Pagar.me pode ter rejeitado:', JSON.stringify(order, null, 2))
+        console.error('[checkout pix] PAGAR.ME REJEITOU — order.id não é or_*. HTTP status:', pagarmeRes.status, '| body completo:', JSON.stringify(order, null, 2))
       }
 
       if (order.status === 'failed') {
