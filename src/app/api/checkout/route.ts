@@ -121,6 +121,7 @@ export async function POST(req: NextRequest) {
         if (user_email) insertPayload.recipient_email = user_email
 
         console.log(`[checkout pix] inserindo ticket ${i + 1}/${quantity}:`, JSON.stringify(insertPayload))
+        console.log('[PIX INSERT] ticket_type_name:', resolvedTypeName, 'ticket_type_id:', body.ticket_type_id, 'body.ticket_type_name:', body.ticket_type_name)
         const { data: ticket, error: ticketError } = await supabaseAdmin
           .from('tickets')
           .insert(insertPayload)
