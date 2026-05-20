@@ -27,12 +27,12 @@ const s = StyleSheet.create({
 
   // Cabeçalho
   header: {
-    paddingVertical: 20,
+    paddingVertical: 12,
     paddingHorizontal: 24,
     alignItems: 'center',
   },
   headerText: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: 700,
     color: '#0EA5A0',
     letterSpacing: 3,
@@ -46,18 +46,18 @@ const s = StyleSheet.create({
 
   // Seção de informações do evento
   infoSection: {
-    paddingVertical: 20,
+    paddingVertical: 12,
     paddingHorizontal: 24,
   },
   eventTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: 700,
     color: '#1A1A1A',
-    lineHeight: 1.35,
-    marginBottom: 14,
+    lineHeight: 1.3,
+    marginBottom: 10,
   },
   infoGroup: {
-    marginBottom: 10,
+    marginBottom: 8,
   },
   infoLabel: {
     fontSize: 10,
@@ -65,14 +65,14 @@ const s = StyleSheet.create({
     marginBottom: 2,
   },
   infoValue: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: 700,
     color: '#1A1A1A',
   },
 
   // Seção de detalhes (tipo + valor lado a lado)
   detailSection: {
-    paddingVertical: 16,
+    paddingVertical: 10,
     paddingHorizontal: 24,
     flexDirection: 'row',
   },
@@ -82,33 +82,33 @@ const s = StyleSheet.create({
 
   // Seção do QR Code
   qrSection: {
-    paddingTop: 24,
-    paddingBottom: 20,
+    paddingTop: 14,
+    paddingBottom: 14,
     paddingHorizontal: 24,
     alignItems: 'center',
   },
   qrImage: {
-    width: 150,
-    height: 150,
+    width: 120,
+    height: 120,
     borderRadius: 8,
   },
   ticketNumber: {
-    marginTop: 14,
-    fontSize: 13,
+    marginTop: 10,
+    fontSize: 12,
     fontWeight: 700,
     color: '#1A1A1A',
     letterSpacing: 3,
   },
   footer: {
-    marginTop: 14,
-    paddingTop: 14,
+    marginTop: 10,
+    paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: '#E5E5E5',
     width: '100%',
     alignItems: 'center',
   },
   footerText: {
-    fontSize: 11,
+    fontSize: 10,
     color: '#6E6E73',
     textAlign: 'center',
   },
