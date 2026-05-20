@@ -185,7 +185,6 @@ export async function POST(req: NextRequest) {
               <p style="margin:0 0 4px;color:#6E6E73;font-size:14px;">${dataCapitalizada} - ${horaEvento}</p>
               <p style="margin:0;color:#6E6E73;font-size:14px;">${evento.location_name}</p>
             </div>
-            <p style="margin:0;color:#1A1A1A;font-size:15px;font-weight:600;">Roleon</p>
           </td>
         </tr>
       </table>
