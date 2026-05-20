@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
             },
           },
         },
-        items: [{ amount: amountCents, description: event.title, quantity: 1 }],
+        items: [{ amount: amountCents, description: event.title, quantity: 1, code: event_id }],
         payments: [{ payment_method: 'pix', pix: { expires_in: 900 } }],
       }
       console.log('[checkout pix] enviando para Pagar.me:', JSON.stringify({
@@ -170,8 +170,10 @@ export async function POST(req: NextRequest) {
       console.log('[checkout pix] resposta Pagar.me status HTTP:', pagarmeRes.status)
 
       if (!pagarmeRes.ok) {
-        const err = await pagarmeRes.json()
-        console.error('[checkout pix] erro pagar.me:', JSON.stringify(err))
+        const errText = await pagarmeRes.text()
+        console.error('[checkout pix] ERRO PAGAR.ME HTTP', pagarmeRes.status, '| body completo:', errText)
+        let err: unknown
+        try { err = JSON.parse(errText) } catch { err = errText }
         await supabaseAdmin.from('tickets').delete().eq('order_id', tempOrderId)
         return NextResponse.json({ error: 'Falha ao criar pedido', detail: err }, { status: 500 })
       }
