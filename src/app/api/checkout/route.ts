@@ -193,28 +193,33 @@ export async function POST(req: NextRequest) {
       // Passo 3: atualizar todos os tickets com o order_id real e QR code
       const txn = order.charges?.[0]?.last_transaction
 
-      // Log completo para identificar campos disponíveis na resposta Pagar.me
-      console.log('[checkout pix] ORDER COMPLETO Pagar.me:', JSON.stringify(order, null, 2))
-      console.log('[checkout pix] txn completo:', JSON.stringify(txn, null, 2))
+      // Buscar o EMV (copia e cola) via GET /transactions/{id} — o POST /orders não retorna o campo completo
+      let emvCode = ''
+      if (txn?.id) {
+        try {
+          const auth = `Basic ${Buffer.from(process.env.PAGARME_API_KEY! + ':').toString('base64')}`
+          const txnRes = await fetch(`https://api.pagar.me/core/v5/transactions/${txn.id}`, {
+            headers: { Authorization: auth },
+          })
+          if (txnRes.ok) {
+            const txnData = await txnRes.json()
+            console.log('[checkout pix] GET transaction qr_code:', String(txnData.qr_code ?? '').slice(0, 60))
+            const candidate: string = txnData.qr_code ?? ''
+            if (candidate.startsWith('000201')) emvCode = candidate
+          }
+        } catch (e) {
+          console.error('[checkout pix] erro ao buscar transação para EMV:', e)
+        }
+      }
 
-      // Código EMV (copia e cola) começa com "000201" — buscar em campos conhecidos
-      const emvCode: string = [
-        txn?.qr_code,
-        txn?.pix_qr_code,
-        txn?.emv,
-        txn?.pix_data,
-      ].find((v): v is string => typeof v === 'string' && v.startsWith('000201')) ?? ''
+      // QR Code: proxy autenticado para Pagar.me (browser não precisa de credenciais)
+      const qrCodeUrl = txn?.id ? `/api/pix-qrcode?txn_id=${txn.id}` : ''
 
-      // QR Code gerado via serviço público — sem autenticação necessária no browser
-      const qrCodeUrl = emvCode
-        ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(emvCode)}`
-        : ''
-
-      console.log('[checkout pix] order criado:', order.id, '| tickets:', ticketIds, '| emvCode (40 chars):', emvCode.slice(0, 40) || '(vazio — ver ORDER COMPLETO acima)')
+      console.log('[checkout pix] order criado:', order.id, '| tickets:', ticketIds, '| emvCode:', emvCode.slice(0, 40) || '(vazio)')
 
       const { error: updateError } = await supabaseAdmin
         .from('tickets')
-        .update({ order_id: order.id, qr_code: emvCode || txn?.qr_code_url || '' })
+        .update({ order_id: order.id, qr_code: emvCode || txn?.id || '' })
         .eq('order_id', tempOrderId)
 
       if (updateError) {
