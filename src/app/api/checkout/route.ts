@@ -148,6 +148,7 @@ export async function POST(req: NextRequest) {
         if (userId) insertPayload.user_id = userId
         if (resolvedTypeName) insertPayload.ticket_type_name = resolvedTypeName
         if (user_email) insertPayload.recipient_email = user_email
+        if (body.ticket_type_id) insertPayload.ticket_type_id = body.ticket_type_id
 
         console.log(`[checkout pix] inserindo ticket ${i + 1}/${quantity}:`, JSON.stringify(insertPayload))
         console.log('[PIX INSERT] ticket_type_name:', resolvedTypeName, 'ticket_type_id:', body.ticket_type_id, 'body.ticket_type_name:', body.ticket_type_name)
@@ -353,6 +354,7 @@ export async function POST(req: NextRequest) {
       if (userId) insertPayload.user_id = userId
       if (body.ticket_type_name) insertPayload.ticket_type_name = body.ticket_type_name
       if (user_email) insertPayload.recipient_email = user_email
+      if (body.ticket_type_id) insertPayload.ticket_type_id = body.ticket_type_id
       if (ticketStatus === 'paid') insertPayload.checkin_token = randomBytes(32).toString('hex')
 
       console.log(`[checkout] inserindo ticket ${i + 1}/${quantity}:`, JSON.stringify(insertPayload))
