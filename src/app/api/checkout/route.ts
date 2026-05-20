@@ -219,9 +219,12 @@ export async function POST(req: NextRequest) {
 
       console.log('[checkout pix] order criado:', order.id, '| tickets:', ticketIds, '| emvCode:', emvCode.slice(0, 40) || '(vazio)')
 
+      // Atualiza só order_id quando não há EMV — qr_code já tem placeholder único por ticket
+      const updateFields: Record<string, string> = { order_id: order.id }
+      if (emvCode) updateFields.qr_code = emvCode
       const { error: updateError } = await supabaseAdmin
         .from('tickets')
-        .update({ order_id: order.id, qr_code: emvCode || txn?.id || '' })
+        .update(updateFields)
         .eq('order_id', tempOrderId)
 
       if (updateError) {
