@@ -106,10 +106,9 @@ function IconCalendar() {
 
 function IconPin() {
   return (
-    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-      <path d="M8 1.5C5.79 1.5 4 3.29 4 5.5c0 3.5 4 9 4 9s4-5.5 4-9c0-2.21-1.79-4-4-4z"
-        stroke={DIM} strokeWidth="1.4" strokeLinejoin="round"/>
-      <circle cx="8" cy="5.5" r="1.5" stroke={DIM} strokeWidth="1.4"/>
+    <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style={{ color: DIM }}>
+      <path d="M7 1.5c2.5 0 4.5 2 4.5 4.5 0 3.3-4.5 6.5-4.5 6.5S2.5 9.3 2.5 6c0-2.5 2-4.5 4.5-4.5z" stroke="currentColor" strokeWidth="1.5"/>
+      <circle cx="7" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
     </svg>
   )
 }

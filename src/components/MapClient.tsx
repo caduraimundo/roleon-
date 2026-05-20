@@ -132,11 +132,10 @@ function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistan
             fontSize: 14.5, fontWeight: 500,
             lineHeight: 1,
           }}>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+          <svg width="16" height="16" viewBox="0 0 14 14" fill="none"
             style={{ color: PRIMARY, flexShrink: 0, display: 'block' }}>
-            <path d="M8 1.6c2.65 0 4.8 2.1 4.8 4.7 0 3.5-4.8 7.1-4.8 7.1S3.2 9.8 3.2 6.3c0-2.6 2.15-4.7 4.8-4.7z"
-              stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
-            <circle cx="8" cy="6.3" r="1.7" stroke="currentColor" strokeWidth="1.5"/>
+            <path d="M7 1.5c2.5 0 4.5 2 4.5 4.5 0 3.3-4.5 6.5-4.5 6.5S2.5 9.3 2.5 6c0-2.5 2-4.5 4.5-4.5z" stroke="currentColor" strokeWidth="1.5"/>
+            <circle cx="7" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
           </svg>
           <span>{distance}km</span>
           <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
