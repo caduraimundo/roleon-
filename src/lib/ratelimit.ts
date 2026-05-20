@@ -9,13 +9,13 @@ const redis = new Redis({
 // 5 tentativas por 15 minutos - para auth
 export const authRatelimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(5, "15 m"),
+  limiter: Ratelimit.slidingWindow(10, "15 m"),
   prefix: "roleon:auth",
 });
 
 // 10 tentativas por hora - para checkout
 export const checkoutRatelimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(10, "1 h"),
+  limiter: Ratelimit.slidingWindow(20, "1 h"),
   prefix: "roleon:checkout",
 });
