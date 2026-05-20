@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
             },
           },
         },
-        items: [{ amount: Math.round(unitTotal * 100), description: event.title, quantity }],
+        items: [{ amount: amountCents, description: event.title, quantity: 1 }],
         payments: [{ payment_method: 'pix', pix: { expires_in: 900 } }],
       }
       console.log('[checkout pix] enviando para Pagar.me:', JSON.stringify({
