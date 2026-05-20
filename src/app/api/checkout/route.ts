@@ -122,6 +122,21 @@ export async function POST(req: NextRequest) {
       }
 
       for (let i = 0; i < quantity; i++) {
+        if (body.ticket_type_id) {
+          const { data: stockReserved, error: stockError } = await supabaseAdmin
+            .rpc('reserve_ticket_stock', { p_ticket_type_id: body.ticket_type_id })
+
+          if (stockError || !stockReserved) {
+            if (ticketIds.length > 0) {
+              await supabaseAdmin.from('tickets').delete().in('id', ticketIds)
+            }
+            return NextResponse.json(
+              { error: 'Ingressos esgotados para este lote.' },
+              { status: 409 }
+            )
+          }
+        }
+
         const insertPayload: Record<string, unknown> = {
           event_id,
           price_paid: unitTotal,
@@ -314,6 +329,18 @@ export async function POST(req: NextRequest) {
     const ticketIds: string[] = []
 
     for (let i = 0; i < quantity; i++) {
+      if (body.ticket_type_id) {
+        const { data: stockReserved, error: stockError } = await supabaseAdmin
+          .rpc('reserve_ticket_stock', { p_ticket_type_id: body.ticket_type_id })
+
+        if (stockError || !stockReserved) {
+          return NextResponse.json(
+            { error: 'Ingressos esgotados para este lote.' },
+            { status: 409 }
+          )
+        }
+      }
+
       const uniqueSuffix = `${Date.now()}_${i}_${Math.random().toString(36).substr(2, 9)}`
       const insertPayload: Record<string, unknown> = {
         event_id,
