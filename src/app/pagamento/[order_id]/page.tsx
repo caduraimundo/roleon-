@@ -135,6 +135,9 @@ export default function PagamentoPage() {
         if (data.status === 'paid') {
           clearInterval(pollingRef.current!)
           clearInterval(timerRef.current!)
+          // Limpar sessão do pedido para que o cache não seja reutilizado em compras futuras
+          sessionStorage.removeItem('roleon_checkout')
+          if (session?.event_id) sessionStorage.removeItem(`roleon_order_${session.event_id}`)
           setPaid(true)
         } else if (data.status === 'expired') {
           clearInterval(pollingRef.current!)
