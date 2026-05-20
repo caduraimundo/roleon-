@@ -216,7 +216,7 @@ export default function PagamentoPage() {
         <div style={{ fontSize: 22, fontWeight: 700, color: '#1A1A1A' }}>Pagamento confirmado!</div>
         <div style={{ fontSize: 14, color: '#6E6E73', lineHeight: 1.5 }}>Seu ingresso está garantido. Aproveite o rolê!</div>
       </div>
-      <button onClick={() => router.replace('/ingressos')} style={{ width: '100%', maxWidth: 320, height: 52, background: '#0EA5A0', color: '#fff', border: 0, borderRadius: 14, fontSize: 16, fontWeight: 700, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
+      <button onClick={() => router.replace(`/ingresso/${ticketId}`)} style={{ width: '100%', maxWidth: 320, height: 52, background: '#0EA5A0', color: '#fff', border: 0, borderRadius: 14, fontSize: 16, fontWeight: 700, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
         Ver meu ingresso
       </button>
       <button onClick={() => router.replace('/')} style={{ background: 'none', border: 0, cursor: 'pointer', fontSize: 15, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif", fontWeight: 500 }}>

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 import { randomBytes } from 'crypto';
+import { renderToBuffer, type DocumentProps } from '@react-pdf/renderer';
+import { createElement, type ReactElement, type JSXElementConstructor } from 'react';
+import { TicketPDF } from '../../../../components/TicketPDF';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -106,7 +109,7 @@ export async function POST(req: NextRequest) {
       const { data: ticketCompleto } = await supabaseAdmin
         .from('tickets')
         .select(`
-          id, qr_code, ticket_type_name, price_paid, payment_method, recipient_email,
+          id, qr_code, checkin_token, ticket_type_name, price_paid, payment_method, recipient_email,
           event:event_id (title, event_date, location_name),
           user:user_id (email, name)
         `)
@@ -119,15 +122,37 @@ export async function POST(req: NextRequest) {
         const dateObj = new Date(evento.event_date.replace(' ', 'T'));
         const dataEvento = dateObj.toLocaleDateString('pt-BR', {
           weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-          timeZone: 'America/Sao_Paulo'
+          timeZone: 'America/Sao_Paulo',
         });
         const horaEvento = dateObj.toLocaleTimeString('pt-BR', {
           hour: '2-digit', minute: '2-digit',
-          timeZone: 'America/Sao_Paulo'
+          timeZone: 'America/Sao_Paulo',
         });
-        const codigoIngresso = 'ROLEON-' + ticketCompleto.id.slice(-4).toUpperCase();
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(codigoIngresso)}`;
-        const numeroIngresso = '#' + ticketCompleto.id.slice(-4).toUpperCase();
+
+        const ticketNumber = ticketCompleto.id.slice(-4).toUpperCase();
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(ticketCompleto.checkin_token ?? ticketCompleto.id)}`;
+
+        const slug = (evento.title as string)
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[̀-ͯ]/g, '')
+          .replace(/[^a-z0-9\s-]/g, '')
+          .trim()
+          .replace(/\s+/g, '-');
+
+        const dataCapitalizada = dataEvento.charAt(0).toUpperCase() + dataEvento.slice(1);
+        const eventDateForPDF = `${dataCapitalizada} - ${horaEvento}`;
+
+        const pdfElement = createElement(TicketPDF, {
+          eventTitle: evento.title,
+          eventDate: eventDateForPDF,
+          locationName: evento.location_name,
+          ticketTypeName: ticketCompleto.ticket_type_name ?? '',
+          pricePaid: ticketCompleto.price_paid ?? 0,
+          ticketNumber,
+          qrCodeUrl,
+        }) as ReactElement<DocumentProps, string | JSXElementConstructor<unknown>>;
+        const pdfBuffer = await renderToBuffer(pdfElement);
 
         await resend.emails.send({
           from: 'Roleon <noreply@roleon.com.br>',
@@ -141,85 +166,40 @@ export async function POST(req: NextRequest) {
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#F9F9F9;padding:32px 16px;">
     <tr><td align="center">
       <table width="100%" style="max-width:480px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-
-        <!-- Header -->
         <tr>
           <td style="background:#0EA5A0;padding:24px;text-align:center;">
             <p style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:2px;">ROLEON</p>
           </td>
         </tr>
-
-        <!-- Título -->
         <tr>
-          <td style="padding:32px 24px 8px;text-align:center;">
-            <p style="margin:0 0 8px;color:#6E6E73;font-size:14px;">Ingresso confirmado</p>
-            <h1 style="margin:0;color:#1A1A1A;font-size:22px;font-weight:700;">${evento.title}</h1>
-          </td>
-        </tr>
-
-        <!-- Detalhes -->
-        <tr>
-          <td style="padding:16px 24px;">
-            <table width="100%" cellpadding="0" cellspacing="0">
-              <tr>
-                <td style="padding:8px 0;border-bottom:1px solid #F0F0F0;">
-                  <span style="color:#6E6E73;font-size:13px;">Data</span><br>
-                  <span style="color:#1A1A1A;font-size:15px;font-weight:600;">${dataEvento}</span>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0;border-bottom:1px solid #F0F0F0;">
-                  <span style="color:#6E6E73;font-size:13px;">Horario</span><br>
-                  <span style="color:#1A1A1A;font-size:15px;font-weight:600;">${horaEvento}</span>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0;border-bottom:1px solid #F0F0F0;">
-                  <span style="color:#6E6E73;font-size:13px;">Local</span><br>
-                  <span style="color:#1A1A1A;font-size:15px;font-weight:600;">${evento.location_name}</span>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0;border-bottom:1px solid #F0F0F0;">
-                  <span style="color:#6E6E73;font-size:13px;">Tipo</span><br>
-                  <span style="color:#1A1A1A;font-size:15px;font-weight:600;">${ticketCompleto.ticket_type_name || 'Pista'}</span>
-                </td>
-              </tr>
-              <tr>
-                <td style="padding:8px 0;">
-                  <span style="color:#6E6E73;font-size:13px;">Valor pago</span><br>
-                  <span style="color:#1A1A1A;font-size:15px;font-weight:600;">R$ ${Number(ticketCompleto.price_paid).toFixed(2).replace('.', ',')}</span>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
-        <!-- QR Code -->
-        <tr>
-          <td style="padding:24px;text-align:center;border-top:2px dashed #E5E5E5;">
-            <p style="margin:0 0 16px;color:#6E6E73;font-size:13px;">Apresente este QR Code na entrada</p>
-            <div style="background:#ffffff;display:inline-block;padding:12px;border-radius:8px;">
-              <img src="${qrUrl}" width="160" height="160" alt="QR Code" style="display:block;">
+          <td style="padding:32px 24px;">
+            <p style="margin:0 0 20px;color:#1A1A1A;font-size:15px;line-height:1.6;">
+              Olá! Seu ingresso para <strong>${evento.title}</strong> foi confirmado.
+            </p>
+            <p style="margin:0 0 24px;color:#6E6E73;font-size:14px;line-height:1.6;">
+              Seu ingresso está em anexo neste e-mail em formato PDF.<br>
+              Salve o arquivo para acessar offline no dia do evento.
+            </p>
+            <div style="background:#F5F5F5;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+              <p style="margin:0 0 6px;color:#1A1A1A;font-size:16px;font-weight:700;">${evento.title}</p>
+              <p style="margin:0 0 4px;color:#6E6E73;font-size:14px;">${dataCapitalizada} - ${horaEvento}</p>
+              <p style="margin:0;color:#6E6E73;font-size:14px;">${evento.location_name}</p>
             </div>
-            <p style="margin:12px 0 0;color:#1A1A1A;font-size:16px;font-weight:700;letter-spacing:2px;">${numeroIngresso}</p>
+            <p style="margin:0;color:#1A1A1A;font-size:15px;font-weight:600;">Roleon</p>
           </td>
         </tr>
-
-        <!-- Footer -->
-        <tr>
-          <td style="padding:24px;text-align:center;background:#F9F9F9;">
-            <p style="margin:0;color:#6E6E73;font-size:12px;">Roleon</p>
-            <p style="margin:4px 0 0;color:#6E6E73;font-size:12px;">Em caso de duvidas, responda este e-mail.</p>
-          </td>
-        </tr>
-
       </table>
     </td></tr>
   </table>
 </body>
 </html>
-          `
+          `,
+          attachments: [
+            {
+              filename: `ingresso-${slug}.pdf`,
+              content: pdfBuffer,
+            },
+          ],
         });
 
         console.log('[Webhook] E-mail enviado para:', emailDestino);
