@@ -322,8 +322,9 @@ export default function EventoPage() {
           }}>
             <IconPin />
             Como chegar
-            <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style={{ marginLeft: 2 }}>
-              <path d="M3 11L11 3M11 3H6M11 3v5" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ marginLeft: 2 }}>
+              <path d="M2 2h4v1.5H3.5v7h7V9H12v4H2V2z" fill="currentColor"/>
+              <path d="M8 2h4v4h-1.5V4.06L6.53 8l-1.06-1.06 3.94-3.94H7V2H8z" fill="currentColor"/>
             </svg>
           </button>
         )}
