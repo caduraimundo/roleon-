@@ -20,6 +20,7 @@ interface Ticket {
   status: string
   created_at: string
   ticket_type_name: string | null
+  checkin_token: string | null
   events: EventInfo | null
 }
 
@@ -193,7 +194,7 @@ export default function IngressoPage() {
     chargebacked: { label: 'Chargeback', bg: '#FFF7ED', color: '#92400E', dot: '#F97316' },
   }
   const badgeStyle = statusMap[ticket?.status ?? ''] ?? statusMap['pending']
-  const qrData = ticket?.qr_code || ticketId
+  const qrData = ticket?.checkin_token || ticket?.qr_code || ticketId
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`
 
   return (
