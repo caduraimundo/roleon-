@@ -7,6 +7,7 @@ import { randomBytes } from 'crypto'
 import { renderToBuffer, type DocumentProps } from '@react-pdf/renderer'
 import { createElement, type ReactElement, type JSXElementConstructor } from 'react'
 import { TicketPDF } from '../../../components/TicketPDF'
+import { checkoutRatelimit } from '@/lib/ratelimit'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,6 +16,15 @@ const supabaseAdmin = createClient(
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1'
+  const { success } = await checkoutRatelimit.limit(ip)
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Limite de compras atingido. Tente novamente em 1 hora.' },
+      { status: 429 }
+    )
+  }
+
   const isMock = !process.env.PAGARME_API_KEY || process.env.PAGARME_API_KEY === 'ak_test_placeholder'
 
   const body = await req.json()

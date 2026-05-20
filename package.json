@@ -13,6 +13,8 @@
     "@sentry/nextjs": "^10.53.1",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.105.3",
+    "@upstash/ratelimit": "^2.0.8",
+    "@upstash/redis": "^1.38.0",
     "@vis.gl/react-google-maps": "^1.8.3",
     "next": "16.2.5",
     "react": "19.2.4",

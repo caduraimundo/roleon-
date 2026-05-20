@@ -1,8 +1,18 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import { authRatelimit } from '@/lib/ratelimit'
 
 export async function GET(request: Request) {
+  const ip = (request.headers as Headers).get('x-forwarded-for') ?? '127.0.0.1'
+  const { success } = await authRatelimit.limit(ip)
+  if (!success) {
+    return NextResponse.json(
+      { error: 'Muitas tentativas. Tente novamente em 15 minutos.' },
+      { status: 429 }
+    )
+  }
+
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const token_hash = searchParams.get('token_hash')
