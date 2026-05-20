@@ -183,9 +183,8 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
             </div>
           </div>
           {ticket.payment_method && (
-            <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73', display: 'inline-flex', alignItems: 'center' }}>
+            <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
               {ticket.payment_method === 'pix' ? <IconPix /> : <IconCard />}
-              {' '}
               {ticket.payment_method === 'pix' ? 'PIX' : 'Cartão'}
             </span>
           )}
