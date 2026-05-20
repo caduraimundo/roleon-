@@ -64,17 +64,38 @@ export async function POST(req: NextRequest) {
     }
 
     const isPix = payment_method !== 'credit_card'
-    const price = Number(body.ticket_type_price) || Number(event.price) || 0
+    let price = Number(body.ticket_type_price) || Number(event.price) || 0
     const { total } = calcFees(price, quantity, isPix ? 'pix' : 'card')
     const amountCents = Math.round(total * 100)
     const { card_token, installments = 1, customer_document } = body
-    const { total: unitTotal } = calcFees(price, 1, isPix ? 'pix' : 'card')
+    let unitTotal = calcFees(price, 1, isPix ? 'pix' : 'card').total
 
     // ── PIX ───────────────────────────────────────────────────────────────────
     if (isPix) {
       // Passo 1: pré-inserir todos os tickets com order_id temporário
       const tempOrderId = crypto.randomUUID()
       const ticketIds: string[] = []
+
+      // Bug 1 + 2: resolver nome e preço do tipo de ingresso pelo banco quando o body não envia
+      let resolvedTypeName: string | null = body.ticket_type_name || null
+      if (!body.ticket_type_price) {
+        const { data: ttList } = await supabaseAdmin
+          .from('ticket_types')
+          .select('name, price')
+          .eq('event_id', event_id)
+          .order('price', { ascending: true })
+        if (ttList && ttList.length > 0) {
+          const tt = resolvedTypeName
+            ? (ttList.find((t: { name: string | null }) => t.name === resolvedTypeName) ?? ttList[0])
+            : ttList[0]
+          const ttPrice = Number((tt as { price: unknown }).price)
+          if (ttPrice) {
+            price = ttPrice
+            unitTotal = calcFees(price, 1, 'pix').total
+          }
+          if (!resolvedTypeName) resolvedTypeName = String((tt as { name: unknown }).name)
+        }
+      }
 
       for (let i = 0; i < quantity; i++) {
         const insertPayload: Record<string, unknown> = {
@@ -86,10 +107,10 @@ export async function POST(req: NextRequest) {
           payment_method: 'pix',
         }
         if (userId) insertPayload.user_id = userId
-        if (body.ticket_type_name) insertPayload.ticket_type_name = body.ticket_type_name
+        if (resolvedTypeName) insertPayload.ticket_type_name = resolvedTypeName
         if (user_email) insertPayload.recipient_email = user_email
 
-        console.log(`[checkout pix] inserindo ticket ${i + 1}/${quantity}`)
+        console.log(`[checkout pix] inserindo ticket ${i + 1}/${quantity}:`, JSON.stringify(insertPayload))
         const { data: ticket, error: ticketError } = await supabaseAdmin
           .from('tickets')
           .insert(insertPayload)
