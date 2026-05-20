@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { randomBytes } from 'crypto';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -90,7 +91,7 @@ export async function POST(req: NextRequest) {
 
       const { error: updateError } = await supabaseAdmin
         .from('tickets')
-        .update({ status: 'paid' })
+        .update({ status: 'paid', checkin_token: randomBytes(32).toString('hex') })
         .eq('id', ticket.id);
 
       if (updateError) {
