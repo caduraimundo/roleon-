@@ -79,21 +79,31 @@ export async function POST(req: NextRequest) {
       // Resolver nome e preço do tipo de ingresso pelo banco
       let resolvedTypeName: string | null = body.ticket_type_name || null
       if (!body.ticket_type_price) {
-        let ttQuery = supabaseAdmin.from('ticket_types').select('name, price')
         if (body.ticket_type_id) {
-          ttQuery = ttQuery.eq('id', body.ticket_type_id)
-        } else {
-          ttQuery = ttQuery.eq('event_id', event_id).order('price', { ascending: true })
-        }
-        const { data: ttList } = await ttQuery
-        if (ttList && ttList.length > 0) {
-          const tt = ttList[0]
-          const ttPrice = Number((tt as { price: unknown }).price)
-          if (ttPrice) {
-            price = ttPrice
-            unitTotal = calcFees(price, 1, 'pix').total
+          // Busca direta pelo id específico — garante nome/preço corretos independente do evento
+          const { data: tt } = await supabaseAdmin
+            .from('ticket_types')
+            .select('name, price')
+            .eq('id', body.ticket_type_id)
+            .single()
+          if (tt) {
+            const ttPrice = Number((tt as { price: unknown }).price)
+            if (ttPrice) { price = ttPrice; unitTotal = calcFees(price, 1, 'pix').total }
+            if (!resolvedTypeName) resolvedTypeName = String((tt as { name: unknown }).name)
           }
-          if (!resolvedTypeName) resolvedTypeName = String((tt as { name: unknown }).name)
+        } else {
+          // Fallback: evento sem tipo selecionado — pega o mais barato
+          const { data: ttList } = await supabaseAdmin
+            .from('ticket_types')
+            .select('name, price')
+            .eq('event_id', event_id)
+            .order('price', { ascending: true })
+          if (ttList && ttList.length > 0) {
+            const tt = ttList[0]
+            const ttPrice = Number((tt as { price: unknown }).price)
+            if (ttPrice) { price = ttPrice; unitTotal = calcFees(price, 1, 'pix').total }
+            if (!resolvedTypeName) resolvedTypeName = String((tt as { name: unknown }).name)
+          }
         }
       }
 
