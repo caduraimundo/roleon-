@@ -192,23 +192,41 @@ export async function POST(req: NextRequest) {
 
       // Passo 3: atualizar todos os tickets com o order_id real e QR code
       const txn = order.charges?.[0]?.last_transaction
-      const qrCodePix = txn?.qr_code_url || txn?.qr_code || ''
+
+      // Log completo para identificar campos disponíveis na resposta Pagar.me
+      console.log('[checkout pix] ORDER COMPLETO Pagar.me:', JSON.stringify(order, null, 2))
+      console.log('[checkout pix] txn completo:', JSON.stringify(txn, null, 2))
+
+      // Código EMV (copia e cola) começa com "000201" — buscar em campos conhecidos
+      const emvCode: string = [
+        txn?.qr_code,
+        txn?.pix_qr_code,
+        txn?.emv,
+        txn?.pix_data,
+      ].find((v): v is string => typeof v === 'string' && v.startsWith('000201')) ?? ''
+
+      // QR Code gerado via serviço público — sem autenticação necessária no browser
+      const qrCodeUrl = emvCode
+        ? `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(emvCode)}`
+        : ''
+
+      console.log('[checkout pix] order criado:', order.id, '| tickets:', ticketIds, '| emvCode (40 chars):', emvCode.slice(0, 40) || '(vazio — ver ORDER COMPLETO acima)')
+
       const { error: updateError } = await supabaseAdmin
         .from('tickets')
-        .update({ order_id: order.id, qr_code: qrCodePix })
+        .update({ order_id: order.id, qr_code: emvCode || txn?.qr_code_url || '' })
         .eq('order_id', tempOrderId)
 
       if (updateError) {
         console.error('[checkout pix] erro ao atualizar tickets com order_id real:', JSON.stringify(updateError))
       }
 
-      console.log('[checkout pix] order criado:', order.id, '| tickets:', ticketIds, '| txn:', JSON.stringify({ qr_code_url: txn?.qr_code_url, qr_code: txn?.qr_code }))
       return NextResponse.json({
         order_id: order.id,
         ticket_id: ticketIds[0] ?? '',
         ticket_ids: ticketIds,
-        qr_code_url: txn?.qr_code_url || '',
-        pix_code: txn?.qr_code || '',
+        qr_code_url: qrCodeUrl,
+        pix_code: emvCode,
         amount: amountCents,
         expires_at: txn?.expires_at || '',
       })
