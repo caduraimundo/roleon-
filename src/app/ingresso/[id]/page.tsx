@@ -363,6 +363,7 @@ export default function IngressoPage() {
                 </button>
               </>
             ) : ticket?.status === 'pending' ? (
+              // pending: sem QR Code nem botão de download
               <div style={{
                 width: 200, height: 200,
                 display: 'flex', flexDirection: 'column',
