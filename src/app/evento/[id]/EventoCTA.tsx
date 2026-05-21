@@ -18,19 +18,65 @@ interface EventoCTAProps {
 
 export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeName, selectedPrice, isSoldOut = false }: EventoCTAProps) {
   const router = useRouter()
-  const [authed,   setAuthed]   = useState(false)
-  const [showAuth, setShowAuth] = useState(false)
+  const [authed,          setAuthed]          = useState(false)
+  const [showAuth,        setShowAuth]        = useState(false)
+  const [inWaitlist,      setInWaitlist]      = useState(false)
+  const [waitlistLoading, setWaitlistLoading] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setAuthed(!!data.session)
+      if (data.session && isSoldOut) {
+        fetch(`/api/waitlist?event_id=${id}`, {
+          headers: { Authorization: `Bearer ${data.session.access_token}` },
+        })
+          .then(r => r.json())
+          .then(j => setInWaitlist(!!j.inWaitlist))
+          .catch(() => {})
+      }
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       setAuthed(!!session)
       if (session) setShowAuth(false)
     })
     return () => subscription.unsubscribe()
-  }, [])
+  }, [id, isSoldOut])
+
+  const handleWaitlist = async () => {
+    if (waitlistLoading) return
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    setWaitlistLoading(true)
+    try {
+      if (inWaitlist) {
+        await fetch('/api/waitlist', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ event_id: id }),
+        })
+        setInWaitlist(false)
+      } else {
+        const res = await fetch('/api/waitlist', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            event_id: id,
+            ticket_type_id: null,
+            email: session.user.email ?? '',
+          }),
+        })
+        if (res.status === 201 || res.status === 409) setInWaitlist(true)
+      }
+    } finally {
+      setWaitlistLoading(false)
+    }
+  }
 
   const displayPrice = selectedPrice ?? price
 
@@ -68,9 +114,15 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
               <div style={{ fontSize: 12, color: '#8A8A8A', fontWeight: 500 }}>Ingresso</div>
               <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A1A' }}>Entrada gratuita</div>
             </div>
-            <button onClick={isSoldOut ? undefined : handleCTA} disabled={isSoldOut} style={isSoldOut ? BTN_SOLD_OUT : BTN_TEAL}>
-              {isSoldOut ? 'Esgotado' : 'Participar'}
-            </button>
+            {isSoldOut && authed ? (
+              <button onClick={handleWaitlist} disabled={waitlistLoading} style={inWaitlist ? BTN_IN_WAITLIST : BTN_NOTIFY}>
+                {waitlistLoading ? 'Aguarde...' : inWaitlist ? 'Na fila - Cancelar aviso' : 'Me avise se abrir vagas'}
+              </button>
+            ) : (
+              <button onClick={isSoldOut ? undefined : handleCTA} disabled={isSoldOut} style={isSoldOut ? BTN_SOLD_OUT : BTN_TEAL}>
+                {isSoldOut ? 'Esgotado' : 'Participar'}
+              </button>
+            )}
           </div>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -80,9 +132,15 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
                 {priceLabel}
               </div>
             </div>
-            <button onClick={isSoldOut ? undefined : handleCTA} disabled={isSoldOut} style={isSoldOut ? BTN_SOLD_OUT : BTN_TEAL}>
-              {isSoldOut ? 'Esgotado' : 'Comprar ingresso'}
-            </button>
+            {isSoldOut && authed ? (
+              <button onClick={handleWaitlist} disabled={waitlistLoading} style={inWaitlist ? BTN_IN_WAITLIST : BTN_NOTIFY}>
+                {waitlistLoading ? 'Aguarde...' : inWaitlist ? 'Na fila - Cancelar aviso' : 'Me avise se abrir vagas'}
+              </button>
+            ) : (
+              <button onClick={isSoldOut ? undefined : handleCTA} disabled={isSoldOut} style={isSoldOut ? BTN_SOLD_OUT : BTN_TEAL}>
+                {isSoldOut ? 'Esgotado' : 'Comprar ingresso'}
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -109,4 +167,21 @@ const BTN_SOLD_OUT: React.CSSProperties = {
   cursor: 'not-allowed',
   opacity: 0.5,
   boxShadow: 'none',
+}
+
+const BTN_NOTIFY: React.CSSProperties = {
+  ...BTN_TEAL,
+  background: '#F9F9F9',
+  color: '#0EA5A0',
+  border: '1.5px solid #0EA5A0',
+  boxShadow: 'none',
+  cursor: 'pointer',
+  fontSize: 14,
+}
+
+const BTN_IN_WAITLIST: React.CSSProperties = {
+  ...BTN_NOTIFY,
+  background: '#F0F0F0',
+  color: '#6E6E73',
+  border: '1.5px solid #0EA5A0',
 }
