@@ -64,6 +64,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Campos obrigatórios ausentes: event_id, quantity' }, { status: 400 })
     }
 
+    const { data: withinLimit, error: limitError } = await supabaseAdmin
+      .rpc('check_user_ticket_limit', {
+        p_user_id: userId,
+        p_event_id: event_id,
+        p_quantity_requested: quantity,
+        p_max_per_user: 10
+      })
+
+    if (limitError || !withinLimit) {
+      return NextResponse.json(
+        { error: 'Limite de 10 ingressos por evento atingido.' },
+        { status: 409 }
+      )
+    }
+
     if (body.customer_document && !validateCPF(body.customer_document)) {
       return NextResponse.json({ error: 'CPF inválido' }, { status: 400 })
     }
