@@ -12,6 +12,21 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+async function logAudit(
+  ticketId: string,
+  oldStatus: string,
+  newStatus: string,
+  metadata: object
+) {
+  await supabaseAdmin.from('ticket_audit_log').insert({
+    ticket_id: ticketId,
+    old_status: oldStatus,
+    new_status: newStatus,
+    triggered_by: 'webhook',
+    metadata,
+  });
+}
+
 export async function POST(req: NextRequest) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const rawBody = await req.text();
@@ -116,6 +131,12 @@ export async function POST(req: NextRequest) {
         `)
         .eq('id', ticket.id)
         .single() as { data: any };
+
+      logAudit(ticket.id, 'pending', 'paid', {
+        price_paid: ticketCompleto?.price_paid,
+        payment_method: ticketCompleto?.payment_method,
+        order_id: orderId,
+      }).catch(() => {});
 
       const emailDestino = ticketCompleto?.recipient_email ?? ticketCompleto?.user?.email;
       if (emailDestino) {
@@ -231,7 +252,7 @@ export async function POST(req: NextRequest) {
 
     const { data: ticket, error: fetchError } = await supabaseAdmin
       .from('tickets')
-      .select('id, status, event_id, ticket_type_id')
+      .select('id, status, event_id, ticket_type_id, price_paid, payment_method')
       .eq('order_id', orderId)
       .maybeSingle();
 
@@ -251,6 +272,12 @@ export async function POST(req: NextRequest) {
       .from('tickets')
       .update({ status: newStatus })
       .eq('id', ticket.id);
+
+    logAudit(ticket.id, 'paid', newStatus, {
+      price_paid: (ticket as any).price_paid,
+      payment_method: (ticket as any).payment_method,
+      order_id: orderId,
+    }).catch(() => {});
 
     notifyWaitlist({
       eventId: String((ticket as any).event_id),
