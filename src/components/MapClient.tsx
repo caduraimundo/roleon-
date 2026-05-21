@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { MarkerClusterer } from '@googlemaps/markerclusterer'
 import BottomNav, { TabId } from './BottomNav'
 import { PinSheet, MapHint, RoleonEvent } from './EventBottomSheet'
 import AuthSheet from './AuthSheet'
@@ -483,7 +484,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const router         = useRouter()
   const mapRef         = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
-  const overlayRefs     = useRef<Map<string, { overlay: any; container: HTMLDivElement }>>(new Map())
+  const overlayRefs    = useRef<Map<string, { overlay: any; container: HTMLDivElement }>>(new Map())
+  const markerRefs     = useRef<Map<string, google.maps.Marker>>(new Map())
+  const clustererRef   = useRef<MarkerClusterer | null>(null)
   const userLocationRef = useRef<{ lat: number; lng: number } | null>(null)
 
   const [events,          setEvents]          = useState<RoleonEvent[]>([])
@@ -648,12 +651,21 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   useEffect(() => {
     if (!mapInstanceRef.current || !window.google) return
 
+    // Limpa clusterer anterior antes de recriar
+    clustererRef.current?.clearMarkers()
+    clustererRef.current = null
+
+    // Remove overlays e ghost markers de eventos que saíram da lista
     overlayRefs.current.forEach((_, id) => {
       if (!filteredEvents.find((e) => e.id === id)) {
         overlayRefs.current.get(id)?.overlay.setMap(null)
         overlayRefs.current.delete(id)
+        markerRefs.current.get(id)?.setMap(null)
+        markerRefs.current.delete(id)
       }
     })
+
+    const allMarkers: google.maps.Marker[] = []
 
     filteredEvents.forEach((ev) => {
       const position = new google.maps.LatLng(ev.lat, ev.lng)
@@ -701,7 +713,57 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
 
       const btn = container.querySelector('button')
       if (btn) btn.onclick = () => setActivePin((prev) => (prev === ev.id ? null : ev.id))
+
+      // Ghost marker invisível — só para o MarkerClusterer calcular grupos
+      if (!markerRefs.current.has(ev.id)) {
+        const marker = new google.maps.Marker({ position, visible: false, optimized: false })
+        markerRefs.current.set(ev.id, marker)
+      }
+      allMarkers.push(markerRefs.current.get(ev.id)!)
     })
+
+    // Sincroniza visibilidade das OverlayViews com o estado do clustering
+    const syncOverlays = () => {
+      markerRefs.current.forEach((marker, id) => {
+        const entry = overlayRefs.current.get(id)
+        if (!entry) return
+        entry.overlay.setMap(marker.getMap() ? mapInstanceRef.current : null)
+      })
+    }
+
+    const clusterer = new MarkerClusterer({
+      map: mapInstanceRef.current,
+      markers: allMarkers,
+      renderer: {
+        render: ({ count, position }) =>
+          new google.maps.Marker({
+            position,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 20 + Math.min(count * 2, 20),
+              fillColor: '#0EA5A0',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+            },
+            label: {
+              text: String(count),
+              color: '#ffffff',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              fontFamily: 'Noto Sans',
+            },
+            zIndex: 1000,
+          }),
+      },
+    })
+    clustererRef.current = clusterer
+    google.maps.event.addListener(clusterer, 'clusteringend', syncOverlays)
+
+    return () => {
+      clustererRef.current?.clearMarkers()
+      clustererRef.current = null
+    }
   }, [filteredEvents, activePin])
 
   useEffect(() => {
