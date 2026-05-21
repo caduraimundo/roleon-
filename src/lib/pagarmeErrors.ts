@@ -18,6 +18,23 @@ export function mapPagarmeError(acquirerCode: string | null | undefined): string
     '2004': 'Cartão com restrição. Entre em contato com seu banco.',
     '2008': 'Cartão cancelado (reportado como perdido).',
     '2009': 'Cartão cancelado (reportado como roubado).',
+    '05': 'Pagamento não autorizado. Entre em contato com seu banco.',
+    '14': 'Número do cartão inválido.',
+    '25': 'Cartão bloqueado. Entre em contato com seu banco.',
+    '41': 'Cartão bloqueado. Reportado como perdido.',
+    '43': 'Cartão bloqueado. Reportado como roubado.',
+    '51': 'Saldo insuficiente.',
+    '54': 'Cartão vencido. Verifique a data de validade.',
+    '55': 'Senha incorreta.',
+    '57': 'Transação não permitida para este cartão.',
+    '62': 'Código de segurança inválido. Verifique o CVV.',
+    '63': 'Código de segurança inválido. Verifique o CVV.',
+    '65': 'Limite de transações excedido.',
+    '75': 'Número de tentativas de senha excedido. Contate seu banco.',
+    '78': 'Cartão bloqueado. Entre em contato com seu banco.',
+    '82': 'Código de segurança inválido. Verifique o CVV.',
+    '91': 'Banco emissor indisponível. Tente novamente em instantes.',
+    '96': 'Erro no sistema. Tente novamente.',
   }
   return map[acquirerCode ?? '']
     ?? 'Pagamento recusado. Tente novamente ou use outro cartão.'
