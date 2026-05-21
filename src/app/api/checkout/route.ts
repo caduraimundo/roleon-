@@ -9,6 +9,7 @@ import { renderToBuffer, type DocumentProps } from '@react-pdf/renderer'
 import { createElement, type ReactElement, type JSXElementConstructor } from 'react'
 import { TicketPDF } from '../../../components/TicketPDF'
 import { checkoutRatelimit } from '@/lib/ratelimit'
+import { mapPagarmeError } from '../../../lib/pagarmeErrors'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -364,7 +365,11 @@ export async function POST(req: NextRequest) {
         await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: cardReservedCount })
         notifyWaitlist({ eventId: event_id, ticketTypeId: body.ticket_type_id }).catch(err => console.error('[checkout] notifyWaitlist erro:', err))
       }
-      return NextResponse.json({ error: 'Pagamento recusado', detail: order }, { status: 400 })
+      const acquirerCode = order.charges?.[0]?.last_transaction?.acquirer_return_code ?? null
+      return NextResponse.json(
+        { error: mapPagarmeError(acquirerCode), acquirer_code: acquirerCode },
+        { status: 402 }
+      )
     }
 
     const ticketStatus = order.status === 'paid' ? 'paid' : 'pending'
@@ -427,6 +432,7 @@ export async function POST(req: NextRequest) {
           logAudit(ticket.id, 'pending', 'expired', {
             payment_method: 'credit_card',
             order_id: order.id,
+            acquirer_code: order.charges?.[0]?.last_transaction?.acquirer_return_code ?? null,
           }).catch(() => {});
         }
 

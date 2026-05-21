@@ -118,8 +118,7 @@ export default function PagamentoCartaoPage() {
         }
       )
       if (!tokenRes.ok) {
-        const tokenErr = await tokenRes.json()
-        throw new Error(tokenErr?.message ?? 'Falha ao tokenizar cartão')
+        throw new Error('Verifique os dados do cartão e tente novamente.')
       }
       const tokenData = await tokenRes.json()
       const cardToken = tokenData.id
@@ -313,6 +312,12 @@ export default function PagamentoCartaoPage() {
             Total: R$ {fmt(calcTotalForInstallments(total, installments))}
           </div>
         </div>
+
+        {errors.form && (
+          <div style={{ fontSize: 13, color: '#FF3B30', textAlign: 'center', padding: '0 4px' }}>
+            {errors.form}
+          </div>
+        )}
       </div>
 
       {/* Botão fixo */}
@@ -336,7 +341,7 @@ export default function PagamentoCartaoPage() {
             transition: 'background 200ms ease',
           }}
         >
-          {loading ? 'Processando...' : errors.form ? errors.form : 'Confirmar pagamento'}
+          {loading ? 'Processando...' : 'Confirmar pagamento'}
         </button>
       </div>
     </div>
