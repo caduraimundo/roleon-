@@ -127,7 +127,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
             </div>
             {isSoldOut && authed ? (
               <button onClick={handleWaitlist} disabled={waitlistLoading} style={inWaitlist ? BTN_IN_WAITLIST : BTN_NOTIFY}>
-                {waitlistLoading ? 'Aguarde...' : <><IconBell />{inWaitlist ? 'Na fila - Cancelar aviso' : 'Me avise se abrir vagas'}</>}
+                {waitlistLoading ? 'Aguarde...' : inWaitlist ? 'Na fila - Cancelar aviso' : <><IconBell />Me avise se abrir vagas</>}
               </button>
             ) : (
               <button onClick={isSoldOut ? undefined : handleCTA} disabled={isSoldOut} style={isSoldOut ? BTN_SOLD_OUT : BTN_TEAL}>
@@ -145,7 +145,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
             </div>
             {isSoldOut && authed ? (
               <button onClick={handleWaitlist} disabled={waitlistLoading} style={inWaitlist ? BTN_IN_WAITLIST : BTN_NOTIFY}>
-                {waitlistLoading ? 'Aguarde...' : <><IconBell />{inWaitlist ? 'Na fila - Cancelar aviso' : 'Me avise se abrir vagas'}</>}
+                {waitlistLoading ? 'Aguarde...' : inWaitlist ? 'Na fila - Cancelar aviso' : <><IconBell />Me avise se abrir vagas</>}
               </button>
             ) : (
               <button onClick={isSoldOut ? undefined : handleCTA} disabled={isSoldOut} style={isSoldOut ? BTN_SOLD_OUT : BTN_TEAL}>
@@ -195,5 +195,5 @@ const BTN_IN_WAITLIST: React.CSSProperties = {
   ...BTN_NOTIFY,
   background: '#F0F0F0',
   color: '#6E6E73',
-  border: '1.5px solid #0EA5A0',
+  border: 'none',
 }
