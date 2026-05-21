@@ -53,5 +53,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Ingresso já utilizado' }, { status: 409 });
   }
 
+  supabaseAdmin.from('ticket_audit_log').insert({
+    ticket_id: updated.id,
+    old_status: ticket.status,
+    new_status: 'used',
+    triggered_by: 'checkin',
+    metadata: { payment_method: (updated as any).payment_method, price_paid: (updated as any).price_paid },
+  }).catch(() => {});
+
   return NextResponse.json({ ok: true, ticket: updated }, { status: 200 });
 }
