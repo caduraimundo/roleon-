@@ -735,13 +735,28 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       map: mapInstanceRef.current,
       markers: allMarkers,
       renderer: {
-        render: ({ count, position, markers: clusterMarkers }) => {
-          const total = clusterMarkers?.length ?? count
+        render: ({ count, position, markers }) => {
+          const total = markers?.length ?? count
           const size = 32 + Math.min(total * 2, 20)
-          const div = document.createElement('div')
-          div.style.cssText = `background:#0EA5A0;color:white;border-radius:50%;width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;font-family:'Noto Sans',sans-serif;font-size:13px;font-weight:bold;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.3);`
-          div.textContent = String(total)
-          return new google.maps.marker.AdvancedMarkerElement({ position, content: div, zIndex: 1000 })
+          return new google.maps.Marker({
+            position,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: size / 2,
+              fillColor: '#0EA5A0',
+              fillOpacity: 1,
+              strokeColor: '#ffffff',
+              strokeWeight: 2,
+            },
+            label: {
+              text: String(total),
+              color: '#ffffff',
+              fontSize: '13px',
+              fontWeight: 'bold',
+              fontFamily: 'Noto Sans',
+            },
+            zIndex: 1000,
+          })
         },
       },
     })
