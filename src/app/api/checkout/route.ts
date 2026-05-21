@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { calcFees } from '../../../lib/pricing'
+import { notifyWaitlist } from '../../../lib/notifyWaitlist'
 import { validateCPF } from '../../../lib/cpf'
 import { Resend } from 'resend'
 import { randomBytes } from 'crypto'
@@ -335,6 +336,7 @@ export async function POST(req: NextRequest) {
       console.error('[checkout cartão] erro pagar.me:', err)
       if (body.ticket_type_id && cardReservedCount > 0) {
         await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: cardReservedCount })
+        notifyWaitlist({ eventId: event_id, ticketTypeId: body.ticket_type_id }).catch(err => console.error('[checkout] notifyWaitlist erro:', err))
       }
       return NextResponse.json({ error: 'Falha ao criar pedido', detail: err }, { status: 500 })
     }
@@ -345,6 +347,7 @@ export async function POST(req: NextRequest) {
       console.log('[checkout cartão] pedido recusado:', JSON.stringify(order, null, 2))
       if (body.ticket_type_id && cardReservedCount > 0) {
         await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: cardReservedCount })
+        notifyWaitlist({ eventId: event_id, ticketTypeId: body.ticket_type_id }).catch(err => console.error('[checkout] notifyWaitlist erro:', err))
       }
       return NextResponse.json({ error: 'Pagamento recusado', detail: order }, { status: 400 })
     }
@@ -391,6 +394,7 @@ export async function POST(req: NextRequest) {
         console.error('TICKET INSERT ERROR:', JSON.stringify(ticketError))
         if (body.ticket_type_id) {
           await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: 1 })
+          notifyWaitlist({ eventId: event_id, ticketTypeId: body.ticket_type_id }).catch(err => console.error('[checkout] notifyWaitlist erro:', err))
         }
         return NextResponse.json({ error: 'Falha ao salvar ticket', detail: ticketError.message, hint: ticketError.hint }, { status: 500 })
       }
@@ -511,6 +515,7 @@ export async function POST(req: NextRequest) {
     console.log('PAGARME ERROR:', JSON.stringify(err, null, 2))
     if (body.ticket_type_id && cardReservedCount > 0) {
       await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: cardReservedCount })
+      notifyWaitlist({ eventId: body.event_id, ticketTypeId: body.ticket_type_id }).catch(e => console.error('[checkout] notifyWaitlist erro:', e))
     }
     return NextResponse.json({ error: error.message }, { status: 500 })
   }

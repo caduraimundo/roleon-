@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { notifyWaitlist } from '../../../../lib/notifyWaitlist';
 import { randomBytes } from 'crypto';
 import { renderToBuffer, type DocumentProps } from '@react-pdf/renderer';
 import { createElement, type ReactElement, type JSXElementConstructor } from 'react';
@@ -230,7 +231,7 @@ export async function POST(req: NextRequest) {
 
     const { data: ticket, error: fetchError } = await supabaseAdmin
       .from('tickets')
-      .select('id, status')
+      .select('id, status, event_id, ticket_type_id')
       .eq('order_id', orderId)
       .maybeSingle();
 
@@ -250,6 +251,11 @@ export async function POST(req: NextRequest) {
       .from('tickets')
       .update({ status: newStatus })
       .eq('id', ticket.id);
+
+    notifyWaitlist({
+      eventId: String((ticket as any).event_id),
+      ticketTypeId: (ticket as any).ticket_type_id ? String((ticket as any).ticket_type_id) : null,
+    }).catch(err => console.error('[Webhook] notifyWaitlist erro:', err));
 
     await supabaseAdmin.from('webhook_logs').insert({
       pagarme_event_id: pagarmeEventId,
