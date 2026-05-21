@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { BackButton } from '../../../components/BackButton'
 import { calcFees } from '../../../lib/pricing'
-import { validateCPF } from '../../../lib/cpf'
+import { validateCPF } from '../../../lib/validateCPF'
 
 function maskCpf(v: string) {
   const d = v.replace(/\D/g, '').slice(0, 11)
@@ -266,6 +266,8 @@ export default function CheckoutPage() {
     }
   }
 
+  const btnDisabled = loading || (!evento.is_free && !validateCPF(cpfInput))
+
   const btnLabel = loading
     ? 'Processando...'
     : payMethod === 'pix' ? 'Pagar com PIX' : 'Pagar com Cartão'
@@ -421,15 +423,16 @@ export default function CheckoutPage() {
                 placeholder="000.000.000-00"
                 value={cpfInput}
                 onChange={e => { setCpfInput(maskCpf(e.target.value)); setCpfError('') }}
+                onBlur={() => { if (cpfInput && !validateCPF(cpfInput)) setCpfError('CPF inválido') }}
                 style={{
-                  border: `1px solid ${cpfError ? '#E53935' : '#E8E8E8'}`, borderRadius: 10, padding: '12px 14px',
+                  border: `1px solid ${cpfError ? '#FF3B30' : '#E8E8E8'}`, borderRadius: 10, padding: '12px 14px',
                   fontSize: 14, fontFamily: "'Noto Sans', sans-serif",
                   background: '#fff', color: '#1A1A1A', outline: 'none', width: '100%',
                   boxSizing: 'border-box',
                 }}
               />
               {cpfError && (
-                <div style={{ fontSize: 11, color: '#E53935', marginTop: 4 }}>{cpfError}</div>
+                <div style={{ fontSize: 11, color: '#FF3B30', marginTop: 4 }}>{cpfError}</div>
               )}
             </div>
           </div>
@@ -511,14 +514,14 @@ export default function CheckoutPage() {
       }}>
         <button
           onClick={handlePagar}
-          disabled={loading}
+          disabled={btnDisabled}
           style={{
             width: '100%', height: 52,
-            background: loading ? '#8ACFCC' : '#0EA5A0',
+            background: btnDisabled ? '#8ACFCC' : '#0EA5A0',
             color: '#fff', border: 0, borderRadius: 14,
             fontSize: 16, fontWeight: 700,
             fontFamily: "'Noto Sans', sans-serif",
-            cursor: loading ? 'not-allowed' : 'pointer',
+            cursor: btnDisabled ? 'not-allowed' : 'pointer',
             transition: 'background 200ms ease',
           }}
         >
