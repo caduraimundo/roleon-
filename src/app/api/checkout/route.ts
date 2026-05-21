@@ -54,6 +54,8 @@ export async function POST(req: NextRequest) {
     })
   }
 
+  let cardReservedCount = 0
+
   // ── Pagar.me real ────────────────────────────────────────────────────────
   try {
     const { event_id, quantity, user_email, user_name, user_phone, payment_method } = body
@@ -316,6 +318,9 @@ export async function POST(req: NextRequest) {
     if (!pagarmeRes.ok) {
       const err = await pagarmeRes.json()
       console.error('[checkout cartão] erro pagar.me:', err)
+      if (body.ticket_type_id && cardReservedCount > 0) {
+        await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: cardReservedCount })
+      }
       return NextResponse.json({ error: 'Falha ao criar pedido', detail: err }, { status: 500 })
     }
 
@@ -323,6 +328,9 @@ export async function POST(req: NextRequest) {
 
     if (order.status === 'failed') {
       console.log('[checkout cartão] pedido recusado:', JSON.stringify(order, null, 2))
+      if (body.ticket_type_id && cardReservedCount > 0) {
+        await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: cardReservedCount })
+      }
       return NextResponse.json({ error: 'Pagamento recusado', detail: order }, { status: 400 })
     }
 
@@ -340,6 +348,7 @@ export async function POST(req: NextRequest) {
             { status: 409 }
           )
         }
+        cardReservedCount++
       }
 
       const uniqueSuffix = `${Date.now()}_${i}_${Math.random().toString(36).substr(2, 9)}`
@@ -365,6 +374,9 @@ export async function POST(req: NextRequest) {
         .single()
       if (ticketError) {
         console.error('TICKET INSERT ERROR:', JSON.stringify(ticketError))
+        if (body.ticket_type_id) {
+          await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: 1 })
+        }
         return NextResponse.json({ error: 'Falha ao salvar ticket', detail: ticketError.message, hint: ticketError.hint }, { status: 500 })
       }
       console.log(`[checkout] ticket ${i + 1} criado:`, ticket?.id)
@@ -482,6 +494,9 @@ export async function POST(req: NextRequest) {
     const error = err instanceof Error ? err : new Error(String(err))
     console.error('[checkout] erro inesperado:', error)
     console.log('PAGARME ERROR:', JSON.stringify(err, null, 2))
+    if (body.ticket_type_id && cardReservedCount > 0) {
+      await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: cardReservedCount })
+    }
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 }
