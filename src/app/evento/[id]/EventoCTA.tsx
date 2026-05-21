@@ -195,5 +195,5 @@ const BTN_IN_WAITLIST: React.CSSProperties = {
   ...BTN_NOTIFY,
   background: '#F0F0F0',
   color: '#6E6E73',
-  border: 'none',
+  border: '1px solid #6E6E73',
 }
