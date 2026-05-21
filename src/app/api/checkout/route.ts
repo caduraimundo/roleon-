@@ -16,6 +16,21 @@ const supabaseAdmin = createClient(
 )
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+async function logAudit(
+  ticketId: string,
+  oldStatus: string,
+  newStatus: string,
+  metadata: object
+) {
+  await supabaseAdmin.from('ticket_audit_log').insert({
+    ticket_id: ticketId,
+    old_status: oldStatus,
+    new_status: newStatus,
+    triggered_by: 'checkout',
+    metadata,
+  });
+}
+
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1'
   const { success } = await checkoutRatelimit.limit(ip)
@@ -402,6 +417,19 @@ export async function POST(req: NextRequest) {
       if (ticket?.id) ticketIds.push(ticket.id)
 
       if (ticket?.id) {
+        if (ticketStatus === 'paid') {
+          logAudit(ticket.id, 'pending', 'paid', {
+            price_paid: unitTotal,
+            payment_method: 'credit_card',
+            order_id: order.id,
+          }).catch(() => {});
+        } else {
+          logAudit(ticket.id, 'pending', 'expired', {
+            payment_method: 'credit_card',
+            order_id: order.id,
+          }).catch(() => {});
+        }
+
         const { data: ticketCompleto } = await supabaseAdmin
           .from('tickets')
           .select(`
