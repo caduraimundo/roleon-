@@ -23,6 +23,8 @@ interface TicketType {
   id: string
   name: string
   price: number
+  quantity: number | null
+  quantity_sold: number | null
 }
 
 interface FullEvent {
@@ -146,6 +148,7 @@ export default function EventoPage() {
   const [ev,             setEv]             = useState<FullEvent | null>(null)
   const [ticketTypes,    setTicketTypes]    = useState<TicketType[]>([])
   const [selectedTypeId, setSelectedTypeId] = useState<string>('')
+  const [isSoldOut,      setIsSoldOut]      = useState(false)
   const [missing,        setMissing]        = useState(false)
   const [showAuth,       setShowAuth]       = useState(false)
   const [toast,          setToast]          = useState<string | null>(null)
@@ -171,15 +174,23 @@ export default function EventoPage() {
 
     supabase
       .from('ticket_types')
-      .select('id, name, price')
+      .select('id, name, price, quantity, quantity_sold')
       .eq('event_id', id)
       .order('price', { ascending: true })
       .then(({ data, error }) => {
         console.log('ticket_types:', data, 'error:', error)
         if (data && data.length > 0) {
-          const types = data.map(r => ({ id: String(r.id), name: String(r.name), price: Number(r.price) }))
+          const types = data.map(r => ({
+            id: String(r.id),
+            name: String(r.name),
+            price: Number(r.price),
+            quantity: r.quantity != null ? Number(r.quantity) : null,
+            quantity_sold: r.quantity_sold != null ? Number(r.quantity_sold) : null,
+          }))
           setTicketTypes(types)
           setSelectedTypeId(types[0].id)
+          const ttWithLimit = types.filter(t => t.quantity != null)
+          setIsSoldOut(ttWithLimit.length > 0 && ttWithLimit.every(t => (t.quantity_sold ?? 0) >= (t.quantity ?? 0)))
           sessionStorage.setItem('ticket_type_name', JSON.stringify({
             ticket_type_id: types[0].id,
             ticket_type_name: types[0].name,
@@ -258,7 +269,7 @@ export default function EventoPage() {
       <div style={{ flex: 1, padding: '22px 20px 0', display: 'flex', flexDirection: 'column', gap: 18 }}>
 
         {/* Genre pill */}
-        <div style={{ display: 'flex', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{
             background: '#E6F7F6', color: '#0EA5A0',
             fontSize: 11, fontWeight: 700, letterSpacing: 0.7,
@@ -266,6 +277,15 @@ export default function EventoPage() {
           }}>
             {ev.genre}
           </div>
+          {isSoldOut && (
+            <div style={{
+              background: '#F0F0F0', color: '#6E6E73',
+              fontSize: 11, fontWeight: 700, letterSpacing: 0.7,
+              textTransform: 'uppercase', padding: '4px 10px', borderRadius: 999,
+            }}>
+              Esgotado
+            </div>
+          )}
         </div>
 
         {/* Titulo + venue */}
@@ -382,6 +402,7 @@ export default function EventoPage() {
         ticketTypeId={selectedType?.id}
         ticketTypeName={selectedType?.name}
         selectedPrice={ctaPrice}
+        isSoldOut={isSoldOut}
       />
       <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
 

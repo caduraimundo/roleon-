@@ -507,7 +507,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     setLoading(true)
     supabase
       .from('events')
-      .select('*')
+      .select('*, ticket_types(id, quantity, quantity_sold)')
       .eq('status', 'active')
       .then(({ data, error }) => {
         if (error) {
@@ -516,6 +516,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         if (data) {
           setEvents(data.map((row: Record<string, unknown>) => {
             const d = row.event_date ? new Date(row.event_date as string) : null
+            const tts = (row.ticket_types as Array<{ quantity: number | null; quantity_sold: number | null }>) ?? []
+            const ttWithLimit = tts.filter(t => t.quantity != null)
+            const isSoldOut = ttWithLimit.length > 0 && ttWithLimit.every(t => (t.quantity_sold ?? 0) >= (t.quantity ?? 0))
             return {
               id:           String(row.id),
               title:        (row.title as string) ?? '',
@@ -531,6 +534,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
               date:         d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '',
               time:         d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
               color:        GENRE_COLORS[(row.genre as string)] ?? '#9E9E9E',
+              isSoldOut,
             } satisfies RoleonEvent
           }))
         }
@@ -669,6 +673,12 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       }
 
       const { container } = overlayRefs.current.get(ev.id)!
+      const soldOut = !!ev.isSoldOut
+      const pinBg = soldOut ? '#6E6E73' : (isActive ? PRIMARY : '#fff')
+      const pinText = soldOut ? '#fff' : (isActive ? '#fff' : TEXT)
+      const pinShadow = isActive && !soldOut
+        ? `0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px ${PRIMARY}`
+        : '0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'
       container.innerHTML = `
         <button data-ev="${ev.id}" style="
           transform:translate(-50%,-100%) ${isActive?'scale(1.06)':'scale(1)'};
@@ -676,16 +686,17 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
           background:transparent;border:0;padding:0;cursor:pointer;outline:none;
           display:inline-flex;flex-direction:column;align-items:center;">
           <div style="
-            background:${isActive?PRIMARY:'#fff'};color:${isActive?'#fff':TEXT};
+            background:${pinBg};color:${pinText};
             padding:7px 11px 7px 8px;border-radius:999px;
             font-family:'Noto Sans',sans-serif;font-size:12.5px;font-weight:700;
-            display:flex;align-items:center;gap:5px;white-space:nowrap;line-height:1;
-            box-shadow:${isActive?`0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px ${PRIMARY}`:'0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'};">
-            ${ev.price === 0 ? 'Grátis' : `R$${ev.price}`}
+            display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;line-height:1;
+            box-shadow:${pinShadow};">
+            <span>${ev.price === 0 ? 'Grátis' : `R$${ev.price}`}</span>
+            ${soldOut ? '<span style="font-size:9px;font-weight:600;letter-spacing:0.3px;">Esgotado</span>' : ''}
           </div>
-          <div style="width:8px;height:8px;background:${isActive?PRIMARY:'#fff'};
+          <div style="width:8px;height:8px;background:${pinBg};
             transform:rotate(45deg);margin-top:-4px;
-            box-shadow:${isActive?'none':'1.5px 1.5px 3px rgba(0,0,0,0.08)'};"></div>
+            box-shadow:${isActive&&!soldOut?'none':'1.5px 1.5px 3px rgba(0,0,0,0.08)'};"></div>
         </button>`
 
       const btn = container.querySelector('button')

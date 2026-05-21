@@ -13,9 +13,10 @@ interface EventoCTAProps {
   ticketTypeId?: string
   ticketTypeName?: string
   selectedPrice?: number
+  isSoldOut?: boolean
 }
 
-export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeName, selectedPrice }: EventoCTAProps) {
+export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeName, selectedPrice, isSoldOut = false }: EventoCTAProps) {
   const router = useRouter()
   const [authed,   setAuthed]   = useState(false)
   const [showAuth, setShowAuth] = useState(false)
@@ -67,7 +68,9 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
               <div style={{ fontSize: 12, color: '#8A8A8A', fontWeight: 500 }}>Ingresso</div>
               <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A1A' }}>Entrada gratuita</div>
             </div>
-            <button onClick={handleCTA} style={BTN_TEAL}>Participar</button>
+            <button onClick={isSoldOut ? undefined : handleCTA} disabled={isSoldOut} style={isSoldOut ? BTN_SOLD_OUT : BTN_TEAL}>
+              {isSoldOut ? 'Esgotado' : 'Participar'}
+            </button>
           </div>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -77,7 +80,9 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
                 {priceLabel}
               </div>
             </div>
-            <button onClick={handleCTA} style={BTN_TEAL}>Comprar ingresso</button>
+            <button onClick={isSoldOut ? undefined : handleCTA} disabled={isSoldOut} style={isSoldOut ? BTN_SOLD_OUT : BTN_TEAL}>
+              {isSoldOut ? 'Esgotado' : 'Comprar ingresso'}
+            </button>
           </div>
         )}
       </div>
@@ -96,4 +101,12 @@ const BTN_TEAL: React.CSSProperties = {
   boxShadow: '0 6px 18px rgba(14,165,160,0.28)',
   whiteSpace: 'nowrap',
   display: 'flex', alignItems: 'center',
+}
+
+const BTN_SOLD_OUT: React.CSSProperties = {
+  ...BTN_TEAL,
+  background: '#6E6E73',
+  cursor: 'not-allowed',
+  opacity: 0.5,
+  boxShadow: 'none',
 }

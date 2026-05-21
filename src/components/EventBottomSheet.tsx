@@ -17,6 +17,7 @@ export interface RoleonEvent {
   lat: number
   lng: number
   description?: string
+  isSoldOut?: boolean
 }
 
 const T = {
