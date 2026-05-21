@@ -463,9 +463,9 @@ export default function CheckoutPage() {
         {/* AVISO LEGAL */}
         <div style={{ fontSize: 11, color: '#8A8A8A', lineHeight: 1.6 }}>
           Ao continuar, você concorda com os{' '}
-          <span style={{ color: '#0EA5A0', fontWeight: 600 }}>Termos de compra</span>
+          <a href="/termos" style={{ color: '#0EA5A0', fontWeight: 600, textDecoration: 'none' }}>Termos de compra</a>
           {' '}e a{' '}
-          <span style={{ color: '#0EA5A0', fontWeight: 600 }}>Política de reembolso</span>.
+          <a href="/privacidade" style={{ color: '#0EA5A0', fontWeight: 600, textDecoration: 'none' }}>Política de reembolso</a>.
         </div>
 
         {/* FORMA DE PAGAMENTO */}

@@ -264,6 +264,46 @@ export default function PerfilPage() {
           </svg>
         </div>
 
+        {/* Card links legais */}
+        <div style={{
+          background: '#fff',
+          border: '1px solid #EFEFEF',
+          borderRadius: 14,
+          overflow: 'hidden',
+        }}>
+          {[
+            { label: 'Termos de Uso', href: '/termos' },
+            { label: 'Política de Privacidade', href: '/privacidade' },
+          ].map((item, i) => (
+            <div key={item.href}>
+              {i > 0 && <div style={{ height: '0.5px', background: '#F2F2F2', margin: '0 16px' }} />}
+              <a
+                href={item.href}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 13,
+                  padding: '15px 16px',
+                  textDecoration: 'none',
+                }}
+              >
+                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                  <svg width="19" height="19" viewBox="0 0 22 22" fill="none">
+                    <path d="M6 2h7l5 5v13a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2z"
+                      stroke="#0EA5A0" strokeWidth="1.5" strokeLinejoin="round"/>
+                    <path d="M13 2v5h5" stroke="#0EA5A0" strokeWidth="1.5" strokeLinejoin="round"/>
+                    <path d="M7 12h8M7 15.5h5" stroke="#0EA5A0" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </div>
+                <div style={{ flex: 1, fontSize: 15, fontWeight: 500, color: '#1A1A1A' }}>
+                  {item.label}
+                </div>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 4l4 4-4 4" stroke="#C8C8C8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </a>
+            </div>
+          ))}
+        </div>
+
         {/* Sair - pequeno e sutil */}
         <button
           onClick={handleSignOut}
