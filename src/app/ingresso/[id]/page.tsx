@@ -191,7 +191,7 @@ export default function IngressoPage() {
     pending:      { label: 'Pendente',   bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
     expired:      { label: 'Expirado',   bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
     refunded:     { label: 'Estornado',  bg: '#EFF6FF', color: '#1D4ED8', dot: '#3B82F6' },
-    chargebacked: { label: 'Chargeback', bg: '#FFF7ED', color: '#92400E', dot: '#F97316' },
+    chargebacked: { label: 'Contestado', bg: '#FFF7ED', color: '#92400E', dot: '#F97316' },
   }
   const badgeStyle = statusMap[ticket?.status ?? ''] ?? statusMap['pending']
   const qrData = ticket?.checkin_token || ticket?.qr_code || ticketId
@@ -438,7 +438,7 @@ export default function IngressoPage() {
                   <line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A', lineHeight: 1.4 }}>
-                  Chargeback aberto
+                  Contestação aberta
                 </div>
                 <div style={{ fontSize: 11, color: '#6E6E73', lineHeight: 1.5 }}>
                   Uma disputa foi aberta para este pagamento. Aguarde a resolução.

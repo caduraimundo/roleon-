@@ -70,7 +70,7 @@ function StatusBadge({ status }: { status: string }) {
     pending:      { label: 'Pendente',   bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
     expired:      { label: 'Expirado',   bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
     refunded:     { label: 'Estornado',  bg: '#EFF6FF', color: '#1D4ED8', dot: '#3B82F6' },
-    chargebacked: { label: 'Chargeback', bg: '#FFF7ED', color: '#92400E', dot: '#F97316' },
+    chargebacked: { label: 'Contestado', bg: '#FFF7ED', color: '#92400E', dot: '#F97316' },
   }
   const s = map[status] ?? map['pending']
   return (
