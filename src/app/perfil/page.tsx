@@ -203,8 +203,9 @@ export default function PerfilPage() {
           </div>
         </div>
 
-        {/* Cards de menu individuais */}
+        {/* Cards de menu + Seja um produtor (gap uniforme 8px) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+
           {menuItems.map((item) => (
             <button
               key={item.label}
@@ -233,17 +234,16 @@ export default function PerfilPage() {
               <IconChevronRight />
             </button>
           ))}
-        </div>
 
-        {/* Card "Seja um produtor" */}
-        <div style={{
-          background: '#E8F7F6',
-          border: '1px solid #C4EAE9',
-          borderRadius: 16,
-          padding: '18px 18px',
-          display: 'flex', alignItems: 'center', gap: 14,
-          cursor: 'pointer',
-        }}>
+          {/* Card "Seja um produtor" */}
+          <div style={{
+            background: '#E8F7F6',
+            border: '1px solid #C4EAE9',
+            borderRadius: 16,
+            padding: '18px 18px',
+            display: 'flex', alignItems: 'center', gap: 14,
+            cursor: 'pointer',
+          }}>
           <div style={{
             width: 34, height: 34, borderRadius: 10,
             background: '#0EA5A0',
@@ -263,10 +263,12 @@ export default function PerfilPage() {
               Publique seus rolês no Roleon.
             </div>
           </div>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, alignSelf: 'center' }}>
             <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-        </div>
+          </div>
+
+        </div>{/* fim wrapper menu+produtor */}
 
         {/* Links legais */}
         <div style={{ textAlign: 'center' }}>
