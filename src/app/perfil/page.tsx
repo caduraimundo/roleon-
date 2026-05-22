@@ -246,11 +246,14 @@ export default function PerfilPage() {
         }}>
           <div style={{
             width: 34, height: 34, borderRadius: 10,
-            background: '#F0FAF9',
+            background: '#0EA5A0',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, color: '#0EA5A0',
+            flexShrink: 0, color: '#fff',
           }}>
-            <IconPencilSquare color="#0EA5A0" />
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <path d="M13 3l4 4-9 9-4.5 1 1-4.5 8.5-9.5z"
+                stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/>
+            </svg>
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#0A7A76', letterSpacing: -0.2 }}>
