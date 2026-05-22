@@ -626,17 +626,21 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     let userPos: google.maps.LatLng | null = null
     class UserDot extends google.maps.OverlayView {
       onAdd()    { this.getPanes()!.floatPane.appendChild(dot) }
-      draw()     { if (!userPos) return; const p = this.getProjection().fromLatLngToDivPixel(userPos); if (p) { dot.style.left=`${p.x}px`; dot.style.top=`${p.y}px` } }
+      draw()     { if (!userPos) return; try { const p = this.getProjection()?.fromLatLngToDivPixel(userPos); if (p) { dot.style.left=`${p.x}px`; dot.style.top=`${p.y}px` } } catch (e) { console.warn('UserDot draw error:', e) } }
       onRemove() { dot.parentNode?.removeChild(dot) }
     }
     const dotOverlay = new UserDot()
 
     const watchId = navigator.geolocation.watchPosition(
       ({ coords }) => {
-        userPos = new google.maps.LatLng(coords.latitude, coords.longitude)
-        userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
-        if (!dotOverlay.getMap()) dotOverlay.setMap(map)
-        dotOverlay.draw()
+        try {
+          userPos = new google.maps.LatLng(coords.latitude, coords.longitude)
+          userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
+          if (!dotOverlay.getMap()) dotOverlay.setMap(map)
+          dotOverlay.draw()
+        } catch (e) {
+          console.warn('Geolocation error:', e)
+        }
       },
       () => {},
       { enableHighAccuracy: true },
