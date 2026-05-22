@@ -753,7 +753,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
               color: '#ffffff',
               fontSize: '13px',
               fontWeight: 'bold',
-              fontFamily: 'Noto Sans',
+              fontFamily: "'Noto Sans', sans-serif",
             },
             zIndex: 1000,
           })
