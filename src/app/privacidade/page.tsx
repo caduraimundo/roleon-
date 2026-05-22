@@ -60,7 +60,7 @@ export default function PrivacidadePage() {
         <ul style={{ margin: '0 0 24px', paddingLeft: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
           <li>Nome, e-mail e foto de perfil (via login com Google)</li>
           <li>CPF (obrigatório para compra de ingressos)</li>
-          <li>Dados de pagamento (processados pela Pagar.me — o Roleon não armazena número de cartão)</li>
+          <li>Dados de pagamento (processados pela Pagar.me - o Roleon não armazena número de cartão)</li>
           <li>Localização aproximada (para exibir eventos próximos, somente com sua permissão)</li>
           <li>Histórico de compras e eventos salvos</li>
         </ul>
