@@ -292,16 +292,6 @@ export default function PerfilPage() {
           Sair da conta
         </button>
 
-        {/* Versão */}
-        <div style={{
-          textAlign: 'center',
-          fontSize: 11, fontWeight: 600, color: '#9E9EA7',
-          letterSpacing: 1.5, textTransform: 'uppercase',
-          fontFamily: "'Noto Sans', sans-serif",
-          marginTop: 16, paddingBottom: 24,
-        }}>
-          ROLEON · V1.0.0
-        </div>
       </div>
 
       <BottomNav activeTab="perfil" onTabChange={(tab) => {
