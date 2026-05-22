@@ -29,8 +29,8 @@ function IconTicket() {
   return (
     <svg width="19" height="19" viewBox="0 0 22 22" fill="none">
       <path d="M3 8a2 2 0 012-2h12a2 2 0 012 2v1.5a1.5 1.5 0 000 3V14a2 2 0 01-2 2H5a2 2 0 01-2-2v-1.5a1.5 1.5 0 000-3V8z"
-        stroke="#1A1A1A" strokeWidth="1.5" strokeLinejoin="round"/>
-      <path d="M14 6.5v9" stroke="#1A1A1A" strokeWidth="1.5" strokeDasharray="1.5 1.8"/>
+        stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+      <path d="M14 6.5v9" stroke="currentColor" strokeWidth="1.5" strokeDasharray="1.5 1.8"/>
     </svg>
   )
 }
@@ -38,9 +38,9 @@ function IconTicket() {
 function IconCard() {
   return (
     <svg width="19" height="19" viewBox="0 0 22 22" fill="none">
-      <rect x="2" y="5" width="18" height="13" rx="2.5" stroke="#1A1A1A" strokeWidth="1.5"/>
-      <path d="M2 9h18" stroke="#1A1A1A" strokeWidth="1.5"/>
-      <path d="M6 14h4" stroke="#1A1A1A" strokeWidth="1.5" strokeLinecap="round"/>
+      <rect x="2" y="5" width="18" height="13" rx="2.5" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M2 9h18" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M6 14h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
     </svg>
   )
 }
@@ -48,9 +48,9 @@ function IconCard() {
 function IconGear() {
   return (
     <svg width="19" height="19" viewBox="0 0 22 22" fill="none">
-      <circle cx="11" cy="11" r="3" stroke="#1A1A1A" strokeWidth="1.5"/>
+      <circle cx="11" cy="11" r="3" stroke="currentColor" strokeWidth="1.5"/>
       <path d="M11 2v2M11 18v2M2 11h2M18 11h2M4.22 4.22l1.42 1.42M16.36 16.36l1.42 1.42M4.22 17.78l1.42-1.42M16.36 5.64l1.42-1.42"
-        stroke="#1A1A1A" strokeWidth="1.5" strokeLinecap="round"/>
+        stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
     </svg>
   )
 }
@@ -58,9 +58,9 @@ function IconGear() {
 function IconHelp() {
   return (
     <svg width="19" height="19" viewBox="0 0 22 22" fill="none">
-      <circle cx="11" cy="11" r="8.5" stroke="#1A1A1A" strokeWidth="1.5"/>
-      <path d="M8.5 8.5a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 4" stroke="#1A1A1A" strokeWidth="1.5" strokeLinecap="round"/>
-      <circle cx="11" cy="16" r="0.8" fill="#1A1A1A"/>
+      <circle cx="11" cy="11" r="8.5" stroke="currentColor" strokeWidth="1.5"/>
+      <path d="M8.5 8.5a2.5 2.5 0 015 0c0 1.5-2.5 2-2.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+      <circle cx="11" cy="16" r="0.8" fill="currentColor"/>
     </svg>
   )
 }
@@ -203,54 +203,47 @@ export default function PerfilPage() {
           </div>
         </div>
 
-        {/* Card principal */}
-        <div style={{
-          background: '#fff',
-          border: '1px solid #EFEFEF',
-          borderRadius: 16,
-          overflow: 'hidden',
-        }}>
-          {menuItems.map((item, i) => (
-            <div key={item.label}>
-              {i > 0 && <div style={{ height: '0.5px', background: '#F2F2F2', margin: '0 16px' }} />}
-              <button
-                onClick={item.onClick}
-                style={{
-                  width: '100%', background: 'none', border: 0, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 13,
-                  padding: '15px 16px', textAlign: 'left',
-                }}
-              >
-                <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
-                  {item.icon}
-                </div>
-                <div style={{ flex: 1, fontSize: 15, fontWeight: 500, color: '#1A1A1A' }}>
-                  {item.label}
-                </div>
-                <IconChevronRight />
-              </button>
-            </div>
+        {/* Cards de menu individuais */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {menuItems.map((item) => (
+            <button
+              key={item.label}
+              onClick={item.onClick}
+              style={{
+                background: '#fff',
+                border: '0.5px solid #E5E5EA',
+                borderRadius: 12,
+                padding: '13px 14px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                display: 'flex', alignItems: 'center', gap: 12,
+                width: '100%', cursor: 'pointer', textAlign: 'left',
+              }}
+            >
+              <div style={{
+                width: 34, height: 34, borderRadius: 10,
+                background: '#F0FAF9',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0, color: '#0EA5A0',
+              }}>
+                {item.icon}
+              </div>
+              <div style={{ flex: 1, fontSize: 14.5, fontWeight: 600, color: '#1A1A1A' }}>
+                {item.label}
+              </div>
+              <IconChevronRight />
+            </button>
           ))}
-          {[
-            { label: 'Termos de Uso', href: '/termos' },
-            { label: 'Política de Privacidade', href: '/privacidade' },
-          ].map((item) => (
-            <div key={item.href}>
-              <div style={{ height: '0.5px', background: '#F2F2F2', margin: '0 16px' }} />
-              <a
-                href={item.href}
-                style={{
-                  display: 'flex', alignItems: 'center',
-                  padding: '15px 16px',
-                  textDecoration: 'none',
-                }}
-              >
-                <div style={{ flex: 1, fontSize: 14, fontWeight: 500, color: '#6E6E73' }}>
-                  {item.label}
-                </div>
-              </a>
-            </div>
-          ))}
+        </div>
+
+        {/* Links legais */}
+        <div style={{ textAlign: 'center' }}>
+          <a href="/termos" style={{ color: '#6E6E73', fontSize: 12, textDecoration: 'none' }}>
+            Termos de Uso
+          </a>
+          <span style={{ color: '#6E6E73', fontSize: 12, margin: '0 8px' }}>·</span>
+          <a href="/privacidade" style={{ color: '#6E6E73', fontSize: 12, textDecoration: 'none' }}>
+            Política de Privacidade
+          </a>
         </div>
 
         {/* Card "Seja um produtor" */}
