@@ -263,7 +263,7 @@ export default function PerfilPage() {
               Publique seus rolês no Roleon.
             </div>
           </div>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, alignSelf: 'center' }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: '#0EA5A0', flexShrink: 0, alignSelf: 'center' }}>
             <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           </div>
