@@ -741,6 +741,13 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       markers: allMarkers,
       renderer: {
         render: ({ count, position, markers }) => {
+          if (!document.getElementById('noto-sans-maps')) {
+            const link = document.createElement('link')
+            link.id = 'noto-sans-maps'
+            link.rel = 'stylesheet'
+            link.href = 'https://fonts.googleapis.com/css2?family=Noto+Sans:wght@600&display=swap'
+            document.head.appendChild(link)
+          }
           const total = markers?.length ?? count
           const size = 32 + Math.min(total * 2, 20)
           const div = document.createElement('div')
