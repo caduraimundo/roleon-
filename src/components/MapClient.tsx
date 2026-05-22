@@ -625,7 +625,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     let userPos: google.maps.LatLng | null = null
     class UserDot extends google.maps.OverlayView {
       onAdd()    { this.getPanes()!.floatPane.appendChild(dot) }
-      draw()     { if (!userPos) return; try { const p = this.getProjection()?.fromLatLngToDivPixel(userPos); if (p) { dot.style.left=`${p.x}px`; dot.style.top=`${p.y}px` } } catch (e) { console.warn('UserDot draw error:', e) } }
+      draw()     { const projection = this.getProjection(); if (!projection || !userPos) return; try { const p = projection.fromLatLngToDivPixel(userPos); if (p) { dot.style.left=`${p.x}px`; dot.style.top=`${p.y}px` } } catch (e) { console.warn('UserDot draw error:', e) } }
       onRemove() { dot.parentNode?.removeChild(dot) }
     }
     const dotOverlay = new UserDot()
@@ -680,7 +680,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         container.style.cssText = 'position:absolute;'
         class PinOverlay extends google.maps.OverlayView {
           onAdd()    { this.getPanes()?.overlayMouseTarget.appendChild(container) }
-          draw()     { const p = this.getProjection()?.fromLatLngToDivPixel(position); if (p) { container.style.left=`${p.x}px`; container.style.top=`${p.y}px` } }
+          draw()     { const projection = this.getProjection(); if (!projection) return; const p = projection.fromLatLngToDivPixel(position); if (p) { container.style.left=`${p.x}px`; container.style.top=`${p.y}px` } }
           onRemove() { container.parentNode?.removeChild(container) }
         }
         const overlay = new PinOverlay()
