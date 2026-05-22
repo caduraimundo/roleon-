@@ -613,6 +613,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       center: OURO_PRETO_CENTER, zoom: 15,
       styles: LIGHT_MAP_STYLE,
       disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
+      mapId: 'roleon-map',
     })
     mapInstanceRef.current = map
 
@@ -738,25 +739,10 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         render: ({ count, position, markers }) => {
           const total = markers?.length ?? count
           const size = 32 + Math.min(total * 2, 20)
-          return new google.maps.Marker({
-            position,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: size / 2,
-              fillColor: '#0EA5A0',
-              fillOpacity: 1,
-              strokeColor: '#ffffff',
-              strokeWeight: 2,
-            },
-            label: {
-              text: String(total),
-              color: '#ffffff',
-              fontSize: '13px',
-              fontWeight: 'bold',
-              fontFamily: "'Noto Sans', sans-serif",
-            },
-            zIndex: 1000,
-          })
+          const div = document.createElement('div')
+          div.innerHTML = String(total)
+          div.style.cssText = `background-color:#0EA5A0;border-radius:50%;width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center;color:#ffffff;font-family:'Noto Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,0.3);border:2px solid #ffffff;`
+          return new google.maps.marker.AdvancedMarkerElement({ position, content: div })
         },
       },
     })
