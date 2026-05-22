@@ -239,8 +239,8 @@ export default function PerfilPage() {
           <div style={{
             background: '#E8F7F6',
             border: '1px solid #C4EAE9',
-            borderRadius: 16,
-            padding: '18px 18px',
+            borderRadius: 12,
+            padding: '13px 14px',
             display: 'flex', alignItems: 'center', gap: 14,
             cursor: 'pointer',
           }}>
