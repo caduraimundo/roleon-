@@ -141,7 +141,7 @@ export default function PerfilPage() {
   const menuItems = [
     { icon: <IconTicket />,                      label: 'Meus ingressos',  onClick: () => router.push('/ingressos') },
     { icon: <IconCard />,                        label: 'Pagamentos',      onClick: () => {} },
-    { icon: <IconPencilSquare />,                label: 'Editar perfil',   onClick: () => {} },
+    { icon: <IconPencilSquare color="#0EA5A0" />, label: 'Editar perfil',   onClick: () => {} },
     { icon: <IconGear />,                        label: 'Configurações',   onClick: () => {} },
     { icon: <IconHelp />,                        label: 'Ajuda',           onClick: () => {} },
   ]
@@ -245,11 +245,10 @@ export default function PerfilPage() {
           cursor: 'pointer',
         }}>
           <div style={{
-            width: 44, height: 44, borderRadius: 12,
-            background: '#fff',
+            width: 34, height: 34, borderRadius: 10,
+            background: '#F0FAF9',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-            boxShadow: '0 2px 8px rgba(14,165,160,0.12)',
+            flexShrink: 0, color: '#0EA5A0',
           }}>
             <IconPencilSquare color="#0EA5A0" />
           </div>
@@ -282,7 +281,7 @@ export default function PerfilPage() {
           onClick={handleSignOut}
           style={{
             background: 'none', border: 0, cursor: 'pointer',
-            fontSize: 13, fontWeight: 500, color: '#9A9A9A',
+            fontSize: 13, fontWeight: 600, color: '#9A9A9A',
             padding: '6px 0', alignSelf: 'center',
             letterSpacing: 0.1, marginTop: 24,
           }}
