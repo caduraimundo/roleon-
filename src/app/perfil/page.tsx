@@ -231,6 +231,26 @@ export default function PerfilPage() {
               </button>
             </div>
           ))}
+          {[
+            { label: 'Termos de Uso', href: '/termos' },
+            { label: 'Política de Privacidade', href: '/privacidade' },
+          ].map((item) => (
+            <div key={item.href}>
+              <div style={{ height: '0.5px', background: '#F2F2F2', margin: '0 16px' }} />
+              <a
+                href={item.href}
+                style={{
+                  display: 'flex', alignItems: 'center',
+                  padding: '15px 16px',
+                  textDecoration: 'none',
+                }}
+              >
+                <div style={{ flex: 1, fontSize: 14, fontWeight: 500, color: '#6E6E73' }}>
+                  {item.label}
+                </div>
+              </a>
+            </div>
+          ))}
         </div>
 
         {/* Card "Seja um produtor" */}
@@ -262,17 +282,6 @@ export default function PerfilPage() {
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-        </div>
-
-        {/* Links legais */}
-        <div style={{ textAlign: 'center', marginBottom: 16 }}>
-          <a href="/termos" style={{ color: '#6E6E73', fontSize: 12, textDecoration: 'none' }}>
-            Termos de Uso
-          </a>
-          <span style={{ color: '#6E6E73', fontSize: 12, margin: '0 8px' }}>·</span>
-          <a href="/privacidade" style={{ color: '#6E6E73', fontSize: 12, textDecoration: 'none' }}>
-            Política de Privacidade
-          </a>
         </div>
 
         {/* Sair - pequeno e sutil */}
