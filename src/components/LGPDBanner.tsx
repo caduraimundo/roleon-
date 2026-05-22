@@ -12,6 +12,8 @@ export default function LGPDBanner() {
     }
   }, []);
 
+  console.log('LGPDBanner: visible =', visible);
+
   if (!visible) return null;
 
   function dismiss() {
