@@ -739,11 +739,12 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       map: mapInstanceRef.current,
       markers: allMarkers,
       renderer: {
-        render: ({ count, position }) => {
+        render: ({ count, position, markers }) => {
+          const total = markers?.length ?? count
           return new google.maps.Marker({
             position,
             icon: {
-              url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="20" fill="#0EA5A0"/><text x="20" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="600" fill="white">${count}</text></svg>`)}`,
+              url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="20" fill="#0EA5A0"/><text x="20" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="600" fill="white">${total}</text></svg>`)}`,
               scaledSize: new google.maps.Size(40, 40),
             },
             zIndex: 1000,
