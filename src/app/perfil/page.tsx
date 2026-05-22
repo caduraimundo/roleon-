@@ -235,17 +235,6 @@ export default function PerfilPage() {
           ))}
         </div>
 
-        {/* Links legais */}
-        <div style={{ textAlign: 'center' }}>
-          <a href="/termos" style={{ color: '#6E6E73', fontSize: 12, textDecoration: 'none' }}>
-            Termos de Uso
-          </a>
-          <span style={{ color: '#6E6E73', fontSize: 12, margin: '0 8px' }}>·</span>
-          <a href="/privacidade" style={{ color: '#6E6E73', fontSize: 12, textDecoration: 'none' }}>
-            Política de Privacidade
-          </a>
-        </div>
-
         {/* Card "Seja um produtor" */}
         <div style={{
           background: '#E8F7F6',
@@ -277,6 +266,17 @@ export default function PerfilPage() {
           </svg>
         </div>
 
+        {/* Links legais */}
+        <div style={{ textAlign: 'center' }}>
+          <a href="/termos" style={{ color: '#6E6E73', fontSize: 12, textDecoration: 'none' }}>
+            Termos de Uso
+          </a>
+          <span style={{ color: '#6E6E73', fontSize: 12, margin: '0 8px' }}>·</span>
+          <a href="/privacidade" style={{ color: '#6E6E73', fontSize: 12, textDecoration: 'none' }}>
+            Política de Privacidade
+          </a>
+        </div>
+
         {/* Sair - pequeno e sutil */}
         <button
           onClick={handleSignOut}
@@ -284,7 +284,7 @@ export default function PerfilPage() {
             background: 'none', border: 0, cursor: 'pointer',
             fontSize: 13, fontWeight: 500, color: '#9A9A9A',
             padding: '6px 0', alignSelf: 'center',
-            letterSpacing: 0.1,
+            letterSpacing: 0.1, marginTop: 24,
           }}
         >
           Sair da conta
