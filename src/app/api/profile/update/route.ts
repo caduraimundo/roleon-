@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { revalidatePath } from 'next/cache'
 import { getInitials } from '../../../../lib/getInitials'
 
 const supabaseAdmin = createClient(
@@ -39,6 +40,9 @@ export async function POST(req: NextRequest) {
   if (updateError) {
     return NextResponse.json({ error: 'Erro ao atualizar perfil' }, { status: 500 })
   }
+
+  revalidatePath('/perfil')
+  revalidatePath('/perfil/editar')
 
   return NextResponse.json({ name: trimmedName, avatar_initials })
 }

@@ -25,7 +25,7 @@ export default function EditarPerfilPage() {
         .from('profiles')
         .select('name, avatar_initials')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
 
       const displayName = profile?.name ?? ''
       setName(displayName)
