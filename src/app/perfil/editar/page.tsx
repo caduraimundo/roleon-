@@ -131,8 +131,11 @@ export default function EditarPerfilPage() {
           {initials}
         </div>
 
+        {/* Campos */}
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12 }}>
+
         {/* Campo Nome */}
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div style={{
             background: '#fff',
             border: error ? '1.5px solid #FF3B30' : '1.5px solid #E5E5EA',
@@ -173,7 +176,7 @@ export default function EditarPerfilPage() {
         </div>
 
         {/* Campo Email */}
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div style={{
             background: '#F4F4F4',
             border: '1.5px solid #E5E5EA',
@@ -227,6 +230,8 @@ export default function EditarPerfilPage() {
             </div>
           )}
         </div>
+
+        </div>{/* fim Campos */}
 
         {/* Botao Salvar */}
         <button
