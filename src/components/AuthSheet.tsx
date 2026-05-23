@@ -39,15 +39,6 @@ function IconEye({ hidden }: { hidden: boolean }) {
   )
 }
 
-function IconEnvelope() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="#0EA5A0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="4" width="20" height="16" rx="2"/>
-      <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-    </svg>
-  )
-}
-
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
 interface AuthSheetProps {
@@ -106,7 +97,6 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
   const [emailError,   setEmailError]   = useState<string | null>(null)
   const [passwordError,setPasswordError]= useState<string | null>(null)
   const [resetSent,    setResetSent]    = useState(false)
-  const [signupDone,   setSignupDone]   = useState(false)
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
@@ -181,7 +171,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
         else setError(msg)
         return
       }
-      setSignupDone(true)
+      onClose()
     }
   }
 
@@ -236,36 +226,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
           <IconClose />
         </button>
 
-        {/* ── Tela de sucesso pós-cadastro ── */}
-        {signupDone ? (
-          <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center',
-            textAlign: 'center', padding: '32px 8px 8px', gap: 16,
-          }}>
-            <IconEnvelope />
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.3 }}>
-              Verifique seu e-mail
-            </div>
-            <p style={{ margin: 0, fontSize: 14, color: '#6E6E73', lineHeight: 1.6 }}>
-              Enviamos um link de confirmação para{' '}
-              <strong style={{ color: '#1A1A1A' }}>{email}</strong>.
-              {' '}Clique no link para ativar sua conta.
-            </p>
-            <button
-              onClick={onClose}
-              style={{
-                marginTop: 8, width: '100%',
-                background: '#F2F2F2', border: 'none', cursor: 'pointer',
-                padding: '14px 18px', borderRadius: 12,
-                fontSize: 15, fontWeight: 700, color: '#1A1A1A',
-                fontFamily: "'Noto Sans', sans-serif",
-              }}
-            >
-              Fechar
-            </button>
-          </div>
-        ) : (
-          <>
+        <>
             {/* Título */}
             {mode !== 'forgot' && (
               <div style={{ marginTop: 8, marginBottom: 6 }}>
@@ -439,8 +400,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                 </>
               )}
             </div>
-          </>
-        )}
+        </>
       </div>
     </>
   )
