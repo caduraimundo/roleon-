@@ -263,14 +263,16 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
         ) : (
           <>
             {/* Título */}
-            <div style={{ marginTop: 8, marginBottom: 6 }}>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.3 }}>
-                Acesse o Roleon
-              </h2>
-              <p style={{ margin: '6px 0 0', fontSize: 13, color: '#6E6E73', lineHeight: 1.5 }}>
-                Entre para comprar ingressos e salvar eventos
-              </p>
-            </div>
+            {mode !== 'forgot' && (
+              <div style={{ marginTop: 8, marginBottom: 6 }}>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.3 }}>
+                  Acesse o Roleon
+                </h2>
+                <p style={{ margin: '6px 0 0', fontSize: 13, color: '#6E6E73', lineHeight: 1.5 }}>
+                  Entre para comprar ingressos e salvar eventos
+                </p>
+              </div>
+            )}
 
             {/* Google + divisor */}
             {mode !== 'forgot' && (
