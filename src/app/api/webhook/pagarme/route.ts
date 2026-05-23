@@ -119,16 +119,27 @@ export async function POST(req: NextRequest) {
       anyProcessed = true;
       console.log('[Webhook] Ticket atualizado para paid:', ticket.id);
 
-      // Buscar dados do ticket + evento + usuário para o e-mail
+      // Query 1: buscar ticket + evento
       const { data: ticketCompleto } = await supabaseAdmin
         .from('tickets')
         .select(`
-          id, qr_code, checkin_token, ticket_type_name, price_paid, payment_method, recipient_email,
-          event:event_id (title, event_date, location_name),
-          user:user_id (email, name)
+          id, qr_code, checkin_token, ticket_type_name, price_paid,
+          payment_method, recipient_email, user_id,
+          event:event_id (title, event_date, location_name)
         `)
         .eq('id', ticket.id)
         .single() as { data: any };
+
+      // Query 2: buscar perfil do usuário separado
+      let userProfile: any = null
+      if (ticketCompleto?.user_id) {
+        const { data: profile } = await supabaseAdmin
+          .from('profiles')
+          .select('email, name')
+          .eq('id', ticketCompleto.user_id)
+          .single()
+        userProfile = profile
+      }
 
       logAudit(ticket.id, 'pending', 'paid', {
         price_paid: ticketCompleto?.price_paid,
@@ -136,7 +147,8 @@ export async function POST(req: NextRequest) {
         order_id: orderId,
       }).catch(() => {});
 
-      const emailDestino = ticketCompleto?.recipient_email ?? ticketCompleto?.user?.email;
+      // Usar userProfile onde antes usava ticketCompleto.user
+      const emailDestino = ticketCompleto?.recipient_email ?? userProfile?.email;
       if (emailDestino) {
         const evento = ticketCompleto.event as any;
         const dateObj = new Date(evento.event_date.replace(' ', 'T'));
