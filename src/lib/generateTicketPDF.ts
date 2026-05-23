@@ -73,7 +73,7 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
   // Divisor header
   let cursorY = headerY - 1
   page.drawRectangle({ x: cardX, y: cursorY, width: cardW, height: 1, color: dividerColor })
-  cursorY -= 16
+  cursorY -= 20
 
   // Título do evento
   const titleLines = wrapText(eventTitle, fontBold, 14, cardW - 48)
@@ -101,7 +101,7 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
 
   // Divisor
   page.drawRectangle({ x: cardX, y: cursorY, width: cardW, height: 1, color: dividerColor })
-  cursorY -= 16
+  cursorY -= 20
 
   // Tipo e valor lado a lado
   const halfW = cardW / 2
@@ -115,7 +115,7 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
 
   // Divisor
   page.drawRectangle({ x: cardX, y: cursorY, width: cardW, height: 1, color: dividerColor })
-  cursorY -= 16
+  cursorY -= 20
 
   // QR Code
   try {
@@ -124,8 +124,9 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
     const qrImage = await pdfDoc.embedPng(Buffer.from(qrBytes))
     const qrSize = 130
     const qrX = cardX + (cardW - qrSize) / 2
+    cursorY -= 8
     page.drawImage(qrImage, { x: qrX, y: cursorY - qrSize, width: qrSize, height: qrSize })
-    cursorY -= qrSize + 12
+    cursorY -= qrSize + 18
   } catch {
     cursorY -= 20
   }
@@ -141,7 +142,7 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
     color: dark,
 
   })
-  cursorY -= 14
+  cursorY -= 18
 
   // Divisor rodapé
   page.drawRectangle({ x: cardX, y: cursorY, width: cardW, height: 1, color: dividerColor })
