@@ -142,7 +142,12 @@ export default function AlterarSenhaPage() {
     setSaving(false)
 
     if (error) {
-      setErrorGeral(error.message ?? 'Erro ao alterar senha. Tente novamente.')
+      const erros: Record<string, string> = {
+        'New password should be different from the old password.': 'A nova senha deve ser diferente da senha atual.',
+        'Password should be at least 6 characters.': 'A senha deve ter pelo menos 6 caracteres.',
+        'Invalid login credentials': 'Senha atual incorreta.',
+      }
+      setErrorGeral(erros[error.message] ?? 'Erro ao alterar senha. Tente novamente.')
       return
     }
 
