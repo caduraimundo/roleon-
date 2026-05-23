@@ -137,6 +137,19 @@ export default function AlterarSenhaPage() {
     setSaving(true)
     setErrorGeral('')
 
+    const { data: { user } } = await supabase.auth.getUser()
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user?.email ?? '',
+      password: atual,
+    })
+
+    if (signInError) {
+      setSaving(false)
+      setErrorGeral('Senha atual incorreta.')
+      return
+    }
+
     const { error } = await supabase.auth.updateUser({ password: nova })
 
     setSaving(false)
