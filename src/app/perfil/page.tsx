@@ -263,17 +263,6 @@ export default function PerfilPage() {
 
         </div>{/* fim wrapper menu+produtor */}
 
-        {/* Links legais */}
-        <div style={{ textAlign: 'center' }}>
-          <a href="/termos" style={{ color: '#6E6E73', fontSize: 12, textDecoration: 'none' }}>
-            Termos de Uso
-          </a>
-          <span style={{ color: '#6E6E73', fontSize: 12, margin: '0 8px' }}>·</span>
-          <a href="/privacidade" style={{ color: '#6E6E73', fontSize: 12, textDecoration: 'none' }}>
-            Política de Privacidade
-          </a>
-        </div>
-
         {/* Sair - pequeno e sutil */}
         <button
           onClick={handleSignOut}

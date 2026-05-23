@@ -246,11 +246,11 @@ export default function ConfiguracoesPage() {
         </div>
 
         {/* SEÇÃO 3 — CONTA */}
-        {!isGoogle && (
-          <div>
-            <div style={sectionLabelStyle}>CONTA</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div>
+          <div style={sectionLabelStyle}>CONTA</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
 
+            {!isGoogle && (
               <button
                 onClick={() => router.push('/perfil/alterar-senha')}
                 style={{ ...cardStyle, cursor: 'pointer', border: '0.5px solid #E5E5EA' }}
@@ -258,15 +258,7 @@ export default function ConfiguracoesPage() {
                 <span style={{ fontSize: 15, color: '#1A1A1A' }}>Alterar senha</span>
                 <IconChevronRight />
               </button>
-
-            </div>
-          </div>
-        )}
-
-        {/* SEÇÃO 4 — ZONA DE PERIGO */}
-        <div>
-          <div style={sectionLabelStyle}>ZONA DE PERIGO</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            )}
 
             <button
               onClick={() => setShowDeleteModal(true)}
