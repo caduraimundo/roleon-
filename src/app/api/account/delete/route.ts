@@ -17,6 +17,30 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
   }
 
+  await supabaseAdmin
+    .from('tickets')
+    .update({ recipient_email: `deletado_${user.id}@roleon.com.br` })
+    .eq('user_id', user.id)
+
+  await supabaseAdmin
+    .from('profiles')
+    .update({
+      name: 'Usuário Removido',
+      email: `deletado_${user.id}@roleon.com.br`,
+      avatar_initials: '??',
+    })
+    .eq('id', user.id)
+
+  await supabaseAdmin
+    .from('saved_events')
+    .delete()
+    .eq('user_id', user.id)
+
+  await supabaseAdmin
+    .from('waitlist')
+    .delete()
+    .eq('user_id', user.id)
+
   const { error } = await supabaseAdmin.auth.admin.deleteUser(user.id)
 
   if (error) {
