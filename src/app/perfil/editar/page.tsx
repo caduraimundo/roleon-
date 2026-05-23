@@ -11,6 +11,8 @@ export default function EditarPerfilPage() {
 
   const [loading, setLoading]   = useState(true)
   const [name, setName]         = useState('')
+  const [email, setEmail]       = useState('')
+  const [isGoogle, setIsGoogle] = useState(false)
   const [initials, setInitials] = useState('')
   const [error, setError]       = useState('')
   const [success, setSuccess]   = useState(false)
@@ -22,6 +24,9 @@ export default function EditarPerfilPage() {
       const { data: { session } } = await supabase.auth.getSession()
       const user = session?.user
       if (!user) { router.replace('/login'); return }
+
+      setEmail(user.email ?? '')
+      setIsGoogle(session.user.app_metadata?.provider === 'google')
 
       const { data: profile } = await supabase
         .from('profiles')
@@ -128,36 +133,98 @@ export default function EditarPerfilPage() {
 
         {/* Campo Nome */}
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <label style={{ fontSize: 13, fontWeight: 600, color: '#6E6E73', letterSpacing: 0.2 }}>
-            Nome
-          </label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value)
-              setError('')
-              setInitials(getInitials(e.target.value))
-            }}
-            maxLength={50}
-            style={{
-              width: '100%',
-              padding: '12px 14px',
-              borderRadius: 12,
-              border: error ? '1.5px solid #FF3B30' : '1.5px solid #E5E5EA',
-              background: '#fff',
-              fontSize: 16,
-              fontFamily: "'Noto Sans', sans-serif",
-              color: '#1A1A1A',
-              outline: 'none',
-              boxSizing: 'border-box',
-              transition: 'border-color 0.15s',
-            }}
-          />
+          <div style={{
+            background: '#fff',
+            border: error ? '1.5px solid #FF3B30' : '1.5px solid #E5E5EA',
+            borderRadius: 12,
+            padding: '10px 14px',
+            display: 'flex', flexDirection: 'column', gap: 8,
+            transition: 'border-color 0.15s',
+          }}>
+            <label style={{ fontSize: 10.5, fontWeight: 600, color: '#6E6E73', letterSpacing: 0.5, textTransform: 'uppercase' }}>
+              Nome Completo
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value)
+                setError('')
+                setInitials(getInitials(e.target.value))
+              }}
+              maxLength={50}
+              style={{
+                border: 'none',
+                background: 'none',
+                fontSize: 16,
+                fontFamily: "'Noto Sans', sans-serif",
+                color: '#1A1A1A',
+                outline: 'none',
+                width: '100%',
+                padding: 0,
+              }}
+            />
+          </div>
           {error && (
             <span style={{ fontSize: 13, color: '#FF3B30', marginTop: 2 }}>
               {error}
             </span>
+          )}
+        </div>
+
+        {/* Campo Email */}
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{
+            background: '#F4F4F4',
+            border: '1.5px solid #E5E5EA',
+            borderRadius: 12,
+            padding: '10px 14px',
+            display: 'flex', flexDirection: 'column', gap: 8,
+          }}>
+            <label style={{ fontSize: 10.5, fontWeight: 600, color: '#6E6E73', letterSpacing: 0.5, textTransform: 'uppercase' }}>
+              E-mail
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                type="email"
+                value={email}
+                readOnly
+                style={{
+                  flex: 1,
+                  border: 'none',
+                  background: 'none',
+                  fontSize: 16,
+                  fontFamily: "'Noto Sans', sans-serif",
+                  color: '#6E6E73',
+                  outline: 'none',
+                  padding: 0,
+                  minWidth: 0,
+                }}
+              />
+              <div style={{
+                width: 32, height: 32, borderRadius: 8,
+                background: '#EEE',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#6E6E73', flexShrink: 0,
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/>
+                  <path d="M7 11V7a5 5 0 0110 0v4"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          {isGoogle && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11.5, color: '#6E6E73' }}>
+              <svg width="12" height="12" viewBox="0 0 18 18">
+                <path d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.49h4.84a4.14 4.14 0 01-1.8 2.71v2.26h2.91c1.7-1.57 2.69-3.88 2.69-6.62z" fill="#4285F4"/>
+                <path d="M9 18c2.43 0 4.47-.81 5.96-2.18l-2.91-2.26c-.81.54-1.84.86-3.05.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 009 18z" fill="#34A853"/>
+                <path d="M3.97 10.72A5.41 5.41 0 013.68 9c0-.6.1-1.18.29-1.72V4.95H.96A9 9 0 000 9c0 1.45.35 2.83.96 4.05l3.01-2.33z" fill="#FBBC05"/>
+                <path d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A8.96 8.96 0 009 0 9 9 0 00.96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z" fill="#EA4335"/>
+              </svg>
+              Vinculado ao Google
+            </div>
           )}
         </div>
 
