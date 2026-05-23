@@ -245,7 +245,7 @@ export default function AlterarSenhaPage() {
           color: '#6E6E73',
           textAlign: 'center',
           marginTop: 8,
-          marginBottom: 4,
+          marginBottom: 16,
           padding: 0,
         }}>
           Ao alterar sua senha, você será desconectado e precisará fazer login novamente.
