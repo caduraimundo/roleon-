@@ -165,6 +165,7 @@ export async function POST(req: NextRequest) {
 
         try {
           let pdfBuffer: Buffer | null = null
+          console.log('[Webhook] Iniciando geração do PDF para:', emailDestino)
           try {
             pdfBuffer = await generateTicketPDF({
               eventTitle: evento.title,
@@ -176,9 +177,12 @@ export async function POST(req: NextRequest) {
               qrCodeUrl,
             })
           } catch (pdfError) {
-            console.error('[Webhook] Erro ao gerar PDF:', pdfError)
+            console.error('[Webhook] Erro ao gerar PDF:',
+              pdfError instanceof Error ? pdfError.message : String(pdfError))
           }
 
+          console.log('[Webhook] Enviando e-mail para:', emailDestino,
+            'PDF gerado:', pdfBuffer !== null)
           await resend.emails.send({
             from: 'Roleon <noreply@roleon.com.br>',
             to: emailDestino,
@@ -228,7 +232,10 @@ export async function POST(req: NextRequest) {
 
           console.log('[Webhook] E-mail enviado para:', emailDestino)
         } catch (emailError) {
-          console.error('[Webhook] Erro ao enviar e-mail:', emailError)
+          console.error('[Webhook] Erro ao enviar e-mail:',
+            emailError instanceof Error ? emailError.message : String(emailError))
+          console.error('[Webhook] Stack:',
+            emailError instanceof Error ? emailError.stack : 'no stack')
         }
       }
     }
