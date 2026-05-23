@@ -85,21 +85,26 @@ export default function PerfilPage() {
   const [showAuth, setShowAuth] = useState(false)
   const [name,     setName]     = useState('')
   const [email,    setEmail]    = useState('')
+  const [initials, setInitials] = useState('')
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      const session = data.session
+    const load = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setShowAuth(true); setLoading(false); return }
       const user = session.user
       setEmail(user.email ?? '')
-      setName(
-        user.user_metadata?.full_name ??
-        user.user_metadata?.name ??
-        user.email?.split('@')[0] ??
-        'Usuário'
-      )
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('name, avatar_initials')
+        .eq('id', user.id)
+        .maybeSingle()
+
+      setName(profile?.name ?? '')
+      setInitials(profile?.avatar_initials ?? '')
       setLoading(false)
-    })
+    }
+    load()
   }, [])
 
   const handleSignOut = async () => {
@@ -126,8 +131,6 @@ export default function PerfilPage() {
       </div>
     )
   }
-
-  const initials = getInitials(name)
 
   const menuItems = [
     { icon: <IconTicket />,                      label: 'Meus ingressos',  onClick: () => router.push('/ingressos') },
