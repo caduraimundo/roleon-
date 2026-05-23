@@ -165,7 +165,10 @@ export default function AlterarSenhaPage() {
     }
 
     setSuccess(true)
-    timerRef.current = setTimeout(() => router.push('/perfil/configuracoes'), 2000)
+    timerRef.current = setTimeout(async () => {
+      await supabase.auth.signOut()
+      router.push('/')
+    }, 1500)
   }
 
   return (
@@ -234,6 +237,19 @@ export default function AlterarSenhaPage() {
             onToggleShow={() => setShowConf((v) => !v)}
           />
 
+        </div>
+
+        {/* Aviso informativo */}
+        <div style={{
+          background: '#F0FAF9',
+          border: '1px solid #BFE7E4',
+          borderRadius: 12,
+          padding: '12px 14px',
+          fontSize: 13,
+          color: '#3F7977',
+          lineHeight: 1.5,
+        }}>
+          Ao alterar sua senha, você será desconectado e precisará fazer login novamente.
         </div>
 
         {errorGeral && (
