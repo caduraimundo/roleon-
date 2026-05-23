@@ -5,9 +5,7 @@ import { notifyWaitlist } from '../../../lib/notifyWaitlist'
 import { validateCPF } from '../../../lib/cpf'
 import { Resend } from 'resend'
 import { randomBytes } from 'crypto'
-import { renderToBuffer, type DocumentProps } from '@react-pdf/renderer'
-import { createElement, type ReactElement, type JSXElementConstructor } from 'react'
-import { TicketPDF } from '../../../components/TicketPDF'
+import { generateTicketPDF } from '../../../lib/generateTicketPDF'
 import { checkoutRatelimit } from '@/lib/ratelimit'
 import { mapPagarmeError } from '../../../lib/pagarmeErrors'
 
@@ -473,7 +471,7 @@ export async function POST(req: NextRequest) {
           const dataCapitalizada = dataEvento.charAt(0).toUpperCase() + dataEvento.slice(1);
           const eventDateForPDF = `${dataCapitalizada} - ${horaEvento}`;
 
-          const pdfElement = createElement(TicketPDF, {
+          const pdfBuffer = await generateTicketPDF({
             eventTitle: evento.title,
             eventDate: eventDateForPDF,
             locationName: evento.location_name,
@@ -481,8 +479,7 @@ export async function POST(req: NextRequest) {
             pricePaid: ticketCompleto.price_paid ?? 0,
             ticketNumber,
             qrCodeUrl,
-          }) as ReactElement<DocumentProps, string | JSXElementConstructor<unknown>>;
-          const pdfBuffer = await renderToBuffer(pdfElement);
+          });
 
           await resend.emails.send({
             from: 'Roleon <noreply@roleon.com.br>',

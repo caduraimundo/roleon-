@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { renderToBuffer, type DocumentProps } from '@react-pdf/renderer'
-import { createElement, type ReactElement, type JSXElementConstructor } from 'react'
-import { TicketPDF } from '../../../../../components/TicketPDF'
+import { generateTicketPDF } from '../../../../../lib/generateTicketPDF'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -60,7 +58,7 @@ export async function GET(
   const eventDate = evento?.event_date ? formatEventDate(evento.event_date) : ''
   const ticketNumber = ticket.id.slice(-4).toUpperCase()
 
-  const element = createElement(TicketPDF, {
+  const buffer = await generateTicketPDF({
     eventTitle: evento?.title ?? '',
     eventDate,
     locationName: evento?.location_name ?? '',
@@ -68,9 +66,7 @@ export async function GET(
     pricePaid: ticket.price_paid ?? 0,
     ticketNumber,
     qrCodeUrl,
-  }) as ReactElement<DocumentProps, string | JSXElementConstructor<unknown>>
-
-  const buffer = await renderToBuffer(element)
+  })
 
   const rawTitle = evento?.title ?? 'roleon'
   const slug = rawTitle
