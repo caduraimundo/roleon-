@@ -20,8 +20,6 @@ export default function EditarPerfilPage() {
   useEffect(() => {
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession()
-      console.log('DEBUG session:', session)
-      console.log('DEBUG user:', session?.user)
       const user = session?.user
       if (!user) { router.replace('/login'); return }
 
@@ -30,8 +28,6 @@ export default function EditarPerfilPage() {
         .select('name, avatar_initials')
         .eq('id', user.id)
         .maybeSingle()
-      console.log('DEBUG profile result:', profile)
-
       const displayName = profile?.name ?? ''
       setName(displayName)
       setInitials(profile?.avatar_initials ?? getInitials(displayName))
@@ -72,6 +68,7 @@ export default function EditarPerfilPage() {
     const json = await res.json()
     setInitials(json.avatar_initials)
     setSuccess(true)
+    router.refresh()
     timerRef.current = setTimeout(() => router.push('/perfil'), 2000)
   }
 
