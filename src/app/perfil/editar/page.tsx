@@ -20,6 +20,8 @@ export default function EditarPerfilPage() {
   useEffect(() => {
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession()
+      console.log('DEBUG session:', session)
+      console.log('DEBUG user:', session?.user)
       const user = session?.user
       if (!user) { router.replace('/login'); return }
 
@@ -28,6 +30,7 @@ export default function EditarPerfilPage() {
         .select('name, avatar_initials')
         .eq('id', user.id)
         .maybeSingle()
+      console.log('DEBUG profile result:', profile)
 
       const displayName = profile?.name ?? ''
       setName(displayName)
