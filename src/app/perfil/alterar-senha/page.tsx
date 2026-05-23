@@ -240,17 +240,16 @@ export default function AlterarSenhaPage() {
         </div>
 
         {/* Aviso informativo */}
-        <div style={{
-          background: '#F0FAF9',
-          border: '1px solid #BFE7E4',
-          borderRadius: 12,
-          padding: '12px 14px',
-          fontSize: 13,
-          color: '#3F7977',
-          lineHeight: 1.5,
+        <p style={{
+          fontSize: 12.5,
+          color: '#6E6E73',
+          textAlign: 'center',
+          marginTop: 8,
+          marginBottom: 4,
+          padding: 0,
         }}>
           Ao alterar sua senha, você será desconectado e precisará fazer login novamente.
-        </div>
+        </p>
 
         {errorGeral && (
           <span style={{ fontSize: 14, color: '#FF3B30', textAlign: 'center' }}>
