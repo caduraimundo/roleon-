@@ -122,6 +122,10 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
     return () => subscription.unsubscribe()
   }, [router])
 
+  useEffect(() => {
+    if (!isOpen) setMode('signin')
+  }, [isOpen])
+
   if (!isOpen) return null
 
   const reset = () => { setError(null); setEmailError(null); setPasswordError(null); setResetSent(false) }
