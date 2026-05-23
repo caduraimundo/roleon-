@@ -1,4 +1,6 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 interface TicketPDFData {
   eventTitle: string
@@ -34,8 +36,16 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
   const page = pdfDoc.addPage([420, 595])
   const { width, height } = page.getSize()
 
-  const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica)
-  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+  let fontRegular, fontBold
+  try {
+    const regularBytes = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Regular.ttf'))
+    const boldBytes = readFileSync(join(process.cwd(), 'public/fonts/NotoSans-Bold.ttf'))
+    fontRegular = await pdfDoc.embedFont(regularBytes)
+    fontBold = await pdfDoc.embedFont(boldBytes)
+  } catch {
+    fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica)
+    fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
+  }
 
   const teal = rgb(0.055, 0.643, 0.627)
   const dark = rgb(0.102, 0.102, 0.102)
