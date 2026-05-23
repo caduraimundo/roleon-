@@ -18,8 +18,10 @@ export default function EditarPerfilPage() {
   const timerRef                = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) { router.replace('/perfil'); return }
+    const load = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      const user = session?.user
+      if (!user) { router.replace('/login'); return }
 
       const { data: profile } = await supabase
         .from('profiles')
@@ -31,7 +33,8 @@ export default function EditarPerfilPage() {
       setName(displayName)
       setInitials(profile?.avatar_initials ?? getInitials(displayName))
       setLoading(false)
-    })
+    }
+    load()
 
     return () => { if (timerRef.current) clearTimeout(timerRef.current) }
   }, [router])
