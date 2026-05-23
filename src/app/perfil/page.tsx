@@ -135,7 +135,7 @@ export default function PerfilPage() {
   const menuItems = [
     { icon: <IconTicket />,                      label: 'Meus ingressos',  onClick: () => router.push('/ingressos') },
     { icon: <IconPencilSquare color="#0EA5A0" />, label: 'Editar perfil',   onClick: () => router.push('/perfil/editar') },
-    { icon: <IconGear />,                        label: 'Configurações',   onClick: () => {} },
+    { icon: <IconGear />,                        label: 'Configurações',   onClick: () => router.push('/perfil/configuracoes') },
     { icon: <IconHelp />,                        label: 'Ajuda',           onClick: () => {} },
   ]
 
