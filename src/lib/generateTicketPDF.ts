@@ -67,7 +67,7 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
     size: headerFontSize,
     font: fontBold,
     color: teal,
-    characterSpacing: 3,
+
   })
 
   // Divisor header
@@ -139,7 +139,7 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
     size: 13,
     font: fontBold,
     color: dark,
-    characterSpacing: 3,
+
   })
   cursorY -= 14
 
