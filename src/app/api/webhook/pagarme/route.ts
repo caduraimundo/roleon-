@@ -3,9 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 import { notifyWaitlist } from '../../../../lib/notifyWaitlist';
 import { randomBytes } from 'crypto';
-import { renderToBuffer, type DocumentProps } from '@react-pdf/renderer';
-import { createElement, type ReactElement, type JSXElementConstructor } from 'react';
-import { TicketPDF } from '../../../../components/TicketPDF';
+import { generateTicketPDF } from '../../../../lib/generateTicketPDF';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -165,22 +163,27 @@ export async function POST(req: NextRequest) {
         const dataCapitalizada = dataEvento.charAt(0).toUpperCase() + dataEvento.slice(1);
         const eventDateForPDF = `${dataCapitalizada} - ${horaEvento}`;
 
-        const pdfElement = createElement(TicketPDF, {
-          eventTitle: evento.title,
-          eventDate: eventDateForPDF,
-          locationName: evento.location_name,
-          ticketTypeName: ticketCompleto.ticket_type_name ?? '',
-          pricePaid: ticketCompleto.price_paid ?? 0,
-          ticketNumber,
-          qrCodeUrl,
-        }) as ReactElement<DocumentProps, string | JSXElementConstructor<unknown>>;
-        const pdfBuffer = await renderToBuffer(pdfElement);
+        try {
+          let pdfBuffer: Buffer | null = null
+          try {
+            pdfBuffer = await generateTicketPDF({
+              eventTitle: evento.title,
+              eventDate: eventDateForPDF,
+              locationName: evento.location_name,
+              ticketTypeName: ticketCompleto.ticket_type_name ?? '',
+              pricePaid: ticketCompleto.price_paid ?? 0,
+              ticketNumber,
+              qrCodeUrl,
+            })
+          } catch (pdfError) {
+            console.error('[Webhook] Erro ao gerar PDF:', pdfError)
+          }
 
-        await resend.emails.send({
-          from: 'Roleon <noreply@roleon.com.br>',
-          to: emailDestino,
-          subject: `Seu ingresso para ${evento.title} está confirmado`,
-          html: `
+          await resend.emails.send({
+            from: 'Roleon <noreply@roleon.com.br>',
+            to: emailDestino,
+            subject: `Seu ingresso para ${evento.title} está confirmado`,
+            html: `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
@@ -214,16 +217,19 @@ export async function POST(req: NextRequest) {
   </table>
 </body>
 </html>
-          `,
-          attachments: [
-            {
-              filename: `ingresso-${slug}.pdf`,
-              content: pdfBuffer,
-            },
-          ],
-        });
+            `,
+            ...(pdfBuffer ? {
+              attachments: [{
+                filename: `ingresso-${slug}.pdf`,
+                content: pdfBuffer,
+              }]
+            } : {}),
+          });
 
-        console.log('[Webhook] E-mail enviado para:', emailDestino);
+          console.log('[Webhook] E-mail enviado para:', emailDestino)
+        } catch (emailError) {
+          console.error('[Webhook] Erro ao enviar e-mail:', emailError)
+        }
       }
     }
 
