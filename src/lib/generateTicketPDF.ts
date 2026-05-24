@@ -136,7 +136,7 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
     const qrX = cardX + (cardW - qrSize) / 2
     cursorY -= 8
     page.drawImage(qrImage, { x: qrX, y: cursorY - qrSize, width: qrSize, height: qrSize })
-    cursorY -= qrSize + 18
+    cursorY -= qrSize + 28
   } catch {
     cursorY -= 20
   }
