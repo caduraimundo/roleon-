@@ -208,7 +208,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
               disabled={resendLoading || resendSent}
               className="w-full py-3 rounded-xl text-sm font-semibold bg-[#0EA5A0] text-white mb-3 disabled:opacity-50"
             >
-              {resendLoading ? 'Enviando...' : resendSent ? 'Link enviado' : 'Reenviar e-mail de confirmacao'}
+              {resendLoading ? 'Enviando...' : resendSent ? 'Link enviado' : 'Reenviar e-mail de confirmação'}
             </button>
             <button
               onClick={() => setShowEmailAlert(false)}
