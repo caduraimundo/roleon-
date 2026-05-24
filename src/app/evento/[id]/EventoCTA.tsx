@@ -33,6 +33,9 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
   const [showAuth,        setShowAuth]        = useState(false)
   const [inWaitlist,      setInWaitlist]      = useState(false)
   const [waitlistLoading, setWaitlistLoading] = useState(false)
+  const [showEmailAlert,  setShowEmailAlert]  = useState(false)
+  const [resendLoading,   setResendLoading]   = useState(false)
+  const [resendSent,      setResendSent]      = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -91,9 +94,14 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
 
   const displayPrice = selectedPrice ?? price
 
-  const handleCTA = () => {
+  const handleCTA = async () => {
     if (!authed) { setShowAuth(true); return }
     if (!isFree) {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session && !session.user.email_confirmed_at) {
+        setShowEmailAlert(true)
+        return
+      }
       if (ticketTypeId) {
         sessionStorage.setItem('ticket_type_name', JSON.stringify({
           ticket_type_id: ticketTypeId,
@@ -103,6 +111,16 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
       }
       router.push(`/checkout/${id}`)
     }
+  }
+
+  async function handleResendEmail() {
+    setResendLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.user?.email) {
+      await supabase.auth.resend({ type: 'signup', email: session.user.email })
+    }
+    setResendLoading(false)
+    setResendSent(true)
   }
 
   const priceLabel = `R$ ${displayPrice.toFixed(2).replace('.', ',')}`
@@ -157,6 +175,35 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
       </div>
 
       <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
+
+      {showEmailAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+            <h3 className="text-base font-bold text-[#1A1A1A] mb-2">
+              Confirme seu e-mail
+            </h3>
+            <p className="text-sm text-[#6E6E73] mb-4">
+              Para comprar ingressos, confirme seu e-mail primeiro.
+              {!resendSent
+                ? ' Reenviamos o link para o seu endereço cadastrado.'
+                : ' O link foi reenviado. Verifique sua caixa de entrada.'}
+            </p>
+            <button
+              onClick={handleResendEmail}
+              disabled={resendLoading || resendSent}
+              className="w-full py-3 rounded-xl text-sm font-semibold bg-[#0EA5A0] text-white mb-3 disabled:opacity-50"
+            >
+              {resendLoading ? 'Enviando...' : resendSent ? 'Link enviado' : 'Reenviar e-mail de confirmacao'}
+            </button>
+            <button
+              onClick={() => setShowEmailAlert(false)}
+              className="w-full py-3 rounded-xl text-sm font-semibold text-[#6E6E73]"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </>
   )
 }
