@@ -171,7 +171,22 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
         else setError(msg)
         return
       }
-      onClose()
+      if (!err) {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+          fetch('/api/send-verification-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userId: user.id,
+              email: user.email,
+              name: name,
+            }),
+          }).catch(() => {})
+        }
+        onClose()
+        return
+      }
     }
   }
 

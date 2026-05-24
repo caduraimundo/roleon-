@@ -98,9 +98,16 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
     if (!authed) { setShowAuth(true); return }
     if (!isFree) {
       const { data: { session } } = await supabase.auth.getSession()
-      if (session && !session.user.email_confirmed_at) {
-        setShowEmailAlert(true)
-        return
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('email_verified')
+          .eq('id', session.user.id)
+          .single()
+        if (profile && !profile.email_verified) {
+          setShowEmailAlert(true)
+          return
+        }
       }
       if (ticketTypeId) {
         sessionStorage.setItem('ticket_type_name', JSON.stringify({
