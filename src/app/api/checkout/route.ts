@@ -437,14 +437,26 @@ export async function POST(req: NextRequest) {
         const { data: ticketCompleto } = await supabaseAdmin
           .from('tickets')
           .select(`
-            id, checkin_token, ticket_type_name, price_paid, payment_method, recipient_email,
-            event:event_id (title, event_date, location_name),
-            user:user_id (email, name)
+            id, checkin_token, ticket_type_name, price_paid, payment_method,
+            recipient_email, user_id,
+            event:event_id (title, event_date, location_name)
           `)
           .eq('id', ticket.id)
           .single() as { data: any };
 
-        const emailDestino = ticketCompleto?.recipient_email ?? ticketCompleto?.user?.email;
+        let userEmail = ticketCompleto?.recipient_email;
+        let userName = '';
+        if (!userEmail && ticketCompleto?.user_id) {
+          const { data: perfil } = await supabaseAdmin
+            .from('profiles')
+            .select('email, name')
+            .eq('id', ticketCompleto.user_id)
+            .single();
+          userEmail = perfil?.email;
+          userName = perfil?.name ?? '';
+        }
+
+        const emailDestino = userEmail;
         if (ticketCompleto && emailDestino) {
           const evento = ticketCompleto.event as any;
           const dateObj = new Date((evento.event_date as string).replace(' ', 'T'));
