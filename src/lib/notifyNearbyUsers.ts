@@ -6,12 +6,6 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-webpush.setVapidDetails(
-  'mailto:contato@roleon.com.br',
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-)
-
 function calcDistanceKm(
   lat1: number, lng1: number,
   lat2: number, lng2: number
@@ -29,6 +23,12 @@ function calcDistanceKm(
 
 export async function notifyNearbyUsers(eventId: string) {
   try {
+    webpush.setVapidDetails(
+      'mailto:contato@roleon.com.br',
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+      process.env.VAPID_PRIVATE_KEY!
+    )
+
     // Buscar o evento aprovado
     const { data: event, error: eventError } = await supabaseAdmin
       .from('events')
