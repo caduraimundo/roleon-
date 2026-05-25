@@ -66,6 +66,7 @@ function formatPrice(price: number) {
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; bg: string; color: string; dot: string }> = {
     paid:         { label: 'Válido',     bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
+    confirmed:    { label: 'Confirmado', bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
     used:         { label: 'Utilizado',  bg: '#F2F2F2', color: '#6E6E73', dot: '#6E6E73' },
     pending:      { label: 'Pendente',   bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
     expired:      { label: 'Expirado',   bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
@@ -231,7 +232,25 @@ export default function IngressosPage() {
         })
       }
 
-      setTickets(rows)
+      const { data: savedData } = await supabase
+        .from('saved_events')
+        .select('id, event_id, created_at, events(title, event_date, location_name, is_free)')
+        .eq('user_id', user.id)
+
+      const freeRows = ((savedData ?? []) as any[])
+        .filter((s: any) => s.events?.is_free === true)
+        .map((s: any) => ({
+          id: `free-${s.id}`,
+          event_id: s.event_id,
+          price_paid: 0,
+          status: 'confirmed',
+          created_at: s.created_at,
+          ticket_type_name: null,
+          payment_method: 'free',
+          events: s.events,
+        }))
+
+      setTickets([...rows, ...freeRows])
       setLoading(false)
     }
     load()
