@@ -183,10 +183,14 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
             </div>
           </div>
           {ticket.payment_method && (
-            <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              {ticket.payment_method === 'pix' ? <IconPix /> : <IconCard />}
-              {ticket.payment_method === 'pix' ? 'PIX' : 'Cartão'}
-            </span>
+            ticket.payment_method === 'free' ? (
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#0EA5A0' }}>Gratuito</span>
+            ) : (
+              <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                {ticket.payment_method === 'pix' ? <IconPix /> : <IconCard />}
+                {ticket.payment_method === 'pix' ? 'PIX' : 'Cartão'}
+              </span>
+            )
           )}
         </div>
       </div>
@@ -388,7 +392,13 @@ export default function IngressosPage() {
             <TicketCard
               key={t.id}
               ticket={t}
-              onClick={() => router.push(`/ingresso/${t.id}`)}
+              onClick={() => {
+                if (t.id.startsWith('free-')) {
+                  router.push(`/evento/${t.event_id}`)
+                } else {
+                  router.push(`/ingresso/${t.id}`)
+                }
+              }}
             />
           ))}
         </div>
