@@ -135,6 +135,19 @@ async function unsubscribeFromPush() {
   await fetch('/api/push/unsubscribe', { method: 'POST' })
 }
 
+// ── Notificações helpers ──────────────────────────────────────────────────────
+
+function getNotificationInstructions(): string {
+  const ua = navigator.userAgent
+  if (/iPhone|iPad/.test(ua)) {
+    return 'No iPhone: Configurações > Safari > Notificações > roleon.com.br > Permitir'
+  }
+  if (/Android/.test(ua)) {
+    return 'No Android: toque no cadeado na barra de endereço > Permissões > Notificações > Permitir'
+  }
+  return 'Clique no cadeado na barra de endereço > Notificações > Permitir'
+}
+
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function ConfiguracoesPage() {
@@ -261,8 +274,8 @@ export default function ConfiguracoesPage() {
                     const ok = await subscribeToPush()
                     if (!ok) {
                       setNearby(false)
-                      setToast('Ative as notificações nas configurações do seu navegador')
-                      setTimeout(() => setToast(null), 4000)
+                      setToast(getNotificationInstructions())
+                      setTimeout(() => setToast(null), 6000)
                       return
                     }
                   } else {
