@@ -252,7 +252,7 @@ export default function ConfiguracoesPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
 
             <div style={cardStyle}>
-              <span style={{ fontSize: 15, color: '#1A1A1A' }}>Eventos próximos</span>
+              <span style={{ fontSize: 15, color: '#1A1A1A' }}>Novos eventos próximos</span>
               <Toggle
                 checked={nearby}
                 onChange={async (v) => {
@@ -275,7 +275,7 @@ export default function ConfiguracoesPage() {
             </div>
 
             <div style={cardStyle}>
-              <span style={{ fontSize: 15, color: '#1A1A1A' }}>Lembretes de eventos salvos</span>
+              <span style={{ fontSize: 15, color: '#1A1A1A' }}>Lembretes dos meus ingressos</span>
               <Toggle
                 checked={reminders}
                 onChange={(v) => {
