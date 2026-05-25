@@ -182,15 +182,11 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
               {formatPrice(ticket.price_paid)}
             </div>
           </div>
-          {ticket.payment_method && (
-            ticket.payment_method === 'free' ? (
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#0EA5A0' }}>Gratuito</span>
-            ) : (
-              <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                {ticket.payment_method === 'pix' ? <IconPix /> : <IconCard />}
-                {ticket.payment_method === 'pix' ? 'PIX' : 'Cartão'}
-              </span>
-            )
+          {ticket.payment_method && ticket.payment_method !== 'free' && (
+            <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              {ticket.payment_method === 'pix' ? <IconPix /> : <IconCard />}
+              {ticket.payment_method === 'pix' ? 'PIX' : 'Cartão'}
+            </span>
           )}
         </div>
       </div>
