@@ -147,6 +147,7 @@ export default function IngressoPage() {
   const [evento, setEvento] = useState<EventInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent)
 
   useEffect(() => {
     async function load() {
@@ -341,8 +342,6 @@ export default function IngressoPage() {
                 </div>
                 <button
                   onClick={async () => {
-                    const ua = navigator.userAgent
-                    const isIOS = /iPad|iPhone|iPod/.test(ua)
                     if (isIOS) {
                       window.location.href = `/api/ingresso/${ticket.id}/pdf`
                     } else {
@@ -376,6 +375,19 @@ export default function IngressoPage() {
                   </svg>
                   Baixar ingresso
                 </button>
+                {isIOS && (
+                  <p style={{
+                    fontSize: 12,
+                    color: '#6E6E73',
+                    textAlign: 'center',
+                    marginTop: 8,
+                    fontFamily: "'Noto Sans', sans-serif",
+                    lineHeight: 1.5,
+                  }}>
+                    No iPhone, o PDF abre em uma nova aba. Use o botao
+                    compartilhar para salvar no seu dispositivo.
+                  </p>
+                )}
               </>
             ) : ticket?.status === 'pending' ? (
               // pending: sem QR Code nem botão de download
