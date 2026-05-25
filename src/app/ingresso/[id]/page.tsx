@@ -341,14 +341,20 @@ export default function IngressoPage() {
                 </div>
                 <button
                   onClick={async () => {
-                    const res = await fetch(`/api/ingresso/${ticket.id}/pdf`)
-                    const blob = await res.blob()
-                    const url = URL.createObjectURL(blob)
-                    const a = document.createElement('a')
-                    a.href = url
-                    a.download = `ingresso-${ticket.id}.pdf`
-                    a.click()
-                    URL.revokeObjectURL(url)
+                    const ua = navigator.userAgent
+                    const isIOS = /iPad|iPhone|iPod/.test(ua)
+                    if (isIOS) {
+                      window.location.href = `/api/ingresso/${ticket.id}/pdf`
+                    } else {
+                      const res = await fetch(`/api/ingresso/${ticket.id}/pdf`)
+                      const blob = await res.blob()
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `ingresso-${ticket.id}.pdf`
+                      a.click()
+                      URL.revokeObjectURL(url)
+                    }
                   }}
                   style={{
                     width: '100%',
