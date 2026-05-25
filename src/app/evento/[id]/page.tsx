@@ -403,6 +403,8 @@ export default function EventoPage() {
         ticketTypeName={selectedType?.name}
         selectedPrice={ctaPrice}
         isSoldOut={isSoldOut}
+        title={ev.title}
+        eventDate={dateLabel || undefined}
       />
       <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
 
