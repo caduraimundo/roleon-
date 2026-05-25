@@ -89,14 +89,14 @@ const sectionLabelStyle: React.CSSProperties = {
 
 // ── Push helpers ──────────────────────────────────────────────────────────────
 
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
+function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   const trimmed = base64String.trim()
   const padding = '='.repeat((4 - (trimmed.length % 4)) % 4)
   const base64 = (trimmed + padding)
     .replace(/-/g, '+')
     .replace(/_/g, '/')
   const rawData = atob(base64)
-  return Uint8Array.from(Array.from(rawData, (c) => c.charCodeAt(0)))
+  return Uint8Array.from(Array.from(rawData, (c) => c.charCodeAt(0))).buffer as ArrayBuffer
 }
 
 async function subscribeToPush() {
