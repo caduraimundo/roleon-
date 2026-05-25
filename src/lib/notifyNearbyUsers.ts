@@ -72,7 +72,7 @@ export async function notifyNearbyUsers(eventId: string) {
 
     // Disparar notificações (fire-and-forget - falha não quebra o fluxo)
     const payload = JSON.stringify({
-      title: 'Novo role perto de voce',
+      title: 'Novo rolê perto de você',
       body: event.title,
       url: `/evento/${event.id}`,
     })
