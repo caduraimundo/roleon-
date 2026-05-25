@@ -40,9 +40,7 @@ export async function GET(req: Request) {
       .lte('events.event_date', in25h.toISOString())
 
     if (error) throw error
-    if (!tickets || tickets.length === 0) {
-      return NextResponse.json({ ok: true, sent: 0 })
-    }
+    // continua mesmo sem tickets pagos - verifica saved_events abaixo
 
     let emailsSent = 0
     let pushSent = 0
