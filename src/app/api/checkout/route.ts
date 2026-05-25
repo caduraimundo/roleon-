@@ -372,6 +372,11 @@ export async function POST(req: NextRequest) {
 
     const ticketStatus = order.status === 'paid' ? 'paid' : 'pending'
     const ticketIds: string[] = []
+    const pdfAttachments: { filename: string; content: Buffer }[] = []
+    let emailDestinoFinal = ''
+    let eventoInfo: any = null
+    let dataCapitalizadaFinal = ''
+    let horaEventoFinal = ''
 
     for (let i = 0; i < quantity; i++) {
       if (body.ticket_type_id) {
@@ -434,70 +439,89 @@ export async function POST(req: NextRequest) {
           }).catch(() => {});
         }
 
-        const { data: ticketCompleto } = await supabaseAdmin
-          .from('tickets')
-          .select(`
-            id, checkin_token, ticket_type_name, price_paid, payment_method,
-            recipient_email, user_id,
-            event:event_id (title, event_date, location_name)
-          `)
-          .eq('id', ticket.id)
-          .single() as { data: any };
+        if (ticketStatus === 'paid') {
+          const { data: ticketCompleto } = await supabaseAdmin
+            .from('tickets')
+            .select(`
+              id, checkin_token, ticket_type_name, price_paid, payment_method,
+              recipient_email, user_id,
+              event:event_id (title, event_date, location_name)
+            `)
+            .eq('id', ticket.id)
+            .single() as { data: any };
 
-        let userEmail = ticketCompleto?.recipient_email;
-        let userName = '';
-        if (!userEmail && ticketCompleto?.user_id) {
-          const { data: perfil } = await supabaseAdmin
-            .from('profiles')
-            .select('email, name')
-            .eq('id', ticketCompleto.user_id)
-            .single();
-          userEmail = perfil?.email;
-          userName = perfil?.name ?? '';
+          if (ticketCompleto) {
+            if (i === 0) {
+              let userEmail = ticketCompleto.recipient_email;
+              if (!userEmail && ticketCompleto.user_id) {
+                const { data: perfil } = await supabaseAdmin
+                  .from('profiles')
+                  .select('email, name')
+                  .eq('id', ticketCompleto.user_id)
+                  .single();
+                userEmail = perfil?.email;
+              }
+              emailDestinoFinal = userEmail ?? '';
+              eventoInfo = ticketCompleto.event as any;
+              const dateObj = new Date((eventoInfo.event_date as string).replace(' ', 'T'));
+              const dataEvento = dateObj.toLocaleDateString('pt-BR', {
+                weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+                timeZone: 'America/Sao_Paulo',
+              });
+              horaEventoFinal = dateObj.toLocaleTimeString('pt-BR', {
+                hour: '2-digit', minute: '2-digit',
+                timeZone: 'America/Sao_Paulo',
+              });
+              dataCapitalizadaFinal = dataEvento.charAt(0).toUpperCase() + dataEvento.slice(1);
+            }
+
+            const ticketNumber = ticketCompleto.id.slice(-4).toUpperCase();
+            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(ticketCompleto.checkin_token ?? ticketCompleto.id)}`;
+            const eventDateForPDF = `${dataCapitalizadaFinal} - ${horaEventoFinal}`;
+
+            const pdfBuffer = await generateTicketPDF({
+              eventTitle: eventoInfo.title,
+              eventDate: eventDateForPDF,
+              locationName: eventoInfo.location_name,
+              ticketTypeName: ticketCompleto.ticket_type_name ?? '',
+              pricePaid: ticketCompleto.price_paid ?? 0,
+              ticketNumber,
+              qrCodeUrl,
+            });
+
+            const slugTitle = (eventoInfo.title as string)
+              .toLowerCase()
+              .normalize('NFD')
+              .replace(/[̀-ͯ]/g, '')
+              .replace(/[^a-z0-9\s-]/g, '')
+              .trim()
+              .replace(/\s+/g, '-');
+
+            pdfAttachments.push({
+              filename: `ingresso-${i + 1}-${slugTitle}.pdf`,
+              content: pdfBuffer,
+            });
+          }
         }
+      }
+    }
 
-        const emailDestino = userEmail;
-        if (ticketCompleto && emailDestino) {
-          const evento = ticketCompleto.event as any;
-          const dateObj = new Date((evento.event_date as string).replace(' ', 'T'));
-          const dataEvento = dateObj.toLocaleDateString('pt-BR', {
-            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-            timeZone: 'America/Sao_Paulo',
-          });
-          const horaEvento = dateObj.toLocaleTimeString('pt-BR', {
-            hour: '2-digit', minute: '2-digit',
-            timeZone: 'America/Sao_Paulo',
-          });
+    if (ticketStatus === 'paid' && emailDestinoFinal && eventoInfo && pdfAttachments.length > 0) {
+      const subject = quantity === 1
+        ? `Seu ingresso para ${eventoInfo.title} está confirmado`
+        : `Seus ${quantity} ingressos para ${eventoInfo.title} estão confirmados`;
+      const bodyText = quantity === 1
+        ? `Olá! Seu ingresso para <strong>${eventoInfo.title}</strong> foi confirmado.`
+        : `Olá! Seus ${quantity} ingressos para <strong>${eventoInfo.title}</strong> foram confirmados.`;
+      const attachmentText = quantity === 1
+        ? 'Seu ingresso está em anexo neste e-mail em formato PDF.<br>Salve o arquivo para acessar offline no dia do evento.'
+        : `Seus ${quantity} ingressos estão em anexo neste e-mail em formato PDF.<br>Salve os arquivos para acessar offline no dia do evento.`;
 
-          const ticketNumber = ticketCompleto.id.slice(-4).toUpperCase();
-          const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(ticketCompleto.checkin_token ?? ticketCompleto.id)}`;
-
-          const slug = (evento.title as string)
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[̀-ͯ]/g, '')
-            .replace(/[^a-z0-9\s-]/g, '')
-            .trim()
-            .replace(/\s+/g, '-');
-
-          const dataCapitalizada = dataEvento.charAt(0).toUpperCase() + dataEvento.slice(1);
-          const eventDateForPDF = `${dataCapitalizada} - ${horaEvento}`;
-
-          const pdfBuffer = await generateTicketPDF({
-            eventTitle: evento.title,
-            eventDate: eventDateForPDF,
-            locationName: evento.location_name,
-            ticketTypeName: ticketCompleto.ticket_type_name ?? '',
-            pricePaid: ticketCompleto.price_paid ?? 0,
-            ticketNumber,
-            qrCodeUrl,
-          });
-
-          await resend.emails.send({
-            from: 'Roleon <noreply@roleon.com.br>',
-            to: emailDestino,
-            subject: `Seu ingresso para ${evento.title} está confirmado`,
-            html: `
+      await resend.emails.send({
+        from: 'Roleon <noreply@roleon.com.br>',
+        to: emailDestinoFinal,
+        subject,
+        html: `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
@@ -513,16 +537,15 @@ export async function POST(req: NextRequest) {
         <tr>
           <td style="padding:32px 24px;">
             <p style="margin:0 0 20px;color:#1A1A1A;font-size:15px;line-height:1.6;">
-              Olá! Seu ingresso para <strong>${evento.title}</strong> foi confirmado.
+              ${bodyText}
             </p>
             <p style="margin:0 0 24px;color:#6E6E73;font-size:14px;line-height:1.6;">
-              Seu ingresso está em anexo neste e-mail em formato PDF.<br>
-              Salve o arquivo para acessar offline no dia do evento.
+              ${attachmentText}
             </p>
             <div style="background:#F5F5F5;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
-              <p style="margin:0 0 6px;color:#1A1A1A;font-size:16px;font-weight:700;">${evento.title}</p>
-              <p style="margin:0 0 4px;color:#6E6E73;font-size:14px;">${dataCapitalizada} - ${horaEvento}</p>
-              <p style="margin:0;color:#6E6E73;font-size:14px;">${evento.location_name}</p>
+              <p style="margin:0 0 6px;color:#1A1A1A;font-size:16px;font-weight:700;">${eventoInfo.title}</p>
+              <p style="margin:0 0 4px;color:#6E6E73;font-size:14px;">${dataCapitalizadaFinal} - ${horaEventoFinal}</p>
+              <p style="margin:0;color:#6E6E73;font-size:14px;">${eventoInfo.location_name}</p>
             </div>
           </td>
         </tr>
@@ -531,17 +554,10 @@ export async function POST(req: NextRequest) {
   </table>
 </body>
 </html>
-            `,
-            attachments: [
-              {
-                filename: `ingresso-${slug}.pdf`,
-                content: pdfBuffer,
-              },
-            ],
-          });
-          console.log('[Checkout Cartao] E-mail enviado para:', emailDestino);
-        }
-      }
+        `,
+        attachments: pdfAttachments,
+      });
+      console.log('[Checkout Cartao] E-mail unificado enviado para:', emailDestinoFinal, '| ingressos:', pdfAttachments.length);
     }
 
     return NextResponse.json({
