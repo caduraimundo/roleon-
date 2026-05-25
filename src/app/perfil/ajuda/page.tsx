@@ -65,6 +65,10 @@ const faqs = [
     q: 'Não recebi o e-mail do ingresso. O que faço?',
     a: 'Verifique a pasta de spam. Se não encontrar, acesse seus ingressos diretamente pelo app em Perfil > Ingressos.',
   },
+  {
+    q: 'O pagamento PIX não foi confirmado. E agora?',
+    a: 'Aguarde até 5 minutos. Se não confirmar, o valor será estornado automaticamente em até 1 dia útil.',
+  },
 ]
 
 // ── Componente ────────────────────────────────────────────────────────────────
@@ -192,7 +196,7 @@ export default function AjudaPage() {
         color: '#6E6E73',
         padding: '32px 0',
       }}>
-        Roleon v0.1.0-beta
+        Roleon v0.1.0
       </div>
 
     </div>
