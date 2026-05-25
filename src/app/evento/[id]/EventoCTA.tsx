@@ -113,6 +113,30 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
       setShowAuth(true)
       return
     }
+    if (isFree) {
+      setParticipatingLoading(true)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { setParticipatingLoading(false); return }
+      try {
+        if (isParticipating) {
+          await supabase
+            .from('saved_events')
+            .delete()
+            .eq('user_id', session.user.id)
+            .eq('event_id', id)
+          setIsParticipating(false)
+        } else {
+          await supabase
+            .from('saved_events')
+            .insert({ user_id: session.user.id, event_id: id })
+          setIsParticipating(true)
+          setShowConfirmSheet(true)
+        }
+      } finally {
+        setParticipatingLoading(false)
+      }
+      return
+    }
     if (!isFree) {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
