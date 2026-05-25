@@ -101,8 +101,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    let anyProcessed = false;
-
+    // Passo 1: atualizar todos os tickets pending para paid
+    const updatedTicketIds: string[] = [];
     for (const ticket of tickets) {
       if (ticket.status !== 'pending') continue;
 
@@ -116,90 +116,112 @@ export async function POST(req: NextRequest) {
         continue;
       }
 
-      anyProcessed = true;
+      updatedTicketIds.push(ticket.id);
       console.log('[Webhook] Ticket atualizado para paid:', ticket.id);
+    }
 
-      // Query 1: buscar ticket + evento
-      const { data: ticketCompleto } = await supabaseAdmin
+    const anyProcessed = updatedTicketIds.length > 0;
+
+    if (anyProcessed) {
+      // Passo 2: buscar todos os tickets atualizados de uma vez
+      const { data: ticketsCompletos } = await supabaseAdmin
         .from('tickets')
         .select(`
           id, qr_code, checkin_token, ticket_type_name, price_paid,
           payment_method, recipient_email, user_id,
           event:event_id (title, event_date, location_name)
         `)
-        .eq('id', ticket.id)
-        .single() as { data: any };
+        .in('id', updatedTicketIds) as { data: any[] | null };
 
-      // Query 2: buscar perfil do usuário separado
-      let userProfile: any = null
-      if (ticketCompleto?.user_id) {
-        const { data: profile } = await supabaseAdmin
-          .from('profiles')
-          .select('email, name')
-          .eq('id', ticketCompleto.user_id)
-          .single()
-        userProfile = profile
-      }
+      if (ticketsCompletos && ticketsCompletos.length > 0) {
+        // Audit log para todos
+        for (const tc of ticketsCompletos) {
+          logAudit(tc.id, 'pending', 'paid', {
+            price_paid: tc.price_paid,
+            payment_method: tc.payment_method,
+            order_id: orderId,
+          }).catch(() => {});
+        }
 
-      logAudit(ticket.id, 'pending', 'paid', {
-        price_paid: ticketCompleto?.price_paid,
-        payment_method: ticketCompleto?.payment_method,
-        order_id: orderId,
-      }).catch(() => {});
+        // Passo 3: resolver e-mail de destino pelo primeiro ticket
+        const firstTicket = ticketsCompletos[0];
+        let emailDestino = firstTicket.recipient_email;
+        if (!emailDestino && firstTicket.user_id) {
+          const { data: profile } = await supabaseAdmin
+            .from('profiles')
+            .select('email, name')
+            .eq('id', firstTicket.user_id)
+            .single();
+          emailDestino = profile?.email;
+        }
 
-      // Usar userProfile onde antes usava ticketCompleto.user
-      const emailDestino = ticketCompleto?.recipient_email ?? userProfile?.email;
-      if (emailDestino) {
-        const evento = ticketCompleto.event as any;
-        const dateObj = new Date(evento.event_date.replace(' ', 'T'));
-        const dataEvento = dateObj.toLocaleDateString('pt-BR', {
-          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-          timeZone: 'America/Sao_Paulo',
-        });
-        const horaEvento = dateObj.toLocaleTimeString('pt-BR', {
-          hour: '2-digit', minute: '2-digit',
-          timeZone: 'America/Sao_Paulo',
-        });
+        if (emailDestino) {
+          const evento = firstTicket.event as any;
+          const dateObj = new Date(evento.event_date.replace(' ', 'T'));
+          const dataEvento = dateObj.toLocaleDateString('pt-BR', {
+            weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+            timeZone: 'America/Sao_Paulo',
+          });
+          const horaEvento = dateObj.toLocaleTimeString('pt-BR', {
+            hour: '2-digit', minute: '2-digit',
+            timeZone: 'America/Sao_Paulo',
+          });
+          const dataCapitalizada = dataEvento.charAt(0).toUpperCase() + dataEvento.slice(1);
+          const eventDateForPDF = `${dataCapitalizada} - ${horaEvento}`;
 
-        const ticketNumber = ticketCompleto.id.slice(-4).toUpperCase();
-        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(ticketCompleto.checkin_token ?? ticketCompleto.id)}`;
+          const slugTitle = (evento.title as string)
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[̀-ͯ]/g, '')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .trim()
+            .replace(/\s+/g, '-');
 
-        const slug = (evento.title as string)
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[̀-ͯ]/g, '')
-          .replace(/[^a-z0-9\s-]/g, '')
-          .trim()
-          .replace(/\s+/g, '-');
-
-        const dataCapitalizada = dataEvento.charAt(0).toUpperCase() + dataEvento.slice(1);
-        const eventDateForPDF = `${dataCapitalizada} - ${horaEvento}`;
-
-        try {
-          let pdfBuffer: Buffer | null = null
-          console.log('[Webhook] Iniciando geração do PDF para:', emailDestino)
-          try {
-            pdfBuffer = await generateTicketPDF({
-              eventTitle: evento.title,
-              eventDate: eventDateForPDF,
-              locationName: evento.location_name,
-              ticketTypeName: ticketCompleto.ticket_type_name ?? '',
-              pricePaid: ticketCompleto.price_paid ?? 0,
-              ticketNumber,
-              qrCodeUrl,
-            })
-          } catch (pdfError) {
-            console.error('[Webhook] Erro ao gerar PDF:',
-              pdfError instanceof Error ? pdfError.message : String(pdfError))
+          // Passo 4: gerar PDFs de todos os tickets
+          const pdfAttachments: { filename: string; content: Buffer }[] = [];
+          for (let i = 0; i < ticketsCompletos.length; i++) {
+            const tc = ticketsCompletos[i];
+            try {
+              const ticketNumber = tc.id.slice(-4).toUpperCase();
+              const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(tc.checkin_token ?? tc.id)}`;
+              const pdfBuffer = await generateTicketPDF({
+                eventTitle: evento.title,
+                eventDate: eventDateForPDF,
+                locationName: evento.location_name,
+                ticketTypeName: tc.ticket_type_name ?? '',
+                pricePaid: tc.price_paid ?? 0,
+                ticketNumber,
+                qrCodeUrl,
+              });
+              pdfAttachments.push({
+                filename: `ingresso-${i + 1}-${slugTitle}.pdf`,
+                content: pdfBuffer,
+              });
+            } catch (pdfError) {
+              console.error('[Webhook] Erro ao gerar PDF para ticket', tc.id,
+                pdfError instanceof Error ? pdfError.message : String(pdfError));
+            }
           }
 
-          console.log('[Webhook] Enviando e-mail para:', emailDestino,
-            'PDF gerado:', pdfBuffer !== null)
-          await resend.emails.send({
-            from: 'Roleon <noreply@roleon.com.br>',
-            to: emailDestino,
-            subject: `Seu ingresso para ${evento.title} está confirmado`,
-            html: `
+          // Passo 5: enviar um único e-mail com todos os PDFs
+          const qty = ticketsCompletos.length;
+          const subject = qty === 1
+            ? `Seu ingresso para ${evento.title} está confirmado`
+            : `Seus ${qty} ingressos para ${evento.title} estão confirmados`;
+          const bodyText = qty === 1
+            ? `Olá! Seu ingresso para <strong>${evento.title}</strong> foi confirmado.`
+            : `Olá! Seus ${qty} ingressos para <strong>${evento.title}</strong> foram confirmados.`;
+          const attachmentText = qty === 1
+            ? 'Seu ingresso está em anexo neste e-mail em formato PDF.<br>Salve o arquivo para acessar offline no dia do evento.'
+            : `Seus ${qty} ingressos estão em anexo neste e-mail em formato PDF.<br>Salve os arquivos para acessar offline no dia do evento.`;
+
+          try {
+            console.log('[Webhook] Enviando e-mail unificado para:', emailDestino, '| ingressos:', pdfAttachments.length);
+            await resend.emails.send({
+              from: 'Roleon <noreply@roleon.com.br>',
+              to: emailDestino,
+              subject,
+              html: `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
@@ -215,11 +237,10 @@ export async function POST(req: NextRequest) {
         <tr>
           <td style="padding:32px 24px;">
             <p style="margin:0 0 20px;color:#1A1A1A;font-size:15px;line-height:1.6;">
-              Olá! Seu ingresso para <strong>${evento.title}</strong> foi confirmado.
+              ${bodyText}
             </p>
             <p style="margin:0 0 24px;color:#6E6E73;font-size:14px;line-height:1.6;">
-              Seu ingresso está em anexo neste e-mail em formato PDF.<br>
-              Salve o arquivo para acessar offline no dia do evento.
+              ${attachmentText}
             </p>
             <div style="background:#F5F5F5;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
               <p style="margin:0 0 6px;color:#1A1A1A;font-size:16px;font-weight:700;">${evento.title}</p>
@@ -233,21 +254,16 @@ export async function POST(req: NextRequest) {
   </table>
 </body>
 </html>
-            `,
-            ...(pdfBuffer ? {
-              attachments: [{
-                filename: `ingresso-${slug}.pdf`,
-                content: pdfBuffer,
-              }]
-            } : {}),
-          });
-
-          console.log('[Webhook] E-mail enviado para:', emailDestino)
-        } catch (emailError) {
-          console.error('[Webhook] Erro ao enviar e-mail:',
-            emailError instanceof Error ? emailError.message : String(emailError))
-          console.error('[Webhook] Stack:',
-            emailError instanceof Error ? emailError.stack : 'no stack')
+              `,
+              ...(pdfAttachments.length > 0 ? { attachments: pdfAttachments } : {}),
+            });
+            console.log('[Webhook] E-mail unificado enviado para:', emailDestino);
+          } catch (emailError) {
+            console.error('[Webhook] Erro ao enviar e-mail:',
+              emailError instanceof Error ? emailError.message : String(emailError));
+            console.error('[Webhook] Stack:',
+              emailError instanceof Error ? emailError.stack : 'no stack');
+          }
         }
       }
     }
