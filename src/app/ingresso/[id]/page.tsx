@@ -340,7 +340,16 @@ export default function IngressoPage() {
                   Apresente este QR Code na entrada do evento
                 </div>
                 <button
-                  onClick={() => window.open(`/api/ingresso/${ticket.id}/pdf`, '_blank')}
+                  onClick={async () => {
+                    const res = await fetch(`/api/ingresso/${ticket.id}/pdf`)
+                    const blob = await res.blob()
+                    const url = URL.createObjectURL(blob)
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = `ingresso-${ticket.id}.pdf`
+                    a.click()
+                    URL.revokeObjectURL(url)
+                  }}
                   style={{
                     width: '100%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
