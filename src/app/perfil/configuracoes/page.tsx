@@ -87,6 +87,42 @@ const sectionLabelStyle: React.CSSProperties = {
   textTransform: 'uppercase',
 }
 
+// ── Push helpers ──────────────────────────────────────────────────────────────
+
+async function subscribeToPush() {
+  const reg = await navigator.serviceWorker.ready
+  const existing = await reg.pushManager.getSubscription()
+  if (existing) {
+    await fetch('/api/push/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subscription: existing.toJSON() })
+    })
+    return true
+  }
+  const permission = await Notification.requestPermission()
+  if (permission !== 'granted') {
+    return false
+  }
+  const sub = await reg.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+  })
+  await fetch('/api/push/subscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ subscription: sub.toJSON() })
+  })
+  return true
+}
+
+async function unsubscribeFromPush() {
+  const reg = await navigator.serviceWorker.ready
+  const sub = await reg.pushManager.getSubscription()
+  if (sub) await sub.unsubscribe()
+  await fetch('/api/push/unsubscribe', { method: 'POST' })
+}
+
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export default function ConfiguracoesPage() {
@@ -98,6 +134,7 @@ export default function ConfiguracoesPage() {
   const [isGoogle, setIsGoogle] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [toast, setToast] = useState<string | null>(null)
 
   useEffect(() => {
     const load = async () => {
@@ -206,8 +243,20 @@ export default function ConfiguracoesPage() {
               <span style={{ fontSize: 15, color: '#1A1A1A' }}>Eventos próximos</span>
               <Toggle
                 checked={nearby}
-                onChange={(v) => {
-                  setNearby(v)
+                onChange={async (v) => {
+                  if (v) {
+                    setNearby(true)
+                    const ok = await subscribeToPush()
+                    if (!ok) {
+                      setNearby(false)
+                      setToast('Ative as notificações nas configurações do seu navegador')
+                      setTimeout(() => setToast(null), 4000)
+                      return
+                    }
+                  } else {
+                    setNearby(false)
+                    await unsubscribeFromPush()
+                  }
                   handleToggle('notifications_nearby', v)
                 }}
               />
@@ -272,6 +321,20 @@ export default function ConfiguracoesPage() {
         </div>
 
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <div style={{
+          position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
+          background: '#1A1A1A', color: '#fff',
+          padding: '12px 20px', borderRadius: 12,
+          fontSize: 14, fontWeight: 500,
+          zIndex: 2000, maxWidth: 'calc(100vw - 40px)',
+          textAlign: 'center', boxShadow: '0 4px 16px rgba(0,0,0,0.25)',
+        }}>
+          {toast}
+        </div>
+      )}
 
       {/* Modal de confirmação */}
       {showDeleteModal && (
