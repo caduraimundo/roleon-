@@ -37,9 +37,22 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
   const [resendLoading,   setResendLoading]   = useState(false)
   const [resendSent,      setResendSent]      = useState(false)
 
+  const [isParticipating,      setIsParticipating]      = useState(false)
+  const [participatingLoading, setParticipatingLoading] = useState(false)
+  const [showConfirmSheet,     setShowConfirmSheet]      = useState(false)
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setAuthed(!!data.session)
+      if (data.session && isFree) {
+        supabase
+          .from('saved_events')
+          .select('id')
+          .eq('user_id', data.session.user.id)
+          .eq('event_id', id)
+          .maybeSingle()
+          .then(({ data: saved }) => setIsParticipating(!!saved))
+      }
       if (data.session && isSoldOut) {
         fetch(`/api/waitlist?event_id=${id}`, {
           headers: { Authorization: `Bearer ${data.session.access_token}` },
