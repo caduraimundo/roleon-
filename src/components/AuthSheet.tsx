@@ -158,6 +158,11 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       const { error: err } = await supabase.auth.signInWithPassword({ email, password })
       setLoading(false)
       if (err) { setError(translateError(err.message, err.status)); return }
+      const redirect = sessionStorage.getItem('redirectAfterLogin')
+      if (redirect) {
+        sessionStorage.removeItem('redirectAfterLogin')
+        router.push(redirect)
+      }
       onClose()
     } else {
       const { error: err } = await supabase.auth.signUp({
@@ -183,6 +188,11 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
               name: name,
             }),
           }).catch(() => {})
+        }
+        const redirect = sessionStorage.getItem('redirectAfterLogin')
+        if (redirect) {
+          sessionStorage.removeItem('redirectAfterLogin')
+          router.push(redirect)
         }
         onClose()
         return

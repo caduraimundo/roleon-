@@ -95,7 +95,11 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
   const displayPrice = selectedPrice ?? price
 
   const handleCTA = async () => {
-    if (!authed) { setShowAuth(true); return }
+    if (!authed) {
+      sessionStorage.setItem('redirectAfterLogin', window.location.pathname)
+      setShowAuth(true)
+      return
+    }
     if (!isFree) {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
