@@ -61,9 +61,11 @@ const INPUT: React.CSSProperties = {
 
 const ERROR_MAP: Record<string, string> = {
   'Invalid login credentials':  'E-mail ou senha incorretos',
-  'Email not confirmed':        'Confirme seu e-mail antes de entrar',
-  'User already registered':    'Este e-mail já está em uso. Tente entrar.',
-  'already registered':         'Este e-mail já está em uso. Tente entrar.',
+  'Email not confirmed':        'Confirme seu e-mail antes de entrar.',
+  'email_not_confirmed':        'Confirme seu e-mail antes de entrar.',
+  'User already registered':    'E-mail já cadastrado. Tente fazer login.',
+  'already registered':         'E-mail já cadastrado. Tente fazer login.',
+  'user_already_exists':        'E-mail já cadastrado. Tente fazer login.',
 }
 
 function translateError(msg: string, status?: number): string {
@@ -172,7 +174,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       setLoading(false)
       if (err) {
         const msg = translateError(err.message, err.status)
-        if (msg.includes('e-mail já está em uso')) setEmailError(msg)
+        if (msg.includes('E-mail já cadastrado')) setEmailError(msg)
         else setError(msg)
         return
       }
