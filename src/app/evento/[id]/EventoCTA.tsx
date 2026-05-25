@@ -204,8 +204,19 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
                 {waitlistLoading ? 'Aguarde...' : inWaitlist ? 'Na fila - Cancelar aviso' : <><IconBell />Me avise se abrir vagas</>}
               </button>
             ) : (
-              <button onClick={isSoldOut ? undefined : handleCTA} disabled={isSoldOut} style={isSoldOut ? BTN_SOLD_OUT : BTN_TEAL}>
-                {isSoldOut ? 'Esgotado' : 'Participar'}
+              <button
+                onClick={handleCTA}
+                disabled={participatingLoading || isSoldOut}
+                style={isSoldOut ? BTN_SOLD_OUT : isParticipating ? BTN_PARTICIPATING : BTN_TEAL}
+              >
+                {isSoldOut ? 'Esgotado' : participatingLoading ? 'Aguarde...' : isParticipating ? (
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M3 8l3.5 3.5L13 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    Participando
+                  </span>
+                ) : 'Participar'}
               </button>
             )}
           </div>
@@ -299,4 +310,12 @@ const BTN_IN_WAITLIST: React.CSSProperties = {
   background: '#F0F0F0',
   color: '#6E6E73',
   border: '1px solid #6E6E73',
+}
+
+const BTN_PARTICIPATING: React.CSSProperties = {
+  ...BTN_TEAL,
+  background: '#fff',
+  color: '#0EA5A0',
+  border: '2px solid #0EA5A0',
+  boxShadow: 'none',
 }
