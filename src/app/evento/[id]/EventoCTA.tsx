@@ -14,6 +14,8 @@ interface EventoCTAProps {
   ticketTypeName?: string
   selectedPrice?: number
   isSoldOut?: boolean
+  title?: string
+  eventDate?: string
 }
 
 function IconBell() {
@@ -27,7 +29,7 @@ function IconBell() {
   )
 }
 
-export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeName, selectedPrice, isSoldOut = false }: EventoCTAProps) {
+export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeName, selectedPrice, isSoldOut = false, title, eventDate }: EventoCTAProps) {
   const router = useRouter()
   const [authed,          setAuthed]          = useState(false)
   const [showAuth,        setShowAuth]        = useState(false)
@@ -265,6 +267,82 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
             <button
               onClick={() => setShowEmailAlert(false)}
               className="w-full py-3 rounded-xl text-sm font-semibold text-[#6E6E73]"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showConfirmSheet && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 100,
+            background: 'rgba(0,0,0,0.45)',
+            display: 'flex', alignItems: 'flex-end',
+          }}
+          onClick={() => setShowConfirmSheet(false)}
+        >
+          <div
+            style={{
+              width: '100%',
+              background: '#fff',
+              borderRadius: '20px 20px 0 0',
+              padding: '28px 24px calc(env(safe-area-inset-bottom, 0px) + 28px)',
+              fontFamily: "'Noto Sans', sans-serif",
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: '50%',
+                background: '#E6F7F6',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                  <path d="M5 13l5.5 5.5L21 7" stroke="#0EA5A0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </div>
+            <div style={{ textAlign: 'center', marginBottom: 6 }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: '#1A1A1A' }}>
+                Presenca confirmada
+              </div>
+            </div>
+            {title && (
+              <div style={{ textAlign: 'center', marginBottom: 4 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>{title}</div>
+              </div>
+            )}
+            {eventDate && (
+              <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                <div style={{ fontSize: 13, color: '#6E6E73' }}>{eventDate}</div>
+              </div>
+            )}
+            {!title && <div style={{ marginBottom: 20 }} />}
+            <button
+              onClick={() => { setShowConfirmSheet(false); router.push('/ingressos') }}
+              style={{
+                width: '100%', padding: '15px',
+                background: '#0EA5A0', color: '#fff',
+                border: 0, borderRadius: 14,
+                fontSize: 15, fontWeight: 700,
+                fontFamily: "'Noto Sans', sans-serif",
+                cursor: 'pointer', marginBottom: 10,
+              }}
+            >
+              Ver em Meus Ingressos
+            </button>
+            <button
+              onClick={() => setShowConfirmSheet(false)}
+              style={{
+                width: '100%', padding: '14px',
+                background: 'transparent', color: '#6E6E73',
+                border: 0, borderRadius: 14,
+                fontSize: 15, fontWeight: 600,
+                fontFamily: "'Noto Sans', sans-serif",
+                cursor: 'pointer',
+              }}
             >
               Fechar
             </button>
