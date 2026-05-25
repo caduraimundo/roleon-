@@ -196,7 +196,7 @@ export default function AjudaPage() {
         color: '#6E6E73',
         padding: '32px 0',
       }}>
-        Roleon v0.1.0
+        Roleon v1.0.0
       </div>
 
     </div>
