@@ -36,8 +36,9 @@ export async function notifyNearbyUsers(eventId: string) {
       .eq('id', eventId)
       .single()
 
-    if (eventError || !event) return
-    if (!event.location_lat || !event.location_lng) return
+    console.log('notifyNearby: evento', event?.id, event?.location_lat, event?.location_lng, 'erro:', eventError?.message)
+    if (eventError || !event) { console.log('notifyNearby: saindo — evento não encontrado'); return }
+    if (!event.location_lat || !event.location_lng) { console.log('notifyNearby: saindo — evento sem localização'); return }
 
     // Buscar usuários com notificação ativa e localização salva
     const { data: profiles } = await supabaseAdmin
@@ -47,7 +48,8 @@ export async function notifyNearbyUsers(eventId: string) {
       .not('location_lat', 'is', null)
       .not('location_lng', 'is', null)
 
-    if (!profiles || profiles.length === 0) return
+    console.log('notifyNearby: profiles encontrados', profiles?.length)
+    if (!profiles || profiles.length === 0) { console.log('notifyNearby: saindo — nenhum perfil com notificação ativa'); return }
 
     // Filtrar usuários dentro de 10km
     const nearbyUserIds = profiles
@@ -60,7 +62,8 @@ export async function notifyNearbyUsers(eventId: string) {
       })
       .map((p) => p.id)
 
-    if (nearbyUserIds.length === 0) return
+    console.log('notifyNearby: usuários dentro do raio', nearbyUserIds.length)
+    if (nearbyUserIds.length === 0) { console.log('notifyNearby: saindo — nenhum usuário dentro de 10km'); return }
 
     // Buscar assinaturas push desses usuários
     const { data: subscriptions } = await supabaseAdmin
@@ -68,7 +71,8 @@ export async function notifyNearbyUsers(eventId: string) {
       .select('subscription')
       .in('user_id', nearbyUserIds)
 
-    if (!subscriptions || subscriptions.length === 0) return
+    console.log('notifyNearby: assinaturas encontradas', subscriptions?.length)
+    if (!subscriptions || subscriptions.length === 0) { console.log('notifyNearby: saindo — nenhuma assinatura push'); return }
 
     // Disparar notificações (fire-and-forget - falha não quebra o fluxo)
     const payload = JSON.stringify({
@@ -77,6 +81,7 @@ export async function notifyNearbyUsers(eventId: string) {
       url: `/evento/${event.id}`,
     })
 
+    console.log('notifyNearby: disparando para', subscriptions.length, 'assinaturas')
     await Promise.allSettled(
       subscriptions.map((s) =>
         webpush.sendNotification(s.subscription as any, payload)
