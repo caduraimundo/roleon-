@@ -385,7 +385,7 @@ export default function IngressoPage() {
                   </svg>
                   Baixar ingresso
                 </button>
-                {isIOS && (
+                {isIOS && !(window?.navigator as any)?.standalone && (
                   <p style={{
                     fontSize: 12,
                     color: '#6E6E73',
