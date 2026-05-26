@@ -147,6 +147,7 @@ export default function IngressoPage() {
   const [evento, setEvento] = useState<EventInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [toastMsg, setToastMsg] = useState<string | null>(null)
   const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent)
 
   useEffect(() => {
@@ -342,6 +343,15 @@ export default function IngressoPage() {
                 </div>
                 <button
                   onClick={async () => {
+                    const isIosPwa = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+                      (window.navigator as any).standalone === true
+
+                    if (isIosPwa) {
+                      setToastMsg('PDF enviado por e-mail. Acesse sua caixa de entrada.')
+                      setTimeout(() => setToastMsg(null), 4000)
+                      return
+                    }
+
                     if (isIOS) {
                       window.location.href = `/api/ingresso/${ticket.id}/pdf`
                     } else {
@@ -477,6 +487,22 @@ export default function IngressoPage() {
 
         </div>
       </div>
+
+      {toastMsg && (
+        <div style={{
+          position: 'fixed',
+          bottom: 'calc(env(safe-area-inset-bottom, 0px) + 100px)',
+          left: '50%', transform: 'translateX(-50%)',
+          background: '#0EA5A0', color: '#fff',
+          fontSize: 13.5, fontWeight: 600,
+          fontFamily: "'Noto Sans', sans-serif",
+          padding: '10px 20px', borderRadius: 8,
+          boxShadow: '0 4px 16px rgba(14,165,160,0.35)',
+          zIndex: 9999, whiteSpace: 'nowrap', pointerEvents: 'none',
+        }}>
+          {toastMsg}
+        </div>
+      )}
     </div>
   )
 }
