@@ -46,19 +46,37 @@ export async function GET(request: Request) {
   }
 
   const next = searchParams.get('next') || '/'
+  const isPopup = searchParams.get('popup') === '1'
   const destination = `${origin}${next}`
+
+  if (isPopup) {
+    return new NextResponse(
+      `<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body>
+<script>
+if (window.opener) {
+  window.opener.postMessage({ type: 'ROLEON_AUTH_SUCCESS' }, ${JSON.stringify(origin)});
+  window.close();
+} else {
+  window.location.replace(${JSON.stringify(destination)});
+}
+</script>
+</body>
+</html>`,
+      { status: 200, headers: { 'Content-Type': 'text/html' } }
+    )
+  }
+
   return new NextResponse(
     `<!DOCTYPE html>
 <html>
-<head>
-<meta charset="utf-8">
+<head><meta charset="utf-8"></head>
+<body>
 <script>window.location.replace(${JSON.stringify(destination)})</script>
-</head>
-<body></body>
+</body>
 </html>`,
-    {
-      status: 200,
-      headers: { 'Content-Type': 'text/html' },
-    }
+    { status: 200, headers: { 'Content-Type': 'text/html' } }
   )
 }
