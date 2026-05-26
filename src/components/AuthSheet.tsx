@@ -124,10 +124,39 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
 
   const handleGoogle = async () => {
     reset()
-    await supabase.auth.signInWithOAuth({
+    const next = sessionStorage.getItem('redirectAfterLogin') || '/'
+    const callbackUrl = `${window.location.origin}/auth/callback?popup=1&next=${encodeURIComponent(next)}`
+
+    const { data } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(sessionStorage.getItem('redirectAfterLogin') || '/')}` },
+      options: {
+        redirectTo: callbackUrl,
+        skipBrowserRedirect: true,
+      },
     })
+
+    if (data?.url) {
+      const popup = window.open(
+        data.url,
+        'google-login',
+        'width=520,height=620,left=' + Math.round(window.screenX + (window.outerWidth - 520) / 2) + ',top=' + Math.round(window.screenY + (window.outerHeight - 620) / 2)
+      )
+
+      const handleMessage = (event: MessageEvent) => {
+        if (event.origin !== window.location.origin) return
+        if (event.data?.type === 'ROLEON_AUTH_SUCCESS') {
+          window.removeEventListener('message', handleMessage)
+          popup?.close()
+          supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+              onClose()
+              window.location.href = next
+            }
+          })
+        }
+      }
+      window.addEventListener('message', handleMessage)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
