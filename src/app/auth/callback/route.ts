@@ -46,5 +46,19 @@ export async function GET(request: Request) {
   }
 
   const next = searchParams.get('next') || '/'
-  return NextResponse.redirect(`${origin}${next}`)
+  const destination = `${origin}${next}`
+  return new NextResponse(
+    `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script>window.location.replace(${JSON.stringify(destination)})</script>
+</head>
+<body></body>
+</html>`,
+    {
+      status: 200,
+      headers: { 'Content-Type': 'text/html' },
+    }
+  )
 }
