@@ -65,15 +65,6 @@ function IconClock() {
   )
 }
 
-function IconHeartSm() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 22 22" fill="none">
-      <path d="M11 18.5s-6.5-4-6.5-9a3.8 3.8 0 016.5-2.7A3.8 3.8 0 0117.5 9.5c0 5-6.5 9-6.5 9z"
-        stroke="currentColor" strokeWidth="1.9" strokeLinejoin="round" fill="currentColor"/>
-    </svg>
-  )
-}
-
 // ── Miniatura do evento (placeholder colorido) ───────────────────────────────
 
 function EventThumb({ ev, size = 76 }: { ev: RoleonEvent; size?: number }) {
@@ -150,7 +141,7 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight }: 
         <EventThumb ev={ev} size={76} />
 
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {/* Gênero + curtidas */}
+          {/* Gênero */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
             <div style={{
               fontSize: 10, fontWeight: 700, letterSpacing: 0.5,
@@ -158,10 +149,6 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight }: 
               background: '#E6F7F6', padding: '3px 7px', borderRadius: 999,
             }}>
               {ev.genre}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 11.5, color: T.textDim, fontWeight: 600 }}>
-              <span style={{ color: '#E26A6A', display: 'inline-flex' }}><IconHeartSm /></span>
-              {ev.likes}
             </div>
           </div>
 

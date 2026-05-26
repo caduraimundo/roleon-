@@ -261,7 +261,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                   Acesse o Roleon
                 </h2>
                 <p style={{ margin: '6px 0 0', fontSize: 13, color: '#6E6E73', lineHeight: 1.5 }}>
-                  Entre para comprar ingressos e salvar eventos
+                  Entre para comprar ingressos
                 </p>
               </div>
             )}
