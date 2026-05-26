@@ -306,7 +306,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
             </div>
             <div style={{ textAlign: 'center', marginBottom: 6 }}>
               <div style={{ fontSize: 18, fontWeight: 800, color: '#1A1A1A' }}>
-                Presenca confirmada
+                Presença confirmada
               </div>
             </div>
             {title && (

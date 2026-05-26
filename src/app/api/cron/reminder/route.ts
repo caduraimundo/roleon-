@@ -59,7 +59,7 @@ export async function GET(req: Request) {
                 <span style="font-size: 28px; font-weight: 800; color: #0EA5A0;">Roleon</span>
               </div>
               <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Seu evento é amanhã</h2>
-              <p style="color: #6E6E73; margin-bottom: 20px;">Nao esquece que voce tem ingresso para:</p>
+              <p style="color: #6E6E73; margin-bottom: 20px;">Não esqueça que você tem ingresso para:</p>
               <div style="background: #F9F9F9; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
                 <div style="font-size: 17px; font-weight: 700; margin-bottom: 4px;">${event.title}</div>
                 <div style="color: #6E6E73; font-size: 14px;">${event.location_name || ''}</div>
@@ -157,7 +157,7 @@ export async function GET(req: Request) {
                 <span style="font-size: 28px; font-weight: 800; color: #0EA5A0;">Roleon</span>
               </div>
               <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Seu evento é amanhã</h2>
-              <p style="color: #6E6E73; margin-bottom: 20px;">Nao esquece que voce confirmou presenca em:</p>
+              <p style="color: #6E6E73; margin-bottom: 20px;">Não esqueça que você confirmou presença em:</p>
               <div style="background: #F9F9F9; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
                 <div style="font-size: 17px; font-weight: 700; margin-bottom: 4px;">${event.title}</div>
                 <div style="color: #6E6E73; font-size: 14px;">${event.location_name || ''}</div>
@@ -198,7 +198,7 @@ export async function GET(req: Request) {
             await webpush.sendNotification(
               sub.subscription as any,
               JSON.stringify({
-                title: 'Lembrete de presenca',
+                title: 'Lembrete de presença',
                 body: `${event.title} é amanhã`,
                 url: `/evento/${event.id}`,
               })
