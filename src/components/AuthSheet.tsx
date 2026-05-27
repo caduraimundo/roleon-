@@ -183,6 +183,29 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
 
     setLoading(true)
     if (mode === 'forgot') {
+      // Verifica se a conta existe e usa apenas Google (sem senha)
+      const { data: methods } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: false },
+      })
+      // Tenta identificar se é conta Google verificando os providers via signInWithPassword
+      const { error: pwErr } = await supabase.auth.signInWithPassword({
+        email,
+        password: 'roleon_check_provider_' + Date.now(),
+      })
+      if (pwErr?.message?.includes('Email not confirmed') === false &&
+          pwErr?.code === 'user_not_found') {
+        setLoading(false)
+        setResetSent(true)
+        return
+      }
+      if (pwErr?.message?.toLowerCase().includes('provider') ||
+          pwErr?.code === 'unexpected_failure') {
+        setLoading(false)
+        setError('Essa conta usa login com Google. Entre pelo botao "Continuar com Google".')
+        return
+      }
+
       const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: window.location.origin + '/auth/callback',
       })
