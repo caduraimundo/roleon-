@@ -11,19 +11,12 @@ export async function POST(req: Request) {
     const { email } = await req.json()
     if (!email) return NextResponse.json({ provider: 'unknown' })
 
-    const { data: users } = await supabaseAdmin.auth.admin.listUsers()
-    const user = users?.users?.find((u: any) => u.email === email)
+    const { data, error } = await supabaseAdmin
+      .rpc('check_email_provider', { p_email: email })
 
-    if (!user) return NextResponse.json({ provider: 'none' })
+    if (error) return NextResponse.json({ provider: 'unknown' })
 
-    const providers = (user.identities ?? []).map((i: any) => i.provider)
-    const hasGoogle = providers.includes('google')
-    const hasEmail = providers.includes('email')
-    // Considera conta Google se tem Google e nao tem senha propria definida
-    // (hasEmail aparece quando o usuario definiu senha manualmente)
-    const isGoogleOnly = hasGoogle && !hasEmail
-
-    return NextResponse.json({ provider: isGoogleOnly ? 'google' : 'email' })
+    return NextResponse.json({ provider: data })
   } catch {
     return NextResponse.json({ provider: 'unknown' })
   }
