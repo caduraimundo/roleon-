@@ -43,7 +43,18 @@
       "PowerShell(Get-ChildItem -Path \"C:\\\\Users\\\\Carlo\\\\roleon-\" -Depth 3 -Exclude \"node_modules\",\".next\" | Where-Object { $_.FullName -notmatch \"node_modules|\\\\.next\" } | Select-Object FullName)",
       "PowerShell(cmd /c \"dir /s /b C:\\\\Users\\\\Carlo\\\\roleon-\\\\src\")",
       "Bash(curl -s -X POST https://www.roleon.com.br/api/admin/refund -H \"Content-Type: application/json\" -H \"Authorization: Bearer Roleon@2026!\" -d '{\"ticket_id\": \"16d241a4-1b7d-48c9-9a01-b5cb3ab4a51b\"}')",
-      "Bash(Remove-Item \"C:\\\\Users\\\\Carlo\\\\roleon-\\\\src\\\\components\\\\TicketPDF.tsx\")"
+      "Bash(Remove-Item \"C:\\\\Users\\\\Carlo\\\\roleon-\\\\src\\\\components\\\\TicketPDF.tsx\")",
+      "Bash(npm uninstall *)",
+      "mcp__ca924a0b-bc34-41d9-bdd0-df142f432b89__get_runtime_logs",
+      "Bash(curl -L \"https://fonts.gstatic.com/s/notosans/v36/o-0IIpQlx3QUlC5A4PNr5TRASf6M7Q.ttf\" -o \"C:/Users/Carlo/roleon-/public/fonts/NotoSans-Regular.ttf\")",
+      "Bash(curl -L \"https://fonts.gstatic.com/s/notosans/v36/o-0NIpQlx3QUlC5A4PNjXhFVadyBx8Xrdg.ttf\" -o \"C:/Users/Carlo/roleon-/public/fonts/NotoSans-Bold.ttf\")",
+      "Bash(xxd)",
+      "Bash(curl -L \"https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyD9A99d.ttf\" -o \"C:/Users/Carlo/roleon-/public/fonts/NotoSans-Regular.ttf\")",
+      "Bash(curl -L \"https://fonts.gstatic.com/s/notosans/v42/o-0mIpQlx3QUlC5A4PNB6Ryti20_6n1iPHjcz6L1SoM-jCpoiyAaBN9d.ttf\" -o \"C:/Users/Carlo/roleon-/public/fonts/NotoSans-Bold.ttf\")",
+      "Bash(node -e \"const wp = require\\('web-push'\\); const keys = wp.generateVAPIDKeys\\(\\); console.log\\('PUBLIC:', keys.publicKey\\); console.log\\('PRIVATE:', keys.privateKey\\);\")",
+      "Bash(vercel env *)",
+      "PowerShell(\\(Get-Command vercel -ErrorAction SilentlyContinue\\).Source; \\(Get-Command npx -ErrorAction SilentlyContinue\\).Source)",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomUUID\\(\\)\\)\")"
     ]
   }
 }

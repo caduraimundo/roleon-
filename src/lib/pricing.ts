@@ -4,7 +4,7 @@
 // PIX:           1,09% do valor
 // Cartão 1x:     3,19% do valor
 // Cartão 2x-6x:  4,49% do valor
-// Margem Roleon: 5%
+// Margem Roleon: 4%
 
 export function calcFees(ticketPrice: number, qty: number = 1, method: 'pix' | 'card' = 'pix') {
   const subtotal = ticketPrice * qty;
