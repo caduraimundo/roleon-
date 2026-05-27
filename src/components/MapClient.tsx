@@ -489,6 +489,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const clustererRef   = useRef<MarkerClusterer | null>(null)
   const userLocationRef = useRef<{ lat: number; lng: number } | null>(null)
   const locationSavedRef = useRef(false)
+  const mapCenteredRef = useRef(false)
 
   const [events,          setEvents]          = useState<RoleonEvent[]>([])
   const [loading,         setLoading]         = useState(true)
@@ -636,6 +637,10 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         try {
           userPos = new google.maps.LatLng(coords.latitude, coords.longitude)
           userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
+          if (!mapCenteredRef.current && mapInstanceRef.current) {
+            mapInstanceRef.current.panTo(userPos)
+            mapCenteredRef.current = true
+          }
           if (!locationSavedRef.current) {
             locationSavedRef.current = true
             fetch('/api/profile/update-location', {
