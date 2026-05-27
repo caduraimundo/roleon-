@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createBrowserClient } from '@supabase/ssr'
+import { supabase } from '../../lib/supabase'
 
 function IconEye({ hidden }: { hidden: boolean }) {
   return hidden ? (
@@ -27,10 +27,6 @@ const INPUT: React.CSSProperties = {
 
 export default function ResetPasswordPage() {
   const router = useRouter()
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  )
   const [password,     setPassword]     = useState('')
   const [confirm,      setConfirm]      = useState('')
   const [showPwd,      setShowPwd]      = useState(false)
