@@ -817,7 +817,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
 
   const handleSelectPlace = useCallback((placeId: string) => {
     const geocoder = new google.maps.Geocoder()
-    geocoder.geocode({ placeId }, (results: google.maps.GeocoderResult[] | null, status: google.maps.GeocoderStatus) => {
+    geocoder.geocode({ placeId }, (results, status) => {
       if (status === 'OK' && results && results[0]) {
         const loc = results[0].geometry.location
         mapInstanceRef.current?.panTo({ lat: loc.lat(), lng: loc.lng() })
