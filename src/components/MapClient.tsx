@@ -796,7 +796,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     const eventMatches = events
       .filter(e => e.title.toLowerCase().includes(value.toLowerCase()))
       .slice(0, 3)
-      .map(e => ({ id: e.id, title: e.title, lat: e.location_lat, lng: e.location_lng }))
+      .map(e => ({ id: e.id, title: e.title, lat: e.lat, lng: e.lng }))
 
     if (autocompleteService.current) {
       autocompleteService.current.getPlacePredictions(
