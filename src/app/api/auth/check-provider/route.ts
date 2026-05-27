@@ -17,7 +17,11 @@ export async function POST(req: Request) {
     if (!user) return NextResponse.json({ provider: 'none' })
 
     const providers = (user.identities ?? []).map((i: any) => i.provider)
-    const isGoogleOnly = providers.length === 1 && providers[0] === 'google'
+    const hasGoogle = providers.includes('google')
+    const hasEmail = providers.includes('email')
+    // Considera conta Google se tem Google e nao tem senha propria definida
+    // (hasEmail aparece quando o usuario definiu senha manualmente)
+    const isGoogleOnly = hasGoogle && !hasEmail
 
     return NextResponse.json({ provider: isGoogleOnly ? 'google' : 'email' })
   } catch {
