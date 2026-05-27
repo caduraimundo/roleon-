@@ -507,6 +507,12 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const [searchValue,     setSearchValue]     = useState('')
   const [userLocation,    setUserLocation]    = useState<{ lat: number; lng: number } | null>(null)
   const [safeTop,         setSafeTop]         = useState(56)
+  const [suggestions, setSuggestions] = useState<{
+    places: Array<{ description: string; place_id: string }>
+    events: Array<{ id: string; title: string; lat: number; lng: number }>
+  }>({ places: [], events: [] })
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const autocompleteService = useRef<any>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -617,6 +623,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
     })
     mapInstanceRef.current = map
+    autocompleteService.current = new google.maps.places.AutocompleteService()
 
     if (!navigator.geolocation) return
 
@@ -779,6 +786,56 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     if (activePin && !filteredEvents.find((e) => e.id === activePin)) setActivePin(null)
   }, [filteredEvents, activePin])
 
+  const handleSearch = useCallback((value: string) => {
+    setSearchValue(value)
+    if (!value.trim()) {
+      setSuggestions({ places: [], events: [] })
+      setShowSuggestions(false)
+      return
+    }
+    const eventMatches = events
+      .filter(e => e.title.toLowerCase().includes(value.toLowerCase()))
+      .slice(0, 3)
+      .map(e => ({ id: e.id, title: e.title, lat: e.location_lat, lng: e.location_lng }))
+
+    if (autocompleteService.current) {
+      autocompleteService.current.getPlacePredictions(
+        { input: value, types: ['(cities)'], componentRestrictions: { country: 'br' } },
+        (predictions: any[], status: string) => {
+          const placeMatches = status === 'OK'
+            ? predictions.slice(0, 3).map((p: any) => ({ description: p.description, place_id: p.place_id }))
+            : []
+          setSuggestions({ places: placeMatches, events: eventMatches })
+          setShowSuggestions(placeMatches.length > 0 || eventMatches.length > 0)
+        }
+      )
+    } else {
+      setSuggestions({ places: [], events: eventMatches })
+      setShowSuggestions(eventMatches.length > 0)
+    }
+  }, [events])
+
+  const handleSelectPlace = useCallback((placeId: string) => {
+    const geocoder = new google.maps.Geocoder()
+    geocoder.geocode({ placeId }, (results: any[], status: string) => {
+      if (status === 'OK' && results[0]) {
+        const loc = results[0].geometry.location
+        mapInstanceRef.current?.panTo({ lat: loc.lat(), lng: loc.lng() })
+        mapInstanceRef.current?.setZoom(14)
+      }
+    })
+    setShowSuggestions(false)
+    setSearchValue('')
+  }, [])
+
+  const handleSelectEvent = useCallback((eventId: string, lat: number, lng: number) => {
+    mapInstanceRef.current?.panTo({ lat, lng })
+    mapInstanceRef.current?.setZoom(16)
+    setActivePin(eventId)
+    setShowSuggestions(false)
+    setSearchValue('')
+  }, [events])
+
   const handleViewDetail = useCallback(() => {
     if (!activeEvent) return
     try { sessionStorage.setItem(`evento-${activeEvent.id}`, JSON.stringify(activeEvent)) } catch {}
@@ -798,8 +855,44 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         pointerEvents: 'none',
       }}>
         <div style={{ pointerEvents: 'auto' }}>
-          <SearchBar safeTop={safeTop} hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} searchValue={searchValue} onSearchChange={setSearchValue} />
+          <SearchBar safeTop={safeTop} hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} searchValue={searchValue} onSearchChange={handleSearch} />
         </div>
+        {showSuggestions && (
+          <div style={{
+            position: 'absolute',
+            top: safeTop + 60,
+            left: 12, right: 12,
+            background: '#fff',
+            borderRadius: 12,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+            zIndex: 1000,
+            overflow: 'hidden',
+            fontFamily: "'Noto Sans', sans-serif",
+          }}>
+            {suggestions.events.length > 0 && (
+              <>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#6E6E73', padding: '8px 16px 4px', textTransform: 'uppercase', letterSpacing: 0.5 }}>Eventos</div>
+                {suggestions.events.map(ev => (
+                  <div key={ev.id} onClick={() => handleSelectEvent(ev.id, ev.lat, ev.lng)}
+                    style={{ padding: '10px 16px', fontSize: 14, color: '#1A1A1A', cursor: 'pointer', borderBottom: '0.5px solid #F2F2F2' }}>
+                    {ev.title}
+                  </div>
+                ))}
+              </>
+            )}
+            {suggestions.places.length > 0 && (
+              <>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#6E6E73', padding: '8px 16px 4px', textTransform: 'uppercase', letterSpacing: 0.5 }}>Lugares</div>
+                {suggestions.places.map(pl => (
+                  <div key={pl.place_id} onClick={() => handleSelectPlace(pl.place_id)}
+                    style={{ padding: '10px 16px', fontSize: 14, color: '#1A1A1A', cursor: 'pointer', borderBottom: '0.5px solid #F2F2F2' }}>
+                    {pl.description}
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* FABs: filtros + localização */}
