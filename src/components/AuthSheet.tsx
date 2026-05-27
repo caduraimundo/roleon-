@@ -193,7 +193,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
         const { provider } = await check.json()
         if (provider === 'google') {
           setLoading(false)
-          setError('Essa conta usa login com Google. Entre pelo botao "Continuar com Google".')
+          setError('Essa conta usa login com Google. Entre pelo botão "Continuar com Google".')
           return
         }
       } catch {
