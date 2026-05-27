@@ -50,9 +50,23 @@ export default function ResetPasswordPage() {
     if (hasError) return
 
     setLoading(true)
-    const { error: err } = await supabase.auth.updateUser({ password })
-    setLoading(false)
-    if (err) { setError('Algo deu errado. Tente novamente.'); return }
+    const { error: updateError } = await supabase.auth.updateUser({ password })
+
+    if (updateError) {
+      if (updateError.message.toLowerCase().includes('same password') ||
+          updateError.message.toLowerCase().includes('different from') ||
+          updateError.status === 422) {
+        setError('A nova senha deve ser diferente da senha atual')
+      } else {
+        setError('Algo deu errado. Tente novamente.')
+      }
+      setLoading(false)
+      return
+    }
+
+    // Logout de todos os outros dispositivos após redefinir senha
+    await supabase.auth.signOut({ scope: 'others' })
+
     router.replace('/')
   }
 
