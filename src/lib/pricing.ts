@@ -10,16 +10,16 @@ export function calcFees(ticketPrice: number, qty: number = 1, method: 'pix' | '
   const subtotal = ticketPrice * qty;
 
   if (method === 'pix') {
-    // total = subtotal * 1.0609 + 0.55
-    // (5% Roleon + 1,09% Pagar.me + R$0,55 processamento)
-    const roleonFee  = subtotal * 0.05;
+    // total = subtotal * 1.0509 + 0.55
+    // (4% Roleon + 1,09% Pagar.me + R$0,55 processamento)
+    const roleonFee  = subtotal * 0.04;
     const pagarmeFee = subtotal * 0.0109 + 0.55;
     const total      = subtotal + roleonFee + pagarmeFee;
     return { subtotal, roleonFee, pagarmeFee, total };
   } else {
-    // Cartão 1x: total = subtotal * 1.0819 + 0.99
-    // (5% Roleon + 3,19% Pagar.me + R$0,55 processamento + R$0,44 antifraude)
-    const roleonFee  = subtotal * 0.05;
+    // Cartão 1x: total = subtotal * 1.0719 + 0.99
+    // (4% Roleon + 3,19% Pagar.me + R$0,55 processamento + R$0,44 antifraude)
+    const roleonFee  = subtotal * 0.04;
     const pagarmeFee = subtotal * 0.0319 + 0.99;
     const total      = subtotal + roleonFee + pagarmeFee;
     return { subtotal, roleonFee, pagarmeFee, total };

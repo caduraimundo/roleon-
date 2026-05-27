@@ -59,7 +59,7 @@ const faqs = [
   },
   {
     q: 'Como funciona a taxa do Roleon?',
-    a: 'O Roleon cobra uma taxa de 5% sobre o valor do ingresso. Essa taxa já está incluída no preço exibido.',
+    a: 'O Roleon cobra uma taxa de 4% sobre o valor do ingresso. Essa taxa já está incluída no preço exibido.',
   },
   {
     q: 'Não recebi o e-mail do ingresso. O que faço?',
