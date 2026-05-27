@@ -273,7 +273,7 @@ export default function CheckoutPage() {
     : payMethod === 'pix' ? 'Pagar com PIX' : 'Pagar com Cartão'
 
   return (
-    <div style={{
+    <div suppressHydrationWarning style={{
       minHeight: '100dvh', background: '#F9F9F9',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
