@@ -410,6 +410,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const router          = useRouter()
   const mapRef          = useRef<HTMLDivElement>(null)
   const mapInstanceRef  = useRef<mapboxgl.Map | null>(null)
+  const markersRef      = useRef<Map<string, mapboxgl.Marker>>(new Map())
   const userMarkerRef   = useRef<mapboxgl.Marker | null>(null)
   const userLocationRef = useRef<{ lat: number; lng: number } | null>(null)
   const mapCenteredRef  = useRef(false)
@@ -515,112 +516,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     })
     mapInstanceRef.current = map
 
-    map.on('load', () => {
-      // Source GeoJSON com clustering
-      map.addSource('events-source', {
-        type: 'geojson',
-        data: { type: 'FeatureCollection', features: [] },
-        cluster: true,
-        clusterMaxZoom: 13,
-        clusterRadius: 40,
-      })
-
-      // Círculo teal do cluster
-      map.addLayer({
-        id: 'clusters',
-        type: 'circle',
-        source: 'events-source',
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': '#0EA5A0',
-          'circle-radius': ['step', ['get', 'point_count'], 20, 5, 25, 10, 30],
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#fff',
-        },
-      })
-
-      // Número dentro do cluster
-      map.addLayer({
-        id: 'cluster-count',
-        type: 'symbol',
-        source: 'events-source',
-        filter: ['has', 'point_count'],
-        layout: {
-          'text-field': '{point_count_abbreviated}',
-          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          'text-size': 13,
-        },
-        paint: { 'text-color': '#fff' },
-      })
-
-      // Clique no cluster expande zoom
-      map.on('click', 'clusters', (e: any) => {
-        const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] })
-        if (!features.length) return
-        const clusterId = features[0].properties?.cluster_id
-        const source = map.getSource('events-source') as mapboxgl.GeoJSONSource
-        source.getClusterExpansionZoom(clusterId, (err: Error | null | undefined, zoom: number | null | undefined) => {
-          if (err || zoom == null) return
-          const coords = (features[0].geometry as any).coordinates
-          map.flyTo({ center: coords, zoom })
-        })
-      })
-      map.on('mouseenter', 'clusters', () => { map.getCanvas().style.cursor = 'pointer' })
-      map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = '' })
-
-      // Layer de pins individuais (não clusterizados)
-      map.addLayer({
-        id: 'unclustered-point',
-        type: 'circle',
-        source: 'events-source',
-        filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-color': '#ffffff',
-          'circle-radius': 4,
-          'circle-stroke-width': 1.5,
-          'circle-stroke-color': '#0EA5A0',
-        },
-      })
-
-      // Label de preço sobre o pin
-      map.addLayer({
-        id: 'unclustered-label',
-        type: 'symbol',
-        source: 'events-source',
-        filter: ['!', ['has', 'point_count']],
-        layout: {
-          'text-field': ['get', 'price'],
-          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          'text-size': 12,
-          'text-anchor': 'bottom',
-          'text-offset': [0, -0.5],
-          'text-allow-overlap': true,
-          'text-ignore-placement': true,
-        },
-        paint: {
-          'text-color': '#1A1A1A',
-          'text-halo-color': '#ffffff',
-          'text-halo-width': 2,
-        },
-      })
-
-      // Clique no pin individual abre o card
-      map.on('click', 'unclustered-point', (e: any) => {
-        const features = e.features
-        if (!features?.length) return
-        const id = features[0].properties?.id
-        if (id) setActivePin((prev: string | null) => prev === id ? null : id)
-      })
-      map.on('click', 'unclustered-label', (e: any) => {
-        const features = map.queryRenderedFeatures(e.point, { layers: ['unclustered-point'] })
-        if (!features?.length) return
-        const id = features[0].properties?.id
-        if (id) setActivePin((prev: string | null) => prev === id ? null : id)
-      })
-      map.on('mouseenter', 'unclustered-point', () => { map.getCanvas().style.cursor = 'pointer' })
-      map.on('mouseleave', 'unclustered-point', () => { map.getCanvas().style.cursor = '' })
-    })
-
     // Marker do usuário
     if (navigator.geolocation) {
       const watchId = navigator.geolocation.watchPosition(
@@ -675,36 +570,77 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     return true
   })
 
-  // Atualizar GeoJSON source de clustering quando filteredEvents mudar
+  const activeEvent = filteredEvents.find((e) => e.id === activePin) ?? null
+  const hasActiveFilter = filterGenres.length > 0 || !!(filterPreco || filterDate)
+
+  // Renderizar pins dos eventos
   useEffect(() => {
     const map = mapInstanceRef.current
     if (!map) return
-    const update = () => {
-      const source = map.getSource('events-source') as mapboxgl.GeoJSONSource
-      if (!source) return
-      source.setData({
-        type: 'FeatureCollection',
-        features: filteredEvents
-          .filter(ev => ev.lat && ev.lng)
-          .map(ev => ({
-            type: 'Feature' as const,
-            geometry: { type: 'Point' as const, coordinates: [ev.lng, ev.lat] },
-            properties: {
-              id: ev.id,
-              price: ev.price === 0 ? 'Grátis' : `R$${ev.price}`,
-            },
-          })),
+
+    const renderMarkers = () => {
+      // Remove markers de eventos que saíram da lista filtrada
+      markersRef.current.forEach((marker, id) => {
+        if (!filteredEvents.find(e => e.id === id)) {
+          marker.remove()
+          markersRef.current.delete(id)
+        }
+      })
+
+      filteredEvents.forEach((ev) => {
+        if (!ev.lat || !ev.lng) return
+
+        const isActive = ev.id === activePin
+        const soldOut  = !!ev.isSoldOut
+        const pinBg    = soldOut ? '#6E6E73' : (isActive ? PRIMARY : '#fff')
+        const pinText  = soldOut ? '#fff'    : (isActive ? '#fff'   : TEXT)
+        const pinShadow = isActive && !soldOut
+          ? `0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px ${PRIMARY}`
+          : '0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'
+
+        const existing = markersRef.current.get(ev.id)
+
+        if (existing) {
+          // Atualiza visual do marker existente
+          const el = existing.getElement()
+          el.querySelector('div')!.style.background = pinBg
+          el.querySelector('div')!.style.color = pinText
+          el.querySelector('div')!.style.boxShadow = pinShadow
+          return
+        }
+
+        const el = document.createElement('div')
+        el.innerHTML = `
+          <div style="
+            background:${pinBg};color:${pinText};
+            padding:7px 11px;border-radius:999px;
+            font-family:'Noto Sans',sans-serif;font-size:12.5px;font-weight:700;
+            display:flex;flex-direction:column;align-items:center;gap:2px;
+            white-space:nowrap;line-height:1;cursor:pointer;
+            box-shadow:${pinShadow};
+            transform:${isActive ? 'scale(1.06)' : 'scale(1)'};
+            transition:transform 280ms cubic-bezier(.2,.9,.3,1.4);
+          ">
+            <span>${ev.price === 0 ? 'Grátis' : `R$${ev.price}`}</span>
+            ${soldOut ? '<span style="font-size:9px;font-weight:600;letter-spacing:0.3px;">Esgotado</span>' : ''}
+          </div>
+        `
+        el.addEventListener('click', () => setActivePin(prev => prev === ev.id ? null : ev.id))
+
+        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([ev.lng, ev.lat])
+          .addTo(map)
+
+        markersRef.current.set(ev.id, marker)
       })
     }
-    if (map.isStyleLoaded()) {
-      update()
-    } else {
-      map.once('load', update)
-    }
-  }, [filteredEvents])
 
-  const activeEvent = filteredEvents.find((e) => e.id === activePin) ?? null
-  const hasActiveFilter = filterGenres.length > 0 || !!(filterPreco || filterDate)
+    if (map.isStyleLoaded()) {
+      renderMarkers()
+    } else {
+      map.once('load', renderMarkers)
+    }
+  }, [filteredEvents, activePin])
 
   // Limpa activePin se o evento sair da lista filtrada
   useEffect(() => {
