@@ -517,11 +517,32 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
 
     map.on('load', () => {
       // Cores bege/areia
-      try { map.setPaintProperty('background', 'background-color', '#EAE7DF') } catch {}
-      try { map.setPaintProperty('land', 'background-color', '#EAE7DF') } catch {}
-      try { map.setPaintProperty('water', 'fill-color', '#C9D9DC') } catch {}
-      try { map.setPaintProperty('landuse', 'fill-color', '#D6E1CB') } catch {}
-      try { map.setPaintProperty('landcover', 'fill-color', '#D6E1CB') } catch {}
+      const allLayers = map.getStyle().layers ?? []
+      allLayers.forEach(layer => {
+        try {
+          if (layer.type === 'background') {
+            map.setPaintProperty(layer.id, 'background-color', '#EAE7DF')
+          }
+          if (layer.type === 'fill') {
+            if (layer.id.includes('water')) {
+              map.setPaintProperty(layer.id, 'fill-color', '#C9D9DC')
+            } else if (
+              layer.id.includes('park') ||
+              layer.id.includes('green') ||
+              layer.id.includes('grass') ||
+              layer.id.includes('natural') ||
+              layer.id.includes('vegetation')
+            ) {
+              map.setPaintProperty(layer.id, 'fill-color', '#D6E1CB')
+            } else if (
+              layer.id.includes('land') &&
+              !layer.id.includes('water')
+            ) {
+              map.setPaintProperty(layer.id, 'fill-color', '#EAE7DF')
+            }
+          }
+        } catch {}
+      })
       const roadLayers = map.getStyle().layers ?? []
       roadLayers.forEach(layer => {
         if (layer.type === 'line' && layer.id.toLowerCase().includes('road')) {
