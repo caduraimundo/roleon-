@@ -652,73 +652,84 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const activeEvent = filteredEvents.find((e) => e.id === activePin) ?? null
   const hasActiveFilter = filterGenres.length > 0 || !!(filterPreco || filterDate)
 
-  // Renderizar pins dos eventos
+  // Sincronizar HTML markers com pontos não-clusterizados via render event
   useEffect(() => {
     const map = mapInstanceRef.current
     if (!map) return
 
-    const renderMarkers = () => {
-      // Remove markers de eventos que saíram da lista filtrada
+    const syncMarkers = () => {
+      if (!map.getSource('events-source')) return
+
+      const unclusteredFeatures = map.querySourceFeatures('events-source', {
+        filter: ['!', ['has', 'point_count']]
+      })
+      const visibleIds = new Set(
+        unclusteredFeatures.map((f: any) => f.properties?.id).filter(Boolean)
+      )
+
+      // Mostra/esconde markers conforme estão clusterizados ou não
+      markersRef.current.forEach((marker, id) => {
+        if (!visibleIds.has(id)) {
+          marker.getElement().style.display = 'none'
+        } else {
+          marker.getElement().style.display = 'block'
+        }
+      })
+
+      // Cria markers para pontos visíveis que ainda não têm marker
+      filteredEvents.forEach(ev => {
+        if (!visibleIds.has(ev.id)) return
+        if (!ev.lat || !ev.lng || isNaN(ev.lat) || isNaN(ev.lng)) return
+
+        const isActive = ev.id === activePin
+
+        if (markersRef.current.has(ev.id)) {
+          // Atualiza visual do marker existente
+          const el = markersRef.current.get(ev.id)!.getElement()
+          const inner = el.querySelector('div') as HTMLDivElement | null
+          if (inner) {
+            inner.style.background = isActive ? PRIMARY : '#fff'
+            inner.style.color = isActive ? '#fff' : TEXT
+            inner.style.boxShadow = isActive
+              ? `0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px ${PRIMARY}`
+              : '0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'
+          }
+          return
+        }
+
+        const el = document.createElement('div')
+        el.innerHTML = `<div style="
+          background:${isActive ? PRIMARY : '#fff'};
+          color:${isActive ? '#fff' : TEXT};
+          padding:7px 11px;border-radius:999px;
+          font-family:'Noto Sans',sans-serif;font-size:12.5px;font-weight:700;
+          white-space:nowrap;line-height:1;cursor:pointer;
+          box-shadow:${isActive
+            ? `0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px ${PRIMARY}`
+            : '0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'};
+        ">${ev.price === 0 ? 'Grátis' : `R$${ev.price}`}</div>`
+
+        el.addEventListener('click', () => {
+          setActivePin((prev: string | null) => prev === ev.id ? null : ev.id)
+        })
+
+        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+          .setLngLat([ev.lng, ev.lat])
+          .addTo(map)
+        markersRef.current.set(ev.id, marker)
+      })
+
+      // Remove markers de eventos que saíram de filteredEvents
       markersRef.current.forEach((marker, id) => {
         if (!filteredEvents.find(e => e.id === id)) {
           marker.remove()
           markersRef.current.delete(id)
         }
       })
-
-      filteredEvents.forEach((ev) => {
-        if (!ev.lat || !ev.lng) return
-
-        const isActive = ev.id === activePin
-        const soldOut  = !!ev.isSoldOut
-        const pinBg    = soldOut ? '#6E6E73' : (isActive ? PRIMARY : '#fff')
-        const pinText  = soldOut ? '#fff'    : (isActive ? '#fff'   : TEXT)
-        const pinShadow = isActive && !soldOut
-          ? `0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px ${PRIMARY}`
-          : '0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'
-
-        const existing = markersRef.current.get(ev.id)
-
-        if (existing) {
-          // Atualiza visual do marker existente
-          const el = existing.getElement()
-          el.querySelector('div')!.style.background = pinBg
-          el.querySelector('div')!.style.color = pinText
-          el.querySelector('div')!.style.boxShadow = pinShadow
-          return
-        }
-
-        const el = document.createElement('div')
-        el.innerHTML = `
-          <div style="
-            background:${pinBg};color:${pinText};
-            padding:7px 11px;border-radius:999px;
-            font-family:'Noto Sans',sans-serif;font-size:12.5px;font-weight:700;
-            display:flex;flex-direction:column;align-items:center;gap:2px;
-            white-space:nowrap;line-height:1;cursor:pointer;
-            box-shadow:${pinShadow};
-            transform:${isActive ? 'scale(1.06)' : 'scale(1)'};
-            transition:transform 280ms cubic-bezier(.2,.9,.3,1.4);
-          ">
-            <span>${ev.price === 0 ? 'Grátis' : `R$${ev.price}`}</span>
-            ${soldOut ? '<span style="font-size:9px;font-weight:600;letter-spacing:0.3px;">Esgotado</span>' : ''}
-          </div>
-        `
-        el.addEventListener('click', () => setActivePin(prev => prev === ev.id ? null : ev.id))
-
-        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-          .setLngLat([ev.lng, ev.lat])
-          .addTo(map)
-
-        markersRef.current.set(ev.id, marker)
-      })
     }
 
-    if (map.isStyleLoaded()) {
-      renderMarkers()
-    } else {
-      map.once('load', renderMarkers)
-    }
+    map.on('render', syncMarkers)
+    return () => { map.off('render', syncMarkers) }
   }, [filteredEvents, activePin])
 
   // Limpa activePin se o evento sair da lista filtrada
