@@ -28,7 +28,7 @@ export default function MapClient() {
   const [events, setEvents] = useState<RoleonEvent[]>([])
   const [activePin, setActivePin] = useState<RoleonEvent | null>(null)
   const [showAuth, setShowAuth] = useState(false)
-  const [tab, setTab] = useState<TabId>('explore')
+  const [tab, setTab] = useState<TabId>('explorar')
   const [safeTop, setSafeTop] = useState(0)
   const [searchValue, setSearchValue] = useState('')
   const [suggestions, setSuggestions] = useState<{
@@ -267,8 +267,8 @@ export default function MapClient() {
       {/* Nav */}
       <BottomNav activeTab={tab} onTabChange={(t) => {
         setTab(t)
-        if (t === 'tickets') router.push('/ingressos')
-        if (t === 'profile') router.push('/perfil')
+        if (t === 'ingressos') router.push('/ingressos')
+        if (t === 'perfil') router.push('/perfil')
       }} />
     </div>
   )
