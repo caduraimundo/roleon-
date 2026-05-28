@@ -875,7 +875,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
               <>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#6E6E73', padding: '8px 16px 4px', textTransform: 'uppercase', letterSpacing: 0.5 }}>Eventos</div>
                 {suggestions.events.map(ev => (
-                  <div key={ev.id} onClick={() => handleSelectEvent(ev.id, ev.lat, ev.lng)}
+                  <div key={ev.id}
+                    onClick={() => handleSelectEvent(ev.id, ev.lat, ev.lng)}
+                    onPointerDown={() => handleSelectEvent(ev.id, ev.lat, ev.lng)}
                     style={{ padding: '10px 16px', fontSize: 14, color: '#1A1A1A', cursor: 'pointer', borderBottom: '0.5px solid #F2F2F2' }}>
                     {ev.title}
                   </div>
@@ -886,7 +888,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
               <>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#6E6E73', padding: '8px 16px 4px', textTransform: 'uppercase', letterSpacing: 0.5 }}>Lugares</div>
                 {suggestions.places.map(pl => (
-                  <div key={pl.place_id} onClick={() => handleSelectPlace(pl.place_id)}
+                  <div key={pl.place_id}
+                    onClick={() => handleSelectPlace(pl.place_id)}
+                    onPointerDown={() => handleSelectPlace(pl.place_id)}
                     style={{ padding: '10px 16px', fontSize: 14, color: '#1A1A1A', cursor: 'pointer', borderBottom: '0.5px solid #F2F2F2' }}>
                     {pl.description}
                   </div>
