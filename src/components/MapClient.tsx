@@ -70,6 +70,7 @@ export default function MapClient() {
     // Geolocalização
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(({ coords }) => {
+        if (!mapInstanceRef.current) return
         const pos: [number, number] = [coords.longitude, coords.latitude]
         if (!mapCenteredRef.current) {
           map.flyTo({ center: pos, zoom: 14 })
@@ -252,7 +253,12 @@ export default function MapClient() {
         <PinSheet
           event={activePin}
           onClose={() => setActivePin(null)}
-          onViewDetail={() => router.push(`/evento/${activePin.id}`)}
+          onViewDetail={() => {
+            supabase.auth.getUser().then(({ data: { user } }) => {
+              if (!user) { setShowAuth(true); return }
+              router.push(`/checkout/${activePin!.id}`)
+            })
+          }}
           bottomNavHeight={64}
         />
       )}
