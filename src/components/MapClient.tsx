@@ -98,10 +98,10 @@ export default function MapClient() {
       markersRef.current = []
 
       events.forEach(event => {
-        if (!event.location_lat || !event.location_lng) return
+        if (!event.lat || !event.lng) return
 
         const el = document.createElement('div')
-        const price = event.is_free ? 'Grátis' : `R$${Number(event.price).toFixed(0)}`
+        const price = event.price === 0 ? 'Grátis' : `R$${Number(event.price).toFixed(0)}`
         el.innerHTML = `
           <div style="
             background:${PRIMARY};color:#fff;
@@ -114,7 +114,7 @@ export default function MapClient() {
         el.addEventListener('click', () => setActivePin(event))
 
         const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-          .setLngLat([event.location_lng, event.location_lat])
+          .setLngLat([event.lng, event.lat])
           .addTo(map)
 
         markersRef.current.push(marker)
@@ -142,7 +142,7 @@ export default function MapClient() {
     const eventMatches = events
       .filter(e => e.title.toLowerCase().includes(value.toLowerCase()))
       .slice(0, 3)
-      .map(e => ({ id: e.id, title: e.title, lat: e.location_lat, lng: e.location_lng }))
+      .map(e => ({ id: e.id, title: e.title, lat: e.lat, lng: e.lng }))
 
     try {
       const res = await fetch(
@@ -169,7 +169,7 @@ export default function MapClient() {
   }, [])
 
   const handleSelectEvent = useCallback((event: RoleonEvent) => {
-    mapInstanceRef.current?.flyTo({ center: [event.location_lng, event.location_lat], zoom: 16 })
+    mapInstanceRef.current?.flyTo({ center: [event.lng, event.lat], zoom: 16 })
     setActivePin(event)
     setShowSuggestions(false)
     setSearchValue('')
@@ -245,24 +245,20 @@ export default function MapClient() {
       </button>
 
       {/* Hint */}
-      <MapHint count={events.length} onFilterPress={() => {}} />
+      {!activePin && <MapHint count={events.length} bottomNavHeight={64} />}
 
       {/* Bottom sheet do evento */}
       {activePin && (
         <PinSheet
           event={activePin}
           onClose={() => setActivePin(null)}
-          onBuy={() => {
-            supabase.auth.getUser().then(({ data: { user } }) => {
-              if (!user) { setShowAuth(true); return }
-              router.push(`/checkout/${activePin.id}`)
-            })
-          }}
+          onViewDetail={() => router.push(`/evento/${activePin.id}`)}
+          bottomNavHeight={64}
         />
       )}
 
       {/* Auth */}
-      {showAuth && <AuthSheet onClose={() => setShowAuth(false)} />}
+      <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />}
 
       {/* Nav */}
       <BottomNav activeTab={tab} onTabChange={(t) => {
