@@ -560,8 +560,8 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         if (!features.length) return
         const clusterId = features[0].properties?.cluster_id
         const source = map.getSource('events-source') as mapboxgl.GeoJSONSource
-        source.getClusterExpansionZoom(clusterId, (err: Error | null | undefined, zoom: number) => {
-          if (err) return
+        source.getClusterExpansionZoom(clusterId, (err: Error | null | undefined, zoom: number | null | undefined) => {
+          if (err || zoom == null) return
           const coords = (features[0].geometry as any).coordinates
           map.flyTo({ center: coords, zoom })
         })
