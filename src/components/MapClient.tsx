@@ -7,6 +7,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 import BottomNav, { TabId } from './BottomNav'
 import { PinSheet, MapHint, RoleonEvent } from './EventBottomSheet'
 import AuthSheet from './AuthSheet'
+import FilterBar from './FilterBar'
 import { supabase } from '../lib/supabase'
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!
@@ -30,6 +31,7 @@ export default function MapClient() {
   const [showAuth, setShowAuth] = useState(false)
   const [tab, setTab] = useState<TabId>('explorar')
   const [safeTop, setSafeTop] = useState(0)
+  const [activeGenre, setActiveGenre] = useState<string | null>(null)
   const [searchValue, setSearchValue] = useState('')
   const [suggestions, setSuggestions] = useState<{
     places: Array<{ name: string; lat: number; lng: number }>
@@ -44,13 +46,35 @@ export default function MapClient() {
     setSafeTop(top || 44)
   }, [])
 
-  // Buscar eventos
+  // Buscar eventos — mapeia location_lat/location_lng → lat/lng do RoleonEvent
   useEffect(() => {
     supabase
       .from('events')
-      .select('*')
+      .select('id, title, description, price, is_free, location_lat, location_lng, location_name, event_date, genre, cover_image, status')
       .eq('status', 'active')
-      .then(({ data }) => { if (data) setEvents(data as RoleonEvent[]) })
+      .then(({ data }) => {
+        if (!data) return
+        setEvents(data.map((row: any) => {
+          const d = row.event_date ? new Date(row.event_date) : null
+          return {
+            id:           String(row.id),
+            title:        row.title ?? '',
+            genre:        row.genre ?? '',
+            price:        row.is_free ? 0 : (row.price ?? 0),
+            fee:          0,
+            likes:        0,
+            lat:          row.location_lat ?? 0,
+            lng:          row.location_lng ?? 0,
+            venue:        row.location_name ?? '',
+            neighborhood: '',
+            address:      row.location_name ?? '',
+            date:         d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '',
+            time:         d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
+            color:        '#0EA5A0',
+            description:  row.description ?? '',
+          } as RoleonEvent
+        }))
+      })
   }, [])
 
   // Inicializar mapa
@@ -89,7 +113,7 @@ export default function MapClient() {
     return () => { map.remove(); mapInstanceRef.current = null }
   }, [])
 
-  // Renderizar pins dos eventos
+  // Renderizar pins dos eventos (com filtro de gênero)
   useEffect(() => {
     const map = mapInstanceRef.current
     if (!map || events.length === 0) return
@@ -98,7 +122,11 @@ export default function MapClient() {
       markersRef.current.forEach(m => m.remove())
       markersRef.current = []
 
-      events.forEach(event => {
+      const filtered = activeGenre
+        ? events.filter(e => e.genre?.toLowerCase() === activeGenre.toLowerCase())
+        : events
+
+      filtered.forEach(event => {
         if (!event.lat || !event.lng) return
 
         const el = document.createElement('div')
@@ -129,7 +157,7 @@ export default function MapClient() {
     }
 
     return () => { markersRef.current.forEach(m => m.remove()); markersRef.current = [] }
-  }, [events])
+  }, [events, activeGenre])
 
   // Busca
   const handleSearch = useCallback(async (value: string) => {
@@ -176,12 +204,16 @@ export default function MapClient() {
     setSearchValue('')
   }, [])
 
+  const filteredCount = activeGenre
+    ? events.filter(e => e.genre?.toLowerCase() === activeGenre.toLowerCase()).length
+    : events.length
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100dvh', overflow: 'hidden', fontFamily: "'Noto Sans', sans-serif" }}>
       {/* Mapa */}
       <div ref={mapRef} style={{ position: 'absolute', inset: 0 }} />
 
-      {/* Barra de busca */}
+      {/* Barra de busca + FilterBar */}
       <div style={{ position: 'absolute', top: safeTop + 12, left: 12, right: 12, zIndex: 100 }}>
         <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(0,0,0,0.10)', display: 'flex', alignItems: 'center', padding: '0 14px', height: 44 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={DIM} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 8, flexShrink: 0 }}>
@@ -194,6 +226,11 @@ export default function MapClient() {
             placeholder="Buscar local ou evento"
             style={{ flex: 1, border: 'none', outline: 'none', fontSize: 14, color: TEXT, background: 'transparent', fontFamily: "'Noto Sans', sans-serif" }}
           />
+        </div>
+
+        {/* FilterBar */}
+        <div style={{ marginTop: 8, marginLeft: -12, marginRight: -12 }}>
+          <FilterBar activeGenre={activeGenre} onGenreChange={setActiveGenre} />
         </div>
 
         {/* Dropdown de sugestões */}
@@ -246,7 +283,7 @@ export default function MapClient() {
       </button>
 
       {/* Hint */}
-      {!activePin && <MapHint count={events.length} bottomNavHeight={64} />}
+      {!activePin && <MapHint count={filteredCount} bottomNavHeight={64} />}
 
       {/* Bottom sheet do evento */}
       {activePin && (
@@ -267,11 +304,13 @@ export default function MapClient() {
       <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
 
       {/* Nav */}
-      <BottomNav activeTab={tab} onTabChange={(t) => {
-        setTab(t)
-        if (t === 'ingressos') router.push('/ingressos')
-        if (t === 'perfil') router.push('/perfil')
-      }} />
+      <div style={{ paddingBottom: 'env(safe-area-inset-bottom, 8px)' }}>
+        <BottomNav activeTab={tab} onTabChange={(t) => {
+          setTab(t)
+          if (t === 'ingressos') router.push('/ingressos')
+          if (t === 'perfil') router.push('/perfil')
+        }} />
+      </div>
     </div>
   )
 }
