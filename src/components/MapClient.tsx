@@ -522,10 +522,18 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       try { map.setPaintProperty('water', 'fill-color', '#C9D9DC') } catch {}
       try { map.setPaintProperty('landuse', 'fill-color', '#D6E1CB') } catch {}
       try { map.setPaintProperty('landcover', 'fill-color', '#D6E1CB') } catch {}
-      try { map.setPaintProperty('road-primary', 'line-color', '#F7F5EF') } catch {}
-      try { map.setPaintProperty('road-secondary-tertiary', 'line-color', '#FBFAF6') } catch {}
-      try { map.setPaintProperty('road-street', 'line-color', '#FBFAF6') } catch {}
-      try { map.setPaintProperty('road-minor', 'line-color', '#FBFAF6') } catch {}
+      const roadLayers = map.getStyle().layers ?? []
+      roadLayers.forEach(layer => {
+        if (layer.type === 'line' && layer.id.toLowerCase().includes('road')) {
+          try { map.setPaintProperty(layer.id, 'line-color', '#F7F5EF') } catch {}
+        }
+        if (layer.type === 'fill' && (
+          layer.id.includes('land') ||
+          layer.id.includes('background')
+        )) {
+          try { map.setPaintProperty(layer.id, 'fill-color', '#EAE7DF') } catch {}
+        }
+      })
       // Ocultar POIs, trânsito e aeroportos
       const layers = map.getStyle().layers ?? []
       layers.forEach(layer => {
