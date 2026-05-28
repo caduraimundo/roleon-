@@ -164,42 +164,6 @@ function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistan
   )
 }
 
-// ── Chips de filtro rápido ───────────────────────────────────────────────────
-
-const QUICK_CHIPS = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Indie', 'Axé', 'República']
-
-function ChipBar({ activeChip, onChipChange }: {
-  activeChip: string | null
-  onChipChange: (chip: string | null) => void
-}) {
-  return (
-    <div style={{
-      display: 'flex', gap: 6, overflowX: 'auto',
-      padding: '0 16px 4px', scrollbarWidth: 'none',
-    }} className="no-scrollbar">
-      {QUICK_CHIPS.map((chip) => {
-        const active = activeChip === chip
-        return (
-          <button key={chip} onClick={() => onChipChange(active ? null : chip)} style={{
-            flex: '0 0 auto', padding: '7px 13px', borderRadius: 999,
-            border: 0, cursor: 'pointer',
-            background: active ? TEXT : '#fff',
-            color: active ? '#fff' : TEXT,
-            fontSize: 13, fontWeight: 500,
-            fontFamily: "'Noto Sans', sans-serif",
-            whiteSpace: 'nowrap',
-            boxShadow: active ? 'none' : '0 2px 6px rgba(0,0,0,0.05), 0 0 0 0.5px rgba(0,0,0,0.04)',
-            lineHeight: 1,
-          }}>
-            {chip}
-          </button>
-        )
-      })}
-      <style>{`.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}`}</style>
-    </div>
-  )
-}
-
 // ── Filter Sheet ─────────────────────────────────────────────────────────────
 
 const CATEGORIAS  = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Axé', 'República']
@@ -457,7 +421,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const [userId,       setUserId]       = useState<string | null>(null)
   const [showAuth,     setShowAuth]     = useState(false)
   const [activePin,    setActivePin]    = useState<string | null>(null)
-  const [activeChip,   setActiveChip]   = useState<string | null>(null)
   const [activeTab,    setActiveTab]    = useState<TabId>('explorar')
   const [showFilter,   setShowFilter]   = useState(false)
   const [filterGenres, setFilterGenres] = useState<string[]>([])
@@ -546,7 +509,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
 
     const map = new mapboxgl.Map({
       container: mapRef.current,
-      style: 'mapbox://styles/mapbox/light-v11',
+      style: 'mapbox://styles/mapbox/standard',
       center: [OURO_PRETO_CENTER.lng, OURO_PRETO_CENTER.lat],
       zoom: 15,
       attributionControl: false,
@@ -594,9 +557,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
 
   // Filtrar eventos
   const filteredEvents = events.filter((ev) => {
-    if (activeChip === 'Grátis' && ev.price > 0) return false
-    if (activeChip && !['Hoje', 'Grátis'].includes(activeChip) &&
-        ev.genre.toLowerCase() !== activeChip.toLowerCase()) return false
     if (filterGenres.length > 0) {
       const match = filterGenres.some(g =>
         (ev.genre || '').toLowerCase().includes(g.toLowerCase()) ||
@@ -774,7 +734,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
             searchValue={searchValue}
             onSearchChange={handleSearch}
           />
-          <ChipBar activeChip={activeChip} onChipChange={setActiveChip} />
         </div>
 
         {/* Dropdown de sugestões */}
