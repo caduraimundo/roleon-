@@ -516,6 +516,60 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     })
     mapInstanceRef.current = map
 
+    map.on('load', () => {
+      // Source GeoJSON com clustering
+      map.addSource('events-source', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+        cluster: true,
+        clusterMaxZoom: 13,
+        clusterRadius: 40,
+      })
+
+      // Círculo teal do cluster
+      map.addLayer({
+        id: 'clusters',
+        type: 'circle',
+        source: 'events-source',
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': '#0EA5A0',
+          'circle-radius': ['step', ['get', 'point_count'], 20, 5, 25, 10, 30],
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#fff',
+        },
+      })
+
+      // Número dentro do cluster
+      map.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: 'events-source',
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': '{point_count_abbreviated}',
+          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          'text-size': 13,
+        },
+        paint: { 'text-color': '#fff' },
+      })
+
+      // Clique no cluster expande zoom
+      map.on('click', 'clusters', (e: any) => {
+        const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] })
+        if (!features.length) return
+        const clusterId = features[0].properties?.cluster_id
+        const source = map.getSource('events-source') as mapboxgl.GeoJSONSource
+        source.getClusterExpansionZoom(clusterId, (err: Error | null, zoom: number) => {
+          if (err) return
+          const coords = (features[0].geometry as any).coordinates
+          map.flyTo({ center: coords, zoom })
+        })
+      })
+      map.on('mouseenter', 'clusters', () => { map.getCanvas().style.cursor = 'pointer' })
+      map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = '' })
+    })
+
     // Marker do usuário
     if (navigator.geolocation) {
       const watchId = navigator.geolocation.watchPosition(
@@ -569,6 +623,31 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     }
     return true
   })
+
+  // Atualizar GeoJSON source de clustering quando filteredEvents mudar
+  useEffect(() => {
+    const map = mapInstanceRef.current
+    if (!map) return
+    const update = () => {
+      const source = map.getSource('events-source') as mapboxgl.GeoJSONSource
+      if (!source) return
+      source.setData({
+        type: 'FeatureCollection',
+        features: filteredEvents
+          .filter(ev => ev.lat && ev.lng)
+          .map(ev => ({
+            type: 'Feature' as const,
+            geometry: { type: 'Point' as const, coordinates: [ev.lng, ev.lat] },
+            properties: { id: ev.id },
+          })),
+      })
+    }
+    if (map.isStyleLoaded()) {
+      update()
+    } else {
+      map.once('load', update)
+    }
+  }, [filteredEvents])
 
   const activeEvent = filteredEvents.find((e) => e.id === activePin) ?? null
   const hasActiveFilter = filterGenres.length > 0 || !!(filterPreco || filterDate)
