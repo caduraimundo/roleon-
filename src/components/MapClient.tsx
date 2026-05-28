@@ -410,6 +410,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const router          = useRouter()
   const mapRef          = useRef<HTMLDivElement>(null)
   const mapInstanceRef  = useRef<mapboxgl.Map | null>(null)
+  const markersRef      = useRef<Map<string, mapboxgl.Marker>>(new Map())
   const userMarkerRef   = useRef<mapboxgl.Marker | null>(null)
   const userLocationRef = useRef<{ lat: number; lng: number } | null>(null)
   const mapCenteredRef  = useRef(false)
@@ -516,45 +517,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     mapInstanceRef.current = map
 
     map.on('load', () => {
-      // Cores bege/areia
-      const allLayers = map.getStyle().layers ?? []
-      allLayers.forEach(layer => {
-        try {
-          if (layer.type === 'background') {
-            map.setPaintProperty(layer.id, 'background-color', '#EAE7DF')
-          }
-          if (layer.type === 'fill') {
-            if (layer.id.includes('water')) {
-              map.setPaintProperty(layer.id, 'fill-color', '#C9D9DC')
-            } else if (
-              layer.id.includes('park') ||
-              layer.id.includes('green') ||
-              layer.id.includes('grass') ||
-              layer.id.includes('natural') ||
-              layer.id.includes('vegetation')
-            ) {
-              map.setPaintProperty(layer.id, 'fill-color', '#D6E1CB')
-            } else if (
-              layer.id.includes('land') &&
-              !layer.id.includes('water')
-            ) {
-              map.setPaintProperty(layer.id, 'fill-color', '#EAE7DF')
-            }
-          }
-        } catch {}
-      })
-      const roadLayers = map.getStyle().layers ?? []
-      roadLayers.forEach(layer => {
-        if (layer.type === 'line' && layer.id.toLowerCase().includes('road')) {
-          try { map.setPaintProperty(layer.id, 'line-color', '#F7F5EF') } catch {}
-        }
-        if (layer.type === 'fill' && (
-          layer.id.includes('land') ||
-          layer.id.includes('background')
-        )) {
-          try { map.setPaintProperty(layer.id, 'fill-color', '#EAE7DF') } catch {}
-        }
-      })
       // Ocultar POIs, trânsito e aeroportos
       const layers = map.getStyle().layers ?? []
       layers.forEach(layer => {
@@ -603,31 +565,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
           paint: { 'text-color': '#fff' },
         })
 
-        map.addLayer({
-          id: 'unclustered-point',
-          type: 'symbol',
-          source: 'events',
-          filter: ['!', ['has', 'point_count']],
-          layout: {
-            'text-field': ['get', 'price'],
-            'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-            'text-size': 12,
-            'text-allow-overlap': true,
-          },
-          paint: {
-            'text-color': '#1A1A1A',
-            'text-halo-color': '#fff',
-            'text-halo-width': 2,
-          },
-        })
-
-        map.on('click', 'unclustered-point', (e) => {
-          const features = e.features
-          if (!features?.length) return
-          const id = features[0].properties?.id
-          if (id) setActivePin((prev: string | null) => prev === id ? null : id)
-        })
-
         map.on('click', 'clusters', (e) => {
           const features = map.queryRenderedFeatures(e.point, { layers: ['clusters'] })
           if (!features.length) return
@@ -637,6 +574,41 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
             if (err) return
             const coords = (features[0].geometry as any).coordinates
             map.flyTo({ center: coords, zoom })
+          })
+        })
+
+        map.on('data', (e: any) => {
+          if (e.sourceId !== 'events' || !e.isSourceLoaded) return
+          markersRef.current.forEach(m => m.remove())
+          markersRef.current.clear()
+          const features = map.querySourceFeatures('events', {
+            filter: ['!', ['has', 'point_count']]
+          })
+          features.forEach((feature: any) => {
+            const coords = feature.geometry.coordinates
+            const props = feature.properties
+            if (!coords || isNaN(coords[0]) || isNaN(coords[1])) return
+            const isActive = props.id === activePin
+            const el = document.createElement('div')
+            el.innerHTML = `
+              <div style="
+                background:${isActive ? '#0EA5A0' : '#fff'};
+                color:${isActive ? '#fff' : '#1A1A1A'};
+                padding:7px 11px;border-radius:999px;
+                font-family:'Noto Sans',sans-serif;font-size:12.5px;font-weight:700;
+                white-space:nowrap;line-height:1;cursor:pointer;
+                box-shadow:${isActive
+                  ? '0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px #0EA5A0'
+                  : '0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'};
+              ">${props.price}</div>
+            `
+            el.addEventListener('click', () => {
+              setActivePin((prev: string | null) => prev === props.id ? null : props.id)
+            })
+            const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+              .setLngLat(coords)
+              .addTo(map)
+            markersRef.current.set(props.id, marker)
           })
         })
       }
