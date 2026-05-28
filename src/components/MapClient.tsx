@@ -512,7 +512,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     events: Array<{ id: string; title: string; lat: number; lng: number }>
   }>({ places: [], events: [] })
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const autocompleteService = useRef<any>(null)
+
 
   useEffect(() => {
     setLoading(true)
@@ -623,7 +623,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
     })
     mapInstanceRef.current = map
-    autocompleteService.current = new google.maps.places.AutocompleteService()
 
     if (!navigator.geolocation) return
 
@@ -786,7 +785,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     if (activePin && !filteredEvents.find((e) => e.id === activePin)) setActivePin(null)
   }, [filteredEvents, activePin])
 
-  const handleSearch = useCallback((value: string) => {
+  const handleSearch = useCallback(async (value: string) => {
     setSearchValue(value)
     if (!value.trim()) {
       setSuggestions({ places: [], events: [] })
@@ -798,32 +797,35 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       .slice(0, 3)
       .map(e => ({ id: e.id, title: e.title, lat: e.lat, lng: e.lng }))
 
-    if (autocompleteService.current) {
-      autocompleteService.current.getPlacePredictions(
-        { input: value, types: ['(cities)'], componentRestrictions: { country: 'br' } },
-        (predictions: any[], status: string) => {
-          const placeMatches = status === 'OK'
-            ? predictions.slice(0, 3).map((p: any) => ({ description: p.description, place_id: p.place_id }))
-            : []
-          setSuggestions({ places: placeMatches, events: eventMatches })
-          setShowSuggestions(placeMatches.length > 0 || eventMatches.length > 0)
-        }
-      )
-    } else {
+    try {
+      const { AutocompleteSuggestion } = await (window as any).google.maps.importLibrary('places')
+      const { suggestions: placeSuggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+        input: value,
+        includedPrimaryTypes: ['locality', 'administrative_area_level_2'],
+        includedRegionCodes: ['br'],
+      })
+      const placeMatches = placeSuggestions.slice(0, 3).map((s: any) => ({
+        description: s.placePrediction.text.toString(),
+        place_id: s.placePrediction.placeId,
+      }))
+      setSuggestions({ places: placeMatches, events: eventMatches })
+      setShowSuggestions(placeMatches.length > 0 || eventMatches.length > 0)
+    } catch {
       setSuggestions({ places: [], events: eventMatches })
       setShowSuggestions(eventMatches.length > 0)
     }
   }, [events])
 
-  const handleSelectPlace = useCallback((placeId: string) => {
-    const geocoder = new google.maps.Geocoder()
-    geocoder.geocode({ placeId }, (results, status) => {
-      if (status === 'OK' && results && results[0]) {
-        const loc = results[0].geometry.location
-        mapInstanceRef.current?.panTo({ lat: loc.lat(), lng: loc.lng() })
+  const handleSelectPlace = useCallback(async (placeId: string) => {
+    try {
+      const { Place } = await (window as any).google.maps.importLibrary('places')
+      const place = new Place({ id: placeId })
+      await place.fetchFields({ fields: ['location'] })
+      if (place.location) {
+        mapInstanceRef.current?.panTo(place.location)
         mapInstanceRef.current?.setZoom(14)
       }
-    })
+    } catch {}
     setShowSuggestions(false)
     setSearchValue('')
   }, [])
