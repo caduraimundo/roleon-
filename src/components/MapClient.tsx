@@ -258,7 +258,7 @@ export default function MapClient() {
       )}
 
       {/* Auth */}
-      <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />}
+      <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
 
       {/* Nav */}
       <BottomNav activeTab={tab} onTabChange={(t) => {
