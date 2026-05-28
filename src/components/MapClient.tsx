@@ -509,7 +509,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
 
     const map = new mapboxgl.Map({
       container: mapRef.current,
-      style: 'mapbox://styles/mapbox/standard',
+      style: 'mapbox://styles/mapbox/light-v11',
       center: [OURO_PRETO_CENTER.lng, OURO_PRETO_CENTER.lat],
       zoom: 15,
       attributionControl: false,
