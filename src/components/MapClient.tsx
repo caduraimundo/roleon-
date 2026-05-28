@@ -410,7 +410,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const router          = useRouter()
   const mapRef          = useRef<HTMLDivElement>(null)
   const mapInstanceRef  = useRef<mapboxgl.Map | null>(null)
-  const markersRef      = useRef<Map<string, mapboxgl.Marker>>(new Map())
   const userMarkerRef   = useRef<mapboxgl.Marker | null>(null)
   const userLocationRef = useRef<{ lat: number; lng: number } | null>(null)
   const mapCenteredRef  = useRef(false)
@@ -568,6 +567,58 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       })
       map.on('mouseenter', 'clusters', () => { map.getCanvas().style.cursor = 'pointer' })
       map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = '' })
+
+      // Layer de pins individuais (não clusterizados)
+      map.addLayer({
+        id: 'unclustered-point',
+        type: 'circle',
+        source: 'events-source',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': '#ffffff',
+          'circle-radius': 4,
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': '#0EA5A0',
+        },
+      })
+
+      // Label de preço sobre o pin
+      map.addLayer({
+        id: 'unclustered-label',
+        type: 'symbol',
+        source: 'events-source',
+        filter: ['!', ['has', 'point_count']],
+        layout: {
+          'text-field': ['get', 'price'],
+          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          'text-size': 12,
+          'text-anchor': 'bottom',
+          'text-offset': [0, -0.5],
+          'text-allow-overlap': true,
+          'text-ignore-placement': true,
+        },
+        paint: {
+          'text-color': '#1A1A1A',
+          'text-halo-color': '#ffffff',
+          'text-halo-width': 2,
+        },
+      })
+
+      // Clique no pin individual abre o card
+      map.on('click', 'unclustered-point', (e: any) => {
+        const features = e.features
+        if (!features?.length) return
+        const id = features[0].properties?.id
+        if (id) setActivePin((prev: string | null) => prev === id ? null : id)
+      })
+      map.on('click', 'unclustered-label', (e: any) => {
+        const features = map.queryRenderedFeatures(e.point, { layers: ['unclustered-point'] })
+        if (!features?.length) return
+        const id = features[0].properties?.id
+        if (id) setActivePin((prev: string | null) => prev === id ? null : id)
+      })
+      map.on('mouseenter', 'unclustered-point', () => { map.getCanvas().style.cursor = 'pointer' })
+      map.on('mouseleave', 'unclustered-point', () => { map.getCanvas().style.cursor = '' })
     })
 
     // Marker do usuário
@@ -638,7 +689,10 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
           .map(ev => ({
             type: 'Feature' as const,
             geometry: { type: 'Point' as const, coordinates: [ev.lng, ev.lat] },
-            properties: { id: ev.id },
+            properties: {
+              id: ev.id,
+              price: ev.price === 0 ? 'Grátis' : `R$${ev.price}`,
+            },
           })),
       })
     }
@@ -651,86 +705,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
 
   const activeEvent = filteredEvents.find((e) => e.id === activePin) ?? null
   const hasActiveFilter = filterGenres.length > 0 || !!(filterPreco || filterDate)
-
-  // Sincronizar HTML markers com pontos não-clusterizados via render event
-  useEffect(() => {
-    const map = mapInstanceRef.current
-    if (!map) return
-
-    const syncMarkers = () => {
-      if (!map.getSource('events-source')) return
-
-      const unclusteredFeatures = map.querySourceFeatures('events-source', {
-        filter: ['!', ['has', 'point_count']]
-      })
-      const visibleIds = new Set(
-        unclusteredFeatures.map((f: any) => f.properties?.id).filter(Boolean)
-      )
-
-      // Mostra/esconde markers conforme estão clusterizados ou não
-      markersRef.current.forEach((marker, id) => {
-        if (!visibleIds.has(id)) {
-          marker.getElement().style.display = 'none'
-        } else {
-          marker.getElement().style.display = 'block'
-        }
-      })
-
-      // Cria markers para pontos visíveis que ainda não têm marker
-      filteredEvents.forEach(ev => {
-        if (!visibleIds.has(ev.id)) return
-        if (!ev.lat || !ev.lng || isNaN(ev.lat) || isNaN(ev.lng)) return
-
-        const isActive = ev.id === activePin
-
-        if (markersRef.current.has(ev.id)) {
-          // Atualiza visual do marker existente
-          const el = markersRef.current.get(ev.id)!.getElement()
-          const inner = el.querySelector('div') as HTMLDivElement | null
-          if (inner) {
-            inner.style.background = isActive ? PRIMARY : '#fff'
-            inner.style.color = isActive ? '#fff' : TEXT
-            inner.style.boxShadow = isActive
-              ? `0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px ${PRIMARY}`
-              : '0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'
-          }
-          return
-        }
-
-        const el = document.createElement('div')
-        el.innerHTML = `<div style="
-          background:${isActive ? PRIMARY : '#fff'};
-          color:${isActive ? '#fff' : TEXT};
-          padding:7px 11px;border-radius:999px;
-          font-family:'Noto Sans',sans-serif;font-size:12.5px;font-weight:700;
-          white-space:nowrap;line-height:1;cursor:pointer;
-          box-shadow:${isActive
-            ? `0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px ${PRIMARY}`
-            : '0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'};
-        ">${ev.price === 0 ? 'Grátis' : `R$${ev.price}`}</div>`
-
-        el.addEventListener('click', () => {
-          setActivePin((prev: string | null) => prev === ev.id ? null : ev.id)
-        })
-
-        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-          .setLngLat([ev.lng, ev.lat])
-          .addTo(map)
-        markersRef.current.set(ev.id, marker)
-      })
-
-      // Remove markers de eventos que saíram de filteredEvents
-      markersRef.current.forEach((marker, id) => {
-        if (!filteredEvents.find(e => e.id === id)) {
-          marker.remove()
-          markersRef.current.delete(id)
-        }
-      })
-    }
-
-    map.on('render', syncMarkers)
-    return () => { map.off('render', syncMarkers) }
-  }, [filteredEvents, activePin])
 
   // Limpa activePin se o evento sair da lista filtrada
   useEffect(() => {
