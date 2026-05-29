@@ -629,6 +629,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       const map = new google.maps.Map(mapRef.current!, {
         center: OURO_PRETO_CENTER, zoom: 15,
         styles: LIGHT_MAP_STYLE,
+        mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
         disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
       })
       mapInstanceRef.current = map
