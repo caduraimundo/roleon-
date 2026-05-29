@@ -626,7 +626,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         return
       }
 
-      const createMap = (initialCenter: { lat: number; lng: number }) => {
+      const createMap = (initialCenter: { lat: number; lng: number }, knownPos?: { lat: number; lng: number }) => {
         const map = new google.maps.Map(mapRef.current!, {
           center: initialCenter, zoom: 15,
           mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
@@ -647,6 +647,12 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           onRemove() { dot.parentNode?.removeChild(dot) }
         }
         const dotOverlay = new UserDot()
+
+        if (knownPos) {
+          userPos = new google.maps.LatLng(knownPos.lat, knownPos.lng)
+          dotOverlay.setMap(map)
+          dotOverlay.draw()
+        }
 
         const watchId = navigator.geolocation.watchPosition(
           ({ coords }) => {
@@ -688,7 +694,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
             clearTimeout(timeout)
             userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
             mapCenteredRef.current = true
-            createMap({ lat: coords.latitude, lng: coords.longitude })
+            createMap({ lat: coords.latitude, lng: coords.longitude }, { lat: coords.latitude, lng: coords.longitude })
           },
           () => {
             clearTimeout(timeout)
