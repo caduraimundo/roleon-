@@ -31,6 +31,8 @@ const LIGHT_MAP_STYLE: google.maps.MapTypeStyle[] = [
   { featureType: 'water',         elementType: 'labels.text.fill',stylers: [{ color: '#7E9B9E' }] },
   { featureType: 'transit',       elementType: 'labels.icon',     stylers: [{ visibility: 'off' }] },
   { featureType: 'administrative',elementType: 'geometry.stroke', stylers: [{ color: '#C9B99A' }] },
+  { featureType: 'road.highway',  elementType: 'labels',          stylers: [{ visibility: 'off' }] },
+  { featureType: 'road.arterial', elementType: 'labels.icon',     stylers: [{ visibility: 'off' }] },
 ]
 
 const OURO_PRETO_CENTER = { lat: -20.3856, lng: -43.5035 }
