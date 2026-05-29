@@ -2,19 +2,36 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import mapboxgl from 'mapbox-gl'
-import 'mapbox-gl/dist/mapbox-gl.css'
+import { MarkerClusterer } from '@googlemaps/markerclusterer'
 import BottomNav, { TabId } from './BottomNav'
 import { PinSheet, MapHint, RoleonEvent } from './EventBottomSheet'
 import AuthSheet from './AuthSheet'
 import { supabase } from '../lib/supabase'
 
-mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN!
-
 const PRIMARY = '#0EA5A0'
 const TEXT    = '#1A1A1A'
 const DIM     = '#6E6E73'
 const BORDER  = '#EFEFEF'
+
+const LIGHT_MAP_STYLE: google.maps.MapTypeStyle[] = [
+  { elementType: 'geometry',            stylers: [{ color: '#EAE7DF' }] },
+  { elementType: 'labels.text.fill',    stylers: [{ color: '#9C9582' }] },
+  { elementType: 'labels.text.stroke',  stylers: [{ color: '#F1EEE6' }] },
+  { featureType: 'road',          elementType: 'geometry',        stylers: [{ color: '#FBFAF6' }] },
+  { featureType: 'road.arterial', elementType: 'geometry',        stylers: [{ color: '#F7F5EF' }] },
+  { featureType: 'road.highway',  elementType: 'geometry',        stylers: [{ color: '#EEEBE1' }] },
+  { featureType: 'road',          elementType: 'geometry.stroke', stylers: [{ color: '#E5E0D5' }] },
+  { featureType: 'road.local',    elementType: 'labels.text.fill',stylers: [{ color: '#9C9582' }] },
+  { featureType: 'landscape.natural', elementType: 'geometry',    stylers: [{ color: '#D6E1CB' }] },
+  { featureType: 'poi',           elementType: 'geometry',        stylers: [{ color: '#DFE8D8' }] },
+  { featureType: 'poi.park',      elementType: 'geometry.fill',   stylers: [{ color: '#D0DEC6' }] },
+  { featureType: 'poi',           elementType: 'labels.text.fill',stylers: [{ color: '#877B5A' }] },
+  { featureType: 'poi',           elementType: 'labels.icon',     stylers: [{ visibility: 'off' }] },
+  { featureType: 'water',         elementType: 'geometry.fill',   stylers: [{ color: '#C9D9DC' }] },
+  { featureType: 'water',         elementType: 'labels.text.fill',stylers: [{ color: '#7E9B9E' }] },
+  { featureType: 'transit',       elementType: 'labels.icon',     stylers: [{ visibility: 'off' }] },
+  { featureType: 'administrative',elementType: 'geometry.stroke', stylers: [{ color: '#C9B99A' }] },
+]
 
 const OURO_PRETO_CENTER = { lat: -20.3856, lng: -43.5035 }
 
@@ -25,6 +42,14 @@ function IconSearch() {
     <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
       <circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" strokeWidth="1.6"/>
       <path d="M13 13l4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function IconSliders() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+      <path d="M3 5h14M6 10h8M9 15h2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
     </svg>
   )
 }
@@ -160,6 +185,42 @@ function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistan
           </>
         )}
       </div>
+    </div>
+  )
+}
+
+// ── Chips de filtro rápido ───────────────────────────────────────────────────
+
+const QUICK_CHIPS = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Indie', 'Axé', 'República']
+
+function ChipBar({ activeChip, onChipChange }: {
+  activeChip: string | null
+  onChipChange: (chip: string | null) => void
+}) {
+  return (
+    <div style={{
+      display: 'flex', gap: 6, overflowX: 'auto',
+      padding: '0 16px 4px', scrollbarWidth: 'none',
+    }} className="no-scrollbar">
+      {QUICK_CHIPS.map((chip) => {
+        const active = activeChip === chip
+        return (
+          <button key={chip} onClick={() => onChipChange(active ? null : chip)} style={{
+            flex: '0 0 auto', padding: '7px 13px', borderRadius: 999,
+            border: 0, cursor: 'pointer',
+            background: active ? TEXT : '#fff',
+            color: active ? '#fff' : TEXT,
+            fontSize: 13, fontWeight: 500,
+            fontFamily: "'Noto Sans', sans-serif",
+            whiteSpace: 'nowrap',
+            boxShadow: active ? 'none' : '0 2px 6px rgba(0,0,0,0.05), 0 0 0 0.5px rgba(0,0,0,0.04)',
+            lineHeight: 1,
+          }}>
+            {chip}
+          </button>
+        )
+      })}
+      <style>{`.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}`}</style>
     </div>
   )
 }
@@ -352,20 +413,27 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, initial }: {
 
 function getDateRange(filter: string | null): { gte?: string; lte?: string } {
   if (!filter) return {}
+
   const now   = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const MS_DAY = 24 * 60 * 60 * 1000
+
   const endOf = (d: Date) =>
     new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999)
+
   if (filter === 'Hoje') {
     return { gte: today.toISOString(), lte: endOf(today).toISOString() }
   }
+
   if (filter === 'Amanhã') {
     const tomorrow = new Date(today.getTime() + MS_DAY)
     return { gte: tomorrow.toISOString(), lte: endOf(tomorrow).toISOString() }
   }
+
   if (filter === 'Este fim de semana') {
+    // Domingo = 0, …, Sábado = 6
     const dow = today.getDay()
+    // Dias até o próximo domingo (inclusive hoje se for domingo)
     const daysToSun = dow === 0 ? 0 : 7 - dow
     const sunday    = new Date(today.getTime() + daysToSun * MS_DAY)
     const friday    = new Date(sunday.getTime() - 2 * MS_DAY)
@@ -373,6 +441,14 @@ function getDateRange(filter: string | null): { gte?: string; lte?: string } {
     const start = fridayStart < now ? now : fridayStart
     return { gte: start.toISOString(), lte: endOf(sunday).toISOString() }
   }
+
+  if (filter === 'Esta semana') {
+    const dow = today.getDay()
+    const daysToSun = dow === 0 ? 0 : 7 - dow
+    const sunday = new Date(today.getTime() + daysToSun * MS_DAY)
+    return { gte: today.toISOString(), lte: endOf(sunday).toISOString() }
+  }
+
   return {}
 }
 
@@ -390,7 +466,7 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-// ── Cores por gênero ─────────────────────────────────────────────────────────
+// ── MapClient (componente principal exportado) ───────────────────────────────
 
 const GENRE_COLORS: Record<string, string> = {
   'Samba/Pagode': '#C8956C', 'MPB': '#7C9E87', 'Rock': '#7B7FA8',
@@ -399,55 +475,61 @@ const GENRE_COLORS: Record<string, string> = {
   'Reggae': '#7CA87C', 'Indie': '#9E8AB4', 'Axé': '#D4A644', 'República': '#A07850',
 }
 
-// ── MapClient ─────────────────────────────────────────────────────────────────
-
 interface MapClientProps {
   onEventSelect?: (event: RoleonEvent) => void
   bottomNavHeight?: number
 }
 
 export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapClientProps) {
-  const router          = useRouter()
-  const mapRef          = useRef<HTMLDivElement>(null)
-  const mapInstanceRef  = useRef<mapboxgl.Map | null>(null)
-  const markersRef      = useRef<Map<string, mapboxgl.Marker>>(new Map())
-  const userMarkerRef   = useRef<mapboxgl.Marker | null>(null)
+  const router         = useRouter()
+  const mapRef         = useRef<HTMLDivElement>(null)
+  const mapInstanceRef = useRef<google.maps.Map | null>(null)
+  const overlayRefs    = useRef<Map<string, { overlay: any; container: HTMLDivElement }>>(new Map())
+  const markerRefs     = useRef<Map<string, google.maps.Marker>>(new Map())
+  const clustererRef   = useRef<MarkerClusterer | null>(null)
   const userLocationRef = useRef<{ lat: number; lng: number } | null>(null)
-  const mapCenteredRef  = useRef(false)
+  const locationSavedRef = useRef(false)
+  const mapCenteredRef = useRef(false)
 
-  const [events,       setEvents]       = useState<RoleonEvent[]>([])
-  const [loading,      setLoading]      = useState(true)
-  const [authed,       setAuthed]       = useState(false)
-  const [userId,       setUserId]       = useState<string | null>(null)
-  const [showAuth,     setShowAuth]     = useState(false)
-  const [activePin,    setActivePin]    = useState<string | null>(null)
-  const [activeTab,    setActiveTab]    = useState<TabId>('explorar')
-  const [showFilter,   setShowFilter]   = useState(false)
-  const [filterGenres, setFilterGenres] = useState<string[]>([])
-  const [filterDate,   setFilterDate]   = useState<string | null>(null)
-  const [filterPreco,  setFilterPreco]  = useState<string | null>(null)
-  const [distance,     setDistance]     = useState(10)
-  const [searchValue,  setSearchValue]  = useState('')
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null)
-  const [safeTop,      setSafeTop]      = useState(56)
-  const [suggestions,  setSuggestions]  = useState<{
-    places: Array<{ name: string; lat: number; lng: number }>
+  const [events,          setEvents]          = useState<RoleonEvent[]>([])
+  const [loading,         setLoading]         = useState(true)
+  const [authed,          setAuthed]          = useState(false)
+  const [userId,          setUserId]          = useState<string | null>(null)
+  const [showAuth,        setShowAuth]        = useState(false)
+  const [activePin,       setActivePin]       = useState<string | null>(null)
+  const [activeChip,      setActiveChip]      = useState<string | null>(null)
+  const [activeTab,       setActiveTab]       = useState<TabId>('explorar')
+  const [showFilter,      setShowFilter]      = useState(false)
+  const [filterGenres,    setFilterGenres]    = useState<string[]>([])
+  const [filterDate,      setFilterDate]      = useState<string | null>(null)
+  const [filterPreco,     setFilterPreco]     = useState<string | null>(null)
+  const [distance,        setDistance]        = useState(10)
+  const [searchValue,     setSearchValue]     = useState('')
+  const [userLocation,    setUserLocation]    = useState<{ lat: number; lng: number } | null>(null)
+  const [safeTop,         setSafeTop]         = useState(56)
+  const [suggestions, setSuggestions] = useState<{
+    places: Array<{ description: string; place_id: string }>
     events: Array<{ id: string; title: string; lat: number; lng: number }>
   }>({ places: [], events: [] })
   const [showSuggestions, setShowSuggestions] = useState(false)
 
-  // Buscar eventos
+
   useEffect(() => {
     setLoading(true)
     supabase
       .from('events')
-      .select('*')
+      .select('*, ticket_types(id, quantity, quantity_sold)')
       .eq('status', 'active')
       .then(({ data, error }) => {
-        if (error) console.log('[MapClient] erro:', error.message)
+        if (error) {
+          console.log('[MapClient] erro ao buscar eventos:', error.message, error.code)
+        }
         if (data) {
           setEvents(data.map((row: Record<string, unknown>) => {
             const d = row.event_date ? new Date(row.event_date as string) : null
+            const tts = (row.ticket_types as Array<{ quantity: number | null; quantity_sold: number | null }>) ?? []
+            const ttWithLimit = tts.filter(t => t.quantity != null)
+            const isSoldOut = ttWithLimit.length > 0 && ttWithLimit.every(t => (t.quantity_sold ?? 0) >= (t.quantity ?? 0))
             return {
               id:           String(row.id),
               title:        (row.title as string) ?? '',
@@ -463,7 +545,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
               date:         d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '',
               time:         d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
               color:        GENRE_COLORS[(row.genre as string)] ?? '#9E9E9E',
-              isSoldOut:    false,
+              isSoldOut,
             } satisfies RoleonEvent
           }))
         }
@@ -471,7 +553,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       })
   }, [userId])
 
-  // Safe area
   useEffect(() => {
     const el = document.createElement('div')
     el.style.cssText = 'position:fixed;left:0;top:0;height:env(safe-area-inset-top,0px);pointer-events:none;visibility:hidden;'
@@ -480,7 +561,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     document.documentElement.removeChild(el)
   }, [])
 
-  // Geolocalização
   useEffect(() => {
     if (!navigator.geolocation) return
     navigator.geolocation.getCurrentPosition(
@@ -489,7 +569,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     )
   }, [])
 
-  // Auth
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setAuthed(!!data.session)
@@ -503,60 +582,21 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     return () => subscription.unsubscribe()
   }, [])
 
-  // Inicializar mapa Mapbox
-  useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return
-
-    const map = new mapboxgl.Map({
-      container: mapRef.current,
-      style: 'mapbox://styles/caduraimundo/cmpq5eipg004q01s02b6n1lkj',
-      center: [OURO_PRETO_CENTER.lng, OURO_PRETO_CENTER.lat],
-      zoom: 15,
-      attributionControl: false,
-    })
-    mapInstanceRef.current = map
-
-    // Marker do usuário
-    if (navigator.geolocation) {
-      const watchId = navigator.geolocation.watchPosition(
-        ({ coords }) => {
-          if (!mapInstanceRef.current) return
-          const pos: [number, number] = [coords.longitude, coords.latitude]
-          userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
-
-          if (!mapCenteredRef.current) {
-            map.flyTo({ center: pos, zoom: 15 })
-            mapCenteredRef.current = true
-          }
-
-          if (!userMarkerRef.current) {
-            const el = document.createElement('div')
-            el.style.cssText = `width:14px;height:14px;border-radius:50%;background:${PRIMARY};border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.28);`
-            userMarkerRef.current = new mapboxgl.Marker({ element: el })
-              .setLngLat(pos)
-              .addTo(map)
-          } else {
-            userMarkerRef.current.setLngLat(pos)
-          }
-        },
-        () => {},
-        { enableHighAccuracy: true },
-      )
-      return () => {
-        navigator.geolocation.clearWatch(watchId)
-        map.remove()
-        mapInstanceRef.current = null
-      }
+  const handleTabChange = (tab: TabId) => {
+    if (tab !== 'explorar' && !authed) {
+      try { sessionStorage.setItem('auth-redirect-tab', tab) } catch {}
+      setShowAuth(true)
+      return
     }
+    if (tab === 'ingressos') { router.push('/ingressos'); return }
+    if (tab === 'perfil') { router.push('/perfil'); return }
+    setActiveTab(tab)
+  }
 
-    return () => {
-      map.remove()
-      mapInstanceRef.current = null
-    }
-  }, [])
-
-  // Filtrar eventos
   const filteredEvents = events.filter((ev) => {
+    if (activeChip === 'Grátis' && ev.price > 0) return false
+    if (activeChip && !['Hoje', 'Grátis'].includes(activeChip) &&
+        ev.genre.toLowerCase() !== activeChip.toLowerCase()) return false
     if (filterGenres.length > 0) {
       const match = filterGenres.some(g =>
         (ev.genre || '').toLowerCase().includes(g.toLowerCase()) ||
@@ -573,92 +613,178 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   const activeEvent = filteredEvents.find((e) => e.id === activePin) ?? null
   const hasActiveFilter = filterGenres.length > 0 || !!(filterPreco || filterDate)
 
-  // Renderizar pins dos eventos
+  // Inicializa o mapa + marcador de localização do usuário
   useEffect(() => {
-    const map = mapInstanceRef.current
-    if (!map) return
+    if (!mapRef.current || mapInstanceRef.current) return
 
-    const renderMarkers = () => {
-      // Remove markers de eventos que saíram da lista filtrada
-      markersRef.current.forEach((marker, id) => {
-        if (!filteredEvents.find(e => e.id === id)) {
-          marker.remove()
-          markersRef.current.delete(id)
+    const map = new google.maps.Map(mapRef.current, {
+      center: OURO_PRETO_CENTER, zoom: 15,
+      styles: LIGHT_MAP_STYLE,
+      disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
+    })
+    mapInstanceRef.current = map
+
+    if (!navigator.geolocation) return
+
+    const dot = document.createElement('div')
+    dot.style.cssText = 'position:absolute;pointer-events:none;'
+    dot.innerHTML = '<div style="width:14px;height:14px;border-radius:50%;background:#0EA5A0;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.28);transform:translate(-50%,-50%);"></div>'
+
+    let userPos: google.maps.LatLng | null = null
+    class UserDot extends google.maps.OverlayView {
+      onAdd()    { this.getPanes()!.floatPane.appendChild(dot) }
+      draw()     { const projection = this.getProjection(); if (!projection || !userPos) return; try { const p = projection.fromLatLngToDivPixel(userPos); if (p) { dot.style.left=`${p.x}px`; dot.style.top=`${p.y}px` } } catch (e) { console.warn('UserDot draw error:', e) } }
+      onRemove() { dot.parentNode?.removeChild(dot) }
+    }
+    const dotOverlay = new UserDot()
+
+    const watchId = navigator.geolocation.watchPosition(
+      ({ coords }) => {
+        try {
+          userPos = new google.maps.LatLng(coords.latitude, coords.longitude)
+          userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
+          if (!mapCenteredRef.current && mapInstanceRef.current) {
+            mapInstanceRef.current.panTo(userPos)
+            mapCenteredRef.current = true
+          }
+          if (!locationSavedRef.current) {
+            locationSavedRef.current = true
+            fetch('/api/profile/update-location', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ lat: coords.latitude, lng: coords.longitude }),
+            }).catch(() => {})
+          }
+          if (!dotOverlay.getMap()) dotOverlay.setMap(map)
+          dotOverlay.draw()
+        } catch (e) {
+          console.warn('Geolocation error:', e)
         }
-      })
+      },
+      () => {},
+      { enableHighAccuracy: true },
+    )
 
-      filteredEvents.forEach((ev) => {
-        if (!ev.lat || !ev.lng) return
+    return () => {
+      navigator.geolocation.clearWatch(watchId)
+      dotOverlay.setMap(null)
+    }
+  }, [])
 
-        const isActive = ev.id === activePin
-        const soldOut  = !!ev.isSoldOut
-        const pinBg    = soldOut ? '#6E6E73' : (isActive ? PRIMARY : '#fff')
-        const pinText  = soldOut ? '#fff'    : (isActive ? '#fff'   : TEXT)
-        const pinShadow = isActive && !soldOut
-          ? `0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px ${PRIMARY}`
-          : '0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'
+  // Renderiza pins
+  useEffect(() => {
+    if (!mapInstanceRef.current || !window.google) return
 
-        const existing = markersRef.current.get(ev.id)
+    // Limpa clusterer anterior antes de recriar
+    clustererRef.current?.clearMarkers()
+    clustererRef.current = null
 
-        if (existing) {
-          // Atualiza visual do marker existente
-          const el = existing.getElement()
-          el.querySelector('div')!.style.background = pinBg
-          el.querySelector('div')!.style.color = pinText
-          el.querySelector('div')!.style.boxShadow = pinShadow
-          return
+    // Remove overlays e ghost markers de eventos que saíram da lista
+    overlayRefs.current.forEach((_, id) => {
+      if (!filteredEvents.find((e) => e.id === id)) {
+        overlayRefs.current.get(id)?.overlay.setMap(null)
+        overlayRefs.current.delete(id)
+        markerRefs.current.get(id)?.setMap(null)
+        markerRefs.current.delete(id)
+      }
+    })
+
+    const allMarkers: google.maps.Marker[] = []
+
+    filteredEvents.forEach((ev) => {
+      const position = new google.maps.LatLng(ev.lat, ev.lng)
+      const isActive = ev.id === activePin
+
+      if (!overlayRefs.current.has(ev.id)) {
+        const container = document.createElement('div')
+        container.style.cssText = 'position:absolute;'
+        class PinOverlay extends google.maps.OverlayView {
+          onAdd()    { this.getPanes()?.overlayMouseTarget.appendChild(container) }
+          draw()     { const projection = this.getProjection(); if (!projection) return; const p = projection.fromLatLngToDivPixel(position); if (p) { container.style.left=`${p.x}px`; container.style.top=`${p.y}px` } }
+          onRemove() { container.parentNode?.removeChild(container) }
         }
+        const overlay = new PinOverlay()
+        overlay.setMap(mapInstanceRef.current)
+        overlayRefs.current.set(ev.id, { overlay, container })
+      }
 
-        const el = document.createElement('div')
-        el.innerHTML = `
+      const { container } = overlayRefs.current.get(ev.id)!
+      const soldOut = !!ev.isSoldOut
+      const pinBg = soldOut ? '#6E6E73' : (isActive ? PRIMARY : '#fff')
+      const pinText = soldOut ? '#fff' : (isActive ? '#fff' : TEXT)
+      const pinShadow = isActive && !soldOut
+        ? `0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px ${PRIMARY}`
+        : '0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'
+      container.innerHTML = `
+        <button data-ev="${ev.id}" style="
+          transform:translate(-50%,-100%) ${isActive?'scale(1.06)':'scale(1)'};
+          transition:transform 280ms cubic-bezier(.2,.9,.3,1.4);
+          background:transparent;border:0;padding:0;cursor:pointer;outline:none;
+          display:inline-flex;flex-direction:column;align-items:center;">
           <div style="
             background:${pinBg};color:${pinText};
-            padding:7px 11px;border-radius:999px;
+            padding:7px 11px 7px 8px;border-radius:999px;
             font-family:'Noto Sans',sans-serif;font-size:12.5px;font-weight:700;
-            display:flex;flex-direction:column;align-items:center;gap:2px;
-            white-space:nowrap;line-height:1;cursor:pointer;
-            box-shadow:${pinShadow};
-            transform:${isActive ? 'scale(1.06)' : 'scale(1)'};
-            transition:transform 280ms cubic-bezier(.2,.9,.3,1.4);
-          ">
+            display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;line-height:1;
+            box-shadow:${pinShadow};">
             <span>${ev.price === 0 ? 'Grátis' : `R$${ev.price}`}</span>
             ${soldOut ? '<span style="font-size:9px;font-weight:600;letter-spacing:0.3px;">Esgotado</span>' : ''}
           </div>
-        `
-        el.addEventListener('click', () => setActivePin(prev => prev === ev.id ? null : ev.id))
+          <div style="width:8px;height:8px;background:${pinBg};
+            transform:rotate(45deg);margin-top:-4px;
+            box-shadow:${isActive&&!soldOut?'none':'1.5px 1.5px 3px rgba(0,0,0,0.08)'};"></div>
+        </button>`
 
-        const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
-          .setLngLat([ev.lng, ev.lat])
-          .addTo(map)
+      const btn = container.querySelector('button')
+      if (btn) btn.onclick = () => setActivePin((prev) => (prev === ev.id ? null : ev.id))
 
-        markersRef.current.set(ev.id, marker)
+      // Ghost marker invisível — só para o MarkerClusterer calcular grupos
+      if (!markerRefs.current.has(ev.id)) {
+        const marker = new google.maps.Marker({ position, visible: false, optimized: false })
+        markerRefs.current.set(ev.id, marker)
+      }
+      allMarkers.push(markerRefs.current.get(ev.id)!)
+    })
+
+    // Sincroniza visibilidade das OverlayViews com o estado do clustering
+    const syncOverlays = () => {
+      markerRefs.current.forEach((marker, id) => {
+        const entry = overlayRefs.current.get(id)
+        if (!entry) return
+        entry.overlay.setMap(marker.getMap() ? mapInstanceRef.current : null)
       })
     }
 
-    if (map.isStyleLoaded()) {
-      renderMarkers()
-    } else {
-      map.once('load', renderMarkers)
+    const clusterer = new MarkerClusterer({
+      map: mapInstanceRef.current,
+      markers: allMarkers,
+      renderer: {
+        render: ({ count, position, markers }) => {
+          const total = markers?.length ?? count
+          return new google.maps.Marker({
+            position,
+            icon: {
+              url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="20" fill="#0EA5A0"/><text x="20" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="600" fill="white">${total}</text></svg>`)}`,
+              scaledSize: new google.maps.Size(40, 40),
+            },
+            zIndex: 1000,
+          })
+        },
+      },
+    })
+    clustererRef.current = clusterer
+    google.maps.event.addListener(clusterer, 'clusteringend', syncOverlays)
+
+    return () => {
+      clustererRef.current?.clearMarkers()
+      clustererRef.current = null
     }
   }, [filteredEvents, activePin])
 
-  // Limpa activePin se o evento sair da lista filtrada
   useEffect(() => {
-    if (activePin && !filteredEvents.find(e => e.id === activePin)) setActivePin(null)
+    if (activePin && !filteredEvents.find((e) => e.id === activePin)) setActivePin(null)
   }, [filteredEvents, activePin])
 
-  const handleTabChange = (tab: TabId) => {
-    if (tab !== 'explorar' && !authed) {
-      try { sessionStorage.setItem('auth-redirect-tab', tab) } catch {}
-      setShowAuth(true)
-      return
-    }
-    if (tab === 'ingressos') { router.push('/ingressos'); return }
-    if (tab === 'perfil') { router.push('/perfil'); return }
-    setActiveTab(tab)
-  }
-
-  // Busca com Mapbox Geocoding
   const handleSearch = useCallback(async (value: string) => {
     setSearchValue(value)
     if (!value.trim()) {
@@ -666,23 +792,22 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
       setShowSuggestions(false)
       return
     }
-
     const eventMatches = events
       .filter(e => e.title.toLowerCase().includes(value.toLowerCase()))
       .slice(0, 3)
       .map(e => ({ id: e.id, title: e.title, lat: e.lat, lng: e.lng }))
 
     try {
-      const res = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(value)}.json?country=br&types=place,locality,district&limit=3&access_token=${process.env.NEXT_PUBLIC_MAPBOX_TOKEN}`
-      )
-      const data = await res.json()
-      const placeMatches = (data.features || []).map((f: any) => ({
-        name: f.place_name,
-        lat: typeof f.center[1] === 'number' ? f.center[1] : NaN,
-        lng: typeof f.center[0] === 'number' ? f.center[0] : NaN,
-      })).filter((p: any) => !isNaN(p.lat) && !isNaN(p.lng))
-
+      const { AutocompleteSuggestion } = await (window as any).google.maps.importLibrary('places')
+      const { suggestions: placeSuggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions({
+        input: value,
+        includedPrimaryTypes: ['locality', 'administrative_area_level_2'],
+        includedRegionCodes: ['br'],
+      })
+      const placeMatches = placeSuggestions.slice(0, 3).map((s: any) => ({
+        description: s.placePrediction.text.toString(),
+        place_id: s.placePrediction.placeId,
+      }))
       setSuggestions({ places: placeMatches, events: eventMatches })
       setShowSuggestions(placeMatches.length > 0 || eventMatches.length > 0)
     } catch {
@@ -691,20 +816,27 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
     }
   }, [events])
 
-  const handleSelectPlace = useCallback((lat: number, lng: number) => {
-    if (isNaN(lat) || isNaN(lng)) return
-    mapInstanceRef.current?.flyTo({ center: [lng, lat], zoom: 13 })
+  const handleSelectPlace = useCallback(async (placeId: string) => {
+    try {
+      const { Place } = await (window as any).google.maps.importLibrary('places')
+      const place = new Place({ id: placeId })
+      await place.fetchFields({ fields: ['location'] })
+      if (place.location) {
+        mapInstanceRef.current?.panTo(place.location)
+        mapInstanceRef.current?.setZoom(14)
+      }
+    } catch {}
     setShowSuggestions(false)
     setSearchValue('')
   }, [])
 
   const handleSelectEvent = useCallback((eventId: string, lat: number, lng: number) => {
-    if (isNaN(lat) || isNaN(lng)) return
-    mapInstanceRef.current?.flyTo({ center: [lng, lat], zoom: 16 })
+    mapInstanceRef.current?.panTo({ lat, lng })
+    mapInstanceRef.current?.setZoom(16)
     setActivePin(eventId)
     setShowSuggestions(false)
     setSearchValue('')
-  }, [])
+  }, [events])
 
   const handleViewDetail = useCallback(() => {
     if (!activeEvent) return
@@ -725,18 +857,8 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
         pointerEvents: 'none',
       }}>
         <div style={{ pointerEvents: 'auto' }}>
-          <SearchBar
-            safeTop={safeTop}
-            hasActiveFilter={hasActiveFilter}
-            onFilterOpen={() => setShowFilter(true)}
-            distance={distance}
-            setDistance={setDistance}
-            searchValue={searchValue}
-            onSearchChange={handleSearch}
-          />
+          <SearchBar safeTop={safeTop} hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} searchValue={searchValue} onSearchChange={handleSearch} />
         </div>
-
-        {/* Dropdown de sugestões */}
         {showSuggestions && (
           <div style={{
             position: 'absolute',
@@ -748,13 +870,13 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
             zIndex: 1000,
             overflow: 'hidden',
             fontFamily: "'Noto Sans', sans-serif",
-            pointerEvents: 'auto',
           }}>
             {suggestions.events.length > 0 && (
               <>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#6E6E73', padding: '8px 16px 4px', textTransform: 'uppercase', letterSpacing: 0.5 }}>Eventos</div>
                 {suggestions.events.map(ev => (
                   <div key={ev.id}
+                    onClick={() => handleSelectEvent(ev.id, ev.lat, ev.lng)}
                     onPointerDown={() => handleSelectEvent(ev.id, ev.lat, ev.lng)}
                     style={{ padding: '10px 16px', fontSize: 14, color: '#1A1A1A', cursor: 'pointer', borderBottom: '0.5px solid #F2F2F2' }}>
                     {ev.title}
@@ -765,11 +887,12 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
             {suggestions.places.length > 0 && (
               <>
                 <div style={{ fontSize: 11, fontWeight: 700, color: '#6E6E73', padding: '8px 16px 4px', textTransform: 'uppercase', letterSpacing: 0.5 }}>Lugares</div>
-                {suggestions.places.map((pl, i) => (
-                  <div key={i}
-                    onPointerDown={() => handleSelectPlace(pl.lat, pl.lng)}
+                {suggestions.places.map(pl => (
+                  <div key={pl.place_id}
+                    onClick={() => handleSelectPlace(pl.place_id)}
+                    onPointerDown={() => handleSelectPlace(pl.place_id)}
                     style={{ padding: '10px 16px', fontSize: 14, color: '#1A1A1A', cursor: 'pointer', borderBottom: '0.5px solid #F2F2F2' }}>
-                    {pl.name}
+                    {pl.description}
                   </div>
                 ))}
               </>
@@ -825,16 +948,10 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
           <button
             onClick={() => {
               if (userLocationRef.current) {
-                mapInstanceRef.current?.flyTo({
-                  center: [userLocationRef.current.lng, userLocationRef.current.lat],
-                  zoom: 15,
-                })
+                mapInstanceRef.current?.panTo(userLocationRef.current)
               } else {
                 navigator.geolocation?.getCurrentPosition((p) =>
-                  mapInstanceRef.current?.flyTo({
-                    center: [p.coords.longitude, p.coords.latitude],
-                    zoom: 15,
-                  })
+                  mapInstanceRef.current?.panTo({ lat: p.coords.latitude, lng: p.coords.longitude })
                 )
               }
             }}
