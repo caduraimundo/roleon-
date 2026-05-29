@@ -62,8 +62,8 @@ export default function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
     <div style={{
       position: 'fixed', left: 0, right: 0, bottom: 0,
       background: '#ffffff', borderTop: '0.5px solid #EAEAEA',
-      paddingTop: 6,
-      paddingBottom: 'calc(12px + env(safe-area-inset-bottom, 0px))',
+      paddingTop: '10px',
+      paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))',
       display: 'flex', zIndex: 50,
       boxShadow: '0 -4px 14px rgba(0,0,0,0.04)',
     }}>
