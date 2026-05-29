@@ -482,7 +482,7 @@ interface MapClientProps {
   bottomNavHeight?: number
 }
 
-export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapClientProps) {
+export default function MapClient({ onEventSelect, bottomNavHeight = 80 }: MapClientProps) {
   const router         = useRouter()
   const mapRef         = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
