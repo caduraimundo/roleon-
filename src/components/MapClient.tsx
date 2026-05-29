@@ -880,6 +880,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
             borderRadius: 12,
             boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
             zIndex: 1000,
+            pointerEvents: 'auto',
             overflow: 'hidden',
             fontFamily: "'Noto Sans', sans-serif",
           }}>
