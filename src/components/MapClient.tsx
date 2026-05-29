@@ -488,7 +488,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   const mapRef         = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const overlayRefs    = useRef<Map<string, { overlay: any; container: HTMLDivElement }>>(new Map())
-  const markerRefs     = useRef<Map<string, google.maps.marker.AdvancedMarkerElement>>(new Map())
+  const markerRefs     = useRef<Map<string, google.maps.Marker>>(new Map())
   const clustererRef   = useRef<MarkerClusterer | null>(null)
   const userLocationRef = useRef<{ lat: number; lng: number } | null>(null)
   const locationSavedRef = useRef(false)
@@ -629,7 +629,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       const map = new google.maps.Map(mapRef.current!, {
         center: OURO_PRETO_CENTER, zoom: 15,
         styles: LIGHT_MAP_STYLE,
-        mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
         disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
       })
       mapInstanceRef.current = map
@@ -696,12 +695,12 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       if (!filteredEvents.find((e) => e.id === id)) {
         overlayRefs.current.get(id)?.overlay.setMap(null)
         overlayRefs.current.delete(id)
-        const m = markerRefs.current.get(id); if (m) m.map = null
+        markerRefs.current.get(id)?.setMap(null)
         markerRefs.current.delete(id)
       }
     })
 
-    const allMarkers: google.maps.marker.AdvancedMarkerElement[] = []
+    const allMarkers: google.maps.Marker[] = []
 
     filteredEvents.forEach((ev) => {
       const position = new google.maps.LatLng(ev.lat, ev.lng)
@@ -752,9 +751,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
 
       // Ghost marker invisível — só para o MarkerClusterer calcular grupos
       if (!markerRefs.current.has(ev.id)) {
-        const ghostDiv = document.createElement('div')
-        ghostDiv.style.display = 'none'
-        const marker = new google.maps.marker.AdvancedMarkerElement({ position, content: ghostDiv })
+        const marker = new google.maps.Marker({ position, visible: false, optimized: false })
         markerRefs.current.set(ev.id, marker)
       }
       allMarkers.push(markerRefs.current.get(ev.id)!)
@@ -765,7 +762,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       markerRefs.current.forEach((marker, id) => {
         const entry = overlayRefs.current.get(id)
         if (!entry) return
-        entry.overlay.setMap(marker.map ? mapInstanceRef.current : null)
+        entry.overlay.setMap(marker.getMap() ? mapInstanceRef.current : null)
       })
     }
 
@@ -775,11 +772,12 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       renderer: {
         render: ({ count, position, markers }) => {
           const total = markers?.length ?? count
-          const clusterDiv = document.createElement('div')
-          clusterDiv.innerHTML = `<div style="width:40px;height:40px;border-radius:50%;background:#0EA5A0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;">${total}</div>`
-          return new google.maps.marker.AdvancedMarkerElement({
+          return new google.maps.Marker({
             position,
-            content: clusterDiv,
+            icon: {
+              url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><circle cx="20" cy="20" r="20" fill="#0EA5A0"/><text x="20" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="600" fill="white">${total}</text></svg>`)}`,
+              scaledSize: new google.maps.Size(40, 40),
+            },
             zIndex: 1000,
           })
         },
