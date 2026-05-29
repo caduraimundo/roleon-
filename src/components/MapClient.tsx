@@ -619,58 +619,66 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 64 }: MapCl
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return
 
-    const map = new google.maps.Map(mapRef.current, {
-      center: OURO_PRETO_CENTER, zoom: 15,
-      styles: LIGHT_MAP_STYLE,
-      disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
-    })
-    mapInstanceRef.current = map
+    const initMap = () => {
+      if (!window.google?.maps?.Map) {
+        setTimeout(initMap, 100)
+        return
+      }
 
-    if (!navigator.geolocation) return
+      const map = new google.maps.Map(mapRef.current!, {
+        center: OURO_PRETO_CENTER, zoom: 15,
+        styles: LIGHT_MAP_STYLE,
+        disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
+      })
+      mapInstanceRef.current = map
 
-    const dot = document.createElement('div')
-    dot.style.cssText = 'position:absolute;pointer-events:none;'
-    dot.innerHTML = '<div style="width:14px;height:14px;border-radius:50%;background:#0EA5A0;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.28);transform:translate(-50%,-50%);"></div>'
+      if (!navigator.geolocation) return
 
-    let userPos: google.maps.LatLng | null = null
-    class UserDot extends google.maps.OverlayView {
-      onAdd()    { this.getPanes()!.floatPane.appendChild(dot) }
-      draw()     { const projection = this.getProjection(); if (!projection || !userPos) return; try { const p = projection.fromLatLngToDivPixel(userPos); if (p) { dot.style.left=`${p.x}px`; dot.style.top=`${p.y}px` } } catch (e) { console.warn('UserDot draw error:', e) } }
-      onRemove() { dot.parentNode?.removeChild(dot) }
-    }
-    const dotOverlay = new UserDot()
+      const dot = document.createElement('div')
+      dot.style.cssText = 'position:absolute;pointer-events:none;'
+      dot.innerHTML = '<div style="width:14px;height:14px;border-radius:50%;background:#0EA5A0;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.28);transform:translate(-50%,-50%);"></div>'
 
-    const watchId = navigator.geolocation.watchPosition(
-      ({ coords }) => {
-        try {
-          userPos = new google.maps.LatLng(coords.latitude, coords.longitude)
-          userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
-          if (!mapCenteredRef.current && mapInstanceRef.current) {
-            mapInstanceRef.current.panTo(userPos)
-            mapCenteredRef.current = true
+      let userPos: google.maps.LatLng | null = null
+      class UserDot extends google.maps.OverlayView {
+        onAdd()    { this.getPanes()!.floatPane.appendChild(dot) }
+        draw()     { const projection = this.getProjection(); if (!projection || !userPos) return; try { const p = projection.fromLatLngToDivPixel(userPos); if (p) { dot.style.left=`${p.x}px`; dot.style.top=`${p.y}px` } } catch (e) { console.warn('UserDot draw error:', e) } }
+        onRemove() { dot.parentNode?.removeChild(dot) }
+      }
+      const dotOverlay = new UserDot()
+
+      const watchId = navigator.geolocation.watchPosition(
+        ({ coords }) => {
+          try {
+            userPos = new google.maps.LatLng(coords.latitude, coords.longitude)
+            userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
+            if (!mapCenteredRef.current && mapInstanceRef.current) {
+              mapInstanceRef.current.panTo(userPos)
+              mapCenteredRef.current = true
+            }
+            if (!locationSavedRef.current) {
+              locationSavedRef.current = true
+              fetch('/api/profile/update-location', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lat: coords.latitude, lng: coords.longitude }),
+              }).catch(() => {})
+            }
+            if (!dotOverlay.getMap()) dotOverlay.setMap(map)
+            dotOverlay.draw()
+          } catch (e) {
+            console.warn('Geolocation error:', e)
           }
-          if (!locationSavedRef.current) {
-            locationSavedRef.current = true
-            fetch('/api/profile/update-location', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ lat: coords.latitude, lng: coords.longitude }),
-            }).catch(() => {})
-          }
-          if (!dotOverlay.getMap()) dotOverlay.setMap(map)
-          dotOverlay.draw()
-        } catch (e) {
-          console.warn('Geolocation error:', e)
-        }
-      },
-      () => {},
-      { enableHighAccuracy: true },
-    )
+        },
+        () => {},
+        { enableHighAccuracy: true },
+      )
 
-    return () => {
-      navigator.geolocation.clearWatch(watchId)
-      dotOverlay.setMap(null)
+      return () => {
+        navigator.geolocation.clearWatch(watchId)
+        dotOverlay.setMap(null)
+      }
     }
+    initMap()
   }, [])
 
   // Renderiza pins
