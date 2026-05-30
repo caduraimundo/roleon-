@@ -573,6 +573,24 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   }, [])
 
   useEffect(() => {
+    const map = mapInstanceRef.current
+    if (!map) return
+    const listener = map.addListener('idle', () => {
+      try {
+        const center = map.getCenter()
+        const zoom = map.getZoom()
+        if (center) localStorage.setItem('map-position', JSON.stringify({
+          lat: center.lat(), lng: center.lng(), zoom: zoom ?? 15,
+          searchCenterLat: searchCenter?.lat ?? null,
+          searchCenterLng: searchCenter?.lng ?? null,
+          savedAt: Date.now(),
+        }))
+      } catch {}
+    })
+    return () => google.maps.event.removeListener(listener)
+  }, [mapInstanceRef.current, searchCenter])
+
+  useEffect(() => {
     if (!navigator.geolocation) return
     navigator.geolocation.getCurrentPosition(
       (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
@@ -716,7 +734,20 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         }
       }
 
-      const savedMap = (() => { try { const s = sessionStorage.getItem('map-restore'); if (s) { sessionStorage.removeItem('map-restore'); return JSON.parse(s) } } catch {} return null })()
+      const savedMap = (() => {
+        try {
+          const s = sessionStorage.getItem('map-restore')
+          if (s) { sessionStorage.removeItem('map-restore'); return JSON.parse(s) }
+          const ls = localStorage.getItem('map-position')
+          if (ls) {
+            const parsed = JSON.parse(ls)
+            const age = Date.now() - (parsed.savedAt ?? 0)
+            if (age < 15 * 60 * 1000) return parsed
+            localStorage.removeItem('map-position')
+          }
+        } catch {}
+        return null
+      })()
       if (savedMap) {
         createMap({ lat: savedMap.lat, lng: savedMap.lng })
         setTimeout(() => { mapInstanceRef.current?.setZoom(savedMap.zoom) }, 100)
@@ -937,11 +968,16 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     try {
       const center = mapInstanceRef.current?.getCenter()
       const zoom = mapInstanceRef.current?.getZoom()
-      if (center) sessionStorage.setItem('map-restore', JSON.stringify({
-        lat: center.lat(), lng: center.lng(), zoom: zoom ?? 15,
-        searchCenterLat: searchCenter?.lat ?? null,
-        searchCenterLng: searchCenter?.lng ?? null,
-      }))
+      if (center) {
+        const payload = JSON.stringify({
+          lat: center.lat(), lng: center.lng(), zoom: zoom ?? 15,
+          searchCenterLat: searchCenter?.lat ?? null,
+          searchCenterLng: searchCenter?.lng ?? null,
+          savedAt: Date.now(),
+        })
+        sessionStorage.setItem('map-restore', payload)
+        localStorage.setItem('map-position', payload)
+      }
     } catch {}
     router.push(`/evento/${activeEvent.id}`)
   }, [activeEvent, onEventSelect, router])
