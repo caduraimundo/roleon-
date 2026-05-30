@@ -244,8 +244,8 @@ interface MapHintProps {
     id: string
     title: string
     genre?: string
-    location_lat?: number
-    location_lng?: number
+    lat?: number
+    lng?: number
     price?: number
     is_free?: boolean
     cover_image?: string
@@ -263,10 +263,10 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
   const sorted = useMemo(() => {
     if (!userLocation) return events
     return [...events]
-      .filter(ev => ev.location_lat && ev.location_lng)
+      .filter(ev => ev.lat && ev.lng)
       .map(ev => ({
         ...ev,
-        _dist: haversineKm(userLocation.lat, userLocation.lng, ev.location_lat!, ev.location_lng!),
+        _dist: haversineKm(userLocation.lat, userLocation.lng, ev.lat!, ev.lng!),
       }))
       .sort((a, b) => a._dist - b._dist)
   }, [events, userLocation])

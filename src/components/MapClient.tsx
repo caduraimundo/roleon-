@@ -1045,8 +1045,8 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
               const ev = filteredEvents.find(e => e.id === id)
               if (ev) {
                 setActivePin(id)
-                if (ev.location_lat && ev.location_lng) {
-                  mapInstanceRef.current?.panTo({ lat: ev.location_lat, lng: ev.location_lng })
+                if (ev.lat && ev.lng) {
+                  mapInstanceRef.current?.panTo({ lat: ev.lat, lng: ev.lng })
                   mapInstanceRef.current?.setZoom(16)
                 }
               }
