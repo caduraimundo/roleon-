@@ -311,10 +311,23 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
                 : <span style={{ fontSize: 10, fontWeight: 700, color: '#0EA5A0' }}>{current.genre?.toUpperCase() ?? 'EVENTO'}</span>}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              {current.genre && <div style={{ fontSize: 10, fontWeight: 700, color: '#0EA5A0', letterSpacing: 0.5, marginBottom: 2 }}>{current.genre.toUpperCase()}</div>}
+              {current.genre && (
+                <div style={{ display: 'inline-flex', marginBottom: 6 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#0EA5A0', letterSpacing: 0.5, background: '#E6F7F6', borderRadius: 999, padding: '2px 8px' }}>
+                    {current.genre.toUpperCase()}
+                  </span>
+                </div>
+              )}
               <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', lineHeight: 1.3, marginBottom: 4 }}>{current.title}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                {distLabel && <span style={{ fontSize: 11.5, color: '#6E6E73' }}>{distLabel}</span>}
+                {distLabel && (
+                  <span style={{ fontSize: 11.5, color: '#6E6E73', display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+                    </svg>
+                    {distLabel}
+                  </span>
+                )}
                 {dateLabel && <span style={{ fontSize: 11.5, color: '#6E6E73' }}>{dateLabel}</span>}
                 <span style={{ fontSize: 12, fontWeight: 700, color: '#0EA5A0', marginLeft: 'auto' }}>
                   {current.is_free ? 'Grátis' : `R$ ${Number(current.price ?? 0).toFixed(2).replace('.', ',')}`}
