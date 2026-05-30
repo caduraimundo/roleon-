@@ -28,6 +28,11 @@ export interface RoleonEvent {
   lng: number
   description?: string
   isSoldOut?: boolean
+  is_free?: boolean
+  cover_image?: string
+  event_date?: string
+  location_lat?: number
+  location_lng?: number
 }
 
 const T = {

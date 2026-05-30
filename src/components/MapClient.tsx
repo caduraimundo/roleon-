@@ -524,6 +524,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       .from('events')
       .select('*, ticket_types(id, quantity, quantity_sold)')
       .eq('status', 'active')
+      .gte('event_date', new Date().toISOString())
       .then(({ data, error }) => {
         if (error) {
           console.log('[MapClient] erro ao buscar eventos:', error.message, error.code)
@@ -550,6 +551,11 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
               time:         d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
               color:        GENRE_COLORS[(row.genre as string)] ?? '#9E9E9E',
               isSoldOut,
+              is_free:      (row.is_free as boolean) ?? false,
+              cover_image:  (row.cover_image as string) ?? '',
+              event_date:   (row.event_date as string) ?? '',
+              location_lat: (row.location_lat as number) ?? 0,
+              location_lng: (row.location_lng as number) ?? 0,
             } satisfies RoleonEvent
           }))
         }
