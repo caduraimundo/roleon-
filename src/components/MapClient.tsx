@@ -1042,7 +1042,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
 
       {/* Card de evento ou hint */}
       {activeEvent ? (
-        <PinSheet event={activeEvent} onClose={() => setActivePin(null)} onViewDetail={handleViewDetail} bottomNavHeight={bottomNavHeight} />
+        <PinSheet event={activeEvent} onClose={() => setActivePin(null)} onViewDetail={handleViewDetail} bottomNavHeight={bottomNavHeight} userLocation={userLocation} />
       ) : loading ? (
         <div style={{
           position: 'absolute', left: 16, right: 16, bottom: bottomNavHeight + 8,
