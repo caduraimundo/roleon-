@@ -1,5 +1,7 @@
 'use client'
 
+import { useState, useMemo } from 'react'
+
 function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371
   const dLat = (lat2 - lat1) * Math.PI / 180
@@ -254,42 +256,101 @@ interface MapHintProps {
   onExpandChange?: (expanded: boolean) => void
 }
 
-export function MapHint({ count, bottomNavHeight }: MapHintProps) {
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        left: 14,
-        right: 14,
-        bottom: bottomNavHeight + 24,
-        background: '#ffffff',
-        borderRadius: 14,
-        padding: '11px 14px',
-        boxShadow: '0 10px 28px rgba(0,0,0,0.10), 0 0 0 0.5px rgba(0,0,0,0.04)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        zIndex: 12,
-        fontFamily: "'Noto Sans', sans-serif",
-      }}
-    >
-      {/* Ícone circular */}
+export function MapHint({ count, bottomNavHeight, events, userLocation, onEventSelect, onExpandChange }: MapHintProps) {
+  const [expanded, setExpanded] = useState(false)
+  const [index, setIndex] = useState(0)
+
+  const sorted = useMemo(() => {
+    if (!userLocation) return events
+    return [...events]
+      .filter(ev => ev.location_lat && ev.location_lng)
+      .map(ev => ({
+        ...ev,
+        _dist: haversineKm(userLocation.lat, userLocation.lng, ev.location_lat!, ev.location_lng!),
+      }))
+      .sort((a, b) => a._dist - b._dist)
+  }, [events, userLocation])
+
+  const current = sorted[index]
+
+  const handleExpand = () => { setExpanded(true); setIndex(0); onExpandChange?.(true) }
+  const handleClose = () => { setExpanded(false); onExpandChange?.(false) }
+
+  if (expanded && current) {
+    const distLabel = (current as any)._dist != null
+      ? ((current as any)._dist < 1 ? ((current as any)._dist * 1000).toFixed(0) + ' m' : (current as any)._dist.toFixed(1) + ' km')
+      : null
+    const dateLabel = current.event_date
+      ? new Date(current.event_date.replace(' ', 'T')).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+      : null
+
+    return (
       <div style={{
-        width: 32, height: 32, borderRadius: 999,
-        background: '#E6F7F6',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: T.primary, flexShrink: 0,
+        position: 'absolute', left: 14, right: 14,
+        bottom: bottomNavHeight + 24,
+        background: '#fff', borderRadius: 14,
+        boxShadow: '0 10px 28px rgba(0,0,0,0.13), 0 0 0 0.5px rgba(0,0,0,0.05)',
+        zIndex: 12, fontFamily: "'Noto Sans', sans-serif", overflow: 'hidden',
       }}>
-        <IconCompass />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px 8px', borderBottom: '0.5px solid rgba(0,0,0,0.07)' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#6E6E73', letterSpacing: 0.6, textTransform: 'uppercase' }}>Perto de você</span>
+          <button onClick={handleClose} style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: '#6E6E73' }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+          </button>
+        </div>
+        <div style={{ padding: '12px 14px' }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+            <div style={{ width: 56, height: 56, borderRadius: 10, flexShrink: 0, background: '#E6F7F6', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {current.cover_image
+                ? <img src={current.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : <span style={{ fontSize: 10, fontWeight: 700, color: '#0EA5A0' }}>{current.genre?.toUpperCase() ?? 'EVENTO'}</span>}
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {current.genre && <div style={{ fontSize: 10, fontWeight: 700, color: '#0EA5A0', letterSpacing: 0.5, marginBottom: 2 }}>{current.genre.toUpperCase()}</div>}
+              <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', lineHeight: 1.3, marginBottom: 4 }}>{current.title}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                {distLabel && <span style={{ fontSize: 11.5, color: '#6E6E73' }}>{distLabel}</span>}
+                {dateLabel && <span style={{ fontSize: 11.5, color: '#6E6E73' }}>{dateLabel}</span>}
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#0EA5A0', marginLeft: 'auto' }}>
+                  {current.is_free ? 'Grátis' : `R$ ${Number(current.price ?? 0).toFixed(2).replace('.', ',')}`}
+                </span>
+              </div>
+            </div>
+          </div>
+          <button onClick={() => onEventSelect?.(current.id)} style={{ marginTop: 12, width: '100%', background: '#0EA5A0', color: '#fff', border: 0, borderRadius: 10, padding: '11px 0', fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
+            Ver evento
+          </button>
+        </div>
+        {sorted.length > 1 && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 14px 12px', borderTop: '0.5px solid rgba(0,0,0,0.07)' }}>
+            <button onClick={() => setIndex(i => Math.max(0, i - 1))} disabled={index === 0} style={{ border: 0, background: 'transparent', cursor: index === 0 ? 'default' : 'pointer', padding: 4, color: index === 0 ? '#C0C0C0' : '#1A1A1A' }}>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
+            <span style={{ fontSize: 12, color: '#6E6E73' }}>{index + 1} de {sorted.length}</span>
+            <button onClick={() => setIndex(i => Math.min(sorted.length - 1, i + 1))} disabled={index === sorted.length - 1} style={{ border: 0, background: 'transparent', cursor: index === sorted.length - 1 ? 'default' : 'pointer', padding: 4, color: index === sorted.length - 1 ? '#C0C0C0' : '#1A1A1A' }}>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M7 4l5 5-5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div onClick={handleExpand} style={{ position: 'absolute', left: 14, right: 14, bottom: bottomNavHeight + 24, background: '#ffffff', borderRadius: 14, padding: '11px 14px', boxShadow: '0 10px 28px rgba(0,0,0,0.10), 0 0 0 0.5px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', gap: 10, zIndex: 12, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
+      <div style={{ width: 32, height: 32, borderRadius: 999, background: '#E6F7F6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0EA5A0', flexShrink: 0 }}>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/>
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+        </svg>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: T.text }}>
-          {count} {count === 1 ? 'rolê' : 'rolês'} por perto
-        </div>
-        <div style={{ fontSize: 11.5, color: T.textDim, marginTop: 1 }}>
-          Toque num pin pra ver os detalhes
-        </div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{count} {count === 1 ? 'rolê' : 'rolês'} no mapa</div>
+        <div style={{ fontSize: 11.5, color: '#6E6E73', marginTop: 1 }}>Toque para ver os mais próximos</div>
       </div>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: '#6E6E73', flexShrink: 0 }}>
+        <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
     </div>
   )
 }
