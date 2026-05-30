@@ -1085,12 +1085,14 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           {/* FAB localização */}
           <button
             onClick={() => {
+              setSearchCenter(null)
+              try { localStorage.removeItem('map-position') } catch {}
               if (userLocationRef.current) {
                 mapInstanceRef.current?.panTo(userLocationRef.current)
               } else {
-                navigator.geolocation?.getCurrentPosition((p) =>
+                navigator.geolocation?.getCurrentPosition((p) => {
                   mapInstanceRef.current?.panTo({ lat: p.coords.latitude, lng: p.coords.longitude })
-                )
+                })
               }
             }}
             aria-label="Minha localização"
