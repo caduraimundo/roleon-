@@ -620,14 +620,20 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return
 
+    let cancelled = false
+    let retryTimer: ReturnType<typeof setTimeout> | null = null
+
     const initMap = () => {
+      if (cancelled || !mapRef.current) return
       if (!window.google?.maps?.Map) {
-        setTimeout(initMap, 100)
+        retryTimer = setTimeout(initMap, 100)
         return
       }
 
       const createMap = (initialCenter: { lat: number; lng: number }, knownPos?: { lat: number; lng: number }) => {
-        const map = new google.maps.Map(mapRef.current!, {
+        const mapDiv = mapRef.current
+        if (!mapDiv) return
+        const map = new google.maps.Map(mapDiv, {
           center: initialCenter, zoom: 15,
           mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
           disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
@@ -707,6 +713,10 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       }
     }
     initMap()
+    return () => {
+      cancelled = true
+      if (retryTimer !== null) clearTimeout(retryTimer)
+    }
   }, [])
 
   // Renderiza pins
