@@ -510,6 +510,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   const [distance,        setDistance]        = useState(10)
   const [searchValue,     setSearchValue]     = useState('')
   const [userLocation,    setUserLocation]    = useState<{ lat: number; lng: number } | null>(null)
+  const [searchCenter,    setSearchCenter]    = useState<{ lat: number; lng: number } | null>(null)
   const [safeTop,         setSafeTop]         = useState(56)
   const [suggestions, setSuggestions] = useState<{
     places: Array<{ description: string; place_id: string }>
@@ -614,8 +615,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       )
       if (!match) return false
     }
-    if (userLocation && ev.lat && ev.lng) {
-      if (haversineKm(userLocation.lat, userLocation.lng, ev.lat, ev.lng) > distance) return false
+    const distCenter = searchCenter ?? userLocation
+    if (distCenter && ev.lat && ev.lng) {
+      if (haversineKm(distCenter.lat, distCenter.lng, ev.lat, ev.lng) > distance) return false
     }
     if (filterDate) {
       if (!ev.event_date) return false
@@ -894,6 +896,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       if (place.location) {
         mapInstanceRef.current?.panTo(place.location)
         mapInstanceRef.current?.setZoom(14)
+        setSearchCenter({ lat: place.location.lat(), lng: place.location.lng() })
       }
     } catch {}
     setShowSuggestions(false)
