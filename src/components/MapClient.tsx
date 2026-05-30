@@ -862,10 +862,18 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     if (!value.trim()) {
       setSuggestions({ places: [], events: [] })
       setShowSuggestions(false)
+      setSearchCenter(null)
       return
     }
+    const distCenter = searchCenter ?? userLocation
     const eventMatches = events
-      .filter(e => e.title.toLowerCase().includes(value.toLowerCase()))
+      .filter(e => {
+        if (!e.title.toLowerCase().includes(value.toLowerCase())) return false
+        if (distCenter && e.lat && e.lng) {
+          return haversineKm(distCenter.lat, distCenter.lng, e.lat, e.lng) <= distance
+        }
+        return true
+      })
       .slice(0, 3)
       .map(e => ({ id: e.id, title: e.title, lat: e.lat, lng: e.lng }))
 
@@ -875,6 +883,13 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         input: value,
         includedPrimaryTypes: ['locality', 'administrative_area_level_2'],
         includedRegionCodes: ['br'],
+        locationBias: {
+          center: {
+            lat: searchCenter?.lat ?? userLocation?.lat ?? -20.3856,
+            lng: searchCenter?.lng ?? userLocation?.lng ?? -43.5035,
+          },
+          radius: 150000,
+        },
       })
       const placeMatches = placeSuggestions.slice(0, 3).map((s: any) => ({
         description: s.placePrediction.text.toString(),
@@ -886,7 +901,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       setSuggestions({ places: [], events: eventMatches })
       setShowSuggestions(eventMatches.length > 0)
     }
-  }, [events])
+  }, [events, searchCenter, userLocation, distance])
 
   const handleSelectPlace = useCallback(async (placeId: string) => {
     try {
