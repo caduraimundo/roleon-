@@ -482,7 +482,7 @@ export default function CheckoutPage() {
                     style={{
                       flex: 1, display: 'flex', flexDirection: 'column',
                       alignItems: 'center', gap: 6, padding: '14px 10px',
-                      borderRadius: 12,
+                      borderRadius: 12, minHeight: 96,
                       border: sel ? '2px solid #0EA5A0' : '1px solid #E8E8E8',
                       background: sel ? '#E6F7F6' : '#fff',
                       cursor: 'pointer', transition: 'all 150ms ease',
@@ -492,8 +492,8 @@ export default function CheckoutPage() {
                     <span style={{ fontSize: 14, fontWeight: 700, color: sel ? '#0EA5A0' : '#1A1A1A', fontFamily: "'Noto Sans', sans-serif" }}>
                       {method === 'pix' ? 'PIX' : 'Cartão'}
                     </span>
-                    <span style={{ fontSize: 11, color: '#8A8A8A', fontFamily: "'Noto Sans', sans-serif" }}>
-                      {method === 'pix' ? 'Aprovação imediata' : 'À vista ou parcelado em 6x'}
+                    <span style={{ fontSize: 11, color: '#8A8A8A', fontFamily: "'Noto Sans', sans-serif", textAlign: 'center' }}>
+                      {method === 'pix' ? 'Aprovação imediata' : 'Até 6x parcelado'}
                     </span>
                   </button>
                 )
