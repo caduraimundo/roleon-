@@ -1000,7 +1000,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
                 <circle cx="8" cy="14" r="2" stroke="currentColor" strokeWidth="1.7"/>
               </svg>
             </button>
-            {filterGenres.length > 0 && (
+            {hasActiveFilter && (
               <div style={{
                 position: 'absolute', top: -4, right: -4,
                 width: 18, height: 18, borderRadius: 999,
@@ -1010,7 +1010,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
                 fontFamily: "'Noto Sans', sans-serif",
                 pointerEvents: 'none',
               }}>
-                {filterGenres.length}
+                {filterGenres.length + (filterDate ? 1 : 0) + (filterPreco ? 1 : 0)}
               </div>
             )}
           </div>
