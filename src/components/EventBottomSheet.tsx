@@ -317,7 +317,7 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
               </div>
             </div>
           </div>
-          <button onClick={() => onEventSelect?.(current.id)} style={{ marginTop: 12, width: '100%', background: '#0EA5A0', color: '#fff', border: 0, borderRadius: 10, padding: '11px 0', fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
+          <button onClick={() => { onEventSelect?.(current.id); handleClose() }} style={{ marginTop: 12, width: '100%', background: '#0EA5A0', color: '#fff', border: 0, borderRadius: 10, padding: '11px 0', fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
             Ver evento
           </button>
         </div>
