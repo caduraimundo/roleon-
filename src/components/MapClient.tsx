@@ -883,13 +883,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         input: value,
         includedPrimaryTypes: ['locality', 'administrative_area_level_2'],
         includedRegionCodes: ['br'],
-        locationBias: {
-          center: {
-            lat: searchCenter?.lat ?? userLocation?.lat ?? -20.3856,
-            lng: searchCenter?.lng ?? userLocation?.lng ?? -43.5035,
-          },
-          radius: 150000,
-        },
       })
       const placeMatches = placeSuggestions.slice(0, 3).map((s: any) => ({
         description: s.placePrediction.text.toString(),
