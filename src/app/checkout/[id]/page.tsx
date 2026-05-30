@@ -493,7 +493,7 @@ export default function CheckoutPage() {
                       {method === 'pix' ? 'PIX' : 'Cartão'}
                     </span>
                     <span style={{ fontSize: 11, color: '#8A8A8A', fontFamily: "'Noto Sans', sans-serif" }}>
-                      {method === 'pix' ? 'Aprovação imediata' : 'Crédito à vista'}
+                      {method === 'pix' ? 'Aprovação imediata' : 'À vista ou parcelado em 6x'}
                     </span>
                   </button>
                 )
