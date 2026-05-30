@@ -500,6 +500,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   const [userId,          setUserId]          = useState<string | null>(null)
   const [showAuth,        setShowAuth]        = useState(false)
   const [activePin,       setActivePin]       = useState<string | null>(null)
+  const [nearbyExpanded,  setNearbyExpanded]  = useState(false)
   const [activeChip,      setActiveChip]      = useState<string | null>(null)
   const [activeTab,       setActiveTab]       = useState<TabId>('explorar')
   const [showFilter,      setShowFilter]      = useState(false)
@@ -952,7 +953,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       </div>
 
       {/* FABs: filtros + localização */}
-      {!activePin && (
+      {!activePin && !nearbyExpanded && (
         <div style={{
           position: 'absolute', right: 14,
           bottom: `calc(${bottomNavHeight + 95}px + env(safe-area-inset-bottom, 0px))`,
@@ -1035,7 +1036,23 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           Carregando rolês...
         </div>
       ) : (
-        <MapHint count={filteredEvents.length} bottomNavHeight={bottomNavHeight} />
+        <MapHint
+            count={filteredEvents.length}
+            bottomNavHeight={bottomNavHeight}
+            events={filteredEvents}
+            userLocation={userLocation}
+            onEventSelect={(id) => {
+              const ev = filteredEvents.find(e => e.id === id)
+              if (ev) {
+                setActivePin(id)
+                if (ev.location_lat && ev.location_lng) {
+                  mapInstanceRef.current?.panTo({ lat: ev.location_lat, lng: ev.location_lng })
+                  mapInstanceRef.current?.setZoom(16)
+                }
+              }
+            }}
+            onExpandChange={(exp) => setNearbyExpanded(exp)}
+          />
       )}
 
       {/* Filter sheet */}
