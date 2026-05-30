@@ -651,7 +651,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         class UserDot extends google.maps.OverlayView {
           onAdd()    { this.getPanes()!.floatPane.appendChild(dot) }
           draw()     { const projection = this.getProjection(); if (!projection || !userPos) return; try { const p = projection.fromLatLngToDivPixel(userPos); if (p) { dot.style.left=`${p.x}px`; dot.style.top=`${p.y}px` } } catch (e) { console.warn('UserDot draw error:', e) } }
-          onRemove() { dot.parentNode?.removeChild(dot) }
+          onRemove() { try { dot.parentNode?.removeChild(dot) } catch (e) { /* nó já removido */ } }
         }
         const dotOverlay = new UserDot()
 
