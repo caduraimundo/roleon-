@@ -721,6 +721,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         createMap({ lat: savedMap.lat, lng: savedMap.lng })
         setTimeout(() => { mapInstanceRef.current?.setZoom(savedMap.zoom) }, 100)
         mapCenteredRef.current = true
+        if (savedMap.searchCenterLat != null && savedMap.searchCenterLng != null) {
+          setSearchCenter({ lat: savedMap.searchCenterLat, lng: savedMap.searchCenterLng })
+        }
         return
       }
 
@@ -934,7 +937,11 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     try {
       const center = mapInstanceRef.current?.getCenter()
       const zoom = mapInstanceRef.current?.getZoom()
-      if (center) sessionStorage.setItem('map-restore', JSON.stringify({ lat: center.lat(), lng: center.lng(), zoom: zoom ?? 15 }))
+      if (center) sessionStorage.setItem('map-restore', JSON.stringify({
+        lat: center.lat(), lng: center.lng(), zoom: zoom ?? 15,
+        searchCenterLat: searchCenter?.lat ?? null,
+        searchCenterLng: searchCenter?.lng ?? null,
+      }))
     } catch {}
     router.push(`/evento/${activeEvent.id}`)
   }, [activeEvent, onEventSelect, router])
