@@ -124,9 +124,16 @@ interface PinSheetProps {
   onViewDetail: () => void
   /** Altura da BottomNav (px) para posicionar o card acima dela */
   bottomNavHeight: number
+  userLocation?: { lat: number; lng: number } | null
 }
 
-export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight }: PinSheetProps) {
+export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight, userLocation }: PinSheetProps) {
+  const distKm = userLocation && ev.location_lat && ev.location_lng
+    ? haversineKm(userLocation.lat, userLocation.lng, ev.location_lat, ev.location_lng)
+    : null
+  const distLabel = distKm != null
+    ? (distKm < 1 ? (distKm * 1000).toFixed(0) + ' m' : distKm.toFixed(1) + ' km')
+    : null
 
   return (
     <div
@@ -188,6 +195,14 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight }: 
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
               <IconClock /> {ev.time}
             </span>
+            {distLabel && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                </svg>
+                {distLabel}
+              </span>
+            )}
           </div>
         </div>
 
