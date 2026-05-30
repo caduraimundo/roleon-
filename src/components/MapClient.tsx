@@ -620,7 +620,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     if (filterDate) {
       if (!ev.event_date) return false
       const evDate = new Date(ev.event_date.replace(' ', 'T'))
-      const range = matchesDate(filterDate)
+      const range = getDateRange(filterDate)
       if (range) {
         if (evDate < new Date(range.gte)) return false
         if (range.lte && evDate > new Date(range.lte)) return false
