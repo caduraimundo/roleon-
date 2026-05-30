@@ -1,5 +1,13 @@
 'use client'
 
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2
+  return R * 2 * Math.asin(Math.sqrt(a))
+}
+
 // Tipagem do evento - adapte aos campos do seu banco de dados
 export interface RoleonEvent {
   id: string
@@ -230,6 +238,20 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight }: 
 interface MapHintProps {
   count: number
   bottomNavHeight: number
+  events: Array<{
+    id: string
+    title: string
+    genre?: string
+    location_lat?: number
+    location_lng?: number
+    price?: number
+    is_free?: boolean
+    cover_image?: string
+    event_date?: string
+  }>
+  userLocation?: { lat: number; lng: number } | null
+  onEventSelect?: (id: string) => void
+  onExpandChange?: (expanded: boolean) => void
 }
 
 export function MapHint({ count, bottomNavHeight }: MapHintProps) {
