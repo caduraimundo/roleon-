@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSmartBack } from '../../hooks/useSmartBack'
 import { supabase } from '../../lib/supabase'
 import AuthSheet from '../../components/AuthSheet'
 
@@ -46,6 +47,7 @@ function IconCalendar() {
 
 export default function SalvosPage() {
   const router = useRouter()
+  const goBack = useSmartBack('/')
   const [authed,     setAuthed]     = useState<boolean | null>(null)
   const [events,     setEvents]     = useState<SavedEvent[]>([])
   const [loading,    setLoading]    = useState(true)
@@ -121,7 +123,7 @@ export default function SalvosPage() {
         position: 'relative',
       }}>
         <button
-          onClick={() => router.back()}
+          onClick={goBack}
           aria-label="Voltar"
           style={{
             width: 36, height: 36, borderRadius: 999,

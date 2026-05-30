@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useSmartBack } from '../../../hooks/useSmartBack'
 import { supabase } from '../../../lib/supabase'
 import { BackButton } from '../../../components/BackButton'
 
@@ -105,7 +106,7 @@ function ErrorScreen({ message, onBack }: { message: string; onBack: () => void 
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
         <div style={{ position: 'absolute', left: 16 }}>
-          <BackButton />
+          <BackButton fallback="/ingressos" />
         </div>
         <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>Meu Ingresso</span>
       </div>
@@ -141,6 +142,7 @@ function ErrorScreen({ message, onBack }: { message: string; onBack: () => void 
 export default function IngressoPage() {
   const params = useParams()
   const router = useRouter()
+  const goBack = useSmartBack('/ingressos')
   const ticketId = String(params.id)
 
   const [ticket, setTicket] = useState<Ticket | null>(null)
@@ -185,7 +187,7 @@ export default function IngressoPage() {
   }, [ticketId, router])
 
   if (loading) return <LoadingScreen />
-  if (error) return <ErrorScreen message={error} onBack={() => router.back()} />
+  if (error) return <ErrorScreen message={error} onBack={goBack} />
 
   const statusMap: Record<string, { label: string; bg: string; color: string; dot: string }> = {
     paid:         { label: 'Válido',     bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
@@ -216,7 +218,7 @@ export default function IngressoPage() {
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
         <div style={{ position: 'absolute', left: 16 }}>
-          <BackButton />
+          <BackButton fallback="/ingressos" />
         </div>
         <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>Meu Ingresso</span>
       </div>

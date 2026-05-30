@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useSmartBack } from '../../../hooks/useSmartBack'
 
 interface CheckoutSession {
   event_id?: string
@@ -58,6 +59,7 @@ const INPUT_STYLE: React.CSSProperties = {
 export default function PagamentoCartaoPage() {
   const params = useParams()
   const router = useRouter()
+  const goBack = useSmartBack('/')
   const orderId = String(params.order_id)
   void orderId
 
@@ -204,7 +206,7 @@ export default function PagamentoCartaoPage() {
       }}>
         <div style={{ position: 'absolute', left: 16 }}>
           <button
-            onClick={() => router.back()}
+            onClick={goBack}
             aria-label="Voltar"
             style={{
               width: 36, height: 36, borderRadius: 999,
