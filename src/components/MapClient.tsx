@@ -617,6 +617,20 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     if (userLocation && ev.lat && ev.lng) {
       if (haversineKm(userLocation.lat, userLocation.lng, ev.lat, ev.lng) > distance) return false
     }
+    if (filterDate) {
+      if (!ev.event_date) return false
+      const evDate = new Date(ev.event_date.replace(' ', 'T'))
+      const range = matchesDate(filterDate)
+      if (range) {
+        if (evDate < new Date(range.gte)) return false
+        if (range.lte && evDate > new Date(range.lte)) return false
+      }
+    }
+    if (filterPreco) {
+      if (filterPreco === 'Grátis' && ev.price > 0) return false
+      if (filterPreco === 'Até R$30' && ev.price > 30) return false
+      if (filterPreco === 'Até R$50' && ev.price > 50) return false
+    }
     return true
   })
 
