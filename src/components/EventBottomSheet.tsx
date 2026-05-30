@@ -357,9 +357,12 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
   return (
     <div onClick={handleExpand} style={{ position: 'absolute', left: 14, right: 14, bottom: bottomNavHeight + 24, background: '#ffffff', borderRadius: 14, padding: '11px 14px', boxShadow: '0 10px 28px rgba(0,0,0,0.10), 0 0 0 0.5px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', gap: 10, zIndex: 12, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
       <div style={{ width: 32, height: 32, borderRadius: 999, background: '#E6F7F6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0EA5A0', flexShrink: 0 }}>
-        <svg width="18" height="18" viewBox="0 0 585.61 833.16" fill="currentColor">
-          <path d="M315.27,0l-46.28.13C88.26,15.59-36.83,188.99,9.81,367.08c10.05,38.36,22.99,74.06,39.65,110.28,55.47,120.6,142.46,246.73,226.57,349.46l10.25,6.34h12.67s10.63-6.37,10.63-6.37c84.39-103.01,171.52-229.52,227.05-350.59,16.64-36.27,29.54-72.01,39.46-110.45C622.02,187.82,496.16,14.52,315.27,0ZM536.19,307.83c-6.28,97-80.8,227.21-135.27,311.03-33.48,51.52-68.36,100.04-108.07,150.78-68.61-87.9-131.44-179.16-182.06-277.27-27.39-54.29-57.06-123.9-61.27-183.01C39.42,167.4,152.2,48.67,292.02,48.16c139.83-.51,253.36,117.67,244.17,259.67Z"/>
-          <path d="M488.04,291.66c-.31-12.1-9.46-23.45-22.46-23.73l-28.44-.62c-10.98-61.76-58.68-108.87-119.71-119.53l-.18-26.42c-.1-14.42-11.61-24.77-25.19-24.38-12.79.37-23.58,10.5-23.66,24.38l-.15,26.47c-61.66,10.74-109.1,58.44-119.89,119.9l-26.69.07c-14.11.04-24.52,11.8-24.06,25.34.42,12.3,10.7,23.32,24.16,23.41l26.65.18c10.64,60.88,57.98,108.89,119.54,119.66l.46,27.15c.24,13.96,12.15,24.29,25.14,23.85,13.27-.45,23.77-11.45,23.75-25.47l-.03-25.29c61.19-10.64,109.25-58.46,119.94-119.91l28.17-.32c13.34-.15,22.98-12.32,22.66-24.74ZM292.81,389.66c-53.85,0-97.51-43.66-97.51-97.51s43.66-97.51,97.51-97.51,97.51,43.66,97.51,97.51-43.66,97.51-97.51,97.51Z"/>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 13a1 1 0 100-2 1 1 0 000 2z" fill="currentColor"/>
+          <path d="M9.17 9.17a4 4 0 000 5.66" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+          <path d="M14.83 9.17a4 4 0 010 5.66" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+          <path d="M6.34 6.34a8 8 0 000 11.32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+          <path d="M17.66 6.34a8 8 0 010 11.32" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
         </svg>
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
