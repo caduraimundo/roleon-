@@ -80,12 +80,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const roleonFee = Number(event.price) * 0.04
-  const refundAmount =
-    reason === 'arrependimento'
-      ? Number(ticket.price_paid)
-      : Number(ticket.price_paid) - roleonFee
-
+  const refundAmount = Number(event.price)
   const refundAmountCents = Math.round(refundAmount * 100)
 
   const orderId = ticket.order_id
@@ -108,14 +103,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'charge_id não encontrado no pedido' }, { status: 502 })
   }
 
-  const isFullRefund = reason === 'arrependimento'
   const cancelRes = await fetch(`https://api.pagar.me/core/v5/charges/${chargeId}`, {
     method: 'DELETE',
     headers: {
       Authorization: pagarmeAuth,
-      ...(!isFullRefund ? { 'Content-Type': 'application/json' } : {}),
+      'Content-Type': 'application/json',
     },
-    body: !isFullRefund ? JSON.stringify({ amount: refundAmountCents }) : undefined,
+    body: JSON.stringify({ amount: refundAmountCents }),
   })
 
   if (!cancelRes.ok) {
@@ -139,7 +133,7 @@ export async function POST(req: NextRequest) {
         reason,
         price_paid: ticket.price_paid,
         refund_amount: refundAmount,
-        roleon_fee_retained: !isFullRefund ? roleonFee : 0,
+        roleon_fee_retained: Number(ticket.price_paid) - refundAmount,
         payment_method: ticket.payment_method,
         order_id: orderId,
         charge_id: chargeId,
