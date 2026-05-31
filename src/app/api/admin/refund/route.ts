@@ -7,6 +7,8 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
+type RefundReason = 'arrependimento' | 'cancelamento' | 'adiamento'
+
 export async function POST(req: NextRequest) {
   const authHeader = req.headers.get('authorization') || ''
   const token = authHeader.replace('Bearer ', '')
@@ -16,15 +18,23 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { ticket_id } = body
+  const { ticket_id, reason } = body as { ticket_id: string; reason: RefundReason }
 
   if (!ticket_id) {
     return NextResponse.json({ error: 'ticket_id obrigatório' }, { status: 400 })
   }
 
+  const validReasons: RefundReason[] = ['arrependimento', 'cancelamento', 'adiamento']
+  if (!reason || !validReasons.includes(reason)) {
+    return NextResponse.json(
+      { error: 'reason obrigatório: arrependimento | cancelamento | adiamento' },
+      { status: 400 }
+    )
+  }
+
   const { data: ticket, error: fetchError } = await supabaseAdmin
     .from('tickets')
-    .select('id, status, order_id, event_id, ticket_type_id, price_paid, payment_method')
+    .select('id, status, order_id, event_id, ticket_type_id, price_paid, payment_method, created_at')
     .eq('id', ticket_id)
     .maybeSingle()
 
@@ -35,6 +45,48 @@ export async function POST(req: NextRequest) {
   if (ticket.status !== 'paid' && ticket.status !== 'valid') {
     return NextResponse.json({ error: 'Ticket não pode ser estornado (status inválido)' }, { status: 400 })
   }
+
+  const { data: event, error: eventError } = await supabaseAdmin
+    .from('events')
+    .select('id, event_date, price')
+    .eq('id', ticket.event_id)
+    .maybeSingle()
+
+  if (eventError || !event) {
+    return NextResponse.json({ error: 'Evento não encontrado' }, { status: 400 })
+  }
+
+  const now = new Date()
+
+  if (reason === 'arrependimento') {
+    const purchasedAt = new Date(ticket.created_at)
+    const daysSincePurchase = (now.getTime() - purchasedAt.getTime()) / (1000 * 60 * 60 * 24)
+
+    if (daysSincePurchase > 7) {
+      return NextResponse.json(
+        { error: 'Prazo de arrependimento de 7 dias expirado' },
+        { status: 400 }
+      )
+    }
+
+    const eventDate = new Date(event.event_date.replace(' ', 'T'))
+    const hoursUntilEvent = (eventDate.getTime() - now.getTime()) / (1000 * 60 * 60)
+
+    if (hoursUntilEvent < 48) {
+      return NextResponse.json(
+        { error: 'Evento em menos de 48h — arrependimento indisponível' },
+        { status: 400 }
+      )
+    }
+  }
+
+  const roleonFee = Number(event.price) * 0.04
+  const refundAmount =
+    reason === 'arrependimento'
+      ? Number(ticket.price_paid)
+      : Number(ticket.price_paid) - roleonFee
+
+  const refundAmountCents = Math.round(refundAmount * 100)
 
   const orderId = ticket.order_id
   const pagarmeAuth = `Basic ${Buffer.from(process.env.PAGARME_API_KEY! + ':').toString('base64')}`
@@ -56,9 +108,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'charge_id não encontrado no pedido' }, { status: 502 })
   }
 
+  const isFullRefund = reason === 'arrependimento'
   const cancelRes = await fetch(`https://api.pagar.me/core/v5/charges/${chargeId}`, {
     method: 'DELETE',
-    headers: { Authorization: pagarmeAuth },
+    headers: {
+      Authorization: pagarmeAuth,
+      ...(!isFullRefund ? { 'Content-Type': 'application/json' } : {}),
+    },
+    body: !isFullRefund ? JSON.stringify({ amount: refundAmountCents }) : undefined,
   })
 
   if (!cancelRes.ok) {
@@ -77,12 +134,15 @@ export async function POST(req: NextRequest) {
       ticket_id,
       old_status: ticket.status,
       new_status: 'refunded',
-      triggered_by: 'system',
+      triggered_by: 'admin',
       metadata: {
+        reason,
         price_paid: ticket.price_paid,
+        refund_amount: refundAmount,
+        roleon_fee_retained: !isFullRefund ? roleonFee : 0,
         payment_method: ticket.payment_method,
         order_id: orderId,
-        reason: 'admin_refund',
+        charge_id: chargeId,
       },
     })
   })().catch(() => {})
@@ -92,5 +152,11 @@ export async function POST(req: NextRequest) {
     ticketTypeId: ticket.ticket_type_id ? String(ticket.ticket_type_id) : null,
   }).catch(err => console.error('[admin/refund] notifyWaitlist erro:', err))
 
-  return NextResponse.json({ success: true, ticket_id, order_id: orderId })
+  return NextResponse.json({
+    success: true,
+    ticket_id,
+    order_id: orderId,
+    reason,
+    refund_amount: refundAmount,
+  })
 }
