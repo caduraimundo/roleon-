@@ -69,7 +69,7 @@ export default function TermosPage() {
             faltem no mínimo 48 horas para o evento, conforme o Código de Defesa do Consumidor.
           </li>
           <li>
-            <strong>Evento cancelado:</strong> reembolso integral em até 10 dias úteis.
+            <strong>Evento cancelado:</strong> reembolso do valor do ingresso em até 10 dias úteis.
           </li>
           <li>
             <strong>Evento adiado:</strong> o ingresso vale para a nova data. Reembolso apenas via suporte em{' '}
@@ -78,8 +78,7 @@ export default function TermosPage() {
             </a>.
           </li>
           <li>
-            A taxa de serviço do Roleon não é reembolsada em nenhuma hipótese, exceto em caso de cancelamento
-            do evento pelo organizador.
+            A taxa de serviço Roleon não é reembolsada em nenhuma hipótese.
           </li>
         </ul>
 
