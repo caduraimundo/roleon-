@@ -56,7 +56,14 @@
       "PowerShell(\\(Get-Command vercel -ErrorAction SilentlyContinue\\).Source; \\(Get-Command npx -ErrorAction SilentlyContinue\\).Source)",
       "Bash(node -e \"console.log\\(require\\('crypto'\\).randomUUID\\(\\)\\)\")",
       "Bash(node -e \"const p = require\\('./package.json'\\); const deps = p.dependencies; console.log\\('mapbox-gl:', deps['mapbox-gl'] ?? 'NAO ENCONTRADO'\\); console.log\\('react-map-gl:', deps['react-map-gl'] ?? 'NAO ENCONTRADO'\\); console.log\\('@googlemaps/markerclusterer:', deps['@googlemaps/markerclusterer'] ?? 'REMOVIDO OK'\\);\")",
-      "PowerShell([Environment]::GetFolderPath\\('Desktop'\\))"
+      "PowerShell([Environment]::GetFolderPath\\('Desktop'\\))",
+      "PowerShell(npx vercel --prod --cwd C:\\\\Users\\\\Carlo\\\\roleon-)",
+      "PowerShell(npx vercel logs 7zA3Wbt1ud6TthVXDpTmhHKY5L4P 2>&1)",
+      "Bash(vercel --prod --cwd C:\\\\Users\\\\Carlo\\\\roleon-)",
+      "Bash(npx next *)",
+      "Bash(grep -n \"Grátis.*R\\\\$30\\\\|R\\\\$30.*R\\\\$50\\\\|Até R\\\\$\" src/components/MapClient.tsx)",
+      "Bash(node scripts/generate-icons.mjs)",
+      "Bash(git -C \"C:\\\\Users\\\\Carlo\\\\roleon-\" log --oneline -3)"
     ]
   }
 }

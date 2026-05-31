@@ -293,7 +293,10 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
 
   const current = sorted[index]
 
-  const handleExpand = () => { setExpanded(true); setIndex(0); onExpandChange?.(true) }
+  const handleExpand = () => {
+    if (sorted.length === 0) return
+    setExpanded(true); setIndex(0); onExpandChange?.(true)
+  }
   const handleClose = () => { setExpanded(false); onExpandChange?.(false) }
 
   if (expanded && current) {
