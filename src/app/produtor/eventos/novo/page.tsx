@@ -15,8 +15,6 @@ export default function NovoEventoPage() {
   const [description, setDescription] = useState('')
   const [genres, setGenres] = useState<string[]>([])
   const [locationName, setLocationName] = useState('')
-  const [locationLat, setLocationLat] = useState<number | null>(null)
-  const [locationLng, setLocationLng] = useState<number | null>(null)
   const [eventDate, setEventDate] = useState('')
   const [eventTime, setEventTime] = useState('')
   const [isFree, setIsFree] = useState(false)
@@ -25,7 +23,15 @@ export default function NovoEventoPage() {
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([{ name: 'Pista', price: '', quantity: '' }])
   const [policies, setPolicies] = useState<string[]>([''])
-  const [ageRating, setAgeRating] = useState<string>('Livre')
+  const [cep, setCep] = useState('')
+  const [rua, setRua] = useState('')
+  const [numero, setNumero] = useState('')
+  const [bairro, setBairro] = useState('')
+  const [cidade, setCidade] = useState('')
+  const [estado, setEstado] = useState('')
+  const [cepLoading, setCepLoading] = useState(false)
+  const [cepError, setCepError] = useState('')
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -57,12 +63,37 @@ export default function NovoEventoPage() {
     setTicketTypes(prev => prev.filter((_, i) => i !== index))
   }
 
+  const buscarCep = async (value: string) => {
+    const digits = value.replace(/\D/g, '')
+    if (digits.length !== 8) return
+    setCepLoading(true); setCepError('')
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`)
+      const data = await res.json()
+      if (data.erro) { setCepError('CEP não encontrado'); return }
+      setRua(data.logradouro || '')
+      setBairro(data.bairro || '')
+      setCidade(data.localidade || '')
+      setEstado(data.uf || '')
+    } catch {
+      setCepError('Erro ao buscar CEP. Tente novamente.')
+    } finally {
+      setCepLoading(false)
+    }
+  }
+
   const handleSubmit = async () => {
     setError('')
+    if (!termsAccepted) { setError('Aceite os termos para publicar o evento'); return }
     if (!title.trim()) { setError('Título é obrigatório'); return }
     if (genres.length < 1) { setError('Selecione pelo menos um gênero'); return }
     if (!eventDate || !eventTime) { setError('Data e hora são obrigatórios'); return }
     if (!locationName.trim()) { setError('Nome do local é obrigatório'); return }
+    if (cep.replace(/\D/g, '').length !== 8) { setError('CEP é obrigatório'); return }
+    if (!rua.trim()) { setError('Rua é obrigatória'); return }
+    if (!numero.trim()) { setError('Número é obrigatório'); return }
+    if (!cidade.trim()) { setError('Cidade é obrigatória'); return }
+    if (!estado.trim()) { setError('Estado é obrigatório'); return }
     if (!isFree) {
       const valid = ticketTypes.some(t => t.name && parseFloat(t.price) > 0)
       if (!valid) { setError('Adicione ao menos um tipo de ingresso com nome e preço'); return }
@@ -101,13 +132,12 @@ export default function NovoEventoPage() {
           description,
           genres,
           event_date,
-          location_name: locationName,
-          location_lat: locationLat,
-          location_lng: locationLng,
+          location_name: `${locationName} — ${rua}, ${numero}, ${bairro}, ${cidade} - ${estado}, CEP ${cep}`,
+          location_lat: null,
+          location_lng: null,
           is_free: isFree,
           is_unlimited: isUnlimited,
           cover_image: coverImageUrl ?? null,
-          age_rating: ageRating,
           policies: policies.filter(p => p.trim() !== ''),
           ticket_types: isFree
             ? []
@@ -292,31 +322,6 @@ export default function NovoEventoPage() {
           <span style={{ fontSize: 12, color: '#6E6E73', marginTop: 6 }}>Selecione até 3 gêneros</span>
         </div>
 
-        {/* Classificação Etária */}
-        <div style={sectionStyle}>
-          <label style={labelStyle}>CLASSIFICAÇÃO ETÁRIA</label>
-          <div style={{ display: 'flex', gap: 8 }}>
-            {['Livre', '+16 anos', '+18 anos'].map(opt => (
-              <button
-                key={opt}
-                onClick={() => setAgeRating(opt)}
-                style={{
-                  borderRadius: 8,
-                  padding: '8px 16px',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  background: ageRating === opt ? '#E6F7F6' : '#fff',
-                  border: ageRating === opt ? '1.5px solid #0EA5A0' : '1px solid #E8E8E8',
-                  color: ageRating === opt ? '#0EA5A0' : '#1A1A1A',
-                }}
-              >
-                {opt}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Data e Hora */}
         <div style={sectionStyle}>
           <label style={labelStyle}>DATA E HORA</label>
@@ -341,36 +346,67 @@ export default function NovoEventoPage() {
           <label style={labelStyle}>LOCAL</label>
           <input
             type="text"
-            placeholder="Nome do local (ex: Bar do Largo)"
+            placeholder="Ex: Bar do Largo, Quintal do Tiradentes"
             value={locationName}
             onChange={e => setLocationName(e.target.value)}
             style={{ ...inputStyle, marginBottom: 8 }}
           />
-          <span style={{ fontSize: 12, color: '#6E6E73', marginBottom: 8 }}>
-            Abra o Google Maps, pressione e segure sobre o local e copie as coordenadas.
-          </span>
           <input
             type="text"
-            placeholder="Cole as coordenadas aqui (ex: -20.3856, -43.5035)"
+            inputMode="numeric"
+            maxLength={9}
+            placeholder="00000-000"
+            value={cep}
             onChange={e => {
-              const parts = e.target.value.split(',')
-              if (parts.length === 2) {
-                const lat = parseFloat(parts[0].trim())
-                const lng = parseFloat(parts[1].trim())
-                if (!isNaN(lat) && !isNaN(lng)) {
-                  setLocationLat(lat)
-                  setLocationLng(lng)
-                } else {
-                  setLocationLat(null)
-                  setLocationLng(null)
-                }
-              } else {
-                setLocationLat(null)
-                setLocationLng(null)
-              }
+              const raw = e.target.value.replace(/\D/g, '').slice(0, 8)
+              const masked = raw.length > 5 ? raw.slice(0, 5) + '-' + raw.slice(5) : raw
+              setCep(masked); setCepError('')
             }}
-            style={inputStyle}
+            onBlur={() => buscarCep(cep)}
+            style={{ ...inputStyle, marginBottom: 4, border: cepError ? '1px solid #FF3B30' : '1px solid #E8E8E8' }}
           />
+          {cepError && <p style={{ fontSize: 12, color: '#FF3B30', margin: '0 0 8px' }}>{cepError}</p>}
+          {cepLoading && <p style={{ fontSize: 12, color: '#6E6E73', margin: '0 0 8px' }}>Buscando CEP...</p>}
+          <input
+            type="text"
+            placeholder="Rua ou Avenida"
+            value={rua}
+            onChange={e => setRua(e.target.value)}
+            style={{ ...inputStyle, marginBottom: 8, background: rua ? '#FAFAFA' : '#fff' }}
+          />
+          <div style={{ display: 'flex', gap: 12, marginBottom: 8 }}>
+            <input
+              type="text"
+              placeholder="Nº"
+              value={numero}
+              onChange={e => setNumero(e.target.value)}
+              style={{ ...inputStyle, flex: 1 }}
+            />
+            <input
+              type="text"
+              placeholder="Bairro"
+              value={bairro}
+              onChange={e => setBairro(e.target.value)}
+              style={{ ...inputStyle, flex: 2 }}
+            />
+          </div>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <input
+              type="text"
+              placeholder="Cidade"
+              value={cidade}
+              onChange={e => setCidade(e.target.value)}
+              style={{ ...inputStyle, flex: 2 }}
+            />
+            <input
+              type="text"
+              placeholder="UF"
+              value={estado}
+              maxLength={2}
+              onChange={e => setEstado(e.target.value.toUpperCase().slice(0, 2))}
+              style={{ ...inputStyle, flex: 1 }}
+            />
+          </div>
         </div>
 
         {/* Descrição */}
@@ -593,6 +629,21 @@ export default function NovoEventoPage() {
             {error}
           </div>
         )}
+        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginBottom: 12 }}>
+          <input
+            type="checkbox"
+            checked={termsAccepted}
+            onChange={e => setTermsAccepted(e.target.checked)}
+            style={{ marginTop: 2, accentColor: '#0EA5A0', width: 16, height: 16, flexShrink: 0 }}
+          />
+          <span style={{ fontSize: 12, color: '#6E6E73', lineHeight: 1.5 }}>
+            Declaro que as informações estão corretas e estou de acordo com os{' '}
+            <a href="/termos" target="_blank" style={{ color: '#0EA5A0', textDecoration: 'none' }}>Termos de Uso</a>
+            {' '}e a{' '}
+            <a href="/privacidade" target="_blank" style={{ color: '#0EA5A0', textDecoration: 'none' }}>Política de Privacidade</a>
+            {' '}do Roleon.
+          </span>
+        </label>
         <button
           onClick={handleSubmit}
           disabled={loading || uploading}
@@ -606,6 +657,7 @@ export default function NovoEventoPage() {
             fontSize: 15,
             border: 'none',
             cursor: loading || uploading ? 'default' : 'pointer',
+            opacity: !termsAccepted ? 0.6 : 1,
           }}
         >
           {uploading ? 'Enviando capa...' : loading ? 'Enviando...' : 'Publicar evento'}
