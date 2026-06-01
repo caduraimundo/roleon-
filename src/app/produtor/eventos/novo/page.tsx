@@ -14,7 +14,6 @@ export default function NovoEventoPage() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [genres, setGenres] = useState<string[]>([])
-  const [locationName, setLocationName] = useState('')
   const [eventDate, setEventDate] = useState('')
   const [eventTime, setEventTime] = useState('')
   const [isFree, setIsFree] = useState(false)
@@ -54,7 +53,6 @@ export default function NovoEventoPage() {
           if (d.title) setTitle(d.title)
           if (d.description) setDescription(d.description)
           if (d.genres?.length) setGenres(d.genres)
-          if (d.locationName) setLocationName(d.locationName)
           if (d.cep) setCep(d.cep)
           if (d.rua) setRua(d.rua)
           if (d.numero) setNumero(d.numero)
@@ -75,13 +73,13 @@ export default function NovoEventoPage() {
 
   useEffect(() => {
     const draft = {
-      title, description, genres, locationName,
+      title, description, genres,
       cep, rua, numero, bairro, cidade, estado,
       eventDate, eventTime, isFree, isUnlimited,
       ticketTypes, policies,
     }
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
-  }, [title, description, genres, locationName, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, isFree, isUnlimited, ticketTypes, policies])
+  }, [title, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, isFree, isUnlimited, ticketTypes, policies])
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -123,7 +121,6 @@ export default function NovoEventoPage() {
     if (!title.trim()) { setError('Título é obrigatório'); return }
     if (genres.length < 1) { setError('Selecione pelo menos um gênero'); return }
     if (!eventDate || !eventTime) { setError('Data e hora são obrigatórios'); return }
-    if (!locationName.trim()) { setError('Nome do local é obrigatório'); return }
     if (cep.replace(/\D/g, '').length !== 8) { setError('CEP é obrigatório'); return }
     if (!rua.trim()) { setError('Rua é obrigatória'); return }
     if (!numero.trim()) { setError('Número é obrigatório'); return }
@@ -167,7 +164,7 @@ export default function NovoEventoPage() {
           description,
           genres,
           event_date,
-          location_name: `${locationName} — ${rua}, ${numero}, ${bairro}, ${cidade} - ${estado}, CEP ${cep}`,
+          location_name: `${rua}, ${numero}${bairro ? ', ' + bairro : ''}, ${cidade} - ${estado}, CEP ${cep}`,
           location_lat: null,
           location_lng: null,
           is_free: isFree,
@@ -395,13 +392,6 @@ export default function NovoEventoPage() {
         {/* Local */}
         <div style={sectionStyle}>
           <label style={labelStyle}>LOCAL</label>
-          <input
-            type="text"
-            placeholder="Ex: Bar do Largo, Quintal do Tiradentes"
-            value={locationName}
-            onChange={e => setLocationName(e.target.value)}
-            style={{ ...inputStyle, marginBottom: 8 }}
-          />
           <input
             type="text"
             inputMode="numeric"
@@ -655,6 +645,23 @@ export default function NovoEventoPage() {
             </div>
           )}
         </div>
+
+        {/* Termos */}
+        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginTop: 8, marginBottom: 4 }}>
+          <input
+            type="checkbox"
+            checked={termsAccepted}
+            onChange={e => setTermsAccepted(e.target.checked)}
+            style={{ marginTop: 2, accentColor: '#0EA5A0', width: 16, height: 16, flexShrink: 0 }}
+          />
+          <span style={{ fontSize: 12, color: '#6E6E73', lineHeight: 1.5 }}>
+            Declaro que as informações estão corretas e estou de acordo com os{' '}
+            <a href="/termos" target="_blank" style={{ color: '#0EA5A0', textDecoration: 'none' }}>Termos de Uso</a>
+            {' '}e a{' '}
+            <a href="/privacidade" target="_blank" style={{ color: '#0EA5A0', textDecoration: 'none' }}>Política de Privacidade</a>
+            {' '}do Roleon.
+          </span>
+        </label>
       </div>
 
       {/* Rodapé fixo */}
@@ -680,21 +687,6 @@ export default function NovoEventoPage() {
             {error}
           </div>
         )}
-        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginBottom: 12 }}>
-          <input
-            type="checkbox"
-            checked={termsAccepted}
-            onChange={e => setTermsAccepted(e.target.checked)}
-            style={{ marginTop: 2, accentColor: '#0EA5A0', width: 16, height: 16, flexShrink: 0 }}
-          />
-          <span style={{ fontSize: 12, color: '#6E6E73', lineHeight: 1.5 }}>
-            Declaro que as informações estão corretas e estou de acordo com os{' '}
-            <a href="/termos" target="_blank" style={{ color: '#0EA5A0', textDecoration: 'none' }}>Termos de Uso</a>
-            {' '}e a{' '}
-            <a href="/privacidade" target="_blank" style={{ color: '#0EA5A0', textDecoration: 'none' }}>Política de Privacidade</a>
-            {' '}do Roleon.
-          </span>
-        </label>
         <button
           onClick={handleSubmit}
           disabled={loading || uploading}
