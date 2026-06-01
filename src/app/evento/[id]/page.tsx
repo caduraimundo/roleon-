@@ -28,7 +28,7 @@ interface TicketType {
 }
 
 interface FullEvent {
-  id: string; title: string; genre: string; price: number
+  id: string; title: string; genre: string; genres: string[]; price: number
   isFree: boolean; fee: number; venue: string
   dateStr: string | null; timeStr: string | null; yearStr: string | null
   heroColor: string
@@ -41,6 +41,9 @@ interface FullEvent {
 function fromCache(cached: RoleonEvent): FullEvent {
   return {
     id: cached.id, title: cached.title, genre: cached.genre,
+    genres: Array.isArray((cached as any).genres) && (cached as any).genres.length > 0
+      ? (cached as any).genres
+      : cached.genre ? [cached.genre] : [],
     price: cached.price, isFree: cached.price === 0, fee: cached.fee,
     venue: cached.venue, dateStr: cached.date || null, timeStr: cached.time || null,
     yearStr: null, heroColor: GENRE_COLORS[cached.genre] ?? DEFAULT_COLOR,
@@ -57,7 +60,11 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
     id: String(row.id), title: (row.title as string) ?? '',
     genre: Array.isArray(row.genre)
       ? (row.genre as string[])[0] ?? ''
-      : (row.genre as string) ?? '', price, isFree,
+      : (row.genre as string) ?? '',
+    genres: Array.isArray(row.genre) && (row.genre as string[]).length > 0
+      ? (row.genre as string[])
+      : [(row.genre as string)].filter(Boolean),
+    price, isFree,
     fee: isFree ? 0 : (() => { const f = calcFees(price, 1, 'pix'); return f.roleonFee + f.pagarmeFee })(),
     venue: ((row.location_name as string) ?? '').replace(/, CEP \d{5}-\d{3}$/, ''),
     dateStr: d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^./, c => c.toUpperCase()) : null,
@@ -277,14 +284,6 @@ export default function EventoPage() {
           background: 'linear-gradient(to top, rgba(0,0,0,0.48) 0%, transparent 100%)',
           zIndex: 1, pointerEvents: 'none',
         }} />
-        <div style={{
-          position: 'absolute', bottom: 16, left: 18, zIndex: 2, pointerEvents: 'none',
-          color: '#fff', opacity: 0.85,
-          fontFamily: "'JetBrains Mono', 'Courier New', ui-monospace, monospace",
-          fontSize: 10, fontWeight: 500, letterSpacing: 1.2, textTransform: 'uppercase',
-        }}>
-          {ev.genre}
-        </div>
         <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
           <HeroActions title={ev.title} />
         </div>
@@ -293,15 +292,17 @@ export default function EventoPage() {
       {/* CONTEUDO */}
       <div style={{ flex: 1, padding: '22px 20px 0', display: 'flex', flexDirection: 'column', gap: 18 }}>
 
-        {/* Genre pill */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{
-            background: '#E6F7F6', color: '#0EA5A0',
-            fontSize: 11, fontWeight: 700, letterSpacing: 0.7,
-            textTransform: 'uppercase', padding: '4px 10px', borderRadius: 999,
-          }}>
-            {ev.genre}
-          </div>
+        {/* Genre pills */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {(ev.genres ?? [ev.genre]).filter(Boolean).map((g: string) => (
+            <div key={g} style={{
+              background: '#E6F7F6', color: '#0EA5A0',
+              fontSize: 11, fontWeight: 700, letterSpacing: 0.7,
+              textTransform: 'uppercase', padding: '4px 10px', borderRadius: 999,
+            }}>
+              {g}
+            </div>
+          ))}
           {isSoldOut && (
             <div style={{
               background: '#F0F0F0', color: '#6E6E73',
@@ -368,9 +369,14 @@ export default function EventoPage() {
               cursor: 'pointer', width: '100%',
             }}>
             Como chegar
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ marginLeft: 2 }}>
-              <path d="M2 2h4v1.5H3.5v7h7V9H12v4H2V2z" fill="currentColor"/>
-              <path d="M8 2h4v4h-1.5V4.06L6.53 8l-1.06-1.06 3.94-3.94H7V2H8z" fill="currentColor"/>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M7 17L17 7M17 7H10M17 7v7"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
         )}

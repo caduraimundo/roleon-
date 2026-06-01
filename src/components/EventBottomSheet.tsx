@@ -95,6 +95,21 @@ function EventThumb({ ev, size = 76 }: { ev: RoleonEvent; size?: number }) {
         flexShrink: 0,
       }}
     >
+      {ev.cover_image && (
+        <img
+          src={ev.cover_image}
+          alt={ev.title}
+          style={{
+            position: 'absolute',
+            top: 0, right: 0, bottom: 0, left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            display: 'block',
+            borderRadius: 'inherit',
+          }}
+        />
+      )}
       {/* Grid sutil sobre a cor */}
       <svg viewBox="0 0 100 100" preserveAspectRatio="none"
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.18 }}>
@@ -103,15 +118,6 @@ function EventThumb({ ev, size = 76 }: { ev: RoleonEvent; size?: number }) {
           <path d="M30 0 L30 100 M70 0 L70 100"/>
         </g>
       </svg>
-      {/* Gênero em mono */}
-      <div style={{
-        position: 'absolute', bottom: 5, left: 7,
-        color: '#fff', opacity: 0.85,
-        fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-        fontSize: 9, fontWeight: 500, letterSpacing: 0.5,
-      }}>
-        {ev.genre.toUpperCase()}
-      </div>
     </div>
   )
 }
