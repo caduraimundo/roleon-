@@ -60,7 +60,7 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
       : (row.genre as string) ?? '', price, isFree,
     fee: isFree ? 0 : (() => { const f = calcFees(price, 1, 'pix'); return f.roleonFee + f.pagarmeFee })(),
     venue: ((row.location_name as string) ?? '').replace(/, CEP \d{5}-\d{3}$/, ''),
-    dateStr: d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }) : null,
+    dateStr: d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^./, c => c.toUpperCase()) : null,
     timeStr: d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : null,
     yearStr: d ? d.toLocaleDateString('pt-BR', { year: 'numeric' }) : null,
     heroColor: GENRE_COLORS[Array.isArray(row.genre)
@@ -251,9 +251,11 @@ export default function EventoPage() {
             src={ev.cover_image}
             alt={ev.title}
             style={{
-              position: 'absolute', inset: 0,
-              width: '100%', height: '100%',
-              objectFit: 'cover', zIndex: 0,
+              position: 'absolute',
+              top: 0, right: 0, bottom: 0, left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
               display: 'block',
             }}
           />
@@ -365,7 +367,6 @@ export default function EventoPage() {
               fontFamily: "'Noto Sans', sans-serif",
               cursor: 'pointer', width: '100%',
             }}>
-            <IconPin />
             Como chegar
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ marginLeft: 2 }}>
               <path d="M2 2h4v1.5H3.5v7h7V9H12v4H2V2z" fill="currentColor"/>
