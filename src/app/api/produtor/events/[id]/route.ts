@@ -49,6 +49,7 @@ export async function PUT(
     is_free,
     is_unlimited,
     cover_image,
+    policies,
     ticket_types,
   } = body
 
@@ -63,6 +64,15 @@ export async function PUT(
   if (is_free !== undefined) update.is_free = is_free
   if (is_unlimited !== undefined) update.is_unlimited = is_unlimited
   if (cover_image !== undefined) update.cover_image = cover_image
+  if (policies !== undefined) update.policies = policies
+
+  // Recalcula price com base nos ticket_types enviados
+  if (is_free !== undefined || ticket_types !== undefined) {
+    const isFreeVal = is_free ?? false
+    const tickets = Array.isArray(ticket_types) ? ticket_types as { price: number }[] : []
+    const validPrices = tickets.map(t => Number(t.price) || 0).filter(p => p > 0)
+    update.price = isFreeVal ? 0 : validPrices.length > 0 ? Math.min(...validPrices) : 0
+  }
 
   if (Object.keys(update).length > 0) {
     const { error } = await supabaseAdmin

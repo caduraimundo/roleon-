@@ -179,7 +179,7 @@ export default function EditarEventoPage() {
         body: JSON.stringify({
           title,
           description,
-          genres,
+          genre: genres,
           event_date,
           location_name: `${rua}, ${numero}${bairro ? ', ' + bairro : ''}, ${cidade} - ${estado}, CEP ${cep}`,
           location_lat: null,
