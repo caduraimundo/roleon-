@@ -539,7 +539,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
             return {
               id:           String(row.id),
               title:        (row.title as string) ?? '',
-              genre:        (row.genre as string) ?? '',
+              genre:        Array.isArray(row.genre)
+                ? (row.genre as string[])[0] ?? ''
+                : (row.genre as string) ?? '',
               price:        row.is_free ? 0 : ((row.price as number) ?? 0),
               fee:          0,
               likes:        0,
@@ -550,7 +552,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
               address:      (row.location_name as string) ?? '',
               date:         d ? d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '',
               time:         d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
-              color:        GENRE_COLORS[(row.genre as string)] ?? '#9E9E9E',
+              color:        GENRE_COLORS[Array.isArray(row.genre)
+                ? (row.genre as string[])[0] ?? ''
+                : (row.genre as string) ?? ''] ?? '#9E9E9E',
               isSoldOut,
               is_free:      (row.is_free as boolean) ?? false,
               cover_image:  (row.cover_image as string) ?? '',

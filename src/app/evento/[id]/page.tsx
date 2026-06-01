@@ -51,13 +51,17 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
   const isFree = !!(row.is_free) || price === 0
   return {
     id: String(row.id), title: (row.title as string) ?? '',
-    genre: (row.genre as string) ?? '', price, isFree,
+    genre: Array.isArray(row.genre)
+      ? (row.genre as string[])[0] ?? ''
+      : (row.genre as string) ?? '', price, isFree,
     fee: isFree ? 0 : (() => { const f = calcFees(price, 1, 'pix'); return f.roleonFee + f.pagarmeFee })(),
     venue: (row.location_name as string) ?? '',
     dateStr: d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }) : null,
     timeStr: d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : null,
     yearStr: d ? d.toLocaleDateString('pt-BR', { year: 'numeric' }) : null,
-    heroColor: GENRE_COLORS[(row.genre as string)] ?? DEFAULT_COLOR,
+    heroColor: GENRE_COLORS[Array.isArray(row.genre)
+      ? (row.genre as string[])[0] ?? ''
+      : (row.genre as string) ?? ''] ?? DEFAULT_COLOR,
     description: (row.description as string | null) ?? null,
     policies: Array.isArray(row.policies) ? (row.policies as string[]) : null,
   }
