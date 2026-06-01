@@ -37,6 +37,15 @@ export default function NovoEventoPage() {
   const [draftLoaded, setDraftLoaded] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  function showError(msg: string) {
+    setError(msg)
+    if (errorTimerRef.current) clearTimeout(errorTimerRef.current)
+    if (msg) {
+      errorTimerRef.current = setTimeout(() => setError(''), 5000)
+    }
+  }
 
   const DRAFT_KEY = 'roleon_novo_evento_draft'
 
@@ -71,6 +80,7 @@ export default function NovoEventoPage() {
       setDraftLoaded(true)
     }
     init()
+    return () => { if (errorTimerRef.current) clearTimeout(errorTimerRef.current) }
   }, [router])
 
   useEffect(() => {
@@ -120,18 +130,18 @@ export default function NovoEventoPage() {
 
   const handleSubmit = async () => {
     setError('')
-    if (!termsAccepted) { setError('Aceite os termos para publicar o evento'); return }
-    if (!title.trim()) { setError('Título é obrigatório'); return }
-    if (genres.length < 1) { setError('Selecione pelo menos um gênero'); return }
-    if (!eventDate || !eventTime) { setError('Data e hora são obrigatórios'); return }
-    if (cep.replace(/\D/g, '').length !== 8) { setError('CEP é obrigatório'); return }
-    if (!rua.trim()) { setError('Rua é obrigatória'); return }
-    if (!numero.trim()) { setError('Número é obrigatório'); return }
-    if (!cidade.trim()) { setError('Cidade é obrigatória'); return }
-    if (!estado.trim()) { setError('Estado é obrigatório'); return }
+    if (!termsAccepted) { showError('Aceite os termos para publicar o evento'); return }
+    if (!title.trim()) { showError('Título é obrigatório'); return }
+    if (genres.length < 1) { showError('Selecione pelo menos um gênero'); return }
+    if (!eventDate || !eventTime) { showError('Data e hora são obrigatórios'); return }
+    if (cep.replace(/\D/g, '').length !== 8) { showError('CEP é obrigatório'); return }
+    if (!rua.trim()) { showError('Rua é obrigatória'); return }
+    if (!numero.trim()) { showError('Número é obrigatório'); return }
+    if (!cidade.trim()) { showError('Cidade é obrigatória'); return }
+    if (!estado.trim()) { showError('Estado é obrigatório'); return }
     if (!isFree) {
       const valid = ticketTypes.some(t => t.name && parseFloat(t.price) > 0)
-      if (!valid) { setError('Adicione ao menos um tipo de ingresso com nome e preço'); return }
+      if (!valid) { showError('Adicione ao menos um tipo de ingresso com nome e preço'); return }
     }
 
     setLoading(true)
@@ -151,7 +161,7 @@ export default function NovoEventoPage() {
         })
         const uploadData = await uploadRes.json()
         setUploading(false)
-        if (!uploadRes.ok) { setError(uploadData.error || 'Erro ao fazer upload da capa'); return }
+        if (!uploadRes.ok) { showError(uploadData.error || 'Erro ao fazer upload da capa'); return }
         coverImageUrl = uploadData.url
       }
 
@@ -189,7 +199,7 @@ export default function NovoEventoPage() {
         localStorage.removeItem(DRAFT_KEY)
         router.replace('/produtor/painel')
       } else {
-        setError(data.error || 'Erro ao criar evento')
+        showError(data.error || 'Erro ao criar evento')
       }
     } finally {
       setLoading(false)
