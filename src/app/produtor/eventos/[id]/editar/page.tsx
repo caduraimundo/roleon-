@@ -64,8 +64,9 @@ export default function EditarEventoPage() {
       setTitle(ev.title || '')
       setDescription(ev.description || '')
       setGenres(ev.genre || [])
-      setEventDate(ev.event_date ? ev.event_date.split('T')[0] : '')
-      setEventTime(ev.event_date ? ev.event_date.split('T')[1]?.slice(0, 5) : '')
+      const dateNorm = ev.event_date ? ev.event_date.replace(' ', 'T') : ''
+      setEventDate(dateNorm ? dateNorm.split('T')[0] : '')
+      setEventTime(dateNorm ? (dateNorm.split('T')[1]?.slice(0, 5) || '') : '')
       setIsFree(ev.is_free || false)
       setIsUnlimited(ev.is_unlimited || false)
       setPolicies(ev.policies?.length ? ev.policies : [''])
