@@ -12,6 +12,61 @@ async function getAuthUser(req: NextRequest) {
   return user
 }
 
+export async function GET(req: NextRequest) {
+  try {
+    const user = await getAuthUser(req)
+    if (!user) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    }
+
+    const { data: profile } = await supabaseAdmin
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.role !== 'producer') {
+      return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
+    }
+
+    const { data: eventos } = await supabaseAdmin
+      .from('events')
+      .select('id, title, event_date, status, is_free, cover_image, genre')
+      .eq('producer_id', user.id)
+      .order('event_date', { ascending: false })
+
+    if (!eventos || eventos.length === 0) {
+      return NextResponse.json({ events: [] })
+    }
+
+    const ids = eventos.map(e => e.id)
+
+    const { data: tickets } = await supabaseAdmin
+      .from('tickets')
+      .select('event_id, price_paid')
+      .in('event_id', ids)
+      .eq('status', 'paid')
+
+    const salesMap: Record<string, { sold: number; revenue: number }> = {}
+    for (const id of ids) salesMap[id] = { sold: 0, revenue: 0 }
+    for (const t of tickets ?? []) {
+      salesMap[t.event_id].sold += 1
+      salesMap[t.event_id].revenue += Number(t.price_paid)
+    }
+
+    return NextResponse.json({
+      events: eventos.map(e => ({
+        ...e,
+        sold: salesMap[e.id].sold,
+        revenue: salesMap[e.id].revenue,
+      }))
+    })
+  } catch (err) {
+    console.error('[events GET] erro inesperado:', err)
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
+  }
+}
+
 export async function POST(req: NextRequest) {
   const user = await getAuthUser(req)
   if (!user) {
