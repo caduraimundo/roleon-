@@ -281,7 +281,7 @@ export default function EventoPage() {
           fontFamily: "'JetBrains Mono', 'Courier New', ui-monospace, monospace",
           fontSize: 10, fontWeight: 500, letterSpacing: 1.2, textTransform: 'uppercase',
         }}>
-          {ev.genre} · FOTO DO EVENTO
+          {ev.genre}
         </div>
         <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
           <HeroActions title={ev.title} />
@@ -316,11 +316,6 @@ export default function EventoPage() {
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#1A1A1A', lineHeight: 1.2, letterSpacing: -0.5 }}>
             {ev.title}
           </h1>
-          {ev.venue && (
-            <div style={{ fontSize: 13.5, color: '#8A8A8A', fontWeight: 500 }}>
-              por {ev.venue}
-            </div>
-          )}
         </div>
 
         {/* Card data + local */}
@@ -346,7 +341,6 @@ export default function EventoPage() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', marginBottom: 2 }}>{ev.venue}</div>
-                <div style={{ fontSize: 12.5, color: '#9A9A9A' }}>Ouro Preto, MG</div>
               </div>
             </div>
           )}
