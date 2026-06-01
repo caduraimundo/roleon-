@@ -36,17 +36,23 @@ export async function POST(req: NextRequest) {
     location_name,
     location_lat,
     location_lng,
-    genre,
+    genres,
+    age_rating,
+    policies,
     is_free,
     is_unlimited,
     cover_image,
     ticket_types,
   } = body
 
-  for (const campo of ['title', 'event_date', 'location_name', 'genre']) {
+  for (const campo of ['title', 'event_date', 'location_name']) {
     if (!body[campo]) {
       return NextResponse.json({ error: `Campo obrigatório: ${campo}` }, { status: 400 })
     }
+  }
+
+  if (!Array.isArray(genres) || genres.length < 1) {
+    return NextResponse.json({ error: 'Selecione pelo menos um gênero' }, { status: 400 })
   }
 
   if (!is_free) {
@@ -73,7 +79,9 @@ export async function POST(req: NextRequest) {
       location_name,
       location_lat,
       location_lng,
-      genre,
+      genres,
+      age_rating: age_rating ?? 'Livre',
+      policies: Array.isArray(policies) ? policies : [],
       is_free,
       is_unlimited: is_free ? is_unlimited : false,
       cover_image: cover_image ?? null,

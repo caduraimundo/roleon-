@@ -13,7 +13,7 @@ export default function NovoEventoPage() {
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [genre, setGenre] = useState('')
+  const [genres, setGenres] = useState<string[]>([])
   const [locationName, setLocationName] = useState('')
   const [locationLat, setLocationLat] = useState<number | null>(null)
   const [locationLng, setLocationLng] = useState<number | null>(null)
@@ -60,7 +60,7 @@ export default function NovoEventoPage() {
   const handleSubmit = async () => {
     setError('')
     if (!title.trim()) { setError('Título é obrigatório'); return }
-    if (!genre) { setError('Selecione um gênero'); return }
+    if (genres.length < 1) { setError('Selecione pelo menos um gênero'); return }
     if (!eventDate || !eventTime) { setError('Data e hora são obrigatórios'); return }
     if (!locationName.trim()) { setError('Nome do local é obrigatório'); return }
     if (!isFree) {
@@ -99,7 +99,7 @@ export default function NovoEventoPage() {
         body: JSON.stringify({
           title,
           description,
-          genre,
+          genres,
           event_date,
           location_name: locationName,
           location_lat: locationLat,
@@ -261,25 +261,35 @@ export default function NovoEventoPage() {
         <div style={sectionStyle}>
           <label style={labelStyle}>GÊNERO</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-            {GENRES.map(g => (
-              <button
-                key={g}
-                onClick={() => setGenre(g)}
-                style={{
-                  borderRadius: 8,
-                  padding: '8px 4px',
-                  fontSize: 13,
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                  background: genre === g ? '#E6F7F6' : '#fff',
-                  border: genre === g ? '1.5px solid #0EA5A0' : '1px solid #E8E8E8',
-                  color: genre === g ? '#0EA5A0' : '#1A1A1A',
-                }}
-              >
-                {g}
-              </button>
-            ))}
+            {GENRES.map(g => {
+              const selected = genres.includes(g)
+              return (
+                <button
+                  key={g}
+                  onClick={() => {
+                    if (selected) {
+                      setGenres(prev => prev.filter(x => x !== g))
+                    } else if (genres.length < 3) {
+                      setGenres(prev => [...prev, g])
+                    }
+                  }}
+                  style={{
+                    borderRadius: 8,
+                    padding: '8px 4px',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    background: selected ? '#E6F7F6' : '#fff',
+                    border: selected ? '1.5px solid #0EA5A0' : '1px solid #E8E8E8',
+                    color: selected ? '#0EA5A0' : '#1A1A1A',
+                  }}
+                >
+                  {g}
+                </button>
+              )
+            })}
           </div>
+          <span style={{ fontSize: 12, color: '#6E6E73', marginTop: 6 }}>Selecione até 3 gêneros</span>
         </div>
 
         {/* Classificação Etária */}
