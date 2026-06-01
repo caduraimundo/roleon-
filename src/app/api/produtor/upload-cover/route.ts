@@ -47,18 +47,19 @@ export async function POST(req: NextRequest) {
   const ext = file.type.split('/')[1]
   const fileName = `${user.id}/${Date.now()}.${ext}`
 
-  const arrayBuffer = await file.arrayBuffer()
-  const buffer = Buffer.from(arrayBuffer)
+  const bytes = await file.arrayBuffer()
+  const buffer = Buffer.from(bytes)
 
-  const { error } = await supabaseAdmin.storage
+  const { error: uploadError } = await supabaseAdmin.storage
     .from('event-covers')
     .upload(fileName, buffer, {
       contentType: file.type,
       upsert: false,
     })
 
-  if (error) {
-    return NextResponse.json({ error: 'Erro ao fazer upload da imagem' }, { status: 500 })
+  if (uploadError) {
+    console.error('[upload-cover] erro no upload:', JSON.stringify(uploadError))
+    return NextResponse.json({ error: 'Erro ao fazer upload: ' + uploadError.message }, { status: 500 })
   }
 
   const { data: { publicUrl } } = supabaseAdmin.storage

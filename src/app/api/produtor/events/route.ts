@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Apenas produtores podem criar eventos' }, { status: 403 })
   }
 
+  try {
   const body = await req.json()
   const {
     title,
@@ -95,7 +96,8 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (eventError || !evento) {
-    return NextResponse.json({ error: 'Erro ao criar evento' }, { status: 500 })
+    console.error('[events] erro insert:', JSON.stringify(eventError))
+    return NextResponse.json({ error: 'Erro ao criar evento: ' + (eventError?.message ?? 'sem dados') }, { status: 500 })
   }
 
   if (Array.isArray(ticket_types) && ticket_types.length > 0 && !is_free) {
@@ -113,4 +115,8 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.json({ ok: true, event_id: evento.id }, { status: 200 })
+  } catch (err) {
+    console.error('[events] erro inesperado:', err)
+    return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
+  }
 }
