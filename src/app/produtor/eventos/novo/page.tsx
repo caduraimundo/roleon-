@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
 
-const GENRES = ['Samba', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Eletrônico', 'Pagode', 'Forró', 'Hip-hop', 'Jazz', 'Clássico', 'Outro']
+const GENRES = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Axé', 'República']
 
 type TicketType = { name: string; price: string; quantity: string }
 
@@ -24,6 +24,8 @@ export default function NovoEventoPage() {
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([{ name: 'Pista', price: '', quantity: '' }])
+  const [policies, setPolicies] = useState<string[]>([''])
+  const [ageRating, setAgeRating] = useState<string>('Livre')
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
@@ -105,6 +107,8 @@ export default function NovoEventoPage() {
           is_free: isFree,
           is_unlimited: isUnlimited,
           cover_image: coverImageUrl ?? null,
+          age_rating: ageRating,
+          policies: policies.filter(p => p.trim() !== ''),
           ticket_types: isFree
             ? []
             : ticketTypes.map(t => ({
@@ -238,6 +242,7 @@ export default function NovoEventoPage() {
             </div>
           )}
           <span style={{ fontSize: 11, color: '#6E6E73', marginTop: 6 }}>JPEG, PNG ou WebP · máximo 5MB</span>
+          <span style={{ fontSize: 11, color: '#6E6E73', marginTop: 2 }}>Recomendado: 1200 × 630 px (proporção 16:9)</span>
         </div>
 
         {/* Título */}
@@ -277,6 +282,31 @@ export default function NovoEventoPage() {
           </div>
         </div>
 
+        {/* Classificação Etária */}
+        <div style={sectionStyle}>
+          <label style={labelStyle}>CLASSIFICAÇÃO ETÁRIA</label>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {['Livre', '+16 anos', '+18 anos'].map(opt => (
+              <button
+                key={opt}
+                onClick={() => setAgeRating(opt)}
+                style={{
+                  borderRadius: 8,
+                  padding: '8px 16px',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  background: ageRating === opt ? '#E6F7F6' : '#fff',
+                  border: ageRating === opt ? '1.5px solid #0EA5A0' : '1px solid #E8E8E8',
+                  color: ageRating === opt ? '#0EA5A0' : '#1A1A1A',
+                }}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Data e Hora */}
         <div style={sectionStyle}>
           <label style={labelStyle}>DATA E HORA</label>
@@ -306,27 +336,31 @@ export default function NovoEventoPage() {
             onChange={e => setLocationName(e.target.value)}
             style={{ ...inputStyle, marginBottom: 8 }}
           />
-          <div style={{ display: 'flex', gap: 8 }}>
-            <input
-              type="number"
-              step="any"
-              placeholder="Latitude (-20.3856)"
-              value={locationLat ?? ''}
-              onChange={e => setLocationLat(e.target.value ? parseFloat(e.target.value) : null)}
-              style={{ ...inputStyle, fontSize: 13, padding: '10px 12px' }}
-            />
-            <input
-              type="number"
-              step="any"
-              placeholder="Longitude (-43.5035)"
-              value={locationLng ?? ''}
-              onChange={e => setLocationLng(e.target.value ? parseFloat(e.target.value) : null)}
-              style={{ ...inputStyle, fontSize: 13, padding: '10px 12px' }}
-            />
-          </div>
-          <span style={{ fontSize: 11, color: '#6E6E73', marginTop: 6 }}>
-            Abra o Google Maps, toque no local e copie as coordenadas
+          <span style={{ fontSize: 12, color: '#6E6E73', marginBottom: 8 }}>
+            Abra o Google Maps, pressione e segure sobre o local e copie as coordenadas.
           </span>
+          <input
+            type="text"
+            placeholder="Cole as coordenadas aqui (ex: -20.3856, -43.5035)"
+            onChange={e => {
+              const parts = e.target.value.split(',')
+              if (parts.length === 2) {
+                const lat = parseFloat(parts[0].trim())
+                const lng = parseFloat(parts[1].trim())
+                if (!isNaN(lat) && !isNaN(lng)) {
+                  setLocationLat(lat)
+                  setLocationLng(lng)
+                } else {
+                  setLocationLat(null)
+                  setLocationLng(null)
+                }
+              } else {
+                setLocationLat(null)
+                setLocationLng(null)
+              }
+            }}
+            style={inputStyle}
+          />
         </div>
 
         {/* Descrição */}
@@ -338,6 +372,65 @@ export default function NovoEventoPage() {
             onChange={e => setDescription(e.target.value)}
             style={{ ...inputStyle, height: 100, resize: 'none' }}
           />
+        </div>
+
+        {/* Políticas */}
+        <div style={sectionStyle}>
+          <label style={labelStyle}>POLÍTICAS DO EVENTO</label>
+          <span style={{ fontSize: 12, color: '#6E6E73', marginBottom: 8 }}>
+            Ex: +18 anos, Lotação controlada, Proibido reentrada
+          </span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {policies.map((policy, i) => (
+              <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input
+                  type="text"
+                  placeholder="Ex: +18 anos"
+                  value={policy}
+                  onChange={e => setPolicies(prev => prev.map((p, j) => j === i ? e.target.value : p))}
+                  style={{ ...inputStyle, flex: 1, padding: '10px 12px' }}
+                />
+                {policies.length > 1 && (
+                  <button
+                    onClick={() => setPolicies(prev => prev.filter((_, j) => j !== i))}
+                    style={{
+                      width: 24,
+                      height: 24,
+                      background: '#F5F5F5',
+                      borderRadius: '50%',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: '#6E6E73',
+                      fontSize: 16,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => setPolicies(prev => [...prev, ''])}
+            style={{
+              width: '100%',
+              padding: 12,
+              borderRadius: 10,
+              border: '1.5px dashed #0EA5A0',
+              background: 'transparent',
+              color: '#0EA5A0',
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: 'pointer',
+              marginTop: 8,
+            }}
+          >
+            + Adicionar política
+          </button>
         </div>
 
         {/* Ingressos */}
