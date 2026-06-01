@@ -68,7 +68,9 @@ export async function POST(req: NextRequest) {
 
   const price = is_free
     ? 0
-    : Math.min(...(ticket_types as { price: number }[]).map(t => t.price))
+    : ticket_types.length > 0
+      ? Math.min(...(ticket_types as { price: number }[]).map(t => Number(t.price) || 0).filter(p => p > 0))
+      : 0
 
   const { data: evento, error: eventError } = await supabaseAdmin
     .from('events')

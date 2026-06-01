@@ -240,12 +240,27 @@ export default function NovoEventoPage() {
             onChange={handleCoverChange}
           />
           {coverPreview ? (
-            <img
-              src={coverPreview}
-              alt="Capa do evento"
-              onClick={() => fileInputRef.current?.click()}
-              style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 12, cursor: 'pointer', display: 'block' }}
-            />
+            <div>
+              <img
+                src={coverPreview}
+                alt="Capa do evento"
+                style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 12, display: 'block' }}
+              />
+              <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{ flex: 1, padding: '9px 0', borderRadius: 8, border: '1px solid #E8E8E8', background: '#fff', fontSize: 13, fontWeight: 500, color: '#1A1A1A', cursor: 'pointer' }}
+                >
+                  Trocar imagem
+                </button>
+                <button
+                  onClick={() => { setCoverFile(null); setCoverPreview(null) }}
+                  style={{ flex: 1, padding: '9px 0', borderRadius: 8, border: '1px solid #FFD0D0', background: '#FFF5F5', fontSize: 13, fontWeight: 500, color: '#C0392B', cursor: 'pointer' }}
+                >
+                  Remover
+                </button>
+              </div>
+            </div>
           ) : (
             <div
               onClick={() => fileInputRef.current?.click()}
