@@ -1,0 +1,513 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { supabase } from '../../../../lib/supabase'
+
+const GENRES = ['Samba', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Eletrônico', 'Pagode', 'Forró', 'Hip-hop', 'Jazz', 'Clássico', 'Outro']
+
+type TicketType = { name: string; price: string; quantity: string }
+
+export default function NovoEventoPage() {
+  const router = useRouter()
+
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
+  const [genre, setGenre] = useState('')
+  const [locationName, setLocationName] = useState('')
+  const [locationLat, setLocationLat] = useState<number | null>(null)
+  const [locationLng, setLocationLng] = useState<number | null>(null)
+  const [eventDate, setEventDate] = useState('')
+  const [eventTime, setEventTime] = useState('')
+  const [isFree, setIsFree] = useState(false)
+  const [isUnlimited, setIsUnlimited] = useState(false)
+  const [coverFile, setCoverFile] = useState<File | null>(null)
+  const [coverPreview, setCoverPreview] = useState<string | null>(null)
+  const [ticketTypes, setTicketTypes] = useState<TicketType[]>([{ name: 'Pista', price: '', quantity: '' }])
+  const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState('')
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.replace('/produtor'); return }
+      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+      if (profile?.role !== 'producer') { router.replace('/produtor/cadastro'); return }
+    }
+    init()
+  }, [router])
+
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setCoverFile(file)
+    setCoverPreview(URL.createObjectURL(file))
+  }
+
+  const updateTicket = (index: number, field: keyof TicketType, value: string) => {
+    setTicketTypes(prev => prev.map((t, i) => i === index ? { ...t, [field]: value } : t))
+  }
+
+  const removeTicket = (index: number) => {
+    setTicketTypes(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleSubmit = async () => {
+    setError('')
+    if (!title.trim()) { setError('Título é obrigatório'); return }
+    if (!genre) { setError('Selecione um gênero'); return }
+    if (!eventDate || !eventTime) { setError('Data e hora são obrigatórios'); return }
+    if (!locationName.trim()) { setError('Nome do local é obrigatório'); return }
+    if (!isFree) {
+      const valid = ticketTypes.some(t => t.name && parseFloat(t.price) > 0)
+      if (!valid) { setError('Adicione ao menos um tipo de ingresso com nome e preço'); return }
+    }
+
+    setLoading(true)
+    let coverImageUrl: string | null = null
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+
+      if (coverFile) {
+        setUploading(true)
+        const fd = new FormData()
+        fd.append('file', coverFile)
+        const uploadRes = await fetch('/api/produtor/upload-cover', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session?.access_token}` },
+          body: fd,
+        })
+        const uploadData = await uploadRes.json()
+        setUploading(false)
+        if (!uploadRes.ok) { setError(uploadData.error || 'Erro ao fazer upload da capa'); return }
+        coverImageUrl = uploadData.url
+      }
+
+      const event_date = `${eventDate}T${eventTime}:00`
+      const res = await fetch('/api/produtor/events', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          genre,
+          event_date,
+          location_name: locationName,
+          location_lat: locationLat,
+          location_lng: locationLng,
+          is_free: isFree,
+          is_unlimited: isUnlimited,
+          cover_image: coverImageUrl ?? null,
+          ticket_types: isFree
+            ? []
+            : ticketTypes.map(t => ({
+                name: t.name,
+                price: parseFloat(t.price),
+                quantity: t.quantity ? parseInt(t.quantity) : null,
+              })),
+        }),
+      })
+
+      const data = await res.json()
+      if (res.ok) {
+        router.replace('/produtor/painel')
+      } else {
+        setError(data.error || 'Erro ao criar evento')
+      }
+    } finally {
+      setLoading(false)
+      setUploading(false)
+    }
+  }
+
+  const inputStyle: React.CSSProperties = {
+    border: '1px solid #E8E8E8',
+    borderRadius: 10,
+    padding: '12px 14px',
+    fontSize: 14,
+    width: '100%',
+    boxSizing: 'border-box',
+    outline: 'none',
+    background: '#fff',
+    color: '#1A1A1A',
+  }
+
+  const labelStyle: React.CSSProperties = {
+    display: 'block',
+    fontSize: 12,
+    fontWeight: 600,
+    color: '#6E6E73',
+    marginBottom: 6,
+  }
+
+  const sectionStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#F9F9F9', fontFamily: "'Noto Sans', sans-serif" }}>
+      {/* Header */}
+      <header style={{
+        background: '#fff',
+        borderBottom: '1px solid #E8E8E8',
+        height: 56,
+        padding: '0 20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
+      }}>
+        <button
+          onClick={() => router.back()}
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: '50%',
+            background: '#F2F2F2',
+            border: 'none',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M11 14L6 9L11 4" stroke="#1A1A1A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+        <span style={{ flex: 1, textAlign: 'center', fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>
+          Novo evento
+        </span>
+        <div style={{ width: 36 }} />
+      </header>
+
+      {/* Content */}
+      <div style={{ padding: '24px 20px 100px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+        {/* Capa */}
+        <div style={sectionStyle}>
+          <label style={labelStyle}>CAPA DO EVENTO</label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            style={{ display: 'none' }}
+            onChange={handleCoverChange}
+          />
+          {coverPreview ? (
+            <img
+              src={coverPreview}
+              alt="Capa do evento"
+              onClick={() => fileInputRef.current?.click()}
+              style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 12, cursor: 'pointer', display: 'block' }}
+            />
+          ) : (
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              style={{
+                width: '100%',
+                height: 160,
+                borderRadius: 12,
+                border: '2px dashed #E8E8E8',
+                background: '#FAFAFA',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                gap: 8,
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="5" width="18" height="14" rx="2" stroke="#C0C0C0" strokeWidth="1.5"/>
+                <circle cx="8.5" cy="10.5" r="1.5" stroke="#C0C0C0" strokeWidth="1.5"/>
+                <path d="M3 15l4-4 3 3 3-3 4 4" stroke="#C0C0C0" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span style={{ fontSize: 13, color: '#6E6E73' }}>Toque para adicionar capa</span>
+            </div>
+          )}
+          <span style={{ fontSize: 11, color: '#6E6E73', marginTop: 6 }}>JPEG, PNG ou WebP · máximo 5MB</span>
+        </div>
+
+        {/* Título */}
+        <div style={sectionStyle}>
+          <label style={labelStyle}>TÍTULO</label>
+          <input
+            type="text"
+            placeholder="Nome do evento"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            style={inputStyle}
+          />
+        </div>
+
+        {/* Gênero */}
+        <div style={sectionStyle}>
+          <label style={labelStyle}>GÊNERO</label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+            {GENRES.map(g => (
+              <button
+                key={g}
+                onClick={() => setGenre(g)}
+                style={{
+                  borderRadius: 8,
+                  padding: '8px 4px',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  background: genre === g ? '#E6F7F6' : '#fff',
+                  border: genre === g ? '1.5px solid #0EA5A0' : '1px solid #E8E8E8',
+                  color: genre === g ? '#0EA5A0' : '#1A1A1A',
+                }}
+              >
+                {g}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Data e Hora */}
+        <div style={sectionStyle}>
+          <label style={labelStyle}>DATA E HORA</label>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <input
+              type="date"
+              value={eventDate}
+              onChange={e => setEventDate(e.target.value)}
+              style={{ ...inputStyle, flex: 1 }}
+            />
+            <input
+              type="time"
+              value={eventTime}
+              onChange={e => setEventTime(e.target.value)}
+              style={{ ...inputStyle, flex: 'none', width: 100 }}
+            />
+          </div>
+        </div>
+
+        {/* Local */}
+        <div style={sectionStyle}>
+          <label style={labelStyle}>LOCAL</label>
+          <input
+            type="text"
+            placeholder="Nome do local (ex: Bar do Largo)"
+            value={locationName}
+            onChange={e => setLocationName(e.target.value)}
+            style={{ ...inputStyle, marginBottom: 8 }}
+          />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input
+              type="number"
+              step="any"
+              placeholder="Latitude (-20.3856)"
+              value={locationLat ?? ''}
+              onChange={e => setLocationLat(e.target.value ? parseFloat(e.target.value) : null)}
+              style={{ ...inputStyle, fontSize: 13, padding: '10px 12px' }}
+            />
+            <input
+              type="number"
+              step="any"
+              placeholder="Longitude (-43.5035)"
+              value={locationLng ?? ''}
+              onChange={e => setLocationLng(e.target.value ? parseFloat(e.target.value) : null)}
+              style={{ ...inputStyle, fontSize: 13, padding: '10px 12px' }}
+            />
+          </div>
+          <span style={{ fontSize: 11, color: '#6E6E73', marginTop: 6 }}>
+            Abra o Google Maps, toque no local e copie as coordenadas
+          </span>
+        </div>
+
+        {/* Descrição */}
+        <div style={sectionStyle}>
+          <label style={labelStyle}>DESCRIÇÃO</label>
+          <textarea
+            placeholder="Descreva o evento, atrações, informações importantes..."
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            style={{ ...inputStyle, height: 100, resize: 'none' }}
+          />
+        </div>
+
+        {/* Ingressos */}
+        <div style={sectionStyle}>
+          <label style={labelStyle}>INGRESSOS</label>
+
+          {/* Toggle Pago / Gratuito */}
+          <div style={{ display: 'flex', background: '#F0F0F0', borderRadius: 10, padding: 3, marginBottom: 16 }}>
+            {[{ label: 'Pago', value: false }, { label: 'Gratuito', value: true }].map(opt => (
+              <button
+                key={opt.label}
+                onClick={() => setIsFree(opt.value)}
+                style={{
+                  flex: 1,
+                  padding: '8px 0',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  borderRadius: 8,
+                  background: isFree === opt.value ? '#fff' : 'transparent',
+                  boxShadow: isFree === opt.value ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  color: '#1A1A1A',
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+
+          {!isFree ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {ticketTypes.map((ticket, i) => (
+                <div key={i} style={{
+                  background: '#fff',
+                  borderRadius: 12,
+                  padding: 14,
+                  border: '1px solid #E8E8E8',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 10,
+                }}>
+                  <input
+                    type="text"
+                    placeholder="Nome do tipo (ex: Pista, Camarote)"
+                    value={ticket.name}
+                    onChange={e => updateTicket(i, 'name', e.target.value)}
+                    style={inputStyle}
+                  />
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder="Preço (R$)"
+                      value={ticket.price}
+                      onChange={e => updateTicket(i, 'price', e.target.value)}
+                      style={{ ...inputStyle, flex: 1 }}
+                    />
+                    <input
+                      type="number"
+                      placeholder="∞ ilimitado"
+                      value={ticket.quantity}
+                      onChange={e => updateTicket(i, 'quantity', e.target.value)}
+                      style={{ ...inputStyle, flex: 1 }}
+                    />
+                  </div>
+                  {ticketTypes.length > 1 && (
+                    <button
+                      onClick={() => removeTicket(i)}
+                      style={{ background: 'none', border: 'none', color: '#FF3B30', fontSize: 13, cursor: 'pointer', textAlign: 'left', padding: 0 }}
+                    >
+                      Remover
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                onClick={() => setTicketTypes(prev => [...prev, { name: '', price: '', quantity: '' }])}
+                style={{
+                  width: '100%',
+                  padding: 12,
+                  borderRadius: 10,
+                  border: '1.5px dashed #0EA5A0',
+                  background: 'transparent',
+                  color: '#0EA5A0',
+                  fontWeight: 600,
+                  fontSize: 14,
+                  cursor: 'pointer',
+                }}
+              >
+                + Adicionar tipo de ingresso
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', background: '#F0F0F0', borderRadius: 10, padding: 3 }}>
+                {[{ label: 'Com limite de vagas', value: false }, { label: 'Ilimitado', value: true }].map(opt => (
+                  <button
+                    key={opt.label}
+                    onClick={() => setIsUnlimited(opt.value)}
+                    style={{
+                      flex: 1,
+                      padding: '8px 0',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      border: 'none',
+                      cursor: 'pointer',
+                      borderRadius: 8,
+                      background: isUnlimited === opt.value ? '#fff' : 'transparent',
+                      boxShadow: isUnlimited === opt.value ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                      color: '#1A1A1A',
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              {!isUnlimited && (
+                <input
+                  type="number"
+                  placeholder="Quantidade de vagas"
+                  style={inputStyle}
+                />
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Rodapé fixo */}
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        padding: '12px 20px',
+        background: '#fff',
+        borderTop: '1px solid #E8E8E8',
+      }}>
+        {error && (
+          <div style={{
+            background: '#FFF0F0',
+            border: '1px solid #FFD0D0',
+            borderRadius: 10,
+            padding: '12px 14px',
+            color: '#C0392B',
+            fontSize: 14,
+            marginBottom: 10,
+          }}>
+            {error}
+          </div>
+        )}
+        <button
+          onClick={handleSubmit}
+          disabled={loading || uploading}
+          style={{
+            width: '100%',
+            padding: 14,
+            borderRadius: 10,
+            background: loading || uploading ? '#7DCFCC' : '#0EA5A0',
+            color: '#fff',
+            fontWeight: 600,
+            fontSize: 15,
+            border: 'none',
+            cursor: loading || uploading ? 'default' : 'pointer',
+          }}
+        >
+          {uploading ? 'Enviando capa...' : loading ? 'Enviando...' : 'Publicar evento'}
+        </button>
+      </div>
+    </div>
+  )
+}
