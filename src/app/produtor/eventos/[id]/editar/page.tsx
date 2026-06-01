@@ -699,7 +699,10 @@ export default function EditarEventoPage() {
           <input
             type="checkbox"
             checked={termsAccepted}
-            onChange={e => setTermsAccepted(e.target.checked)}
+            onChange={e => {
+              setTermsAccepted(e.target.checked)
+              if (e.target.checked) setError('')
+            }}
             style={{ marginTop: 2, accentColor: '#0EA5A0', width: 16, height: 16, flexShrink: 0 }}
           />
           <span style={{ fontSize: 12, color: '#6E6E73', lineHeight: 1.5 }}>

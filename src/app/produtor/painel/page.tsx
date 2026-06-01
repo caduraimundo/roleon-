@@ -213,19 +213,6 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
           >
             Editar
           </button>
-          {e.status === 'active' && (
-            <button
-              onClick={() => router.push(`/produtor/eventos/${e.id}/checkin`)}
-              style={{
-                padding: '7px 12px', borderRadius: 8,
-                border: '1px solid #0EA5A0',
-                background: '#fff', color: '#0EA5A0',
-                fontSize: 13, fontWeight: 500, cursor: 'pointer',
-              }}
-            >
-              Check-in
-            </button>
-          )}
         </div>
       </div>
     </div>

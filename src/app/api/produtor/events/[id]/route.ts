@@ -58,8 +58,8 @@ export async function PUT(
   if (description !== undefined) update.description = description
   if (event_date !== undefined) update.event_date = event_date
   if (location_name !== undefined) update.location_name = location_name
-  if (location_lat !== undefined) update.location_lat = location_lat
-  if (location_lng !== undefined) update.location_lng = location_lng
+  if (location_lat !== undefined && location_lat !== null) update.location_lat = location_lat
+  if (location_lng !== undefined && location_lng !== null) update.location_lng = location_lng
   if (genre !== undefined) update.genre = genre
   if (is_free !== undefined) update.is_free = is_free
   if (is_unlimited !== undefined) update.is_unlimited = is_unlimited
