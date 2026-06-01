@@ -34,6 +34,7 @@ export default function NovoEventoPage() {
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
+  const [draftLoaded, setDraftLoaded] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -67,11 +68,13 @@ export default function NovoEventoPage() {
           if (d.policies?.length) setPolicies(d.policies)
         } catch {}
       }
+      setDraftLoaded(true)
     }
     init()
   }, [router])
 
   useEffect(() => {
+    if (!draftLoaded) return
     const draft = {
       title, description, genres,
       cep, rua, numero, bairro, cidade, estado,
@@ -79,7 +82,7 @@ export default function NovoEventoPage() {
       ticketTypes, policies,
     }
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
-  }, [title, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, isFree, isUnlimited, ticketTypes, policies])
+  }, [draftLoaded, title, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, isFree, isUnlimited, ticketTypes, policies])
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
