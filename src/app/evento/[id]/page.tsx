@@ -33,6 +33,9 @@ interface FullEvent {
   dateStr: string | null; timeStr: string | null; yearStr: string | null
   heroColor: string
   description?: string | null; policies?: string[] | null
+  cover_image?: string | null
+  location_lat?: number | null
+  location_lng?: number | null
 }
 
 function fromCache(cached: RoleonEvent): FullEvent {
@@ -42,6 +45,7 @@ function fromCache(cached: RoleonEvent): FullEvent {
     venue: cached.venue, dateStr: cached.date || null, timeStr: cached.time || null,
     yearStr: null, heroColor: GENRE_COLORS[cached.genre] ?? DEFAULT_COLOR,
     description: cached.description ?? null, policies: null,
+    cover_image: null, location_lat: null, location_lng: null,
   }
 }
 
@@ -55,7 +59,7 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
       ? (row.genre as string[])[0] ?? ''
       : (row.genre as string) ?? '', price, isFree,
     fee: isFree ? 0 : (() => { const f = calcFees(price, 1, 'pix'); return f.roleonFee + f.pagarmeFee })(),
-    venue: (row.location_name as string) ?? '',
+    venue: ((row.location_name as string) ?? '').replace(/, CEP \d{5}-\d{3}$/, ''),
     dateStr: d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }) : null,
     timeStr: d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : null,
     yearStr: d ? d.toLocaleDateString('pt-BR', { year: 'numeric' }) : null,
@@ -64,6 +68,9 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
       : (row.genre as string) ?? ''] ?? DEFAULT_COLOR,
     description: (row.description as string | null) ?? null,
     policies: Array.isArray(row.policies) ? (row.policies as string[]) : null,
+    cover_image: (row.cover_image as string | null) ?? null,
+    location_lat: (row.location_lat as number | null) ?? null,
+    location_lng: (row.location_lng as number | null) ?? null,
   }
 }
 
@@ -166,7 +173,7 @@ export default function EventoPage() {
 
     supabase
       .from('events')
-      .select('id, title, genre, price, location_name, event_date, is_free, description, policies')
+      .select('id, title, genre, price, location_name, event_date, is_free, description, policies, cover_image, location_lat, location_lng')
       .eq('id', id)
       .single()
       .then(({ data }) => {
@@ -239,6 +246,18 @@ export default function EventoPage() {
 
       {/* HERO */}
       <div style={{ height: 260, background: ev.heroColor, position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
+        {ev.cover_image && (
+          <img
+            src={ev.cover_image}
+            alt={ev.title}
+            style={{
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover', zIndex: 0,
+              display: 'block',
+            }}
+          />
+        )}
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: 100,
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.42) 0%, transparent 100%)',
@@ -335,14 +354,23 @@ export default function EventoPage() {
 
         {/* Como chegar */}
         {ev.venue && (
-          <button style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-            background: 'transparent', border: '1.5px solid #0EA5A0',
-            borderRadius: 10, padding: '11px 18px',
-            color: '#0EA5A0', fontSize: 14, fontWeight: 600,
-            fontFamily: "'Noto Sans', sans-serif",
-            cursor: 'pointer', width: '100%',
-          }}>
+          <button
+            onClick={() => {
+              const lat = ev.location_lat
+              const lng = ev.location_lng
+              const url = (lat && lng)
+                ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.venue)}`
+              window.open(url, '_blank')
+            }}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+              background: 'transparent', border: '1.5px solid #0EA5A0',
+              borderRadius: 10, padding: '11px 18px',
+              color: '#0EA5A0', fontSize: 14, fontWeight: 600,
+              fontFamily: "'Noto Sans', sans-serif",
+              cursor: 'pointer', width: '100%',
+            }}>
             <IconPin />
             Como chegar
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ marginLeft: 2 }}>
