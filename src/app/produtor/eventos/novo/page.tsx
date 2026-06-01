@@ -38,15 +38,50 @@ export default function NovoEventoPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const DRAFT_KEY = 'roleon_novo_evento_draft'
+
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.replace('/produtor'); return }
       const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
       if (profile?.role !== 'producer') { router.replace('/produtor/cadastro'); return }
+
+      const saved = localStorage.getItem(DRAFT_KEY)
+      if (saved) {
+        try {
+          const d = JSON.parse(saved)
+          if (d.title) setTitle(d.title)
+          if (d.description) setDescription(d.description)
+          if (d.genres?.length) setGenres(d.genres)
+          if (d.locationName) setLocationName(d.locationName)
+          if (d.cep) setCep(d.cep)
+          if (d.rua) setRua(d.rua)
+          if (d.numero) setNumero(d.numero)
+          if (d.bairro) setBairro(d.bairro)
+          if (d.cidade) setCidade(d.cidade)
+          if (d.estado) setEstado(d.estado)
+          if (d.eventDate) setEventDate(d.eventDate)
+          if (d.eventTime) setEventTime(d.eventTime)
+          if (d.isFree !== undefined) setIsFree(d.isFree)
+          if (d.isUnlimited !== undefined) setIsUnlimited(d.isUnlimited)
+          if (d.ticketTypes?.length) setTicketTypes(d.ticketTypes)
+          if (d.policies?.length) setPolicies(d.policies)
+        } catch {}
+      }
     }
     init()
   }, [router])
+
+  useEffect(() => {
+    const draft = {
+      title, description, genres, locationName,
+      cep, rua, numero, bairro, cidade, estado,
+      eventDate, eventTime, isFree, isUnlimited,
+      ticketTypes, policies,
+    }
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
+  }, [title, description, genres, locationName, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, isFree, isUnlimited, ticketTypes, policies])
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -151,6 +186,7 @@ export default function NovoEventoPage() {
 
       const data = await res.json()
       if (res.ok) {
+        localStorage.removeItem(DRAFT_KEY)
         router.replace('/produtor/painel')
       } else {
         setError(data.error || 'Erro ao criar evento')
