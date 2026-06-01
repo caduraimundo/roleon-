@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
       location_name,
       location_lat,
       location_lng,
-      genres,
+      genre: genres,
       age_rating: age_rating ?? 'Livre',
       policies: Array.isArray(policies) ? policies : [],
       is_free,
