@@ -1,4 +1,5 @@
 'use client'
+import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
@@ -55,7 +56,7 @@ function IconPerfil() {
   )
 }
 
-const icons: Record<string, () => JSX.Element> = {
+const icons: Record<string, () => React.ReactElement> = {
   inicio:   IconInicio,
   eventos:  IconEventos,
   analises: IconAnalises,
