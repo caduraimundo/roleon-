@@ -151,7 +151,7 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
     font: fontRegular,
     color: gray,
   })
-  cursorY -= 18
+  cursorY -= 24
   const numText = ticketNumber.toUpperCase()
   const numW = fontBold.widthOfTextAtSize(numText, 16)
   page.drawText(numText, {
