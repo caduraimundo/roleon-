@@ -112,6 +112,19 @@ export default function PainelPage() {
             { label: 'Eventos ativos',
               value: String(eventos.filter((e: any) => e.status === 'active').length),
               sub: 'Agora' },
+            { label: 'Ticket médio',
+              value: eventos.length > 0
+                ? (() => {
+                    const paid = eventos.reduce((sum: number, e: any) =>
+                      sum + (e.sold || 0), 0)
+                    const revenue = eventos.reduce((sum: number, e: any) =>
+                      sum + (e.revenue || 0), 0)
+                    return paid > 0
+                      ? 'R$ ' + (revenue / paid).toFixed(0)
+                      : 'R$ 0'
+                  })()
+                : 'R$ 0',
+              sub: 'Por ingresso' },
           ].map((c, i) => (
             <div key={i} style={{
               background: '#fff',
