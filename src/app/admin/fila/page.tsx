@@ -233,14 +233,14 @@ export default function FilaAdminPage() {
               </span>
             </div>
 
-            <div style={{ marginTop: 16, display: 'flex', gap: 10 }}>
+            <div style={{ marginTop: 16, display: 'flex', gap: 10, width: '100%' }}>
               <button
                 onClick={() => aprovar(e.id)}
                 disabled={acaoId === e.id}
                 style={{
                   background: '#0EA5A0', color: '#fff',
                   border: 'none', borderRadius: 10,
-                  padding: '10px 20px', fontSize: 14, fontWeight: 600,
+                  padding: '12px 0', flex: 1, fontSize: 15, fontWeight: 600,
                   cursor: acaoId === e.id ? 'not-allowed' : 'pointer',
                   opacity: acaoId === e.id ? 0.7 : 1,
                 }}
@@ -253,7 +253,7 @@ export default function FilaAdminPage() {
                 style={{
                   background: '#fff', color: '#EF4444',
                   border: '1px solid #FCA5A5', borderRadius: 10,
-                  padding: '10px 20px', fontSize: 14, fontWeight: 600,
+                  padding: '12px 0', flex: 1, fontSize: 15, fontWeight: 600,
                   cursor: acaoId === e.id ? 'not-allowed' : 'pointer',
                   opacity: acaoId === e.id ? 0.7 : 1,
                 }}
