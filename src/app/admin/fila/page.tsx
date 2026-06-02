@@ -209,7 +209,6 @@ export default function FilaAdminPage() {
                 </p>
                 <p style={{
                   fontSize: 13, color: '#6E6E73', margin: 0, marginTop: 2,
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 340,
                 }}>
                   {e.location_name}
                 </p>
@@ -273,7 +272,8 @@ export default function FilaAdminPage() {
           background: 'rgba(0,0,0,0.4)',
           zIndex: 50,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          padding: 20,
+          padding: 16,
+          boxSizing: 'border-box',
         }}>
           <div style={{
             background: '#fff',
