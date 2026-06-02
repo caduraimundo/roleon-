@@ -305,12 +305,12 @@ export default function FilaAdminPage() {
                 color: '#1A1A1A',
               }}
             />
-            <div style={{ display: 'flex', gap: 10, marginTop: 16, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: 10, marginTop: 16, justifyContent: 'stretch', flexWrap: 'wrap', width: '100%' }}>
               <button
                 onClick={() => { setShowRejeitar(null); setMotivo('') }}
                 style={{
                   border: '1px solid #E8E8E8', background: '#fff', color: '#6E6E73',
-                  borderRadius: 10, padding: '10px 20px', fontSize: 14, cursor: 'pointer',
+                  borderRadius: 10, padding: '12px 0', fontSize: 14, cursor: 'pointer', flex: 1,
                 }}
               >
                 Cancelar
@@ -321,7 +321,7 @@ export default function FilaAdminPage() {
                 style={{
                   background: '#EF4444', color: '#fff',
                   border: 'none', borderRadius: 10,
-                  padding: '10px 20px', fontSize: 14, fontWeight: 600,
+                  padding: '12px 0', fontSize: 14, fontWeight: 600, flex: 1,
                   cursor: motivo.trim() === '' || acaoId !== null ? 'not-allowed' : 'pointer',
                   opacity: motivo.trim() === '' || acaoId !== null ? 0.6 : 1,
                 }}
