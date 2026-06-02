@@ -332,26 +332,46 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
 
       </div>
 
-      {/* Botão Editar */}
-      <button
-        onClick={() => router.push(`/produtor/eventos/${e.id}/editar`)}
-        style={{
-          padding: '9px 12px', borderRadius: 10,
-          border: '1px solid #E8E8E8',
-          background: '#fff', color: '#1A1A1A',
-          fontFamily: "'Noto Sans', sans-serif",
-          fontSize: 13, fontWeight: 600, cursor: 'pointer',
-          display: 'inline-flex', alignItems: 'center',
-          gap: 6, alignSelf: 'flex-start',
-        }}
-      >
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-          <path d="M2.5 12.5l1-3 7-7 2 2-7 7-3 1zM10 3l2 2"
-            stroke="currentColor" strokeWidth="1.5"
-            strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-        Editar
-      </button>
+      {/* Botões Editar + Check-in */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <button
+          onClick={() => router.push(`/produtor/eventos/${e.id}/editar`)}
+          style={{
+            padding: '9px 12px', borderRadius: 10,
+            border: '1px solid #E8E8E8',
+            background: '#fff', color: '#1A1A1A',
+            fontFamily: "'Noto Sans', sans-serif",
+            fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            display: 'inline-flex', alignItems: 'center',
+            justifyContent: 'center', gap: 6,
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M2.5 12.5l1-3 7-7 2 2-7 7-3 1zM10 3l2 2"
+              stroke="currentColor" strokeWidth="1.5"
+              strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Editar
+        </button>
+        <button
+          onClick={() => router.push(`/produtor/eventos/${e.id}/checkin`)}
+          style={{
+            padding: '9px 12px', borderRadius: 10,
+            border: 0, background: '#0EA5A0', color: '#fff',
+            fontFamily: "'Noto Sans', sans-serif",
+            fontSize: 13, fontWeight: 600, cursor: 'pointer',
+            display: 'inline-flex', alignItems: 'center',
+            justifyContent: 'center', gap: 6,
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8.5L6.5 12 13 5" stroke="currentColor"
+              strokeWidth="1.8" strokeLinecap="round"
+              strokeLinejoin="round"/>
+          </svg>
+          Check-in
+        </button>
+      </div>
     </div>
   )
 }

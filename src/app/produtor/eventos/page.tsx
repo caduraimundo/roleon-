@@ -257,21 +257,21 @@ export default function EventosPage() {
                     </svg>
                     Editar
                   </a>
-                  <a href={`/produtor/eventos/${ev.id}/editar`} style={{
+                  <a href={`/produtor/eventos/${ev.id}/checkin`} style={{
                     padding: '9px 10px', borderRadius: 10,
                     border: 0, background: '#0EA5A0', color: '#fff',
                     fontFamily: "'Noto Sans', sans-serif",
                     fontSize: 13, fontWeight: 600,
                     display: 'inline-flex', alignItems: 'center',
-                    justifyContent: 'center', gap: 4,
+                    justifyContent: 'center', gap: 6,
                     textDecoration: 'none',
                   }}>
-                    Ver detalhes
-                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-                      <path d="M5 3l4 4-4 4" stroke="currentColor"
-                        strokeWidth="1.6" strokeLinecap="round"
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                      <path d="M3 8.5L6.5 12 13 5" stroke="currentColor"
+                        strokeWidth="1.8" strokeLinecap="round"
                         strokeLinejoin="round"/>
                     </svg>
+                    Check-in
                   </a>
                 </div>
               </div>
