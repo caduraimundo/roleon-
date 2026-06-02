@@ -141,8 +141,17 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
     cursorY -= 20
   }
 
-  // Número do ingresso
-  const numText = `#${ticketNumber.toUpperCase()}`
+  // Código manual
+  const labelManual = 'Codigo manual'
+  const labelManualW = fontRegular.widthOfTextAtSize(labelManual, 9)
+  page.drawText(labelManual, {
+    x: cardX + (cardW - labelManualW) / 2,
+    y: cursorY + 16,
+    size: 9,
+    font: fontRegular,
+    color: gray,
+  })
+  const numText = ticketNumber.toUpperCase()
   const numW = fontBold.widthOfTextAtSize(numText, 13)
   page.drawText(numText, {
     x: cardX + (cardW - numW) / 2,
