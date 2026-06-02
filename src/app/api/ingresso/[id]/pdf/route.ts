@@ -57,9 +57,7 @@ export async function GET(
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(ticket.checkin_token)}`
   const eventDate = evento?.event_date ? formatEventDate(evento.event_date) : ''
   const shortCode = ticket.checkin_token
-    ? ticket.checkin_token.slice(0, 4).toUpperCase() +
-      '-' +
-      ticket.checkin_token.slice(4, 8).toUpperCase()
+    ? ticket.checkin_token.slice(0, 6).toUpperCase()
     : ticket.id.slice(-4).toUpperCase()
 
   const buffer = await generateTicketPDF({

@@ -201,9 +201,7 @@ export default function IngressoPage() {
   const qrData = ticket?.checkin_token || ticket?.qr_code || ticketId
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`
   const shortCode = ticket?.checkin_token
-    ? ticket.checkin_token.slice(0, 4).toUpperCase() +
-      '-' +
-      ticket.checkin_token.slice(4, 8).toUpperCase()
+    ? ticket.checkin_token.slice(0, 6).toUpperCase()
     : ''
 
   return (

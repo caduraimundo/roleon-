@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
       .select('id, status, event_id, ticket_type_name, checkin_token')
 
     const { data: ticket } = await (
-      token.length <= 8
+      token.length <= 6
         ? query.ilike('checkin_token', token + '%')
         : query.eq('checkin_token', token)
     ).maybeSingle()
