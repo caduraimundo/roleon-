@@ -9,12 +9,13 @@ function getActiveTab(pathname: string): string {
   if (pathname.startsWith('/produtor/analises')) return 'analises'
   if (pathname.startsWith('/produtor/perfil'))   return 'perfil'
   if (pathname.startsWith('/produtor/eventos'))  return 'eventos'
+  if (pathname.startsWith('/produtor/painel'))   return 'inicio'
   return 'inicio'
 }
 
 const tabs = [
   { id: 'inicio',   label: 'Início',   href: '/produtor/painel' },
-  { id: 'eventos',  label: 'Eventos',  href: '/produtor/painel' },
+  { id: 'eventos',  label: 'Eventos',  href: '/produtor/eventos' },
   { id: 'analises', label: 'Análises', href: '/produtor/analises' },
   { id: 'perfil',   label: 'Perfil',   href: '/produtor/perfil' },
 ]
