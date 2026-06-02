@@ -51,7 +51,7 @@ export async function POST(
       return NextResponse.json({ error: 'Evento não está pendente' }, { status: 400 })
     }
 
-    const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(event.location_name)}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+    const geoUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(event.location_name)}&key=${process.env.GOOGLE_MAPS_SERVER_KEY}`
     const geoRes = await fetch(geoUrl)
     const geoData = await geoRes.json()
     let lat: number | null = null
