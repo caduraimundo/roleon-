@@ -38,35 +38,35 @@ export default function ProducerHeader() {
   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-      <div style={{
-        width: 34, height: 34, borderRadius: '50%',
-        background: '#0EA5A0', color: '#fff',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 13, fontWeight: 700, letterSpacing: 0.5,
-        flexShrink: 0,
-      }}>
-        {initials || '?'}
-      </div>
-
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
       {name && (
-        <span style={{
-          fontSize: 13.5, fontWeight: 500, color: '#1A1A1A',
-          maxWidth: 160, overflow: 'hidden',
-          textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          padding: '5px 4px 5px 10px',
+          background: '#fff',
+          border: '0.5px solid #E8E8E8',
+          borderRadius: 999,
         }}>
-          {name}
-        </span>
+          <span style={{
+            fontSize: 12.5, fontWeight: 700, color: '#1A1A1A',
+            maxWidth: 110, overflow: 'hidden',
+            textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>{name}</span>
+          <span style={{
+            background: '#E6F7F6', color: '#0EA5A0',
+            fontSize: 9.5, fontWeight: 800, letterSpacing: 0.4,
+            textTransform: 'uppercase' as const,
+            padding: '3px 8px', borderRadius: 999,
+            lineHeight: 1,
+          }}>Produtor</span>
+        </div>
       )}
-
-      <span style={{ width: 1, height: 18, background: '#E8E8E8', flexShrink: 0 }} />
-
       <button
         onClick={handleSignOut}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          fontSize: 13.5, fontWeight: 500, color: '#6E6E73',
-          padding: '4px 0',
+          fontSize: 13, fontWeight: 500, color: '#6E6E73',
+          padding: '4px 0', flexShrink: 0,
         }}
       >
         Sair

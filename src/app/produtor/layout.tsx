@@ -1,32 +1,47 @@
 import { Noto_Sans } from 'next/font/google'
 import ProducerHeader from './ProducerHeader'
+import BottomNav from './BottomNav'
 
 const noto = Noto_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className={noto.className} style={{ minHeight: '100vh', background: '#F9F9F9' }}>
+    <div className={noto.className}
+      style={{ minHeight: '100vh', background: '#F9F9F9' }}>
+
       <header style={{
         background: '#fff',
         borderBottom: '1px solid #E8E8E8',
-        padding: '0 32px',
+        padding: '0 24px',
         height: 56,
         display: 'flex',
         alignItems: 'center',
-        gap: 12,
+        justifyContent: 'space-between',
+        position: 'sticky' as const,
+        top: 0,
+        zIndex: 40,
       }}>
-        <span style={{ fontSize: 18, fontWeight: 700, color: '#0EA5A0', letterSpacing: -0.5 }}>
-          Roleon
-        </span>
-        <span style={{ width: 1, height: 18, background: '#E8E8E8' }} />
-        <span style={{ fontSize: 13, color: '#6E6E73', fontWeight: 500 }}>
-          Portal do Produtor
-        </span>
-        <div style={{ marginLeft: 'auto' }}>
-          <ProducerHeader />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{
+            width: 26, height: 26, borderRadius: 7,
+            background: '#0EA5A0', color: '#fff',
+            display: 'inline-flex', alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 800, fontSize: 14, letterSpacing: -0.5,
+          }}>R</span>
+          <span style={{
+            fontSize: 17, fontWeight: 800,
+            color: '#1A1A1A', letterSpacing: -0.5,
+          }}>Roleon</span>
         </div>
+        <ProducerHeader />
       </header>
-      <main>{children}</main>
+
+      <main style={{ paddingBottom: 80 }}>
+        {children}
+      </main>
+
+      <BottomNav />
     </div>
   )
 }
