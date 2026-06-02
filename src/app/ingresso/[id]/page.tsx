@@ -334,7 +334,7 @@ export default function IngressoPage() {
                 />
                 {shortCode && (
                   <div style={{
-                    marginTop: 12,
+                    marginTop: 24,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
@@ -362,12 +362,6 @@ export default function IngressoPage() {
                     </div>
                   </div>
                 )}
-                <div style={{
-                  fontFamily: 'monospace', fontSize: 14, fontWeight: 700,
-                  color: '#1A1A1A', letterSpacing: 2,
-                }}>
-                  {formatTicketNumber(ticketId)}
-                </div>
                 <div style={{
                   width: '100%', paddingTop: 14,
                   borderTop: '1px solid #F2F2F2',
