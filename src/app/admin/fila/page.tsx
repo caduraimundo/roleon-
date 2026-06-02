@@ -276,8 +276,14 @@ export default function FilaAdminPage() {
           padding: 20,
         }}>
           <div style={{
-            background: '#fff', borderRadius: 16,
-            padding: 28, width: '100%', maxWidth: 440,
+            background: '#fff',
+            borderRadius: 16,
+            padding: 24,
+            width: '100%',
+            maxWidth: 440,
+            maxHeight: '90vh',
+            overflowY: 'auto' as const,
+            boxSizing: 'border-box' as const,
           }}>
             <p style={{ fontSize: 18, fontWeight: 700, color: '#1A1A1A', margin: 0, marginBottom: 8 }}>
               Motivo da recusa
@@ -296,9 +302,10 @@ export default function FilaAdminPage() {
                 fontSize: 14, resize: 'none',
                 boxSizing: 'border-box',
                 fontFamily: 'Noto Sans, sans-serif',
+                color: '#1A1A1A',
               }}
             />
-            <div style={{ display: 'flex', gap: 10, marginTop: 16, justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', gap: 10, marginTop: 16, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
               <button
                 onClick={() => { setShowRejeitar(null); setMotivo('') }}
                 style={{
