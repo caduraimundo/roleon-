@@ -357,7 +357,8 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
           onClick={() => router.push(`/produtor/eventos/${e.id}/checkin`)}
           style={{
             padding: '9px 12px', borderRadius: 10,
-            border: 0, background: '#0EA5A0', color: '#fff',
+            border: '1px solid #0EA5A0',
+            background: '#fff', color: '#0EA5A0',
             fontFamily: "'Noto Sans', sans-serif",
             fontSize: 13, fontWeight: 600, cursor: 'pointer',
             display: 'inline-flex', alignItems: 'center',
