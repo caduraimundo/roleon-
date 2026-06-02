@@ -19,6 +19,8 @@ export default function PosLogin() {
 
       if (profile?.role === 'producer') {
         router.replace('/produtor/painel')
+      } else if (profile?.role === 'admin') {
+        router.replace('/admin/fila')
       } else {
         router.replace('/produtor/cadastro')
       }
