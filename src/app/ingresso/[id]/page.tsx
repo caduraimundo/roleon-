@@ -200,6 +200,11 @@ export default function IngressoPage() {
   const badgeStyle = statusMap[ticket?.status ?? ''] ?? statusMap['pending']
   const qrData = ticket?.checkin_token || ticket?.qr_code || ticketId
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`
+  const shortCode = ticket?.checkin_token
+    ? ticket.checkin_token.slice(0, 4).toUpperCase() +
+      '-' +
+      ticket.checkin_token.slice(4, 8).toUpperCase()
+    : ''
 
   return (
     <div style={{
@@ -329,6 +334,36 @@ export default function IngressoPage() {
                   height={200}
                   style={{ borderRadius: 8, display: 'block' }}
                 />
+                {shortCode && (
+                  <div style={{
+                    marginTop: 12,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}>
+                    <div style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: '#9A9A9A',
+                      letterSpacing: 0.5,
+                      textTransform: 'uppercase',
+                      fontFamily: "'Noto Sans', sans-serif",
+                    }}>
+                      Código manual
+                    </div>
+                    <div style={{
+                      fontSize: 22,
+                      fontWeight: 800,
+                      color: '#1A1A1A',
+                      letterSpacing: 4,
+                      fontVariantNumeric: 'tabular-nums',
+                      fontFamily: "'Noto Sans', sans-serif",
+                    }}>
+                      {shortCode}
+                    </div>
+                  </div>
+                )}
                 <div style={{
                   fontFamily: 'monospace', fontSize: 14, fontWeight: 700,
                   color: '#1A1A1A', letterSpacing: 2,
