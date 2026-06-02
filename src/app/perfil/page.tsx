@@ -86,6 +86,7 @@ export default function PerfilPage() {
   const [name,     setName]     = useState('')
   const [email,    setEmail]    = useState('')
   const [initials, setInitials] = useState('')
+  const [role,     setRole]     = useState('')
 
   useEffect(() => {
     const load = async () => {
@@ -96,12 +97,13 @@ export default function PerfilPage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('name, avatar_initials')
+        .select('name, avatar_initials, role')
         .eq('id', user.id)
         .maybeSingle()
 
       setName(profile?.name ?? '')
       setInitials(profile?.avatar_initials ?? '')
+      setRole(profile?.role ?? '')
       setLoading(false)
     }
     load()
@@ -228,38 +230,81 @@ export default function PerfilPage() {
             </button>
           ))}
 
-          {/* Card "Seja um produtor" */}
-          <div style={{
-            background: '#E8F7F6',
-            border: '1px solid #C4EAE9',
-            borderRadius: 12,
-            padding: '13px 14px',
-            display: 'flex', alignItems: 'center', gap: 14,
-            cursor: 'pointer',
-          }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: '#0EA5A0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, color: '#fff',
-          }}>
-            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-              <path d="M13 3l4 4-9 9-4.5 1 1-4.5 8.5-9.5z"
-                stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/>
-            </svg>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#0A7A76', letterSpacing: -0.2 }}>
-              Seja um produtor
+          {role === 'producer' ? (
+            /* produtor ja cadastrado: acessa o painel */
+            <div
+              onClick={() => router.push('/produtor/painel')}
+              style={{
+                background: '#E8F7F6',
+                border: '1px solid #C4EAE9',
+                borderRadius: 12,
+                padding: '13px 14px',
+                display: 'flex', alignItems: 'center', gap: 14,
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{
+                width: 34, height: 34, borderRadius: 10,
+                background: '#0EA5A0',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0, color: '#fff',
+              }}>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                  <path d="M13 3l4 4-9 9-4.5 1 1-4.5 8.5-9.5z"
+                    stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#0A7A76', letterSpacing: -0.2 }}>
+                  Acessar portal do produtor
+                </div>
+                <div style={{ fontSize: 13, color: '#4AA8A4', marginTop: 2, fontWeight: 500 }}>
+                  Painel de eventos e check-in
+                </div>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6"
+                  strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
-            <div style={{ fontSize: 13, color: '#4AA8A4', marginTop: 2, fontWeight: 500 }}>
-              Publique seus rolês no Roleon.
+          ) : (
+            /* consumidor: convida a ser produtor */
+            <div
+              onClick={() => router.push('/produtor')}
+              style={{
+                background: '#E8F7F6',
+                border: '1px solid #C4EAE9',
+                borderRadius: 12,
+                padding: '13px 14px',
+                display: 'flex', alignItems: 'center', gap: 14,
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{
+                width: 34, height: 34, borderRadius: 10,
+                background: '#0EA5A0',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0, color: '#fff',
+              }}>
+                <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+                  <path d="M13 3l4 4-9 9-4.5 1 1-4.5 8.5-9.5z"
+                    stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#0A7A76', letterSpacing: -0.2 }}>
+                  Seja um produtor
+                </div>
+                <div style={{ fontSize: 13, color: '#4AA8A4', marginTop: 2, fontWeight: 500 }}>
+                  Publique seus rolês no Roleon.
+                </div>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6"
+                  strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: '#0EA5A0', flexShrink: 0, alignSelf: 'center' }}>
-            <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          </div>
+          )}
 
         </div>{/* fim wrapper menu+produtor */}
 
