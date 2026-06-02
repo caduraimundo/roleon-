@@ -90,6 +90,7 @@ const REDIRECT_ROUTES: Record<string, string> = {
 export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
   const router = useRouter()
   const [mode,         setMode]         = useState<Mode>('signin')
+  const [forgotOrigin, setForgotOrigin] = useState<'signin' | 'producer'>('signin')
   const [name,         setName]         = useState('')
   const [email,        setEmail]        = useState('')
   const [password,     setPassword]     = useState('')
@@ -115,7 +116,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
   }, [router])
 
   useEffect(() => {
-    if (!isOpen) setMode('signin')
+    if (!isOpen) { setMode('signin'); setForgotOrigin('signin') }
   }, [isOpen])
 
   if (!isOpen) return null
@@ -461,13 +462,13 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                 disabled={loading}
                 style={{
                   width: '100%', background: loading
-                    ? (mode === 'producer' ? '#065e5a' : '#7DCFCD')
-                    : (mode === 'producer' ? '#087A76' : '#0EA5A0'),
+                    ? ((mode === 'producer' || (mode === 'forgot' && forgotOrigin === 'producer')) ? '#065e5a' : '#7DCFCD')
+                    : ((mode === 'producer' || (mode === 'forgot' && forgotOrigin === 'producer')) ? '#087A76' : '#0EA5A0'),
                   color: '#fff', border: 0, cursor: loading ? 'default' : 'pointer',
                   padding: '14px 18px', borderRadius: 12,
                   fontSize: 15, fontWeight: 700,
                   fontFamily: "'Noto Sans', sans-serif",
-                  boxShadow: mode === 'producer'
+                  boxShadow: (mode === 'producer' || (mode === 'forgot' && forgotOrigin === 'producer'))
                     ? '0 6px 16px rgba(8,122,118,0.25)'
                     : '0 6px 16px rgba(14,165,160,0.25)',
                   marginTop: 2,
@@ -488,8 +489,8 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
               {mode === 'forgot' ? (
                 <button
                   type="button"
-                  onClick={() => { setMode('signin'); reset() }}
-                  style={{ background: 'none', border: 0, cursor: 'pointer', color: '#0EA5A0', padding: 0 }}
+                  onClick={() => { setMode(forgotOrigin); reset() }}
+                  style={{ background: 'none', border: 0, cursor: 'pointer', color: forgotOrigin === 'producer' ? '#087A76' : '#0EA5A0', padding: 0 }}
                 >
                   Voltar ao login
                 </button>
@@ -504,7 +505,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => { setMode('forgot'); reset() }}
+                    onClick={() => { setForgotOrigin('producer'); setMode('forgot'); reset() }}
                     style={{ background: 'none', border: 0, cursor: 'pointer', color: '#087A76', padding: 0 }}
                   >
                     Esqueci a senha
@@ -522,7 +523,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                   {mode === 'signin' && (
                     <button
                       type="button"
-                      onClick={() => { setMode('forgot'); reset() }}
+                      onClick={() => { setForgotOrigin('signin'); setMode('forgot'); reset() }}
                       style={{ background: 'none', border: 0, cursor: 'pointer', color: '#0EA5A0', padding: 0 }}
                     >
                       Esqueci a senha
