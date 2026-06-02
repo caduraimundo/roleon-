@@ -1,4 +1,5 @@
 import { Noto_Sans } from 'next/font/google'
+import ProducerHeader from './ProducerHeader'
 
 const noto = Noto_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
 
@@ -21,6 +22,9 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
         <span style={{ fontSize: 13, color: '#6E6E73', fontWeight: 500 }}>
           Portal do Produtor
         </span>
+        <div style={{ marginLeft: 'auto' }}>
+          <ProducerHeader />
+        </div>
       </header>
       <main>{children}</main>
     </div>
