@@ -141,27 +141,27 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
     cursorY -= 20
   }
 
-  // Código manual
+  // Código manual — label acima, código abaixo, sem sobreposição
   const labelManual = 'Código manual'
   const labelManualW = fontRegular.widthOfTextAtSize(labelManual, 9)
   page.drawText(labelManual, {
     x: cardX + (cardW - labelManualW) / 2,
-    y: cursorY + 8,
+    y: cursorY,
     size: 9,
     font: fontRegular,
     color: gray,
   })
+  cursorY -= 18
   const numText = ticketNumber.toUpperCase()
-  const numW = fontBold.widthOfTextAtSize(numText, 13)
+  const numW = fontBold.widthOfTextAtSize(numText, 16)
   page.drawText(numText, {
     x: cardX + (cardW - numW) / 2,
     y: cursorY,
-    size: 13,
+    size: 16,
     font: fontBold,
     color: dark,
-
   })
-  cursorY -= 18
+  cursorY -= 22
 
   // Divisor rodapé
   page.drawRectangle({ x: cardX, y: cursorY, width: cardW, height: 1, color: dividerColor })
