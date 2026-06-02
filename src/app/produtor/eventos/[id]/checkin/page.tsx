@@ -138,7 +138,6 @@ export default function CheckinPage({ params }: { params: Promise<{ id: string }
         padding: '16px 20px',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
       }}>
         <button
           onClick={() => router.back()}
@@ -160,22 +159,6 @@ export default function CheckinPage({ params }: { params: Promise<{ id: string }
           </svg>
           Voltar
         </button>
-        <div style={{
-          background: '#fff',
-          border: '0.5px solid #E8E8E8',
-          borderRadius: 12,
-          padding: '8px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-        }}>
-          <span style={{ fontSize: 22, fontWeight: 800, color: '#0EA5A0' }}>
-            {totalCheckins}
-          </span>
-          <span style={{ fontSize: 14, color: '#6E6E73' }}>
-            / {totalSold} entradas
-          </span>
-        </div>
       </div>
 
       <div style={{

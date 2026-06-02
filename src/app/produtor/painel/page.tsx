@@ -112,7 +112,6 @@ export default function PainelPage() {
             { label: 'Eventos ativos',
               value: String(eventos.filter((e: any) => e.status === 'active').length),
               sub: 'Agora' },
-            { label: 'Check-ins hoje',     value: '0',     sub: 'Hoje' },
           ].map((c, i) => (
             <div key={i} style={{
               background: '#fff',
