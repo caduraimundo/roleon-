@@ -284,7 +284,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
         background: '#fff',
         borderTopLeftRadius: 22, borderTopRightRadius: 22,
         zIndex: 201,
-        padding: '0 24px calc(env(safe-area-inset-bottom, 0px) + 28px)',
+        padding: '0 24px calc(env(safe-area-inset-bottom, 0px) + 48px)',
         animation: 'sheetUp 300ms cubic-bezier(.2,.9,.3,1)',
         fontFamily: "'Noto Sans', sans-serif",
         maxHeight: '92dvh',
@@ -337,7 +337,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
         <>
             {/* Título */}
             {mode !== 'forgot' && (
-              <div style={{ marginTop: 8, marginBottom: 6 }}>
+              <div style={{ marginTop: mode === 'producer' ? 32 : 8, marginBottom: 6 }}>
                 <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.3 }}>
                   {mode === 'producer' ? 'Acesse o Roleon Produtor' : 'Acesse o Roleon'}
                 </h2>
