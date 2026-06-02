@@ -46,7 +46,7 @@ interface AuthSheetProps {
   onClose: () => void
 }
 
-type Mode = 'signin' | 'signup' | 'forgot'
+type Mode = 'signin' | 'signup' | 'forgot' | 'producer'
 
 // ── Estilos base ──────────────────────────────────────────────────────────────
 
@@ -124,7 +124,9 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
 
   const handleGoogle = async () => {
     reset()
-    const next = sessionStorage.getItem('redirectAfterLogin') || '/'
+    const next = mode === 'producer'
+      ? '/produtor/pos-login'
+      : sessionStorage.getItem('redirectAfterLogin') || '/'
     const callbackUrl = `${window.location.origin}/auth/callback?popup=1&next=${encodeURIComponent(next)}`
 
     // Abre o popup ANTES do await para nao ser bloqueado pelo mobile
@@ -206,6 +208,14 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       setLoading(false)
       if (err) { setError(translateError(err.message)); return }
       setResetSent(true)
+      return
+    }
+    if (mode === 'producer') {
+      const { error: err } = await supabase.auth.signInWithPassword({ email, password })
+      setLoading(false)
+      if (err) { setError(translateError(err.message, err.status)); return }
+      onClose()
+      router.push('/produtor/pos-login')
       return
     }
     if (mode === 'signin') {
@@ -305,15 +315,34 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
           <IconClose />
         </button>
 
+        {mode === 'producer' && (
+          <button
+            onClick={() => { setMode('signin'); reset() }}
+            aria-label="Voltar"
+            style={{
+              position: 'absolute', top: 14, left: 20,
+              width: 28, height: 28, borderRadius: 999,
+              background: '#F0F0F0', border: 0, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#6E6E73',
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+              <path d="M11 4L5 9l6 5" stroke="currentColor" strokeWidth="1.8"
+                strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        )}
+
         <>
             {/* Título */}
             {mode !== 'forgot' && (
               <div style={{ marginTop: 8, marginBottom: 6 }}>
                 <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.3 }}>
-                  Acesse o Roleon
+                  {mode === 'producer' ? 'Acesse o Roleon Produtor' : 'Acesse o Roleon'}
                 </h2>
                 <p style={{ margin: '6px 0 0', fontSize: 13, color: '#6E6E73', lineHeight: 1.5 }}>
-                  Entre para comprar ingressos
+                  {mode === 'producer' ? 'Gerencie seus eventos e ingressos' : 'Entre para comprar ingressos'}
                 </p>
               </div>
             )}
@@ -431,17 +460,23 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                 type="submit"
                 disabled={loading}
                 style={{
-                  width: '100%', background: loading ? '#7DCFCD' : '#0EA5A0',
+                  width: '100%', background: loading
+                    ? (mode === 'producer' ? '#065e5a' : '#7DCFCD')
+                    : (mode === 'producer' ? '#087A76' : '#0EA5A0'),
                   color: '#fff', border: 0, cursor: loading ? 'default' : 'pointer',
                   padding: '14px 18px', borderRadius: 12,
                   fontSize: 15, fontWeight: 700,
                   fontFamily: "'Noto Sans', sans-serif",
-                  boxShadow: '0 6px 16px rgba(14,165,160,0.25)',
+                  boxShadow: mode === 'producer'
+                    ? '0 6px 16px rgba(8,122,118,0.25)'
+                    : '0 6px 16px rgba(14,165,160,0.25)',
                   marginTop: 2,
                   transition: 'background 200ms',
                 }}
               >
-                {loading ? 'Aguarde...' : mode === 'forgot' ? 'Enviar link' : mode === 'signin' ? 'Entrar' : 'Criar conta'}
+                {loading ? 'Aguarde...' : mode === 'forgot' ? 'Enviar link'
+                  : (mode === 'signin' || mode === 'producer') ? 'Entrar'
+                  : 'Criar conta'}
               </button>
             </form>
 
@@ -458,6 +493,23 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                 >
                   Voltar ao login
                 </button>
+              ) : mode === 'producer' ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => router.push('/produtor')}
+                    style={{ background: 'none', border: 0, cursor: 'pointer', color: '#087A76', padding: 0 }}
+                  >
+                    Criar conta de produtor
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setMode('forgot'); reset() }}
+                    style={{ background: 'none', border: 0, cursor: 'pointer', color: '#087A76', padding: 0 }}
+                  >
+                    Esqueci a senha
+                  </button>
+                </>
               ) : (
                 <>
                   <button
@@ -479,6 +531,23 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                 </>
               )}
             </div>
+
+            {mode === 'signin' && (
+              <div style={{ marginTop: 16, textAlign: 'center' }}>
+                <button
+                  type="button"
+                  onClick={() => { setMode('producer'); reset() }}
+                  style={{
+                    background: 'transparent', border: 0, cursor: 'pointer',
+                    color: '#9CA3AF', fontSize: 12,
+                    fontFamily: "'Noto Sans', sans-serif",
+                    padding: 0, lineHeight: 1.4,
+                  }}
+                >
+                  É produtor? Acesse o portal →
+                </button>
+              </div>
+            )}
         </>
       </div>
     </>
