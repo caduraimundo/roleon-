@@ -186,13 +186,13 @@ export default function PerfilPage() {
           fontSize: 10, fontWeight: 700, letterSpacing: 0.6,
           textTransform: 'uppercase' as const, color: '#9A9A9A',
           marginBottom: 10,
-        }}>Configuracoes</div>
+        }}>Configurações</div>
         <div style={{
           background: '#fff', border: '0.5px solid #E8E8E8',
           borderRadius: 14, overflow: 'hidden', marginBottom: 22,
         }}>
           {[
-            { label: 'Notificacoes', icon: (
+            { label: 'Notificações', icon: (
               <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
                 <path d="M6 9.5a5 5 0 0110 0v2.2c0 .7.3 1.4.7 1.9l.8 1H4.5l.8-1c.4-.5.7-1.2.7-1.9V9.5z"
                   stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
@@ -273,7 +273,7 @@ export default function PerfilPage() {
             <div style={{
               marginTop: 3, fontSize: 17, fontWeight: 700,
               color: '#1A1A1A', letterSpacing: -0.3,
-            }}>Roleon Basico</div>
+            }}>Roleon Básico</div>
             <div style={{
               marginTop: 3, fontSize: 12.5,
               color: '#6E6E73', fontWeight: 500,

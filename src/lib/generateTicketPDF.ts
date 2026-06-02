@@ -94,7 +94,7 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
   cursorY -= 6
 
   // Data e horário
-  page.drawText('Data e horario', { x: cardX + 24, y: cursorY, size: 9, font: fontRegular, color: gray })
+  page.drawText('Data e horário', { x: cardX + 24, y: cursorY, size: 9, font: fontRegular, color: gray })
   cursorY -= 13
   page.drawText(eventDate, { x: cardX + 24, y: cursorY, size: 10, font: fontBold, color: dark })
   cursorY -= 16
@@ -142,11 +142,11 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
   }
 
   // Código manual
-  const labelManual = 'Codigo manual'
+  const labelManual = 'Código manual'
   const labelManualW = fontRegular.widthOfTextAtSize(labelManual, 9)
   page.drawText(labelManual, {
     x: cardX + (cardW - labelManualW) / 2,
-    y: cursorY + 16,
+    y: cursorY + 8,
     size: 9,
     font: fontRegular,
     color: gray,

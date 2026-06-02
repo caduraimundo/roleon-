@@ -334,7 +334,7 @@ export default function IngressoPage() {
                 />
                 {shortCode && (
                   <div style={{
-                    marginTop: 24,
+                    marginTop: 12,
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
