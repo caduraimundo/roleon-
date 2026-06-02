@@ -376,7 +376,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
             )}
 
             {/* Formulário */}
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: mode === 'forgot' ? 8 : 0 }}>
               {mode === 'signup' && (
                 <input
                   type="text"
@@ -389,7 +389,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
               )}
 
               {mode === 'forgot' && (
-                <p style={{ margin: '0 0 4px', fontSize: 14, color: '#6E6E73', lineHeight: 1.5 }}>
+                <p style={{ margin: '0 0 4px', fontSize: 14, color: '#6E6E73', lineHeight: 1.5, paddingRight: 36 }}>
                   Digite seu e-mail e enviaremos um link para você redefinir sua senha.
                 </p>
               )}
