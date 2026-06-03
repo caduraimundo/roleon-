@@ -92,9 +92,8 @@ export default function EventoAnalisesPage() {
         <span style={{
           flex: 1, textAlign: 'center' as const,
           fontSize: 17, fontWeight: 700, color: '#1A1A1A',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const,
         }}>
-          {loading ? '' : (data?.event.title ?? '')}
+          Analises
         </span>
         <div style={{ width: 36 }} />
       </header>
