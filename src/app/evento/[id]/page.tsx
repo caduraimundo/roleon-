@@ -325,7 +325,7 @@ export default function EventoPage() {
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EFEFEF', overflow: 'hidden' }}>
           {ev.dateStr && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
-              <div style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: '#F0FAF9', color: '#0EA5A0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: '#E6F7F6', color: '#0EA5A0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <IconCalendar />
               </div>
               <div style={{ flex: 1 }}>
@@ -339,7 +339,7 @@ export default function EventoPage() {
           {ev.dateStr && ev.venue && <div style={{ height: 1, background: '#F2F2F2', margin: '0 16px' }} />}
           {ev.venue && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
-              <div style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: '#F0FAF9', color: '#0EA5A0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: '#E6F7F6', color: '#0EA5A0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <IconPin />
               </div>
               <div style={{ flex: 1 }}>

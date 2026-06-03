@@ -217,7 +217,7 @@ export default function PerfilPage() {
             >
               <div style={{
                 width: 34, height: 34, borderRadius: 10,
-                background: '#F0FAF9',
+                background: '#E6F7F6',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0, color: '#0EA5A0',
               }}>
