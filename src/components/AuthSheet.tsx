@@ -91,6 +91,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
   const router = useRouter()
   const [mode,         setMode]         = useState<Mode>('signin')
   const [forgotOrigin, setForgotOrigin] = useState<'signin' | 'producer'>('signin')
+  const [signupContext, setSignupContext] = useState<'' | 'producer'>('')
   const [name,         setName]         = useState('')
   const [email,        setEmail]        = useState('')
   const [password,     setPassword]     = useState('')
@@ -116,7 +117,17 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
   }, [router])
 
   useEffect(() => {
-    if (!isOpen) { setMode('signin'); setForgotOrigin('signin') }
+    if (!isOpen) {
+      setMode('signin')
+      setForgotOrigin('signin')
+      setSignupContext('')
+    } else {
+      const flag = sessionStorage.getItem('openAuthAsProducer')
+      if (flag) {
+        sessionStorage.removeItem('openAuthAsProducer')
+        setMode('producer')
+      }
+    }
   }, [isOpen])
 
   if (!isOpen) return null
@@ -125,7 +136,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
 
   const handleGoogle = async () => {
     reset()
-    const next = mode === 'producer'
+    const next = (mode === 'producer' || (mode === 'signup' && signupContext === 'producer'))
       ? '/produtor/pos-login'
       : sessionStorage.getItem('redirectAfterLogin') || '/'
     const callbackUrl = `${window.location.origin}/auth/callback?popup=1&next=${encodeURIComponent(next)}`
@@ -254,6 +265,11 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
             }),
           }).catch(() => {})
         }
+        if (signupContext === 'producer') {
+          onClose()
+          router.push('/produtor/pos-login')
+          return
+        }
         const redirect = sessionStorage.getItem('redirectAfterLogin')
         if (redirect) {
           sessionStorage.removeItem('redirectAfterLogin')
@@ -264,6 +280,10 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       }
     }
   }
+
+  const isProducerContext = mode === 'producer'
+    || (mode === 'forgot' && forgotOrigin === 'producer')
+    || (mode === 'signup' && signupContext === 'producer')
 
   return (
     <>
@@ -340,10 +360,10 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
             {mode !== 'forgot' && (
               <div style={{ marginTop: mode === 'producer' ? 32 : 8, marginBottom: 6 }}>
                 <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.3 }}>
-                  {mode === 'producer' ? 'Acesse o Roleon Produtor' : 'Acesse o Roleon'}
+                  {isProducerContext ? 'Acesse o Roleon Produtor' : 'Acesse o Roleon'}
                 </h2>
                 <p style={{ margin: '6px 0 0', fontSize: 13, color: '#6E6E73', lineHeight: 1.5 }}>
-                  {mode === 'producer' ? 'Gerencie seus eventos e ingressos' : 'Entre para comprar ingressos'}
+                  {isProducerContext ? 'Gerencie seus eventos e ingressos' : 'Entre para comprar ingressos'}
                 </p>
               </div>
             )}
@@ -462,13 +482,13 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                 disabled={loading}
                 style={{
                   width: '100%', background: loading
-                    ? ((mode === 'producer' || (mode === 'forgot' && forgotOrigin === 'producer')) ? '#065e5a' : '#7DCFCD')
-                    : ((mode === 'producer' || (mode === 'forgot' && forgotOrigin === 'producer')) ? '#087A76' : '#0EA5A0'),
+                    ? (isProducerContext ? '#065e5a' : '#7DCFCD')
+                    : (isProducerContext ? '#087A76' : '#0EA5A0'),
                   color: '#fff', border: 0, cursor: loading ? 'default' : 'pointer',
                   padding: '14px 18px', borderRadius: 12,
                   fontSize: 15, fontWeight: 700,
                   fontFamily: "'Noto Sans', sans-serif",
-                  boxShadow: (mode === 'producer' || (mode === 'forgot' && forgotOrigin === 'producer'))
+                  boxShadow: isProducerContext
                     ? '0 6px 16px rgba(8,122,118,0.25)'
                     : '0 6px 16px rgba(14,165,160,0.25)',
                   marginTop: 2,
@@ -498,7 +518,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                 <>
                   <button
                     type="button"
-                    onClick={() => router.push('/produtor')}
+                    onClick={() => { setSignupContext('producer'); setMode('signup'); reset() }}
                     style={{ background: 'none', border: 0, cursor: 'pointer', color: '#087A76', padding: 0 }}
                   >
                     Criar conta de produtor
@@ -515,7 +535,15 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                 <>
                   <button
                     type="button"
-                    onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); reset() }}
+                    onClick={() => {
+                      if (mode === 'signin') {
+                        setMode('signup')
+                      } else {
+                        setMode(signupContext === 'producer' ? 'producer' : 'signin')
+                        setSignupContext('')
+                      }
+                      reset()
+                    }}
                     style={{ background: 'none', border: 0, cursor: 'pointer', color: '#0EA5A0', padding: 0 }}
                   >
                     {mode === 'signin' ? 'Criar conta' : 'Já tenho conta'}
