@@ -50,7 +50,7 @@ export default function PerfilPage() {
     <div style={{
       minHeight: '100vh', background: '#F9F9F9',
       fontFamily: "'Noto Sans', sans-serif",
-      paddingBottom: 100,
+      paddingBottom: 28,
     }}>
 
       {/* Título */}
@@ -278,7 +278,6 @@ export default function PerfilPage() {
             borderRadius: 14, cursor: 'pointer',
             fontFamily: "'Noto Sans', sans-serif",
             display: 'flex', alignItems: 'center', gap: 13,
-            marginBottom: 12,
           }}
         >
           <span style={{
@@ -311,7 +310,7 @@ export default function PerfilPage() {
           fontFamily: "'Noto Sans', sans-serif",
           fontSize: 13, fontWeight: 600, color: '#9A9A9A',
           padding: '6px 0', alignSelf: 'center',
-          letterSpacing: 0.1, marginTop: 44,
+          letterSpacing: 0.1, marginTop: 32,
         }}>Sair da conta</button>
 
       </div>
