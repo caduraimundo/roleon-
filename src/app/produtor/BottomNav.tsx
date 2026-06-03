@@ -40,10 +40,8 @@ function IconEventos() {
 function IconAnalises() {
   return (
     <svg width={22} height={22} viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 18.5h16"/>
-      <rect x="5" y="11" width="2.8" height="6" rx="0.6" fill="none" stroke="currentColor" strokeWidth="1.6"/>
-      <rect x="9.6" y="7" width="2.8" height="10" rx="0.6" fill="none" stroke="currentColor" strokeWidth="1.6"/>
-      <rect x="14.2" y="9.5" width="2.8" height="7.5" rx="0.6" fill="none" stroke="currentColor" strokeWidth="1.6"/>
+      <path d="M4 18h14"/>
+      <path d="M6.5 18v-5M11 18v-9M15.5 18v-7"/>
     </svg>
   )
 }
