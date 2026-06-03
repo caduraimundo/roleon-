@@ -62,6 +62,24 @@ export default function ProducerHeader() {
         </div>
       )}
       <button
+        onClick={() => router.push('/')}
+        style={{
+          background: 'none', border: 'none', cursor: 'pointer',
+          fontSize: 13, fontWeight: 500, color: '#6E6E73',
+          padding: '4px 0', flexShrink: 0,
+          display: 'flex', alignItems: 'center', gap: 4,
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+          <path d="M3 9.5L10 3l7 6.5" stroke="currentColor" strokeWidth="1.7"
+            strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M5 8v8a1 1 0 001 1h3v-4h2v4h3a1 1 0 001-1V8"
+            stroke="currentColor" strokeWidth="1.7"
+            strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+        Roleon
+      </button>
+      <button
         onClick={handleSignOut}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
