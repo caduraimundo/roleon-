@@ -147,14 +147,15 @@ export default function PerfilPage() {
           ].map((item, i) => (
             <button key={i} style={{
               width: '100%', textAlign: 'left',
-              background: '#fff', border: '0.5px solid #E8E8E8',
-              borderRadius: 14, cursor: 'pointer',
+              background: '#fff', border: '0.5px solid #E5E5EA',
+              borderRadius: 12, cursor: 'pointer',
               padding: '13px 14px',
-              display: 'flex', alignItems: 'center', gap: 13,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+              display: 'flex', alignItems: 'center', gap: 12,
               fontFamily: "'Noto Sans', sans-serif",
             }}>
               <span style={{
-                width: 36, height: 36, borderRadius: 10,
+                width: 34, height: 34, borderRadius: 10,
                 background: '#E6F7F6', color: '#0EA5A0', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>{item.icon}</span>
@@ -163,7 +164,7 @@ export default function PerfilPage() {
                 color: '#1A1A1A', letterSpacing: -0.2,
               }}>{item.label}</span>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                style={{ color: '#C7C7CC', flexShrink: 0 }}>
+                style={{ color: '#C8C8C8', flexShrink: 0 }}>
                 <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor"
                   strokeWidth="1.6" strokeLinecap="round"
                   strokeLinejoin="round"/>
@@ -210,14 +211,15 @@ export default function PerfilPage() {
           ].map((item, i) => (
             <button key={i} style={{
               width: '100%', textAlign: 'left',
-              background: '#fff', border: '0.5px solid #E8E8E8',
-              borderRadius: 14, cursor: 'pointer',
+              background: '#fff', border: '0.5px solid #E5E5EA',
+              borderRadius: 12, cursor: 'pointer',
               padding: '13px 14px',
-              display: 'flex', alignItems: 'center', gap: 13,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+              display: 'flex', alignItems: 'center', gap: 12,
               fontFamily: "'Noto Sans', sans-serif",
             }}>
               <span style={{
-                width: 36, height: 36, borderRadius: 10,
+                width: 34, height: 34, borderRadius: 10,
                 background: '#E6F7F6', color: '#0EA5A0', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>{item.icon}</span>
@@ -226,7 +228,7 @@ export default function PerfilPage() {
                 color: '#1A1A1A', letterSpacing: -0.2,
               }}>{item.label}</span>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                style={{ color: '#C7C7CC', flexShrink: 0 }}>
+                style={{ color: '#C8C8C8', flexShrink: 0 }}>
                 <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor"
                   strokeWidth="1.6" strokeLinecap="round"
                   strokeLinejoin="round"/>
@@ -274,14 +276,15 @@ export default function PerfilPage() {
           onClick={() => router.push('/')}
           style={{
             width: '100%', padding: '13px 14px',
-            background: '#fff', border: '0.5px solid #E8E8E8',
-            borderRadius: 14, cursor: 'pointer',
+            background: '#fff', border: '0.5px solid #E5E5EA',
+            borderRadius: 12, cursor: 'pointer',
             fontFamily: "'Noto Sans', sans-serif",
-            display: 'flex', alignItems: 'center', gap: 13,
+            boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+            display: 'flex', alignItems: 'center', gap: 12,
           }}
         >
           <span style={{
-            width: 36, height: 36, borderRadius: 10,
+            width: 34, height: 34, borderRadius: 10,
             background: '#E6F7F6', color: '#0EA5A0', flexShrink: 0,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
@@ -298,7 +301,7 @@ export default function PerfilPage() {
             color: '#1A1A1A', letterSpacing: -0.2, textAlign: 'left',
           }}>Ir para o Roleon</span>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-            style={{ color: '#C7C7CC', flexShrink: 0 }}>
+            style={{ color: '#C8C8C8', flexShrink: 0 }}>
             <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor"
               strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
