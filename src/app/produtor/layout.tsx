@@ -33,6 +33,13 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
             fontSize: 17, fontWeight: 800,
             color: '#1A1A1A', letterSpacing: -0.5,
           }}>Roleon</span>
+          <span style={{
+            background: '#E6F7F6', color: '#0EA5A0',
+            fontSize: 9.5, fontWeight: 800, letterSpacing: 0.4,
+            textTransform: 'uppercase' as const,
+            padding: '4px 10px', borderRadius: 999,
+            lineHeight: 1,
+          }}>Produtor</span>
         </div>
         <ProducerHeader />
       </header>

@@ -16,14 +16,7 @@ export default function ProducerHeader() {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <span style={{
-        background: '#E6F7F6', color: '#0EA5A0',
-        fontSize: 9.5, fontWeight: 800, letterSpacing: 0.4,
-        textTransform: 'uppercase' as const,
-        padding: '4px 10px', borderRadius: 999,
-        lineHeight: 1,
-      }}>Produtor</span>
-      <button
+<button
         onClick={handleSignOut}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
