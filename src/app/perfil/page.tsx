@@ -171,7 +171,7 @@ export default function PerfilPage() {
       </div>
 
       {/* Conteúdo */}
-      <div style={{ flex: 1, padding: '28px 20px 96px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ flex: 1, padding: '28px 20px 108px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* Avatar + nome + subtítulo */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
@@ -315,7 +315,7 @@ export default function PerfilPage() {
             background: 'none', border: 0, cursor: 'pointer',
             fontSize: 13, fontWeight: 600, color: '#9A9A9A',
             padding: '6px 0', alignSelf: 'center',
-            letterSpacing: 0.1, marginTop: 24,
+            letterSpacing: 0.1, marginTop: 12,
           }}
         >
           Sair da conta
