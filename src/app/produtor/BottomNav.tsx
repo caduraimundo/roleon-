@@ -79,7 +79,8 @@ export default function BottomNav() {
       display: 'flex',
       zIndex: 50,
       boxShadow: '0 -4px 14px rgba(0,0,0,0.04)',
-      paddingBottom: 'env(safe-area-inset-bottom)',
+      paddingTop: '10px',
+      paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))',
     }}>
       {tabs.map(item => {
         const active = activeTab === item.id
@@ -92,7 +93,7 @@ export default function BottomNav() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '8px 0 10px',
+            padding: '6px 0 4px',
             gap: 3,
             color: active ? '#0EA5A0' : '#9A9A9A',
             fontFamily: "'Noto Sans', sans-serif",
@@ -102,9 +103,9 @@ export default function BottomNav() {
           }}>
             <div style={{
               position: 'absolute',
-              top: 6,
-              width: 44,
-              height: 24,
+              top: 4,
+              width: 48,
+              height: 26,
               borderRadius: 999,
               background: active ? '#E6F7F6' : 'transparent',
               transition: 'background 200ms',
