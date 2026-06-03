@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 
 const T = {
@@ -36,6 +37,7 @@ function isPast(event_date: string) {
 }
 
 export default function AnalisesPage() {
+  const router = useRouter()
   const [period, setPeriod]   = useState('30d')
   const [data, setData]       = useState<Analytics | null>(null)
   const [loading, setLoading] = useState(true)
@@ -232,11 +234,15 @@ export default function AnalisesPage() {
                 const pct    = maxRev > 0 ? Math.round((ev.revenue / maxRev) * 100) : 0
                 const past   = isPast(ev.event_date)
                 return (
-                  <div key={ev.id} style={{
-                    background: '#fff', border: `0.5px solid ${T.border}`,
-                    borderRadius: 14, padding: 14,
-                    display: 'flex', flexDirection: 'column', gap: 10,
-                  }}>
+                  <button key={ev.id}
+                    onClick={() => router.push(`/produtor/analises/${ev.id}`)}
+                    style={{
+                      width: '100%', textAlign: 'left',
+                      background: '#fff', border: `0.5px solid ${T.border}`,
+                      borderRadius: 14, padding: 14,
+                      display: 'flex', flexDirection: 'column', gap: 10,
+                      cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
+                    }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                       <div style={{
                         width: 30, height: 30, borderRadius: 9,
@@ -284,7 +290,7 @@ export default function AnalisesPage() {
                         background: T.primary, borderRadius: 999,
                       }} />
                     </div>
-                  </div>
+                  </button>
                 )
               })}
             </div>
