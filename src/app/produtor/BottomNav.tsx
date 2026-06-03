@@ -39,9 +39,10 @@ function IconEventos() {
 
 function IconAnalises() {
   return (
-    <svg width={22} height={22} viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 18h14"/>
-      <path d="M6.5 18v-5M11 18v-9M15.5 18v-7"/>
+    <svg width={22} height={22} viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
+      <rect x="2" y="9.5" width="5" height="11" rx="1.5"/>
+      <rect x="8.5" y="13.5" width="5" height="7" rx="1.5"/>
+      <rect x="15" y="5.5" width="5" height="15" rx="1.5"/>
     </svg>
   )
 }
