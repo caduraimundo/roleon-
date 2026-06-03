@@ -39,10 +39,10 @@ function IconEventos() {
 
 function IconAnalises() {
   return (
-    <svg width={22} height={22} viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round">
-      <rect x="2" y="9.5" width="5" height="11" rx="1.5"/>
-      <rect x="8.5" y="13.5" width="5" height="7" rx="1.5"/>
-      <rect x="15" y="5.5" width="5" height="15" rx="1.5"/>
+    <svg width={22} height={22} viewBox="0 0 22 22" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round">
+      <rect x="2" y="9.5" width="4" height="11" rx="1.4"/>
+      <rect x="9" y="13.5" width="4" height="7" rx="1.4"/>
+      <rect x="16" y="5.5" width="4" height="15" rx="1.4"/>
     </svg>
   )
 }
