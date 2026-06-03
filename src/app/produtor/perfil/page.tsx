@@ -53,12 +53,6 @@ export default function PerfilPage() {
       paddingBottom: 28,
     }}>
 
-      {/* Título */}
-      <div style={{ padding: '24px 20px 0', textAlign: 'center' }}>
-        <h1 style={{ margin: 0, fontSize: 18, fontWeight: 700,
-          color: '#1A1A1A', letterSpacing: -0.3 }}>Perfil</h1>
-      </div>
-
       <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column' }}>
 
         {/* Hero — avatar + nome + badge */}
@@ -83,6 +77,24 @@ export default function PerfilPage() {
             marginTop: 14, fontSize: 21, fontWeight: 700,
             color: '#1A1A1A', letterSpacing: -0.4,
           }}>{profile.name}</div>
+
+          {/* Badge Produtor verificado */}
+          <div style={{
+            marginTop: 7,
+            display: 'inline-flex', alignItems: 'center', gap: 5,
+            background: '#E6F7F6', color: '#0EA5A0',
+            fontSize: 12, fontWeight: 700, letterSpacing: 0.1,
+            padding: '5px 11px 5px 9px', borderRadius: 999,
+          }}>
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+              <path d="M7 1l1.5 1.3 2 .1.1 2 1.3 1.5-1.3 1.5-.1 2-2 .1L7 11l-1.5-1.3-2-.1-.1-2L2.1 6l1.3-1.5.1-2 2-.1L7 1z"
+                fill="currentColor"/>
+              <path d="M4.6 6.8l1.7 1.6L9.4 5" stroke="#fff"
+                strokeWidth="1.4" strokeLinecap="round"
+                strokeLinejoin="round"/>
+            </svg>
+            Produtor verificado
+          </div>
 
           {/* Email */}
           <div style={{
