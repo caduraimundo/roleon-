@@ -34,7 +34,7 @@ export default function PerfilPage() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
     await supabase.auth.signOut()
-    router.push('/produtor')
+    router.push('/')
   }
 
   if (profile === null) {
@@ -287,6 +287,42 @@ export default function PerfilPage() {
           }}>Ver planos</button>
         </div>
 
+        {/* Ir para o Roleon consumidor */}
+        <button
+          onClick={() => router.push('/')}
+          style={{
+            width: '100%', padding: '13px 14px',
+            background: '#fff', border: '0.5px solid #E8E8E8',
+            borderRadius: 14, cursor: 'pointer',
+            fontFamily: "'Noto Sans', sans-serif",
+            display: 'flex', alignItems: 'center', gap: 13,
+            marginBottom: 12,
+          }}
+        >
+          <span style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: '#E6F7F6', color: '#0EA5A0', flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+              <path d="M3.5 10.5L11 4l7.5 6.5" stroke="currentColor" strokeWidth="1.6"
+                strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M5.5 9v8.5a1 1 0 001 1h3.5v-4h2v4h3.5a1 1 0 001-1V9"
+                stroke="currentColor" strokeWidth="1.6"
+                strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span>
+          <span style={{
+            flex: 1, fontSize: 14.5, fontWeight: 600,
+            color: '#1A1A1A', letterSpacing: -0.2, textAlign: 'left',
+          }}>Ir para o Roleon</span>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+            style={{ color: '#C7C7CC', flexShrink: 0 }}>
+            <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor"
+              strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+
         {/* Sair da conta */}
         <button onClick={handleSignOut} style={{
           width: '100%', padding: '12px',
@@ -295,13 +331,6 @@ export default function PerfilPage() {
           fontSize: 14, fontWeight: 600, color: '#6E6E73',
           marginBottom: 14,
         }}>Sair da conta</button>
-
-        {/* Versão */}
-        <div style={{
-          textAlign: 'center', fontSize: 11,
-          letterSpacing: 1, color: '#9A9A9A',
-          paddingBottom: 8,
-        }}>ROLEON PRODUTOR · v1.0</div>
 
       </div>
     </div>
