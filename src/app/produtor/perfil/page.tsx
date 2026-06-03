@@ -59,7 +59,7 @@ export default function PerfilPage() {
           color: '#1A1A1A', letterSpacing: -0.3 }}>Perfil</h1>
       </div>
 
-      <div style={{ padding: '0 20px' }}>
+      <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column' }}>
 
         {/* Hero — avatar + nome + badge */}
         <div style={{
