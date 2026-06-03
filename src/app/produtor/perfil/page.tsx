@@ -307,11 +307,11 @@ export default function PerfilPage() {
 
         {/* Sair da conta */}
         <button onClick={handleSignOut} style={{
-          width: '100%', padding: '12px',
-          background: 'transparent', border: 0, cursor: 'pointer',
+          background: 'none', border: 0, cursor: 'pointer',
           fontFamily: "'Noto Sans', sans-serif",
-          fontSize: 14, fontWeight: 600, color: '#6E6E73',
-          marginBottom: 14,
+          fontSize: 13, fontWeight: 600, color: '#9A9A9A',
+          padding: '6px 0', alignSelf: 'center',
+          letterSpacing: 0.1, marginTop: 24,
         }}>Sair da conta</button>
 
       </div>
