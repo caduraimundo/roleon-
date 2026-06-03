@@ -603,6 +603,13 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   }, [])
 
   useEffect(() => {
+    const flag = sessionStorage.getItem('openAuthAsProducer')
+    if (flag) {
+      setShowAuth(true)
+    }
+  }, [])
+
+  useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setAuthed(!!data.session)
       setUserId(data.session?.user?.id ?? null)
