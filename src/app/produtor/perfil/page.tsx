@@ -115,10 +115,7 @@ export default function PerfilPage() {
           textTransform: 'uppercase' as const, color: '#9A9A9A',
           marginBottom: 10,
         }}>Conta</div>
-        <div style={{
-          background: '#fff', border: '0.5px solid #E8E8E8',
-          borderRadius: 14, overflow: 'hidden', marginBottom: 22,
-        }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 22 }}>
           {[
             { label: 'Dados do estabelecimento', icon: (
               <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
@@ -147,37 +144,31 @@ export default function PerfilPage() {
                   strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             )},
-          ].map((item, i, arr) => (
-            <div key={i}>
-              {i > 0 && <div style={{ height: 1, background: '#F5F5F5', marginLeft: 63 }}/>}
-              <button style={{
-                width: '100%', textAlign: 'left',
-                background: '#fff', border: 0, cursor: 'pointer',
-                padding: '13px 14px',
-                display: 'flex', alignItems: 'center', gap: 13,
-                fontFamily: "'Noto Sans', sans-serif",
-                borderTopLeftRadius: i === 0 ? 14 : 0,
-                borderTopRightRadius: i === 0 ? 14 : 0,
-                borderBottomLeftRadius: i === arr.length-1 ? 14 : 0,
-                borderBottomRightRadius: i === arr.length-1 ? 14 : 0,
-              }}>
-                <span style={{
-                  width: 36, height: 36, borderRadius: 10,
-                  background: '#E6F7F6', color: '#0EA5A0', flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>{item.icon}</span>
-                <span style={{
-                  flex: 1, fontSize: 14.5, fontWeight: 600,
-                  color: '#1A1A1A', letterSpacing: -0.2,
-                }}>{item.label}</span>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                  style={{ color: '#C7C7CC', flexShrink: 0 }}>
-                  <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor"
-                    strokeWidth="1.6" strokeLinecap="round"
-                    strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </div>
+          ].map((item, i) => (
+            <button key={i} style={{
+              width: '100%', textAlign: 'left',
+              background: '#fff', border: '0.5px solid #E8E8E8',
+              borderRadius: 14, cursor: 'pointer',
+              padding: '13px 14px',
+              display: 'flex', alignItems: 'center', gap: 13,
+              fontFamily: "'Noto Sans', sans-serif",
+            }}>
+              <span style={{
+                width: 36, height: 36, borderRadius: 10,
+                background: '#E6F7F6', color: '#0EA5A0', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>{item.icon}</span>
+              <span style={{
+                flex: 1, fontSize: 14.5, fontWeight: 600,
+                color: '#1A1A1A', letterSpacing: -0.2,
+              }}>{item.label}</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                style={{ color: '#C7C7CC', flexShrink: 0 }}>
+                <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor"
+                  strokeWidth="1.6" strokeLinecap="round"
+                  strokeLinejoin="round"/>
+              </svg>
+            </button>
           ))}
         </div>
 
@@ -187,10 +178,7 @@ export default function PerfilPage() {
           textTransform: 'uppercase' as const, color: '#9A9A9A',
           marginBottom: 10,
         }}>Configurações</div>
-        <div style={{
-          background: '#fff', border: '0.5px solid #E8E8E8',
-          borderRadius: 14, overflow: 'hidden', marginBottom: 22,
-        }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 22 }}>
           {[
             { label: 'Notificações', icon: (
               <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
@@ -219,37 +207,31 @@ export default function PerfilPage() {
                   strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             )},
-          ].map((item, i, arr) => (
-            <div key={i}>
-              {i > 0 && <div style={{ height: 1, background: '#F5F5F5', marginLeft: 63 }}/>}
-              <button style={{
-                width: '100%', textAlign: 'left',
-                background: '#fff', border: 0, cursor: 'pointer',
-                padding: '13px 14px',
-                display: 'flex', alignItems: 'center', gap: 13,
-                fontFamily: "'Noto Sans', sans-serif",
-                borderTopLeftRadius: i === 0 ? 14 : 0,
-                borderTopRightRadius: i === 0 ? 14 : 0,
-                borderBottomLeftRadius: i === arr.length-1 ? 14 : 0,
-                borderBottomRightRadius: i === arr.length-1 ? 14 : 0,
-              }}>
-                <span style={{
-                  width: 36, height: 36, borderRadius: 10,
-                  background: '#E6F7F6', color: '#0EA5A0', flexShrink: 0,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>{item.icon}</span>
-                <span style={{
-                  flex: 1, fontSize: 14.5, fontWeight: 600,
-                  color: '#1A1A1A', letterSpacing: -0.2,
-                }}>{item.label}</span>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                  style={{ color: '#C7C7CC', flexShrink: 0 }}>
-                  <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor"
-                    strokeWidth="1.6" strokeLinecap="round"
-                    strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </div>
+          ].map((item, i) => (
+            <button key={i} style={{
+              width: '100%', textAlign: 'left',
+              background: '#fff', border: '0.5px solid #E8E8E8',
+              borderRadius: 14, cursor: 'pointer',
+              padding: '13px 14px',
+              display: 'flex', alignItems: 'center', gap: 13,
+              fontFamily: "'Noto Sans', sans-serif",
+            }}>
+              <span style={{
+                width: 36, height: 36, borderRadius: 10,
+                background: '#E6F7F6', color: '#0EA5A0', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>{item.icon}</span>
+              <span style={{
+                flex: 1, fontSize: 14.5, fontWeight: 600,
+                color: '#1A1A1A', letterSpacing: -0.2,
+              }}>{item.label}</span>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                style={{ color: '#C7C7CC', flexShrink: 0 }}>
+                <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor"
+                  strokeWidth="1.6" strokeLinecap="round"
+                  strokeLinejoin="round"/>
+              </svg>
+            </button>
           ))}
         </div>
 
