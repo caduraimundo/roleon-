@@ -63,27 +63,41 @@ export default function EventoAnalisesPage() {
       paddingBottom: 100,
     }}>
 
-      {/* Header com voltar */}
-      <div style={{
-        padding: '16px 20px 0',
-        display: 'flex', alignItems: 'center', gap: 8,
+      <header style={{
+        background: '#fff',
+        borderBottom: '1px solid #E8E8E8',
+        height: 56,
+        padding: '0 20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 12,
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
       }}>
         <button
           onClick={() => router.push('/produtor/analises')}
           style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 4,
-            color: T.primary, padding: '4px 0', fontFamily: "'Noto Sans', sans-serif",
-            fontSize: 14, fontWeight: 600,
+            width: 36, height: 36, borderRadius: '50%',
+            background: '#F2F2F2', border: 'none', cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
           }}
         >
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-            <path d="M12.5 16L7 10l5.5-6" stroke="currentColor"
-              strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M11 14L6 9L11 4" stroke="#1A1A1A" strokeWidth="1.8"
+              strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          Analises
         </button>
-      </div>
+        <span style={{
+          flex: 1, textAlign: 'center' as const,
+          fontSize: 17, fontWeight: 700, color: '#1A1A1A',
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' as const,
+        }}>
+          {loading ? '' : (data?.event.title ?? '')}
+        </span>
+        <div style={{ width: 36 }} />
+      </header>
 
       {/* Titulo do evento */}
       <div style={{ padding: '12px 20px 0' }}>
@@ -146,43 +160,6 @@ export default function EventoAnalisesPage() {
             <div style={{ fontSize: 10.5, color: T.textMute, marginTop: 4, fontWeight: 500 }}>
               vendidos
             </div>
-          </div>
-
-          <div style={{
-            background: '#fff', border: `0.5px solid ${T.border}`,
-            borderRadius: 14, padding: 14,
-            gridColumn: '1 / -1',
-          }}>
-            <div style={{
-              fontSize: 9.5, fontWeight: 700, letterSpacing: 0.6,
-              textTransform: 'uppercase' as const, color: T.textMute, marginBottom: 6,
-            }}>Check-in</div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-              <div style={{
-                fontSize: loading ? 13 : 24, fontWeight: 800,
-                color: T.text, letterSpacing: -0.5, lineHeight: 1.1,
-              }}>
-                {loading ? '...' : (data?.totals.checked_in ?? 0)}
-              </div>
-              {!loading && (
-                <div style={{ fontSize: 14, color: T.textMute, fontWeight: 500 }}>
-                  / {data?.totals.tickets ?? 0} validados
-                </div>
-              )}
-            </div>
-            {!loading && (data?.totals.tickets ?? 0) > 0 && (
-              <div style={{
-                marginTop: 10, height: 6, borderRadius: 999,
-                background: '#F0F0F0', overflow: 'hidden',
-              }}>
-                <div style={{
-                  height: '100%', borderRadius: 999,
-                  background: T.primary,
-                  width: `${Math.round(((data?.totals.checked_in ?? 0) / (data?.totals.tickets ?? 1)) * 100)}%`,
-                  transition: 'width 400ms ease',
-                }} />
-              </div>
-            )}
           </div>
 
         </div>
