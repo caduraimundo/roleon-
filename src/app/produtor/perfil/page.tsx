@@ -311,7 +311,7 @@ export default function PerfilPage() {
           fontFamily: "'Noto Sans', sans-serif",
           fontSize: 13, fontWeight: 600, color: '#9A9A9A',
           padding: '6px 0', alignSelf: 'center',
-          letterSpacing: 0.1, marginTop: 24,
+          letterSpacing: 0.1, marginTop: 32,
         }}>Sair da conta</button>
 
       </div>
