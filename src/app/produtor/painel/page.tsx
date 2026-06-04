@@ -66,13 +66,13 @@ export default function PainelPage() {
   }, [router])
 
   const futuros = eventos
-    .filter(e => isFuturo(e.event_date) && e.status !== 'rejected')
+    .filter(e => isFuturo(e.event_date) && e.status !== 'rejected' && e.status !== 'cancelled')
     .sort((a, b) =>
       new Date(a.event_date.replace(' ', 'T')).getTime() -
       new Date(b.event_date.replace(' ', 'T')).getTime()
     )
   const passados = eventos
-    .filter(e => !isFuturo(e.event_date) && e.status !== 'rejected')
+    .filter(e => !isFuturo(e.event_date) && e.status !== 'rejected' && e.status !== 'cancelled')
     .sort((a, b) =>
       new Date(b.event_date.replace(' ', 'T')).getTime() -
       new Date(a.event_date.replace(' ', 'T')).getTime()
