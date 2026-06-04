@@ -321,7 +321,7 @@ export default function EventosPage() {
                         <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"
                           stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                       </svg>
-                      {ev.sold > 0 ? `Participantes (${ev.sold})` : 'Participantes'}
+                      Participantes
                     </a>
                   )}
                 </div>
