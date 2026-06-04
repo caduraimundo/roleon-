@@ -180,12 +180,15 @@ export default function AnalisesPage() {
             <div style={{
               background: '#fff', border: `0.5px solid ${T.border}`,
               borderRadius: 14, padding: '18px 14px 14px',
+              overflow: 'hidden',
             }}>
               <div style={{
                 display: 'flex', alignItems: 'flex-end',
                 gap: period === '7d' ? 5 : 10,
                 height: barH + 32,
-                justifyContent: 'space-between',
+                justifyContent: period === 'year' ? 'flex-start' : 'space-between',
+                overflowX: period === 'year' ? 'auto' : 'visible',
+                scrollbarWidth: 'none' as const,
               }}>
                 {bars.map((b, i) => {
                   const h = maxV > 0
@@ -193,7 +196,8 @@ export default function AnalisesPage() {
                     : 0
                   return (
                     <div key={i} style={{
-                      flex: 1, display: 'flex', flexDirection: 'column',
+                      flex: period === 'year' ? '0 0 42px' : 1,
+                      display: 'flex', flexDirection: 'column',
                       alignItems: 'center', justifyContent: 'flex-end', gap: 4,
                     }}>
                       {b.tickets > 0 && (
