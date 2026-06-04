@@ -6,7 +6,7 @@ import { supabase } from '../../../lib/supabase'
 
 function statusLabel(status: string) {
   if (status === 'pending') return { text: 'Aguardando aprovação', color: '#F59E0B', bg: '#FFFBEB' }
-  if (status === 'active') return { text: 'No ar', color: '#10B981', bg: '#ECFDF5' }
+  if (status === 'active') return { text: 'Publicado', color: '#10B981', bg: '#ECFDF5' }
   if (status === 'rejected') return { text: 'Recusado', color: '#EF4444', bg: '#FEF2F2' }
   return { text: 'Encerrado', color: '#6E6E73', bg: '#F5F5F5' }
 }
@@ -30,17 +30,17 @@ function cardColor(id: string) {
 }
 
 const FILTERS = [
-  { id: 'todos',    label: 'Todos'     },
   { id: 'active',   label: 'Ativos'    },
   { id: 'pending',  label: 'Pendentes' },
   { id: 'rejected', label: 'Recusados' },
+  { id: 'todos',    label: 'Todos'     },
 ]
 
 export default function EventosPage() {
   const router = useRouter()
   const [events, setEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('todos')
+  const [filter, setFilter] = useState('active')
 
   useEffect(() => {
     const init = async () => {
@@ -67,7 +67,7 @@ export default function EventosPage() {
   }, [router])
 
   const filtered = filter === 'todos'
-    ? events
+    ? events.filter((e: any) => e.status !== 'rejected')
     : events.filter((e: any) => e.status === filter)
 
   return (

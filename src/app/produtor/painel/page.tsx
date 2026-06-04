@@ -6,7 +6,7 @@ import { supabase } from '../../../lib/supabase'
 
 function statusLabel(status: string) {
   if (status === 'pending') return { text: 'Aguardando aprovação', color: '#F59E0B', bg: '#FFFBEB' }
-  if (status === 'active') return { text: 'No ar', color: '#10B981', bg: '#ECFDF5' }
+  if (status === 'active') return { text: 'Publicado', color: '#10B981', bg: '#ECFDF5' }
   if (status === 'rejected') return { text: 'Recusado', color: '#EF4444', bg: '#FEF2F2' }
   return { text: 'Encerrado', color: '#6E6E73', bg: '#F5F5F5' }
 }
@@ -65,8 +65,8 @@ export default function PainelPage() {
     init()
   }, [router])
 
-  const futuros = eventos.filter(e => isFuturo(e.event_date))
-  const passados = eventos.filter(e => !isFuturo(e.event_date))
+  const futuros = eventos.filter(e => isFuturo(e.event_date) && e.status !== 'rejected')
+  const passados = eventos.filter(e => !isFuturo(e.event_date) && e.status !== 'rejected')
 
   const btnPrimary: React.CSSProperties = {
     background: '#0EA5A0',
