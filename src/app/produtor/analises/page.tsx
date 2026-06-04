@@ -234,8 +234,6 @@ export default function AnalisesPage() {
             }}>Seus eventos</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {(data?.events ?? []).map((ev, i) => {
-                const maxRev = data?.events[0]?.revenue ?? 1
-                const pct    = maxRev > 0 ? Math.round((ev.revenue / maxRev) * 100) : 0
                 const past   = isPast(ev.event_date)
                 return (
                   <button key={ev.id}
@@ -244,14 +242,13 @@ export default function AnalisesPage() {
                       width: '100%', textAlign: 'left',
                       background: '#fff', border: `0.5px solid ${T.border}`,
                       borderRadius: 14, padding: 14,
-                      display: 'flex', flexDirection: 'column', gap: 10,
+                      display: 'flex', flexDirection: 'column',
                       cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
                     }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                       <div style={{
-                        width: 30, height: 30, borderRadius: 9,
-                        background: i === 0 ? T.primarySoft : '#F3F3F3',
-                        color: i === 0 ? T.primary : T.textDim,
+                        width: 34, height: 34, borderRadius: 10,
+                        background: T.primarySoft, color: T.primary,
                         display: 'flex', alignItems: 'center',
                         justifyContent: 'center',
                         fontSize: 13, fontWeight: 800, flexShrink: 0,
@@ -288,12 +285,7 @@ export default function AnalisesPage() {
                         }}>{fmtDate(ev.event_date)}</span>
                       )}
                     </div>
-                    <div style={{ height: 6, borderRadius: 999, background: '#F0F0F0', overflow: 'hidden' }}>
-                      <div style={{
-                        height: '100%', width: pct + '%',
-                        background: T.primary, borderRadius: 999,
-                      }} />
-                    </div>
+
                   </button>
                 )
               })}
