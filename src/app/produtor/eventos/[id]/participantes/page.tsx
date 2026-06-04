@@ -50,6 +50,7 @@ export default function ParticipantesPage({
   const [cancelEventLoading, setCancelEventLoading] = useState(false)
   const [eventCancelled, setEventCancelled] = useState(false)
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null)
+  const [confirmingId, setConfirmingId] = useState<string | null>(null)
 
   useEffect(() => {
     const init = async () => {
@@ -240,7 +241,7 @@ export default function ParticipantesPage({
             <div>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>Nenhum ingresso vendido</div>
               <div style={{ fontSize: 13, color: '#6E6E73', fontWeight: 500, marginTop: 4 }}>
-                Os participantes aparecerao aqui quando houver vendas.
+                Os participantes aparecerão aqui quando houver vendas.
               </div>
             </div>
           </div>
@@ -283,19 +284,57 @@ export default function ParticipantesPage({
                 </div>
 
                 {canCancel && (
-                  <button
-                    onClick={() => handleCancelTicket(ticket.id)}
-                    disabled={cancellingId === ticket.id}
-                    style={{
-                      marginTop: 12, width: '100%', padding: '9px 0', borderRadius: 10,
-                      border: '1px solid #FECACA', background: '#FEF2F2', color: '#DC2626',
-                      fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 600,
-                      cursor: cancellingId === ticket.id ? 'not-allowed' : 'pointer',
-                      opacity: cancellingId === ticket.id ? 0.6 : 1,
-                    }}
-                  >
-                    {cancellingId === ticket.id ? 'Cancelando...' : 'Cancelar ingresso'}
-                  </button>
+                  confirmingId === ticket.id ? (
+                    <div style={{
+                      marginTop: 12, background: '#FEF2F2', borderRadius: 10,
+                      border: '1px solid #FECACA', padding: '12px 14px',
+                    }}>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#DC2626', marginBottom: 8 }}>
+                        Cancelar ingresso de {ticket.buyer_name}?
+                      </div>
+                      <div style={{ fontSize: 12, color: '#6E6E73', marginBottom: 12, lineHeight: 1.5 }}>
+                        O comprador será notificado por e-mail e o valor estornado.
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          onClick={() => setConfirmingId(null)}
+                          style={{
+                            flex: 1, padding: '9px 0', borderRadius: 10,
+                            border: '1px solid #E8E8E8', background: '#fff', color: '#1A1A1A',
+                            fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 600,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Voltar
+                        </button>
+                        <button
+                          onClick={() => { handleCancelTicket(ticket.id); setConfirmingId(null) }}
+                          disabled={cancellingId === ticket.id}
+                          style={{
+                            flex: 2, padding: '9px 0', borderRadius: 10,
+                            border: 'none', background: '#DC2626', color: '#fff',
+                            fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 700,
+                            cursor: cancellingId === ticket.id ? 'not-allowed' : 'pointer',
+                            opacity: cancellingId === ticket.id ? 0.6 : 1,
+                          }}
+                        >
+                          {cancellingId === ticket.id ? 'Cancelando...' : 'Sim, cancelar'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmingId(ticket.id)}
+                      style={{
+                        marginTop: 12, width: '100%', padding: '9px 0', borderRadius: 10,
+                        border: '1px solid #E8E8E8', background: '#fff', color: '#DC2626',
+                        fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 600,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Cancelar ingresso
+                    </button>
+                  )
                 )}
               </div>
             )
@@ -303,13 +342,20 @@ export default function ParticipantesPage({
         </div>
 
         {!loading && !eventCancelled && tickets.length > 0 && (
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 32 }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
+              textTransform: 'uppercase' as const, color: '#9A9A9A',
+              marginBottom: 10,
+            }}>
+              Zona de risco
+            </div>
             {!cancelEventConfirm ? (
               <button
                 onClick={() => setCancelEventConfirm(true)}
                 style={{
                   width: '100%', padding: '13px 0', borderRadius: 10,
-                  border: '1px solid #E8E8E8', background: '#fff', color: '#6E6E73',
+                  border: '1px solid #FECACA', background: '#fff', color: '#DC2626',
                   fontFamily: "'Noto Sans', sans-serif", fontSize: 14, fontWeight: 600,
                   cursor: 'pointer',
                 }}
@@ -325,7 +371,7 @@ export default function ParticipantesPage({
                   Tem certeza?
                 </div>
                 <div style={{ fontSize: 13, color: '#6E6E73', marginBottom: 16, lineHeight: 1.5 }}>
-                  Todos os {activeTickets.length} ingressos ativos serao estornados e os compradores serao notificados por e-mail. Esta acao nao pode ser desfeita.
+                  Todos os {activeTickets.length} ingressos ativos serão estornados e os compradores serão notificados por e-mail. Esta ação não pode ser desfeita.
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button

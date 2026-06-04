@@ -8,6 +8,7 @@ function statusLabel(status: string) {
   if (status === 'pending') return { text: 'Aguardando aprovação', color: '#F59E0B', bg: '#FFFBEB' }
   if (status === 'active') return { text: 'Publicado', color: '#10B981', bg: '#ECFDF5' }
   if (status === 'rejected') return { text: 'Recusado', color: '#EF4444', bg: '#FEF2F2' }
+  if (status === 'cancelled') return { text: 'Cancelado', color: '#EF4444', bg: '#FEF2F2' }
   return { text: 'Encerrado', color: '#6E6E73', bg: '#F5F5F5' }
 }
 
@@ -34,9 +35,10 @@ function cardColor(id: string) {
 }
 
 const FILTERS = [
-  { id: 'active',   label: 'Ativos'    },
-  { id: 'pending',  label: 'Pendentes' },
-  { id: 'rejected', label: 'Recusados' },
+  { id: 'active',    label: 'Ativos'     },
+  { id: 'pending',   label: 'Pendentes'  },
+  { id: 'rejected',  label: 'Recusados'  },
+  { id: 'cancelled', label: 'Cancelados' },
 ]
 
 export default function EventosPage() {
