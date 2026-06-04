@@ -111,38 +111,42 @@ export default function AnalisesPage() {
 
           <div style={{
             background: '#fff', border: `0.5px solid ${T.border}`,
-            borderRadius: 14, padding: 14,
+            borderRadius: 14, padding: 16,
+            display: 'flex', flexDirection: 'column', gap: 4,
           }}>
             <div style={{
-              fontSize: 9.5, fontWeight: 700, letterSpacing: 0.6,
-              textTransform: 'uppercase' as const, color: T.textMute, marginBottom: 6,
+              fontSize: 10, fontWeight: 700, letterSpacing: 0.5,
+              textTransform: 'uppercase' as const, color: T.textMute,
             }}>Faturamento</div>
             <div style={{
-              fontSize: loading ? 13 : 22, fontWeight: 800, color: T.text,
-              letterSpacing: -0.5, lineHeight: 1.1,
+              fontSize: loading ? 13 : 22, fontWeight: 700, color: T.text,
+              letterSpacing: -0.6, lineHeight: 1.1,
+              fontVariantNumeric: 'tabular-nums' as const,
             }}>
               {loading ? 'Carregando...' : fmt(data?.totals.revenue ?? 0)}
             </div>
-            <div style={{ fontSize: 10.5, color: T.textMute, marginTop: 4, fontWeight: 500 }}>
+            <div style={{ fontSize: 12, color: T.textDim, fontWeight: 500 }}>
               total de vendas
             </div>
           </div>
 
           <div style={{
             background: '#fff', border: `0.5px solid ${T.border}`,
-            borderRadius: 14, padding: 14,
+            borderRadius: 14, padding: 16,
+            display: 'flex', flexDirection: 'column', gap: 4,
           }}>
             <div style={{
-              fontSize: 9.5, fontWeight: 700, letterSpacing: 0.6,
-              textTransform: 'uppercase' as const, color: T.textMute, marginBottom: 6,
+              fontSize: 10, fontWeight: 700, letterSpacing: 0.5,
+              textTransform: 'uppercase' as const, color: T.textMute,
             }}>Ingressos</div>
             <div style={{
-              fontSize: loading ? 13 : 22, fontWeight: 800, color: T.text,
-              letterSpacing: -0.5, lineHeight: 1.1,
+              fontSize: loading ? 13 : 22, fontWeight: 700, color: T.text,
+              letterSpacing: -0.6, lineHeight: 1.1,
+              fontVariantNumeric: 'tabular-nums' as const,
             }}>
               {loading ? '...' : (data?.totals.tickets ?? 0)}
             </div>
-            <div style={{ fontSize: 10.5, color: T.textMute, marginTop: 4, fontWeight: 500 }}>
+            <div style={{ fontSize: 12, color: T.textDim, fontWeight: 500 }}>
               vendidos no período
             </div>
           </div>
