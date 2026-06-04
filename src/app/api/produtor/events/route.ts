@@ -29,10 +29,14 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
     }
 
+    const ninetyDaysAgo = new Date()
+    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+
     const { data: eventos } = await supabaseAdmin
       .from('events')
       .select('id, title, event_date, status, is_free, cover_image, genre')
       .eq('producer_id', user.id)
+      .or(`status.neq.rejected,created_at.gte.${ninetyDaysAgo.toISOString()}`)
       .order('event_date', { ascending: false })
 
     if (!eventos || eventos.length === 0) {
