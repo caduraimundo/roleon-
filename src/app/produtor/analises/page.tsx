@@ -197,7 +197,7 @@ export default function AnalisesPage() {
                     : 0
                   return (
                     <div key={i} style={{
-                      flex: period === 'year' ? '0 0 70px' : 1,
+                      flex: period === 'year' ? '0 0 42px' : 1,
                       display: 'flex', flexDirection: 'column',
                       alignItems: 'center', justifyContent: 'flex-end', gap: 4,
                     }}>
