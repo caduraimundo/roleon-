@@ -63,6 +63,7 @@ export default function AnalisesPage() {
   const bars = data?.chart ?? []
   const maxV = Math.max(1, ...bars.map(b => b.tickets))
   const barH = 80
+  const useScroll = period === 'year' && bars.length > 7
 
   return (
     <div style={{
@@ -171,8 +172,8 @@ export default function AnalisesPage() {
                 display: 'flex', alignItems: 'flex-end',
                 gap: period === '7d' ? 5 : 10,
                 height: barH + 48,
-                justifyContent: period === 'year' ? 'flex-start' : 'space-between',
-                overflowX: period === 'year' ? 'auto' : 'visible',
+                justifyContent: useScroll ? 'flex-start' : 'space-between',
+                overflowX: useScroll ? 'auto' : 'visible',
                 scrollbarWidth: 'none' as const,
                 WebkitOverflowScrolling: 'touch' as const,
               }}>
@@ -182,7 +183,7 @@ export default function AnalisesPage() {
                     : 0
                   return (
                     <div key={i} style={{
-                      flex: period === 'year' ? '0 0 42px' : 1,
+                      flex: useScroll ? '0 0 42px' : 1,
                       display: 'flex', flexDirection: 'column',
                       alignItems: 'center', justifyContent: 'flex-end', gap: 4,
                     }}>
@@ -206,7 +207,7 @@ export default function AnalisesPage() {
                   )
                 })}
               </div>
-              {period === 'year' && (
+              {useScroll && (
                 <div style={{
                   position: 'absolute' as const,
                   right: 0, top: 0, bottom: 0, width: 40,
