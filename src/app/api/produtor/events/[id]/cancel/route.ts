@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
-import { performRefund } from '../../../../../lib/refund'
+import { performRefund } from '@/lib/refund'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,13 +51,13 @@ export async function POST(
           .eq('id', ticket.id)
 
         if (!updateErr) {
-          await supabaseAdmin.from('ticket_audit_log').insert({
+          void supabaseAdmin.from('ticket_audit_log').insert({
             ticket_id: ticket.id,
             old_status: ticket.status,
             new_status: 'cancelled',
             triggered_by: 'producer',
             metadata: { reason: 'cancelamento', payment_method: 'free' },
-          }).catch(() => {})
+          })
           results.cancelled++
         } else {
           results.failed++
