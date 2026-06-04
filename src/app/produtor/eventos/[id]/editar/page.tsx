@@ -311,7 +311,7 @@ export default function EditarEventoPage() {
       </header>
 
       {/* Content */}
-      <div style={{ padding: '24px 20px 100px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ padding: '24px 20px 48px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* Capa */}
         <div style={sectionStyle}>
@@ -719,9 +719,55 @@ export default function EditarEventoPage() {
           )}
         </div>
 
+        {/* Termos */}
+        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginTop: 8, marginBottom: 4 }}>
+          <input
+            type="checkbox"
+            checked={termsAccepted}
+            onChange={e => {
+              setTermsAccepted(e.target.checked)
+              if (e.target.checked) setError('')
+            }}
+            style={{ marginTop: 2, accentColor: '#0EA5A0', width: 16, height: 16, flexShrink: 0 }}
+          />
+          <span style={{ fontSize: 12, color: '#6E6E73', lineHeight: 1.5 }}>
+            Declaro que as informações estão corretas e estou de acordo com os{' '}
+            <a href="/termos" target="_blank" style={{ color: '#0EA5A0', textDecoration: 'none' }}>Termos de Uso</a>
+            {' '}e a{' '}
+            <a href="/privacidade" target="_blank" style={{ color: '#0EA5A0', textDecoration: 'none' }}>Política de Privacidade</a>
+            {' '}do Roleon.
+          </span>
+        </label>
+
+        {/* Botão Salvar — inline no formulário */}
+        {error && (
+          <div style={{
+            background: '#FFF0F0', border: '1px solid #FFD0D0',
+            borderRadius: 10, padding: '12px 14px',
+            color: '#C0392B', fontSize: 14, marginTop: 4,
+          }}>
+            {error}
+          </div>
+        )}
+        <button
+          onClick={handleSubmit}
+          disabled={loading || uploading}
+          style={{
+            width: '100%', padding: 14, borderRadius: 10,
+            background: loading || uploading ? '#7DCFCC' : '#0EA5A0',
+            color: '#fff', fontWeight: 600, fontSize: 15,
+            fontFamily: "'Noto Sans', sans-serif",
+            border: 'none', cursor: loading || uploading ? 'default' : 'pointer',
+            opacity: !termsAccepted ? 0.6 : 1,
+            marginTop: 12,
+          }}
+        >
+          {uploading ? 'Enviando capa...' : loading ? 'Salvando...' : 'Salvar alterações'}
+        </button>
+
         {/* Zona de risco — cancelar evento */}
         {eventStatus === 'active' && (
-          <div style={{ marginTop: 8 }}>
+          <div style={{ marginTop: 32 }}>
             <div style={{
               fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
               textTransform: 'uppercase' as const, color: '#9A9A9A',
@@ -782,71 +828,8 @@ export default function EditarEventoPage() {
             )}
           </div>
         )}
-
-        {/* Termos */}
-        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginTop: 8, marginBottom: 4 }}>
-          <input
-            type="checkbox"
-            checked={termsAccepted}
-            onChange={e => {
-              setTermsAccepted(e.target.checked)
-              if (e.target.checked) setError('')
-            }}
-            style={{ marginTop: 2, accentColor: '#0EA5A0', width: 16, height: 16, flexShrink: 0 }}
-          />
-          <span style={{ fontSize: 12, color: '#6E6E73', lineHeight: 1.5 }}>
-            Declaro que as informações estão corretas e estou de acordo com os{' '}
-            <a href="/termos" target="_blank" style={{ color: '#0EA5A0', textDecoration: 'none' }}>Termos de Uso</a>
-            {' '}e a{' '}
-            <a href="/privacidade" target="_blank" style={{ color: '#0EA5A0', textDecoration: 'none' }}>Política de Privacidade</a>
-            {' '}do Roleon.
-          </span>
-        </label>
       </div>
 
-      {/* Rodapé fixo */}
-      <div style={{
-        position: 'fixed',
-        bottom: 72,
-        left: 0,
-        right: 0,
-        padding: '12px 20px',
-        background: '#fff',
-        borderTop: '1px solid #E8E8E8',
-        zIndex: 100,
-      }}>
-        {error && (
-          <div style={{
-            background: '#FFF0F0',
-            border: '1px solid #FFD0D0',
-            borderRadius: 10,
-            padding: '12px 14px',
-            color: '#C0392B',
-            fontSize: 14,
-            marginBottom: 10,
-          }}>
-            {error}
-          </div>
-        )}
-        <button
-          onClick={handleSubmit}
-          disabled={loading || uploading}
-          style={{
-            width: '100%',
-            padding: 14,
-            borderRadius: 10,
-            background: loading || uploading ? '#7DCFCC' : '#0EA5A0',
-            color: '#fff',
-            fontWeight: 600,
-            fontSize: 15,
-            border: 'none',
-            cursor: loading || uploading ? 'default' : 'pointer',
-            opacity: !termsAccepted ? 0.6 : 1,
-          }}
-        >
-          {uploading ? 'Enviando capa...' : loading ? 'Salvando...' : 'Salvar alterações'}
-        </button>
-      </div>
     </div>
   )
 }
