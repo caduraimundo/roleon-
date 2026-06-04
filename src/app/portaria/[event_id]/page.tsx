@@ -11,8 +11,7 @@ export default function PortariaPublicaPage({
   const [eventId, setEventId] = useState('')
   const [accessToken, setAccessToken] = useState('')
   const [eventTitle, setEventTitle] = useState('')
-  const [totalSold, setTotalSold] = useState(0)
-  const [totalCheckins, setTotalCheckins] = useState(0)
+
   const [scanning, setScanning] = useState(true)
   const [feedback, setFeedback] = useState<null | 'success' | 'error'>(null)
   const [feedbackMsg, setFeedbackMsg] = useState('')
@@ -45,8 +44,7 @@ export default function PortariaPublicaPage({
 
       const data = await res.json()
       setEventTitle(data.event_title)
-      setTotalSold(data.total_sold ?? 0)
-      setTotalCheckins(data.total_checkins ?? 0)
+
       setLoading(false)
     }
     init()
@@ -86,8 +84,7 @@ export default function PortariaPublicaPage({
       if (res.ok) {
         setFeedback('success')
         setFeedbackMsg(`${json.ticket_type} - Entrada confirmada`)
-        setTotalCheckins(json.total_checkins)
-        setTotalSold(json.total_sold)
+
       } else if (res.status === 409) {
         setFeedback('error')
         setFeedbackMsg('Ingresso ja utilizado')
@@ -160,23 +157,7 @@ export default function PortariaPublicaPage({
         <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', marginBottom: 8 }}>
           {eventTitle}
         </div>
-        <div style={{
-          display: 'inline-flex', gap: 16,
-          background: 'rgba(255,255,255,0.06)',
-          borderRadius: 10, padding: '8px 20px',
-        }}>
-          <span style={{ fontSize: 13, color: '#9A9A9A' }}>
-            <span style={{ fontWeight: 700, color: '#fff', fontSize: 16 }}>
-              {totalCheckins}
-            </span>{' '}entraram
-          </span>
-          <span style={{ color: '#333' }}>|</span>
-          <span style={{ fontSize: 13, color: '#9A9A9A' }}>
-            <span style={{ fontWeight: 700, color: '#fff', fontSize: 16 }}>
-              {totalSold}
-            </span>{' '}total
-          </span>
-        </div>
+
       </div>
 
       <div style={{
