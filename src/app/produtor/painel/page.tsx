@@ -65,8 +65,18 @@ export default function PainelPage() {
     init()
   }, [router])
 
-  const futuros = eventos.filter(e => isFuturo(e.event_date) && e.status !== 'rejected')
-  const passados = eventos.filter(e => !isFuturo(e.event_date) && e.status !== 'rejected')
+  const futuros = eventos
+    .filter(e => isFuturo(e.event_date) && e.status !== 'rejected')
+    .sort((a, b) =>
+      new Date(a.event_date.replace(' ', 'T')).getTime() -
+      new Date(b.event_date.replace(' ', 'T')).getTime()
+    )
+  const passados = eventos
+    .filter(e => !isFuturo(e.event_date) && e.status !== 'rejected')
+    .sort((a, b) =>
+      new Date(b.event_date.replace(' ', 'T')).getTime() -
+      new Date(a.event_date.replace(' ', 'T')).getTime()
+    )
 
   const btnPrimary: React.CSSProperties = {
     background: '#0EA5A0',

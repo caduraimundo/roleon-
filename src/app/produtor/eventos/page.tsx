@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Fragment } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 
@@ -22,6 +22,10 @@ function formatCurrency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
+function isFuturo(event_date: string) {
+  return new Date(event_date.replace(' ', 'T')) > new Date()
+}
+
 const CARD_COLORS = ['#7B5E57', '#556B5D', '#6B5E7A', '#8A6F4A', '#5B6E8A']
 function cardColor(id: string) {
   let n = 0
@@ -33,7 +37,6 @@ const FILTERS = [
   { id: 'active',   label: 'Ativos'    },
   { id: 'pending',  label: 'Pendentes' },
   { id: 'rejected', label: 'Recusados' },
-  { id: 'todos',    label: 'Todos'     },
 ]
 
 export default function EventosPage() {
@@ -66,9 +69,21 @@ export default function EventosPage() {
     init()
   }, [router])
 
-  const filtered = filter === 'todos'
-    ? events.filter((e: any) => e.status !== 'rejected')
-    : events.filter((e: any) => e.status === filter)
+  const filtered = events.filter((e: any) => e.status === filter)
+
+  const sortedFuture = filtered
+    .filter((e: any) => isFuturo(e.event_date))
+    .sort((a: any, b: any) =>
+      new Date(a.event_date.replace(' ', 'T')).getTime() -
+      new Date(b.event_date.replace(' ', 'T')).getTime()
+    )
+  const sortedPast = filtered
+    .filter((e: any) => !isFuturo(e.event_date))
+    .sort((a: any, b: any) =>
+      new Date(b.event_date.replace(' ', 'T')).getTime() -
+      new Date(a.event_date.replace(' ', 'T')).getTime()
+    )
+  const displayEvents = [...sortedFuture, ...sortedPast]
 
   return (
     <div style={{
@@ -134,7 +149,7 @@ export default function EventosPage() {
               color: '#9A9A9A', fontSize: 14 }}>Carregando...</div>
           )}
 
-          {!loading && filtered.length === 0 && (
+          {!loading && displayEvents.length === 0 && (
             <div style={{
               marginTop: 48, display: 'flex', flexDirection: 'column',
               alignItems: 'center', gap: 14, textAlign: 'center',
@@ -166,11 +181,22 @@ export default function EventosPage() {
             </div>
           )}
 
-          {!loading && filtered.map((ev: any) => {
+          {!loading && displayEvents.map((ev: any, idx: number) => {
             const badge = statusLabel(ev.status)
+            const isPast = !isFuturo(ev.event_date)
+            const prevIsFuture = idx > 0 && isFuturo(displayEvents[idx - 1].event_date)
+            const showSeparator = filter === 'active' && isPast && (idx === 0 || prevIsFuture)
             return (
-              <div key={ev.id} style={{
-                background: '#fff', border: '0.5px solid #E8E8E8',
+              <Fragment key={ev.id}>
+                {showSeparator && (
+                  <div style={{
+                    fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
+                    textTransform: 'uppercase' as const, color: '#9A9A9A',
+                    marginTop: sortedFuture.length > 0 ? 8 : 0, marginBottom: 4,
+                  }}>Encerrados</div>
+                )}
+                <div style={{
+                  background: '#fff', border: '0.5px solid #E8E8E8',
                 borderRadius: 14, padding: 14,
                 display: 'flex', flexDirection: 'column', gap: 12,
               }}>
@@ -276,6 +302,7 @@ export default function EventosPage() {
                   </a>
                 </div>
               </div>
+              </Fragment>
             )
           })}
         </div>
