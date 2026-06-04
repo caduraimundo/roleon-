@@ -264,42 +264,64 @@ export default function EventosPage() {
                 </div>
 
                 {/* Botões */}
-                <div style={{ display: 'grid',
-                  gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  <a href={`/produtor/eventos/${ev.id}/editar`} style={{
-                    padding: '9px 10px', borderRadius: 10,
-                    border: '1px solid #E8E8E8',
-                    background: '#fff', color: '#1A1A1A',
-                    fontFamily: "'Noto Sans', sans-serif",
-                    fontSize: 13, fontWeight: 600,
-                    display: 'inline-flex', alignItems: 'center',
-                    justifyContent: 'center', gap: 6,
-                    textDecoration: 'none',
-                  }}>
-                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                      <path d="M2.5 12.5l1-3 7-7 2 2-7 7-3 1zM10 3l2 2"
-                        stroke="currentColor" strokeWidth="1.5"
-                        strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                    Editar
-                  </a>
-                  <a href={`/produtor/eventos/${ev.id}/portaria`} style={{
-                    padding: '9px 10px', borderRadius: 10,
-                    border: '1px solid #0EA5A0',
-                    background: '#fff', color: '#0EA5A0',
-                    fontFamily: "'Noto Sans', sans-serif",
-                    fontSize: 13, fontWeight: 600,
-                    display: 'inline-flex', alignItems: 'center',
-                    justifyContent: 'center', gap: 6,
-                    textDecoration: 'none',
-                  }}>
-                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                      <path d="M3 8.5L6.5 12 13 5" stroke="currentColor"
-                        strokeWidth="1.8" strokeLinecap="round"
-                        strokeLinejoin="round"/>
-                    </svg>
-                    Portaria
-                  </a>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    <a href={`/produtor/eventos/${ev.id}/editar`} style={{
+                      padding: '9px 10px', borderRadius: 10,
+                      border: '1px solid #E8E8E8',
+                      background: '#fff', color: '#1A1A1A',
+                      fontFamily: "'Noto Sans', sans-serif",
+                      fontSize: 13, fontWeight: 600,
+                      display: 'inline-flex', alignItems: 'center',
+                      justifyContent: 'center', gap: 6,
+                      textDecoration: 'none',
+                    }}>
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                        <path d="M2.5 12.5l1-3 7-7 2 2-7 7-3 1zM10 3l2 2"
+                          stroke="currentColor" strokeWidth="1.5"
+                          strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      Editar
+                    </a>
+                    <a href={`/produtor/eventos/${ev.id}/portaria`} style={{
+                      padding: '9px 10px', borderRadius: 10,
+                      border: '1px solid #0EA5A0',
+                      background: '#fff', color: '#0EA5A0',
+                      fontFamily: "'Noto Sans', sans-serif",
+                      fontSize: 13, fontWeight: 600,
+                      display: 'inline-flex', alignItems: 'center',
+                      justifyContent: 'center', gap: 6,
+                      textDecoration: 'none',
+                    }}>
+                      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
+                        <path d="M3 8.5L6.5 12 13 5" stroke="currentColor"
+                          strokeWidth="1.8" strokeLinecap="round"
+                          strokeLinejoin="round"/>
+                      </svg>
+                      Portaria
+                    </a>
+                  </div>
+                  {ev.sold > 0 && (
+                    <a href={`/produtor/eventos/${ev.id}/participantes`} style={{
+                      padding: '9px 10px', borderRadius: 10,
+                      border: '1px solid #E8E8E8',
+                      background: '#fff', color: '#1A1A1A',
+                      fontFamily: "'Noto Sans', sans-serif",
+                      fontSize: 13, fontWeight: 600,
+                      display: 'flex', alignItems: 'center',
+                      justifyContent: 'center', gap: 6,
+                      textDecoration: 'none',
+                    }}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"
+                          stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                        <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
+                        <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"
+                          stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                      Participantes ({ev.sold})
+                    </a>
+                  )}
                 </div>
               </div>
               </Fragment>
