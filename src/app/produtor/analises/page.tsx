@@ -166,7 +166,7 @@ export default function AnalisesPage() {
               <div style={{
                 display: 'flex', alignItems: 'flex-end',
                 gap: period === '7d' ? 5 : 10,
-                height: barH + 32,
+                height: barH + 48,
                 justifyContent: period === 'year' ? 'flex-start' : 'space-between',
                 overflowX: period === 'year' ? 'auto' : 'visible',
                 scrollbarWidth: 'none' as const,
