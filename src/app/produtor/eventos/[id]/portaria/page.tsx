@@ -17,6 +17,9 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
   const [manualCode, setManualCode] = useState('')
   const [loadingManual, setLoadingManual] = useState(false)
   const [token, setToken] = useState('')
+  const [portariaLink, setPortariaLink] = useState('')
+  const [loadingLink, setLoadingLink] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -45,6 +48,18 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
       const { data: { session } } = await supabase.auth.getSession()
       const accessToken = session?.access_token ?? ''
       setToken(accessToken)
+
+      const tokenRes = await fetch(`/api/produtor/events/${id}/portaria-token`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (tokenRes.ok) {
+        const tokenData = await tokenRes.json()
+        if (tokenData.token) {
+          setPortariaLink(
+            `${window.location.origin}/portaria/${id}?token=${tokenData.token}`
+          )
+        }
+      }
 
       const res = await fetch(`/api/produtor/checkin?event_id=${id}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
@@ -125,6 +140,35 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
     handleScan(manualCode.trim().toUpperCase())
     setManualCode('')
     setLoadingManual(false)
+  }
+
+  const handleGenerateLink = async () => {
+    setLoadingLink(true)
+    try {
+      const res = await fetch(`/api/produtor/events/${eventId}/portaria-token`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setPortariaLink(
+          `${window.location.origin}/portaria/${eventId}?token=${data.token}`
+        )
+        setCopied(false)
+      }
+    } finally {
+      setLoadingLink(false)
+    }
+  }
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(portariaLink)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2500)
+    } catch {
+      // fallback silencioso
+    }
   }
 
   return (
@@ -267,6 +311,90 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
             Confirmar
           </button>
         </div>
+      </div>
+
+      <div style={{ padding: '24px 20px 0' }}>
+        <div style={{
+          fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
+          textTransform: 'uppercase', color: '#9A9A9A', marginBottom: 12,
+        }}>
+          Link da portaria
+        </div>
+
+        {portariaLink ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{
+              padding: '10px 14px',
+              background: '#fff',
+              border: '1px solid #E8E8E8',
+              borderRadius: 10,
+              fontSize: 12,
+              color: '#6E6E73',
+              wordBreak: 'break-all',
+              lineHeight: 1.5,
+            }}>
+              {portariaLink}
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button
+                onClick={handleCopyLink}
+                style={{
+                  flex: 1,
+                  padding: '12px 0',
+                  borderRadius: 10,
+                  background: copied ? '#16A34A' : '#0EA5A0',
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  fontFamily: "'Noto Sans', sans-serif",
+                  transition: 'background 0.2s',
+                }}
+              >
+                {copied ? 'Copiado!' : 'Copiar link'}
+              </button>
+              <button
+                onClick={handleGenerateLink}
+                disabled={loadingLink}
+                style={{
+                  padding: '12px 16px',
+                  borderRadius: 10,
+                  background: '#F2F2F2',
+                  color: '#6E6E73',
+                  border: 'none',
+                  cursor: loadingLink ? 'not-allowed' : 'pointer',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  fontFamily: "'Noto Sans', sans-serif",
+                  opacity: loadingLink ? 0.6 : 1,
+                }}
+              >
+                Revogar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={handleGenerateLink}
+            disabled={loadingLink}
+            style={{
+              width: '100%',
+              padding: '13px 0',
+              borderRadius: 10,
+              background: '#F2F2F2',
+              color: '#1A1A1A',
+              border: 'none',
+              cursor: loadingLink ? 'not-allowed' : 'pointer',
+              fontSize: 14,
+              fontWeight: 600,
+              fontFamily: "'Noto Sans', sans-serif",
+              opacity: loadingLink ? 0.6 : 1,
+            }}
+          >
+            {loadingLink ? 'Gerando...' : 'Gerar link da portaria'}
+          </button>
+        )}
       </div>
     </div>
   )
