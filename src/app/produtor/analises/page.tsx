@@ -127,7 +127,7 @@ export default function AnalisesPage() {
               {loading ? 'Carregando...' : fmt(data?.totals.revenue ?? 0)}
             </div>
             <div style={{ fontSize: 12, color: T.textDim, fontWeight: 500 }}>
-              total de vendas
+              Total de vendas
             </div>
           </div>
 
@@ -148,7 +148,7 @@ export default function AnalisesPage() {
               {loading ? '...' : (data?.totals.tickets ?? 0)}
             </div>
             <div style={{ fontSize: 12, color: T.textDim, fontWeight: 500 }}>
-              vendidos no período
+              Vendidos no período
             </div>
           </div>
 
