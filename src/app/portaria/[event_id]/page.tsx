@@ -19,6 +19,7 @@ export default function PortariaPublicaPage({
   const [loadingManual, setLoadingManual] = useState(false)
   const [tokenError, setTokenError] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [cameraError, setCameraError] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -56,13 +57,18 @@ export default function PortariaPublicaPage({
     let scanner: any
 
     const startScanner = async () => {
-      const { default: QrScanner } = await import('qr-scanner')
-      scanner = new QrScanner(
-        videoRef.current!,
-        (result: { data: string }) => handleScan(result.data),
-        { preferredCamera: 'environment', highlightScanRegion: true }
-      )
-      await scanner.start()
+      try {
+        const { default: QrScanner } = await import('qr-scanner')
+        scanner = new QrScanner(
+          videoRef.current!,
+          (result: { data: string }) => handleScan(result.data),
+          { preferredCamera: 'environment', highlightScanRegion: true }
+        )
+        await scanner.start()
+      } catch (err) {
+        console.error('[portaria] erro ao iniciar scanner:', err)
+        setCameraError(true)
+      }
     }
 
     startScanner()
@@ -167,6 +173,30 @@ export default function PortariaPublicaPage({
         <video ref={videoRef} style={{
           width: '100%', height: '100%', objectFit: 'cover', display: 'block',
         }} />
+
+        {cameraError && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: 'rgba(26,26,26,0.95)',
+            display: 'flex', flexDirection: 'column',
+            alignItems: 'center', justifyContent: 'center',
+            gap: 12, padding: '0 24px', textAlign: 'center',
+          }}>
+            <svg width="44" height="44" viewBox="0 0 24 24" fill="none">
+              <path d="M2 2l20 20" stroke="#6E6E73" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M7 7H4a2 2 0 00-2 2v9a2 2 0 002 2h16"
+                stroke="#6E6E73" strokeWidth="2" strokeLinecap="round"/>
+              <path d="M21 15V9a2 2 0 00-2-2h-5"
+                stroke="#6E6E73" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <div style={{ color: '#fff', fontSize: 15, fontWeight: 700 }}>
+              Câmera indisponível
+            </div>
+            <div style={{ color: '#6E6E73', fontSize: 13, lineHeight: 1.6 }}>
+              Permita o acesso à câmera nas configurações do navegador ou use o código manual abaixo.
+            </div>
+          </div>
+        )}
 
         {feedback && (
           <div style={{
