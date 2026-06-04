@@ -37,6 +37,9 @@ export default function EditarEventoPage() {
   const [loading, setLoading] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
+  const [eventStatus, setEventStatus] = useState('')
+  const [cancelConfirm, setCancelConfirm] = useState(false)
+  const [cancelLoading, setCancelLoading] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -80,6 +83,7 @@ export default function EditarEventoPage() {
       setIsUnlimited(ev.is_unlimited || false)
       setPolicies(ev.policies?.length ? ev.policies : [''])
       setExistingCoverUrl(ev.cover_image || null)
+      setEventStatus(ev.status || '')
 
       const parts = ev.location_name?.split(', ') || []
       setRua(parts[0] || '')
@@ -139,6 +143,27 @@ export default function EditarEventoPage() {
       setCepError('Erro ao buscar CEP. Tente novamente.')
     } finally {
       setCepLoading(false)
+    }
+  }
+
+  const handleCancelEvent = async () => {
+    setCancelLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch(`/api/produtor/events/${eventId}/cancel`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      })
+      if (res.ok) {
+        router.replace('/produtor/eventos')
+      } else {
+        const json = await res.json()
+        showError(json.error ?? 'Erro ao cancelar evento.')
+      }
+    } catch {
+      showError('Erro ao cancelar evento.')
+    } finally {
+      setCancelLoading(false)
     }
   }
 
@@ -694,6 +719,70 @@ export default function EditarEventoPage() {
           )}
         </div>
 
+        {/* Zona de risco — cancelar evento */}
+        {eventStatus === 'active' && (
+          <div style={{ marginTop: 8 }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
+              textTransform: 'uppercase' as const, color: '#9A9A9A',
+              marginBottom: 10,
+            }}>
+              Zona de risco
+            </div>
+            {!cancelConfirm ? (
+              <button
+                onClick={() => setCancelConfirm(true)}
+                style={{
+                  width: '100%', padding: '13px 0', borderRadius: 10,
+                  border: '1px solid #FECACA', background: '#fff', color: '#DC2626',
+                  fontFamily: "'Noto Sans', sans-serif", fontSize: 14, fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Cancelar evento
+              </button>
+            ) : (
+              <div style={{
+                background: '#FEF2F2', borderRadius: 14,
+                border: '1px solid #FECACA', padding: 16,
+              }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#DC2626', marginBottom: 6 }}>
+                  Tem certeza?
+                </div>
+                <div style={{ fontSize: 13, color: '#6E6E73', marginBottom: 16, lineHeight: 1.5 }}>
+                  O evento será cancelado e todos os ingressos ativos serão estornados. Os compradores serão notificados por e-mail. Esta ação não pode ser desfeita.
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    onClick={() => setCancelConfirm(false)}
+                    style={{
+                      flex: 1, padding: '11px 0', borderRadius: 10,
+                      border: '1px solid #E8E8E8', background: '#fff', color: '#1A1A1A',
+                      fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Voltar
+                  </button>
+                  <button
+                    onClick={handleCancelEvent}
+                    disabled={cancelLoading}
+                    style={{
+                      flex: 2, padding: '11px 0', borderRadius: 10,
+                      border: 'none', background: '#DC2626', color: '#fff',
+                      fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 700,
+                      cursor: cancelLoading ? 'not-allowed' : 'pointer',
+                      opacity: cancelLoading ? 0.6 : 1,
+                    }}
+                  >
+                    {cancelLoading ? 'Cancelando...' : 'Sim, cancelar evento'}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Termos */}
         <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', marginTop: 8, marginBottom: 4 }}>
           <input
@@ -718,12 +807,13 @@ export default function EditarEventoPage() {
       {/* Rodapé fixo */}
       <div style={{
         position: 'fixed',
-        bottom: 0,
+        bottom: 72,
         left: 0,
         right: 0,
         padding: '12px 20px',
         background: '#fff',
         borderTop: '1px solid #E8E8E8',
+        zIndex: 100,
       }}>
         {error && (
           <div style={{

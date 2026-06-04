@@ -63,7 +63,14 @@
       "Bash(npx next *)",
       "Bash(grep -n \"Grátis.*R\\\\$30\\\\|R\\\\$30.*R\\\\$50\\\\|Até R\\\\$\" src/components/MapClient.tsx)",
       "Bash(node scripts/generate-icons.mjs)",
-      "Bash(git -C \"C:\\\\Users\\\\Carlo\\\\roleon-\" log --oneline -3)"
+      "Bash(git -C \"C:\\\\Users\\\\Carlo\\\\roleon-\" log --oneline -3)",
+      "Bash(mkdir -p \"C:\\\\Users\\\\Carlo\\\\roleon-\\\\src\\\\app\\\\produtor\\\\eventos\\\\[id]\\\\editar\" 2>/dev/null; echo ok)",
+      "PowerShell(npx vercel --prod 2>&1)",
+      "Bash(git stash *)",
+      "mcp__ca924a0b-bc34-41d9-bdd0-df142f432b89__list_teams",
+      "mcp__ca924a0b-bc34-41d9-bdd0-df142f432b89__list_deployments",
+      "PowerShell(vercel --prod --cwd C:\\\\Users\\\\Carlo\\\\roleon-)",
+      "PowerShell(npx vercel --prod --cwd \"C:\\\\Users\\\\Carlo\\\\roleon-\")"
     ]
   }
 }
