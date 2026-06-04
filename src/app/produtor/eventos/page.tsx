@@ -257,7 +257,7 @@ export default function EventosPage() {
                     </svg>
                     Editar
                   </a>
-                  <a href={`/produtor/eventos/${ev.id}/checkin`} style={{
+                  <a href={`/produtor/eventos/${ev.id}/portaria`} style={{
                     padding: '9px 10px', borderRadius: 10,
                     border: '1px solid #0EA5A0',
                     background: '#fff', color: '#0EA5A0',
@@ -272,7 +272,7 @@ export default function EventosPage() {
                         strokeWidth="1.8" strokeLinecap="round"
                         strokeLinejoin="round"/>
                     </svg>
-                    Check-in
+                    Portaria
                   </a>
                 </div>
               </div>

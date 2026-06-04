@@ -332,7 +332,7 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
 
       </div>
 
-      {/* Botões Editar + Check-in */}
+      {/* Botões Editar + Portaria */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         <button
           onClick={() => router.push(`/produtor/eventos/${e.id}/editar`)}
@@ -354,7 +354,7 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
           Editar
         </button>
         <button
-          onClick={() => router.push(`/produtor/eventos/${e.id}/checkin`)}
+          onClick={() => router.push(`/produtor/eventos/${e.id}/portaria`)}
           style={{
             padding: '9px 12px', borderRadius: 10,
             border: '1px solid #0EA5A0',
@@ -370,7 +370,7 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
               strokeWidth="1.8" strokeLinecap="round"
               strokeLinejoin="round"/>
           </svg>
-          Check-in
+          Portaria
         </button>
       </div>
     </div>
