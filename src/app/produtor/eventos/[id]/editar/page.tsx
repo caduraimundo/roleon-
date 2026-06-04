@@ -807,10 +807,10 @@ export default function EditarEventoPage() {
       {/* Rodapé fixo — acima da nav bar */}
       <div style={{
         position: 'fixed',
-        bottom: 64,
+        bottom: 72,
         left: 0,
         right: 0,
-        padding: '12px 20px',
+        padding: '16px 20px',
         background: '#fff',
         borderTop: '1px solid #E8E8E8',
         zIndex: 100,

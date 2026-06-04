@@ -273,7 +273,7 @@ export default function NovoEventoPage() {
       </header>
 
       {/* Content */}
-      <div style={{ padding: '24px 20px 100px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ padding: '24px 20px 180px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* Capa */}
         <div style={sectionStyle}>
@@ -680,12 +680,13 @@ export default function NovoEventoPage() {
       {/* Rodapé fixo */}
       <div style={{
         position: 'fixed',
-        bottom: 0,
+        bottom: 72,
         left: 0,
         right: 0,
-        padding: '12px 20px',
+        padding: '16px 20px',
         background: '#fff',
         borderTop: '1px solid #E8E8E8',
+        zIndex: 100,
       }}>
         {error && (
           <div style={{
