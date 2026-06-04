@@ -147,25 +147,6 @@ export default function AnalisesPage() {
             </div>
           </div>
 
-          <div style={{
-            background: '#fff', border: `0.5px solid ${T.border}`,
-            borderRadius: 14, padding: 14,
-            gridColumn: '1 / -1',
-          }}>
-            <div style={{
-              fontSize: 9.5, fontWeight: 700, letterSpacing: 0.6,
-              textTransform: 'uppercase' as const, color: T.textMute, marginBottom: 6,
-            }}>Ticket médio</div>
-            <div style={{
-              fontSize: loading ? 13 : 22, fontWeight: 800, color: T.text,
-              letterSpacing: -0.5, lineHeight: 1.1,
-            }}>
-              {loading ? 'Carregando...' : fmt(data?.totals.avgTicket ?? 0)}
-            </div>
-            <div style={{ fontSize: 10.5, color: T.textMute, marginTop: 4, fontWeight: 500 }}>
-              por ingresso vendido
-            </div>
-          </div>
 
         </div>
 
