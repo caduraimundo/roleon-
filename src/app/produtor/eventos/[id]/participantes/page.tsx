@@ -341,7 +341,7 @@ export default function ParticipantesPage({
           })}
         </div>
 
-        {!loading && !eventCancelled && tickets.length > 0 && (
+        {!loading && !eventCancelled && (
           <div style={{ marginTop: 32 }}>
             <div style={{
               fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
@@ -371,7 +371,10 @@ export default function ParticipantesPage({
                   Tem certeza?
                 </div>
                 <div style={{ fontSize: 13, color: '#6E6E73', marginBottom: 16, lineHeight: 1.5 }}>
-                  Todos os {activeTickets.length} ingressos ativos serão estornados e os compradores serão notificados por e-mail. Esta ação não pode ser desfeita.
+                  {activeTickets.length > 0
+                    ? `Todos os ${activeTickets.length} ingressos ativos serão estornados e os compradores serão notificados por e-mail. Esta ação não pode ser desfeita.`
+                    : 'Nenhum ingresso vendido. O evento será marcado como cancelado. Esta ação não pode ser desfeita.'
+                  }
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button
