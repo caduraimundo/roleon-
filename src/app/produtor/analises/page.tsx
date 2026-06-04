@@ -180,7 +180,7 @@ export default function AnalisesPage() {
             <div style={{
               background: '#fff', border: `0.5px solid ${T.border}`,
               borderRadius: 14, padding: '18px 14px 14px',
-              overflow: 'hidden',
+              position: 'relative' as const,
             }}>
               <div style={{
                 display: 'flex', alignItems: 'flex-end',
@@ -189,6 +189,7 @@ export default function AnalisesPage() {
                 justifyContent: period === 'year' ? 'flex-start' : 'space-between',
                 overflowX: period === 'year' ? 'auto' : 'visible',
                 scrollbarWidth: 'none' as const,
+                WebkitOverflowScrolling: 'touch' as const,
               }}>
                 {bars.map((b, i) => {
                   const h = maxV > 0
@@ -220,6 +221,15 @@ export default function AnalisesPage() {
                   )
                 })}
               </div>
+              {period === 'year' && (
+                <div style={{
+                  position: 'absolute' as const,
+                  right: 0, top: 0, bottom: 0, width: 40,
+                  background: 'linear-gradient(to right, transparent, #fff)',
+                  borderRadius: '0 14px 14px 0',
+                  pointerEvents: 'none' as const,
+                }} />
+              )}
             </div>
           </div>
         )}
