@@ -118,13 +118,13 @@ export default function AnalisesPage() {
               textTransform: 'uppercase' as const, color: T.textMute, marginBottom: 6,
             }}>Faturamento</div>
             <div style={{
-              fontSize: loading ? 13 : 20, fontWeight: 800, color: T.text,
+              fontSize: loading ? 13 : 22, fontWeight: 800, color: T.text,
               letterSpacing: -0.5, lineHeight: 1.1,
             }}>
               {loading ? 'Carregando...' : fmt(data?.totals.revenue ?? 0)}
             </div>
             <div style={{ fontSize: 10.5, color: T.textMute, marginTop: 4, fontWeight: 500 }}>
-              líquido após taxas
+              total de vendas
             </div>
           </div>
 
@@ -137,7 +137,7 @@ export default function AnalisesPage() {
               textTransform: 'uppercase' as const, color: T.textMute, marginBottom: 6,
             }}>Ingressos</div>
             <div style={{
-              fontSize: loading ? 13 : 28, fontWeight: 800, color: T.text,
+              fontSize: loading ? 13 : 22, fontWeight: 800, color: T.text,
               letterSpacing: -0.5, lineHeight: 1.1,
             }}>
               {loading ? '...' : (data?.totals.tickets ?? 0)}
