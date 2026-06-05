@@ -128,6 +128,42 @@ export async function POST(req: NextRequest) {
 
     const pagarmeData = await pagarmeRes.json()
 
+    // Quando é UPDATE (existingId), o PUT só atualiza register_information.
+    // A conta bancária tem endpoint separado no Pagar.me V5.
+    if (existingId) {
+      try {
+        const bankRes = await fetch(
+          `https://api.pagar.me/core/v5/recipients/${existingId}/default-bank-account`,
+          {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', Authorization: pagarmeAuth() },
+            body: JSON.stringify({
+              holder_name: body.bank_holder_name || profile.name,
+              holder_type: 'individual',
+              holder_document: profile.cpf,
+              bank: body.bank_code,
+              branch_number: body.bank_agency,
+              ...(body.bank_agency_digit ? { branch_check_digit: body.bank_agency_digit } : {}),
+              account_number: body.bank_account,
+              account_check_digit: body.bank_account_digit,
+              type: body.bank_account_type,
+            }),
+          }
+        )
+        if (!bankRes.ok) {
+          const bankErr = await bankRes.json().catch(() => ({}))
+          console.error('[banking] PATCH conta bancária falhou:', JSON.stringify(bankErr))
+          await supabaseAdmin.from('profiles').update({ pagar_me_recipient_id: existingId }).eq('id', user.id)
+          return NextResponse.json({
+            ok: true,
+            warning: 'Dados pessoais salvos, mas a conta bancária no sistema de pagamentos não pôde ser atualizada. Entre em contato com o suporte para atualizar manualmente.',
+          })
+        }
+      } catch (e) {
+        console.error('[banking] PATCH conta bancária exception:', e)
+      }
+    }
+
     await supabaseAdmin
       .from('profiles')
       .update({ pagar_me_recipient_id: pagarmeData.id })
