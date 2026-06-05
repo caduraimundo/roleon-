@@ -267,11 +267,30 @@ export default function EventosPage() {
                   )}
                 </div>
 
-                {/* Botões — active: Editar+Portaria+Participantes | pending/rejected: só Editar | cancelled: nenhum */}
+                {/* Botões — Portaria primário | Editar+Participantes secundário | Copiar link terciário | pending/rejected só Editar | cancelled nenhum */}
                 {ev.status !== 'cancelled' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {ev.status === 'active' ? (
                       <>
+                        {/* Portaria — primário, largura total, teal sólido */}
+                        <a href={`/produtor/eventos/${ev.id}/portaria`} style={{
+                          padding: '11px 10px', borderRadius: 10,
+                          border: 'none', background: '#0EA5A0', color: '#fff',
+                          fontFamily: "'Noto Sans', sans-serif",
+                          fontSize: 13, fontWeight: 700,
+                          display: 'flex', alignItems: 'center',
+                          justifyContent: 'center', gap: 6,
+                          textDecoration: 'none',
+                        }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2"
+                              stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                            <line x1="4" y1="12" x2="20" y2="12"
+                              stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                          </svg>
+                          Portaria
+                        </a>
+                        {/* Editar + Participantes — secundário, 2 colunas */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                           <a href={`/produtor/eventos/${ev.id}/editar`} style={{
                             padding: '9px 10px', borderRadius: 10,
@@ -290,32 +309,13 @@ export default function EventosPage() {
                             </svg>
                             Editar
                           </a>
-                          <a href={`/produtor/eventos/${ev.id}/portaria`} style={{
-                            padding: '9px 10px', borderRadius: 10,
-                            border: '1px solid #0EA5A0',
-                            background: '#fff', color: '#0EA5A0',
-                            fontFamily: "'Noto Sans', sans-serif",
-                            fontSize: 13, fontWeight: 600,
-                            display: 'inline-flex', alignItems: 'center',
-                            justifyContent: 'center', gap: 6,
-                            textDecoration: 'none',
-                          }}>
-                            <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                              <path d="M3 8.5L6.5 12 13 5" stroke="currentColor"
-                                strokeWidth="1.8" strokeLinecap="round"
-                                strokeLinejoin="round"/>
-                            </svg>
-                            Portaria
-                          </a>
-                        </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                           <a href={`/produtor/eventos/${ev.id}/participantes`} style={{
                             padding: '9px 10px', borderRadius: 10,
                             border: '1px solid #E8E8E8',
                             background: '#fff', color: '#1A1A1A',
                             fontFamily: "'Noto Sans', sans-serif",
                             fontSize: 13, fontWeight: 600,
-                            display: 'flex', alignItems: 'center',
+                            display: 'inline-flex', alignItems: 'center',
                             justifyContent: 'center', gap: 6,
                             textDecoration: 'none',
                           }}>
@@ -328,55 +328,55 @@ export default function EventosPage() {
                             </svg>
                             Participantes
                           </a>
-                          <button
-                            onClick={async () => {
-                              const url = `https://roleon.com.br/evento/${ev.id}`
-                              try {
-                                await navigator.clipboard.writeText(url)
-                              } catch {
-                                const el = document.createElement('input')
-                                el.value = url
-                                document.body.appendChild(el)
-                                el.select()
-                                document.execCommand('copy')
-                                document.body.removeChild(el)
-                              }
-                              setCopiedId(ev.id)
-                              setTimeout(() => setCopiedId(null), 2500)
-                            }}
-                            style={{
-                              padding: '9px 10px', borderRadius: 10,
-                              border: `1px solid ${copiedId === ev.id ? '#0EA5A0' : '#E8E8E8'}`,
-                              background: '#fff',
-                              color: copiedId === ev.id ? '#0EA5A0' : '#1A1A1A',
-                              fontFamily: "'Noto Sans', sans-serif",
-                              fontSize: 13, fontWeight: 600,
-                              display: 'flex', alignItems: 'center',
-                              justifyContent: 'center', gap: 6,
-                              cursor: 'pointer',
-                            }}
-                          >
-                            {copiedId === ev.id ? (
-                              <>
-                                <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-                                  <path d="M3 8.5L6.5 12 13 5" stroke="currentColor"
-                                    strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                Copiado!
-                              </>
-                            ) : (
-                              <>
-                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                                  <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
-                                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                  <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
-                                    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                Copiar link
-                              </>
-                            )}
-                          </button>
                         </div>
+                        {/* Copiar link — terciário, sem borda, cinza suave */}
+                        <button
+                          onClick={async () => {
+                            const url = `https://roleon.com.br/evento/${ev.id}`
+                            try {
+                              await navigator.clipboard.writeText(url)
+                            } catch {
+                              const el = document.createElement('input')
+                              el.value = url
+                              document.body.appendChild(el)
+                              el.select()
+                              document.execCommand('copy')
+                              document.body.removeChild(el)
+                            }
+                            setCopiedId(ev.id)
+                            setTimeout(() => setCopiedId(null), 2500)
+                          }}
+                          style={{
+                            padding: '6px 10px', borderRadius: 10,
+                            border: 'none', background: 'transparent',
+                            color: copiedId === ev.id ? '#0EA5A0' : '#9A9A9A',
+                            fontFamily: "'Noto Sans', sans-serif",
+                            fontSize: 12, fontWeight: 500,
+                            display: 'flex', alignItems: 'center',
+                            justifyContent: 'center', gap: 5,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {copiedId === ev.id ? (
+                            <>
+                              <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+                                <path d="M3 8.5L6.5 12 13 5" stroke="currentColor"
+                                  strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                              Copiado!
+                            </>
+                          ) : (
+                            <>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"
+                                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"
+                                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                              Copiar link
+                            </>
+                          )}
+                        </button>
                       </>
                     ) : (
                       <a href={`/produtor/eventos/${ev.id}/editar`} style={{
