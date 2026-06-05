@@ -99,7 +99,7 @@ export async function POST(req: NextRequest) {
         type: body.bank_account_type,
       },
       transfer_settings: {
-        transfer_enabled: true,
+        transfer_enabled: false,
         transfer_interval: 'daily',
         transfer_day: 0,
       },
