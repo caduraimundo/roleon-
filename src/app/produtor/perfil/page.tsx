@@ -111,7 +111,7 @@ export default function PerfilPage() {
         }}>Conta</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 22 }}>
           {[
-            { label: 'Dados do estabelecimento', icon: (
+            { label: 'Dados do estabelecimento', onClick: undefined, icon: (
               <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
                 <path d="M4 9.5V17a1.5 1.5 0 001.5 1.5h11A1.5 1.5 0 0018 17V9.5"
                   stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
@@ -121,7 +121,7 @@ export default function PerfilPage() {
                   stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
               </svg>
             )},
-            { label: 'Conta bancária para repasse', icon: (
+            { label: 'Conta bancária para repasse', onClick: () => router.push('/produtor/perfil/conta-bancaria'), icon: (
               <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
                 <path d="M11 3.5L19 7.5H3L11 3.5z"
                   stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
@@ -129,7 +129,7 @@ export default function PerfilPage() {
                   stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
               </svg>
             )},
-            { label: 'Documentos e verificação', icon: (
+            { label: 'Documentos e verificação', onClick: undefined, icon: (
               <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
                 <path d="M6 3.5h6l4 4V18a1.5 1.5 0 01-1.5 1.5h-8A1.5 1.5 0 015 18V5A1.5 1.5 0 016 3.5z"
                   stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
@@ -139,7 +139,7 @@ export default function PerfilPage() {
               </svg>
             )},
           ].map((item, i) => (
-            <button key={i} style={{
+            <button key={i} onClick={(item as any).onClick} style={{
               width: '100%', textAlign: 'left',
               background: '#fff', border: '0.5px solid #E5E5EA',
               borderRadius: 12, cursor: 'pointer',
