@@ -269,7 +269,7 @@ export default function EventosPage() {
 
                 {/* Botões — Portaria primário | Editar+Participantes secundário | Copiar link terciário | pending/rejected só Editar | cancelled nenhum */}
                 {ev.status !== 'cancelled' && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {ev.status === 'active' ? (
                       <>
                         {/* Portaria — primário, largura total, teal sólido */}
