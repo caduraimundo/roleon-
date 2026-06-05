@@ -225,20 +225,17 @@ export async function POST(req: NextRequest) {
           },
         },
         items: [{ amount: amountCents, description: event.title, quantity: 1, code: event_id }],
-        payments: [{
-          payment_method: 'pix',
-          pix: { expires_in: 900 },
-          ...(producerRecipientId && price > 0 ? {
-            split: [{
-              amount: Math.round(price * quantity * 100),
-              recipient_id: producerRecipientId,
-              type: 'flat',
-              options: { charge_processing_fee: false, charge_remainder_fee: false, liable: false },
-            }],
-          } : {}),
-        }],
+        payments: [{ payment_method: 'pix', pix: { expires_in: 900 } }],
+        ...(producerRecipientId && price > 0 ? {
+          split: [{
+            amount: Math.round(price * quantity * 100),
+            recipient_id: producerRecipientId,
+            type: 'flat',
+            options: { charge_processing_fee: false, charge_remainder_fee: false, liable: false },
+          }],
+        } : {}),
       }
-      console.log('[checkout pix] PAYLOAD COMPLETO:', JSON.stringify(pixPayload, null, 2))
+      console.log('[checkout pix] enviando pedido para Pagar.me | producerRecipientId:', producerRecipientId, '| amountCents:', amountCents)
 
       let pagarmeRes: Response
       try {
@@ -357,15 +354,15 @@ export async function POST(req: NextRequest) {
         payments: [{
           payment_method: 'credit_card',
           credit_card: { card_token, installments, statement_descriptor: 'ROLEON' },
-          ...(producerRecipientId && price > 0 ? {
-            split: [{
-              amount: Math.round(price * quantity * 100),
-              recipient_id: producerRecipientId,
-              type: 'flat',
-              options: { charge_processing_fee: false, charge_remainder_fee: false, liable: false },
-            }],
-          } : {}),
         }],
+        ...(producerRecipientId && price > 0 ? {
+          split: [{
+            amount: Math.round(price * quantity * 100),
+            recipient_id: producerRecipientId,
+            type: 'flat',
+            options: { charge_processing_fee: false, charge_remainder_fee: false, liable: false },
+          }],
+        } : {}),
       }),
     })
 
