@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
       bank_account: body.bank_account,
       bank_account_digit: body.bank_account_digit,
       bank_account_type: body.bank_account_type,
+      bank_holder_name: body.bank_holder_name || null,
     })
     .eq('id', user.id)
 
@@ -87,7 +88,7 @@ export async function POST(req: NextRequest) {
         }],
       },
       default_bank_account: {
-        holder_name: profile.name,
+        holder_name: body.bank_holder_name || profile.name,
         holder_type: 'individual',
         holder_document: profile.cpf,
         bank: body.bank_code,

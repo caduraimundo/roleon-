@@ -29,6 +29,7 @@ type Form = {
   address_city: string; address_state: string; address_reference: string
   bank_code: string; bank_agency: string; bank_agency_digit: string
   bank_account: string; bank_account_digit: string; bank_account_type: string
+  bank_holder_name: string
 }
 
 const EMPTY: Form = {
@@ -39,6 +40,7 @@ const EMPTY: Form = {
   address_city: '', address_state: '', address_reference: '',
   bank_code: '', bank_agency: '', bank_agency_digit: '',
   bank_account: '', bank_account_digit: '', bank_account_type: 'checking',
+  bank_holder_name: '',
 }
 
 function centsToDisplay(cents: number | null): string {
@@ -71,7 +73,7 @@ export default function ContaBancariaPage() {
       if (!user) { router.push('/produtor'); return }
       const { data } = await supabase
         .from('profiles')
-        .select('mother_name,birthdate,monthly_income,professional_occupation,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,address_reference,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type')
+        .select('mother_name,birthdate,monthly_income,professional_occupation,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,address_reference,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type,bank_holder_name')
         .eq('id', user.id)
         .single()
       if (data) {
@@ -96,6 +98,7 @@ export default function ContaBancariaPage() {
           bank_account: data.bank_account || '',
           bank_account_digit: data.bank_account_digit || '',
           bank_account_type: data.bank_account_type || 'checking',
+          bank_holder_name: data.bank_holder_name || '',
         })
       }
       setLoading(false)
@@ -143,6 +146,7 @@ export default function ContaBancariaPage() {
       if (!form.address_state.trim()) return 'Informe o estado.'
     }
     if (step === 3) {
+      if (!form.bank_holder_name.trim()) return 'Informe o nome do titular da conta.'
       if (!form.bank_code) return 'Selecione o banco.'
       if (!form.bank_agency.trim()) return 'Informe a agência.'
       if (!form.bank_account.trim()) return 'Informe o número da conta.'
@@ -352,6 +356,16 @@ export default function ContaBancariaPage() {
         </>}
 
         {step === 3 && <>
+          <div style={fld}>
+            <label style={lbl}>Nome do titular da conta</label>
+            <input value={form.bank_holder_name}
+              onChange={e => set('bank_holder_name', e.target.value)}
+              placeholder="Nome completo conforme cadastrado no banco"
+              style={inp} />
+            <span style={{ fontSize: 11, color: '#9A9A9A', marginTop: 4 }}>
+              Deve ser idêntico ao nome registrado na instituição bancária.
+            </span>
+          </div>
           <div style={fld}>
             <label style={lbl}>Banco</label>
             <select value={form.bank_code} onChange={e => set('bank_code', e.target.value)} style={inp}>
