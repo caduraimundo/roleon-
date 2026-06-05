@@ -121,6 +121,13 @@ export async function POST(req: NextRequest) {
       console.log('[checkout] producerRecipientId:', producerRecipientId)
     }
 
+    if (!event.is_free && !producerRecipientId) {
+      return NextResponse.json(
+        { error: 'Este evento não está disponível para compra no momento. O organizador precisa configurar os dados bancários para repasse.' },
+        { status: 400 }
+      )
+    }
+
     const isPix = payment_method !== 'credit_card'
     let price = Number(body.ticket_type_price) || Number(event.price) || 0
     const { total } = calcFees(price, quantity, isPix ? 'pix' : 'card')

@@ -37,6 +37,7 @@ export default function PainelPage() {
   const router = useRouter()
   const [eventos, setEventos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [hasBank, setHasBank] = useState(true)
   const [producerName, setProducerName] = useState('')
 
   useEffect(() => {
@@ -46,13 +47,14 @@ export default function PainelPage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('name, role')
+        .select('name, role, bank_account')
         .eq('id', user.id)
         .single()
 
       if (profile?.role !== 'producer') { router.replace('/produtor/cadastro'); return }
 
       if (profile?.name) setProducerName(profile.name)
+      setHasBank(!!profile?.bank_account)
 
       const { data: { session } } = await supabase.auth.getSession()
       const res = await fetch('/api/produtor/events', {
@@ -189,6 +191,42 @@ export default function PainelPage() {
 
         {/* Conteúdo */}
         <div style={{ padding: '0 20px 80px' }}>
+          {!hasBank && (
+            <div style={{
+              margin: '0 0 4px',
+              background: '#FFFBEB',
+              border: '1px solid #FCD34D',
+              borderRadius: 12,
+              padding: '12px 14px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 10,
+            }}>
+              <svg width="18" height="18" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 2 }}>
+                <path d="M8 2L14.5 13H1.5L8 2z" stroke="#92400E" strokeWidth="1.5" strokeLinejoin="round"/>
+                <path d="M8 6v3M8 11v.5" stroke="#92400E" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#92400E', letterSpacing: -0.2 }}>
+                  Configure sua conta bancária
+                </div>
+                <div style={{ fontSize: 12, color: '#92400E', marginTop: 3, lineHeight: 1.45 }}>
+                  Ingressos pagos não podem ser vendidos até você configurar os dados para repasse.{' '}
+                  <button
+                    onClick={() => router.push('/produtor/perfil/conta-bancaria')}
+                    style={{
+                      background: 'none', border: 'none', color: '#B45309',
+                      fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                      textDecoration: 'underline', padding: 0,
+                    }}
+                  >
+                    Configurar agora
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {loading && (
             <div style={{ textAlign: 'center', paddingTop: 60 }}>
               <span style={{ color: '#6E6E73', fontSize: 14 }}>Carregando...</span>
