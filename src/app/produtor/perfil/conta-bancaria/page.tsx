@@ -59,6 +59,7 @@ export default function ContaBancariaPage() {
   const [error, setError] = useState('')
   const [cepLoading, setCepLoading] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [saveWarning, setSaveWarning] = useState('')
 
   useEffect(() => {
     (async () => {
@@ -171,8 +172,12 @@ export default function ContaBancariaPage() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Erro ao salvar dados.')
-      setSaved(true)
-      setTimeout(() => router.push('/produtor/perfil'), 1800)
+      if (json.warning) {
+        setSaveWarning(json.warning)
+      } else {
+        setSaved(true)
+        setTimeout(() => router.push('/produtor/perfil'), 1800)
+      }
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -394,6 +399,20 @@ export default function ContaBancariaPage() {
           </div>
         </>}
 
+        {saveWarning && (
+          <div style={{
+            background: '#FFFBEB', border: '1px solid #FCD34D',
+            borderRadius: 10, padding: '12px 14px',
+            color: '#92400E', fontSize: 13, lineHeight: 1.5,
+            display: 'flex', alignItems: 'flex-start', gap: 8,
+          }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+              <path d="M8 2L14.5 13H1.5L8 2z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>
+              <path d="M8 6v3M8 11v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            {saveWarning}
+          </div>
+        )}
         {saved && (
           <div style={{
             background: '#ECFDF5', border: '1px solid #6EE7B7',
