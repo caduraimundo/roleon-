@@ -51,6 +51,7 @@ export default function ParticipantesPage({
   const [eventCancelled, setEventCancelled] = useState(false)
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null)
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     const init = async () => {
@@ -198,6 +199,29 @@ export default function ParticipantesPage({
           </div>
         )}
 
+        {!loading && tickets.length > 0 && (
+          <div style={{ position: 'relative', marginBottom: 12 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+              style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+              <circle cx="11" cy="11" r="8" stroke="#9A9A9A" strokeWidth="2"/>
+              <path d="M21 21l-4.35-4.35" stroke="#9A9A9A" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            <input
+              type="text"
+              placeholder="Buscar por nome ou e-mail..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{
+                width: '100%', boxSizing: 'border-box',
+                padding: '10px 14px 10px 36px',
+                borderRadius: 10, border: '1px solid #E8E8E8',
+                background: '#fff', fontSize: 14, color: '#1A1A1A',
+                outline: 'none', fontFamily: "'Noto Sans', sans-serif",
+              }}
+            />
+          </div>
+        )}
+
         {eventCancelled && (
           <div style={{
             background: '#FEF2F2', borderRadius: 10, border: '1px solid #FECACA',
@@ -248,7 +272,13 @@ export default function ParticipantesPage({
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {!loading && tickets.map(ticket => {
+          {!loading && tickets
+            .filter(t =>
+              search.trim() === '' ||
+              t.buyer_name.toLowerCase().includes(search.toLowerCase()) ||
+              t.buyer_email.toLowerCase().includes(search.toLowerCase())
+            )
+            .map(ticket => {
             const badge = statusBadge(ticket.status)
             const canCancel = (ticket.status === 'paid' || ticket.status === 'valid') && !eventCancelled
             return (
@@ -264,14 +294,15 @@ export default function ParticipantesPage({
                     }}>
                       {ticket.buyer_name}
                     </div>
+                    <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 2,
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {ticket.buyer_email}
+                    </div>
                     <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 2 }}>
                       {ticket.ticket_type_name}
                       {ticket.price_paid > 0 && (
                         <span style={{ marginLeft: 6 }}>{formatCurrency(ticket.price_paid)}</span>
                       )}
-                    </div>
-                    <div style={{ fontSize: 11, color: '#9A9A9A', marginTop: 2 }}>
-                      {formatDate(ticket.created_at)}
                     </div>
                   </div>
                   <span style={{
