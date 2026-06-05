@@ -70,7 +70,9 @@
       "mcp__ca924a0b-bc34-41d9-bdd0-df142f432b89__list_teams",
       "mcp__ca924a0b-bc34-41d9-bdd0-df142f432b89__list_deployments",
       "PowerShell(vercel --prod --cwd C:\\\\Users\\\\Carlo\\\\roleon-)",
-      "PowerShell(npx vercel --prod --cwd \"C:\\\\Users\\\\Carlo\\\\roleon-\")"
+      "PowerShell(npx vercel --prod --cwd \"C:\\\\Users\\\\Carlo\\\\roleon-\")",
+      "PowerShell(vercel env add NEXT_PUBLIC_POSTHOG_KEY production --cwd C:\\\\Users\\\\Carlo\\\\roleon-)",
+      "PowerShell(\\(Get-Command npx\\).Source; npx vercel --version 2>&1 | Select-Object -First 3)"
     ]
   }
 }
