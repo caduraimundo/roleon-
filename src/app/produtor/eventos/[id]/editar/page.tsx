@@ -40,6 +40,7 @@ export default function EditarEventoPage() {
   const [eventStatus, setEventStatus] = useState('')
   const [cancelConfirm, setCancelConfirm] = useState(false)
   const [cancelLoading, setCancelLoading] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -307,7 +308,60 @@ export default function EditarEventoPage() {
         <span style={{ flex: 1, textAlign: 'center', fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>
           Editar evento
         </span>
-        <div style={{ width: 36 }} />
+        {eventStatus === 'active' ? (
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={() => setMenuOpen(prev => !prev)}
+              style={{
+                width: 36, height: 36, borderRadius: '50%',
+                background: menuOpen ? '#F2F2F2' : 'transparent',
+                border: 'none', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              <svg width="18" height="4" viewBox="0 0 18 4" fill="none">
+                <circle cx="2" cy="2" r="2" fill="#1A1A1A"/>
+                <circle cx="9" cy="2" r="2" fill="#1A1A1A"/>
+                <circle cx="16" cy="2" r="2" fill="#1A1A1A"/>
+              </svg>
+            </button>
+            {menuOpen && (
+              <>
+                <div
+                  onClick={() => setMenuOpen(false)}
+                  style={{ position: 'fixed', inset: 0, zIndex: 199 }}
+                />
+                <div style={{
+                  position: 'absolute', top: 42, right: 0,
+                  background: '#fff', borderRadius: 12,
+                  border: '0.5px solid #E8E8E8',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                  zIndex: 200, minWidth: 180, overflow: 'hidden',
+                }}>
+                  <button
+                    onClick={() => { setMenuOpen(false); setCancelConfirm(true) }}
+                    style={{
+                      width: '100%', padding: '14px 16px',
+                      background: 'none', border: 'none',
+                      textAlign: 'left' as const, fontSize: 14, fontWeight: 600,
+                      color: '#DC2626', cursor: 'pointer',
+                      fontFamily: "'Noto Sans', sans-serif",
+                      display: 'flex', alignItems: 'center', gap: 10,
+                    }}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="#DC2626" strokeWidth="1.8"/>
+                      <path d="M12 8v4M12 16h.01" stroke="#DC2626" strokeWidth="2" strokeLinecap="round"/>
+                    </svg>
+                    Cancelar evento
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <div style={{ width: 36 }} />
+        )}
       </header>
 
       {/* Content */}
@@ -739,70 +793,54 @@ export default function EditarEventoPage() {
           </span>
         </label>
 
-        {/* Zona de risco — cancelar evento */}
-        {eventStatus === 'active' && (
-          <div style={{ marginTop: 16, paddingTop: 32, borderTop: '1px solid #F0F0F0' }}>
-            <div style={{
-              fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
-              textTransform: 'uppercase' as const, color: '#9A9A9A',
-              marginBottom: 10,
-            }}>
-              Zona de risco
+      </div>
+
+      {/* Modal de confirmação de cancelamento */}
+      {cancelConfirm && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 300,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+        }}>
+          <div style={{
+            background: '#fff', borderRadius: '20px 20px 0 0',
+            padding: '24px 20px 40px', width: '100%', maxWidth: 480,
+          }}>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A', marginBottom: 8 }}>
+              Cancelar evento?
             </div>
-            {!cancelConfirm ? (
+            <div style={{ fontSize: 14, color: '#6E6E73', marginBottom: 24, lineHeight: 1.6 }}>
+              O evento será cancelado e todos os ingressos ativos serão estornados. Os compradores serão notificados por e-mail. Esta ação não pode ser desfeita.
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
               <button
-                onClick={() => setCancelConfirm(true)}
+                onClick={() => setCancelConfirm(false)}
                 style={{
-                  width: '100%', padding: '13px 0', borderRadius: 10,
-                  border: '1px solid #FECACA', background: '#fff', color: '#DC2626',
+                  flex: 1, padding: '13px 0', borderRadius: 10,
+                  border: '1px solid #E8E8E8', background: '#fff', color: '#1A1A1A',
                   fontFamily: "'Noto Sans', sans-serif", fontSize: 14, fontWeight: 600,
                   cursor: 'pointer',
                 }}
               >
-                Cancelar evento
+                Voltar
               </button>
-            ) : (
-              <div style={{
-                background: '#FEF2F2', borderRadius: 14,
-                border: '1px solid #FECACA', padding: 16,
-              }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#DC2626', marginBottom: 6 }}>
-                  Tem certeza?
-                </div>
-                <div style={{ fontSize: 13, color: '#6E6E73', marginBottom: 16, lineHeight: 1.5 }}>
-                  O evento será cancelado e todos os ingressos ativos serão estornados. Os compradores serão notificados por e-mail. Esta ação não pode ser desfeita.
-                </div>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    onClick={() => setCancelConfirm(false)}
-                    style={{
-                      flex: 1, padding: '11px 0', borderRadius: 10,
-                      border: '1px solid #E8E8E8', background: '#fff', color: '#1A1A1A',
-                      fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Voltar
-                  </button>
-                  <button
-                    onClick={handleCancelEvent}
-                    disabled={cancelLoading}
-                    style={{
-                      flex: 2, padding: '11px 0', borderRadius: 10,
-                      border: 'none', background: '#DC2626', color: '#fff',
-                      fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 700,
-                      cursor: cancelLoading ? 'not-allowed' : 'pointer',
-                      opacity: cancelLoading ? 0.6 : 1,
-                    }}
-                  >
-                    {cancelLoading ? 'Cancelando...' : 'Sim, cancelar evento'}
-                  </button>
-                </div>
-              </div>
-            )}
+              <button
+                onClick={handleCancelEvent}
+                disabled={cancelLoading}
+                style={{
+                  flex: 2, padding: '13px 0', borderRadius: 10,
+                  border: 'none', background: '#DC2626', color: '#fff',
+                  fontFamily: "'Noto Sans', sans-serif", fontSize: 14, fontWeight: 700,
+                  cursor: cancelLoading ? 'not-allowed' : 'pointer',
+                  opacity: cancelLoading ? 0.6 : 1,
+                }}
+              >
+                {cancelLoading ? 'Cancelando...' : 'Sim, cancelar evento'}
+              </button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Rodapé fixo — acima da nav bar */}
       <div style={{
