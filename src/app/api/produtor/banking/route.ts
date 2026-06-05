@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
       console.error('[banking] Pagar.me error:', JSON.stringify(errData))
       return NextResponse.json({
         ok: true,
-        warning: 'Dados salvos, mas houve um erro ao registrar no sistema de pagamentos. Tente novamente mais tarde.',
+        warning: `[DEBUG] Pagar.me erro: ${JSON.stringify(errData)}`,
       })
     }
 
