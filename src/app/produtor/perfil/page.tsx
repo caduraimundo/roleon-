@@ -5,7 +5,7 @@ import { createBrowserClient } from '@supabase/ssr'
 
 export default function PerfilPage() {
   const [profile, setProfile] = useState<{
-    name: string; avatar_initials: string; cpf: string; pix_key: string
+    name: string; avatar_initials: string; cpf: string; pix_key: string; bank_account: string | null
   } | null>(null)
   const [email, setEmail] = useState('')
   const router = useRouter()
@@ -21,7 +21,7 @@ export default function PerfilPage() {
       setEmail(user.email ?? '')
       const { data } = await supabase
         .from('profiles')
-        .select('name, avatar_initials, cpf, pix_key')
+        .select('name, avatar_initials, cpf, pix_key, bank_account')
         .eq('id', user.id)
         .single()
       if (data) setProfile(data)
@@ -121,7 +121,7 @@ export default function PerfilPage() {
                   stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
               </svg>
             )},
-            { label: 'Conta bancária para repasse', onClick: () => router.push('/produtor/perfil/conta-bancaria'), icon: (
+            { label: 'Conta bancária para repasse', badge: profile?.bank_account ? 'Configurado' : null, onClick: () => router.push('/produtor/perfil/conta-bancaria'), icon: (
               <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
                 <path d="M11 3.5L19 7.5H3L11 3.5z"
                   stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
@@ -153,10 +153,20 @@ export default function PerfilPage() {
                 background: '#E6F7F6', color: '#0EA5A0', flexShrink: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>{item.icon}</span>
-              <span style={{
-                flex: 1, fontSize: 14.5, fontWeight: 600,
-                color: '#1A1A1A', letterSpacing: -0.2,
-              }}>{item.label}</span>
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{
+                  fontSize: 14.5, fontWeight: 600,
+                  color: '#1A1A1A', letterSpacing: -0.2,
+                }}>{item.label}</span>
+                {(item as any).badge && (
+                  <span style={{
+                    fontSize: 10.5, fontWeight: 700,
+                    color: '#059669', background: '#ECFDF5',
+                    padding: '2px 7px', borderRadius: 999,
+                    letterSpacing: 0.2,
+                  }}>{(item as any).badge}</span>
+                )}
+              </div>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                 style={{ color: '#C8C8C8', flexShrink: 0 }}>
                 <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor"

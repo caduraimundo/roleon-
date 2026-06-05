@@ -58,6 +58,7 @@ export default function ContaBancariaPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [cepLoading, setCepLoading] = useState(false)
+  const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     (async () => {
@@ -170,7 +171,8 @@ export default function ContaBancariaPage() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Erro ao salvar dados.')
-      router.push('/produtor/perfil')
+      setSaved(true)
+      setTimeout(() => router.push('/produtor/perfil'), 1800)
     } catch (e: any) {
       setError(e.message)
     } finally {
@@ -392,6 +394,20 @@ export default function ContaBancariaPage() {
           </div>
         </>}
 
+        {saved && (
+          <div style={{
+            background: '#ECFDF5', border: '1px solid #6EE7B7',
+            borderRadius: 10, padding: '12px 14px',
+            color: '#065F46', fontSize: 14, fontWeight: 600,
+            display: 'flex', alignItems: 'center', gap: 8,
+          }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 8.5L6.5 12 13 5" stroke="currentColor"
+                strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Dados bancários salvos com sucesso!
+          </div>
+        )}
         {error && (
           <div style={{ background: '#FFF0F0', border: '1px solid #FFD0D0', borderRadius: 10, padding: '12px 14px', color: '#C0392B', fontSize: 14 }}>
             {error}
