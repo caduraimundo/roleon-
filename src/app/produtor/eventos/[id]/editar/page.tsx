@@ -786,9 +786,9 @@ export default function EditarEventoPage() {
           />
           <span style={{ fontSize: 12, color: '#6E6E73', lineHeight: 1.5 }}>
             Declaro que as informações estão corretas e estou de acordo com os{' '}
-            <a href="/termos" target="_blank" style={{ color: '#0EA5A0', textDecoration: 'none' }}>Termos de Uso</a>
+            <a href="/termos" onClick={e => { e.preventDefault(); router.push('/termos') }} style={{ color: '#0EA5A0', textDecoration: 'none', cursor: 'pointer' }}>Termos de Uso</a>
             {' '}e a{' '}
-            <a href="/privacidade" target="_blank" style={{ color: '#0EA5A0', textDecoration: 'none' }}>Política de Privacidade</a>
+            <a href="/privacidade" onClick={e => { e.preventDefault(); router.push('/privacidade') }} style={{ color: '#0EA5A0', textDecoration: 'none', cursor: 'pointer' }}>Política de Privacidade</a>
             {' '}do Roleon.
           </span>
         </label>
