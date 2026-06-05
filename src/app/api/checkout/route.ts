@@ -238,14 +238,7 @@ export async function POST(req: NextRequest) {
           } : {}),
         }],
       }
-      console.log('[checkout pix] enviando para Pagar.me:', JSON.stringify({
-        unitAmountCents: Math.round(unitTotal * 100),
-        totalAmountCents: amountCents,
-        quantity,
-        tempOrderId,
-        ticketIds,
-        pixPayload,
-      }))
+      console.log('[checkout pix] PAYLOAD COMPLETO:', JSON.stringify(pixPayload, null, 2))
 
       let pagarmeRes: Response
       try {
