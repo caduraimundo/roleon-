@@ -273,7 +273,7 @@ export default function NovoEventoPage() {
       </header>
 
       {/* Content */}
-      <div style={{ padding: '24px 20px 180px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ padding: '24px 20px 110px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* Capa */}
         <div style={sectionStyle}>
