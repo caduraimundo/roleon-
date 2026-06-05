@@ -50,7 +50,7 @@ export default function PerfilPage() {
     <div style={{
       minHeight: '100vh', background: '#F9F9F9',
       fontFamily: "'Noto Sans', sans-serif",
-      paddingBottom: 96,
+      paddingBottom: 80,
     }}>
 
       <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column' }}>

@@ -145,7 +145,7 @@ export default function EventosPage() {
         </div>
 
         {/* Lista */}
-        <div style={{ padding: '12px 20px 96px',
+        <div style={{ padding: '12px 20px 80px',
           display: 'flex', flexDirection: 'column', gap: 12 }}>
 
           {loading && (

@@ -188,7 +188,7 @@ export default function PainelPage() {
         </div>
 
         {/* Conteúdo */}
-        <div style={{ padding: '0 20px 96px' }}>
+        <div style={{ padding: '0 20px 80px' }}>
           {loading && (
             <div style={{ textAlign: 'center', paddingTop: 60 }}>
               <span style={{ color: '#6E6E73', fontSize: 14 }}>Carregando...</span>

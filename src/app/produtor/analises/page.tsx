@@ -69,7 +69,7 @@ export default function AnalisesPage() {
     <div style={{
       minHeight: '100vh', background: '#F9F9F9',
       fontFamily: "'Noto Sans', sans-serif",
-      paddingBottom: 96,
+      paddingBottom: 80,
     }}>
 
       {/* Título */}
@@ -105,7 +105,7 @@ export default function AnalisesPage() {
         </div>
       </div>
 
-      <div style={{ padding: '12px 20px 96px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div style={{ padding: '12px 20px 80px', display: 'flex', flexDirection: 'column', gap: 20 }}>
 
         {/* Cards de métricas */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
