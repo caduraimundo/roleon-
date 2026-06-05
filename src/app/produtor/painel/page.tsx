@@ -342,8 +342,27 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
 
       </div>
 
-      {/* Botões Editar + Portaria */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+      {/* Botões — Portaria primário | Editar secundário */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <button
+          onClick={() => router.push(`/produtor/eventos/${e.id}/portaria`)}
+          style={{
+            padding: '11px 12px', borderRadius: 10,
+            border: 'none', background: '#0EA5A0', color: '#fff',
+            fontFamily: "'Noto Sans', sans-serif",
+            fontSize: 13, fontWeight: 700, cursor: 'pointer',
+            display: 'flex', alignItems: 'center',
+            justifyContent: 'center', gap: 6,
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2"
+              stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+            <line x1="4" y1="12" x2="20" y2="12"
+              stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+          </svg>
+          Portaria
+        </button>
         <button
           onClick={() => router.push(`/produtor/eventos/${e.id}/editar`)}
           style={{
@@ -352,7 +371,7 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
             background: '#fff', color: '#1A1A1A',
             fontFamily: "'Noto Sans', sans-serif",
             fontSize: 13, fontWeight: 600, cursor: 'pointer',
-            display: 'inline-flex', alignItems: 'center',
+            display: 'flex', alignItems: 'center',
             justifyContent: 'center', gap: 6,
           }}
         >
@@ -362,25 +381,6 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
               strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Editar
-        </button>
-        <button
-          onClick={() => router.push(`/produtor/eventos/${e.id}/portaria`)}
-          style={{
-            padding: '9px 12px', borderRadius: 10,
-            border: '1px solid #0EA5A0',
-            background: '#fff', color: '#0EA5A0',
-            fontFamily: "'Noto Sans', sans-serif",
-            fontSize: 13, fontWeight: 600, cursor: 'pointer',
-            display: 'inline-flex', alignItems: 'center',
-            justifyContent: 'center', gap: 6,
-          }}
-        >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <path d="M3 8.5L6.5 12 13 5" stroke="currentColor"
-              strokeWidth="1.8" strokeLinecap="round"
-              strokeLinejoin="round"/>
-          </svg>
-          Portaria
         </button>
       </div>
     </div>
