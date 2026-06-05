@@ -100,13 +100,25 @@ export async function POST(req: NextRequest) {
 
     const { data: event, error: eventError } = await supabaseAdmin
       .from('events')
-      .select('price, is_free, title')
+      .select('price, is_free, title, producer_id')
       .eq('id', event_id)
       .single()
 
     if (eventError || !event) {
       console.error('[checkout] erro ao buscar evento:', eventError)
       return NextResponse.json({ error: 'Evento não encontrado', detail: eventError?.message }, { status: 404 })
+    }
+
+    // Busca recipient_id do produtor para split automático
+    let producerRecipientId: string | null = null
+    if (event.producer_id) {
+      const { data: producerProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('pagar_me_recipient_id')
+        .eq('id', event.producer_id)
+        .single()
+      producerRecipientId = producerProfile?.pagar_me_recipient_id ?? null
+      console.log('[checkout] producerRecipientId:', producerRecipientId)
     }
 
     const isPix = payment_method !== 'credit_card'
@@ -213,7 +225,18 @@ export async function POST(req: NextRequest) {
           },
         },
         items: [{ amount: amountCents, description: event.title, quantity: 1, code: event_id }],
-        payments: [{ payment_method: 'pix', pix: { expires_in: 900 } }],
+        payments: [{
+          payment_method: 'pix',
+          pix: { expires_in: 900 },
+          ...(producerRecipientId && price > 0 ? {
+            split: [{
+              amount: Math.round(price * quantity * 100),
+              recipient_id: producerRecipientId,
+              type: 'flat',
+              options: { charge_processing_fee: false, charge_remainder_fee: false, liable: false },
+            }],
+          } : {}),
+        }],
       }
       console.log('[checkout pix] enviando para Pagar.me:', JSON.stringify({
         unitAmountCents: Math.round(unitTotal * 100),
@@ -341,6 +364,14 @@ export async function POST(req: NextRequest) {
         payments: [{
           payment_method: 'credit_card',
           credit_card: { card_token, installments, statement_descriptor: 'ROLEON' },
+          ...(producerRecipientId && price > 0 ? {
+            split: [{
+              amount: Math.round(price * quantity * 100),
+              recipient_id: producerRecipientId,
+              type: 'flat',
+              options: { charge_processing_fee: false, charge_remainder_fee: false, liable: false },
+            }],
+          } : {}),
         }],
       }),
     })
