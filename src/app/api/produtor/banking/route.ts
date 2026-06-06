@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
     const payload = {
       code: user.id,
       register_information: {
-        name: profile.name,
+        name: body.bank_holder_name || profile.name,
         email: profile.email,
         document: profile.cpf,
         type: 'individual',
