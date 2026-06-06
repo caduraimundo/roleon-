@@ -128,20 +128,19 @@ export async function POST(req: NextRequest) {
 
     const bankChanged = !existingId || bankDataChanged || !profile.pagar_me_bank_synced
 
-    // Ao recriar recipient (troca de conta), code precisa ser único para não conflitar com o anterior
-    if (bankChanged && existingId) {
-      payload.code = `${user.id}_${Date.now()}`
-    }
-
     const url = bankChanged
       ? 'https://api.pagar.me/core/v5/recipients'
       : `https://api.pagar.me/core/v5/recipients/${existingId}`
     const method = bankChanged ? 'POST' : 'PUT'
 
+    // Ao recriar recipient por mudança de conta bancária, omite o code para não
+    // conflitar com o external_id já existente do recipient anterior
+    const fetchPayload = bankChanged && existingId ? { ...payload, code: undefined } : payload
+
     const pagarmeRes = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json', Authorization: pagarmeAuth() },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(fetchPayload),
     })
 
     if (!pagarmeRes.ok) {
@@ -149,7 +148,7 @@ export async function POST(req: NextRequest) {
       console.error('[banking] Pagar.me error:', JSON.stringify(errData))
       return NextResponse.json({
         ok: true,
-        warning: 'Dados salvos localmente, mas houve um erro ao atualizar no sistema de pagamentos. Tente novamente em instantes.',
+        warning: 'Dados salvos, mas houve um erro ao atualizar no sistema de pagamentos. Tente novamente.',
       })
     }
 
