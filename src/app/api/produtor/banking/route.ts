@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
       console.error('[banking] Pagar.me error:', JSON.stringify(errData))
       return NextResponse.json({
         ok: true,
-        warning: 'Dados salvos localmente, mas houve um erro ao atualizar no sistema de pagamentos. Tente novamente em instantes.',
+        warning: `[DEBUG] ${JSON.stringify(errData)}`,
       })
     }
 
