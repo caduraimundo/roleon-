@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   // Busca perfil para nome, email, cpf e recipient_id existente
   const { data: profile } = await supabaseAdmin
     .from('profiles')
-    .select('name, email, cpf, pagar_me_recipient_id, bank_code, bank_agency, bank_account, bank_account_digit, bank_account_type, bank_holder_name')
+    .select('name, email, cpf, pagar_me_recipient_id, bank_code, bank_agency, bank_account, bank_account_digit, bank_account_type, bank_holder_name, pagar_me_bank_synced')
     .eq('id', user.id)
     .single()
 
@@ -107,15 +107,18 @@ export async function POST(req: NextRequest) {
 
     const existingId = profile.pagar_me_recipient_id
 
-    // Se a conta bancária mudou (ou não existe recipient ainda), cria novo recipient via POST.
-    // O PATCH do Pagar.me exige Allow List de IPs — Vercel usa IPs dinâmicos, então POST é a única via confiável.
-    const bankChanged = !existingId ||
+    // Detecta se os dados bancários mudaram em relação ao que estava salvo localmente
+    const bankDataChanged =
       profile.bank_code !== body.bank_code ||
       profile.bank_agency !== body.bank_agency ||
       profile.bank_account !== body.bank_account ||
       profile.bank_account_digit !== body.bank_account_digit ||
       profile.bank_account_type !== body.bank_account_type ||
       (profile.bank_holder_name ?? '') !== (body.bank_holder_name ?? '')
+
+    // Se os dados bancários mudaram, marca como não sincronizado no update do Supabase abaixo
+    // bankChanged = sem recipient OU dados bancários mudaram OU ainda não confirmado pelo Pagar.me
+    const bankChanged = !existingId || bankDataChanged || !profile.pagar_me_bank_synced
 
     const url = bankChanged
       ? 'https://api.pagar.me/core/v5/recipients'
@@ -141,7 +144,7 @@ export async function POST(req: NextRequest) {
 
     await supabaseAdmin
       .from('profiles')
-      .update({ pagar_me_recipient_id: pagarmeData.id })
+      .update({ pagar_me_recipient_id: pagarmeData.id, pagar_me_bank_synced: true })
       .eq('id', user.id)
 
   } catch (e) {
