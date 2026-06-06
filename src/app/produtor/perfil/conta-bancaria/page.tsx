@@ -357,13 +357,19 @@ export default function ContaBancariaPage() {
 
         {step === 3 && <>
           <div style={fld}>
-            <label style={lbl}>Nome do titular da conta</label>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: '#6E6E73' }}>Nome do titular da conta bancária</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: form.bank_holder_name.length >= 28 ? '#C0392B' : '#9A9A9A' }}>
+                {form.bank_holder_name.length}/30
+              </span>
+            </div>
             <input value={form.bank_holder_name}
               onChange={e => set('bank_holder_name', e.target.value)}
-              placeholder="Nome completo conforme cadastrado no banco"
+              placeholder="Ex: Carlos E O Raimundo"
+              maxLength={30}
               style={inp} />
-            <span style={{ fontSize: 11, color: '#9A9A9A', marginTop: 4 }}>
-              Deve ser idêntico ao nome registrado na instituição bancária.
+            <span style={{ fontSize: 11, color: '#9A9A9A', marginTop: 4, lineHeight: 1.4 }}>
+              Nome como consta na conta bancária. Limite de 30 caracteres — abrevia o nome do meio se necessário.
             </span>
           </div>
           <div style={fld}>
