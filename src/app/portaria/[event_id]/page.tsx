@@ -71,7 +71,10 @@ export default function PortariaPublicaPage({
       }
     }
 
-    startScanner()
+    startScanner().catch((err: unknown) => {
+      console.error('[portaria] camera error:', err)
+      setCameraError(true)
+    })
     return () => { scanner?.destroy() }
   }, [eventId, accessToken, tokenError, loading])
 

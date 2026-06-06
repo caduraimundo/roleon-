@@ -20,6 +20,7 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
   const [portariaLink, setPortariaLink] = useState('')
   const [loadingLink, setLoadingLink] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [cameraError, setCameraError] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -88,7 +89,10 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
       await scanner.start()
     }
 
-    startScanner()
+    startScanner().catch((err: unknown) => {
+      console.error('[portaria] camera error:', err)
+      setCameraError(true)
+    })
 
     return () => {
       scanner?.destroy()
