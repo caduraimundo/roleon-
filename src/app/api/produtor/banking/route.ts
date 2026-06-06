@@ -118,6 +118,14 @@ export async function POST(req: NextRequest) {
 
     // Se os dados bancários mudaram, marca como não sincronizado no update do Supabase abaixo
     // bankChanged = sem recipient OU dados bancários mudaram OU ainda não confirmado pelo Pagar.me
+    // Pagar.me limita o holder_name a 30 caracteres
+    const holderName = (body.bank_holder_name || profile.name || '').trim()
+    if (holderName.length > 30) {
+      return NextResponse.json({
+        error: `O nome do titular da conta deve ter no máximo 30 caracteres. "${holderName}" tem ${holderName.length}.`,
+      }, { status: 400 })
+    }
+
     const bankChanged = !existingId || bankDataChanged || !profile.pagar_me_bank_synced
 
     const url = bankChanged
@@ -136,7 +144,7 @@ export async function POST(req: NextRequest) {
       console.error('[banking] Pagar.me error:', JSON.stringify(errData))
       return NextResponse.json({
         ok: true,
-        warning: `[DEBUG] ${JSON.stringify(errData)}`,
+        warning: 'Dados salvos localmente, mas houve um erro ao atualizar no sistema de pagamentos. Tente novamente em instantes.',
       })
     }
 
