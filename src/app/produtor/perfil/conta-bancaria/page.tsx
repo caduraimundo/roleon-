@@ -369,7 +369,7 @@ export default function ContaBancariaPage() {
               maxLength={30}
               style={inp} />
             <span style={{ fontSize: 11, color: '#9A9A9A', marginTop: 4, lineHeight: 1.4 }}>
-              Nome como consta na conta bancária. Limite de 30 caracteres — abrevia o nome do meio se necessário.
+              Nome como consta na conta bancária. Limite de 30 caracteres.
             </span>
           </div>
           <div style={fld}>
