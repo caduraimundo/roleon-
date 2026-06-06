@@ -636,7 +636,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   const filteredEvents = events.filter((ev) => {
     if (activeChip === 'Grátis' && ev.price > 0) return false
     if (activeChip && !['Hoje', 'Grátis'].includes(activeChip) &&
-        ev.genre.toLowerCase() !== activeChip.toLowerCase()) return false
+        (ev.genre || '').toLowerCase() !== activeChip.toLowerCase()) return false
     if (filterGenres.length > 0) {
       const match = filterGenres.some(g =>
         (ev.genre || '').toLowerCase().includes(g.toLowerCase()) ||

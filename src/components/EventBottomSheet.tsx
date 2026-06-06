@@ -338,7 +338,7 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
               {current.genre && (
                 <div style={{ display: 'inline-flex', marginBottom: 6 }}>
                   <span style={{ fontSize: 10, fontWeight: 700, color: '#0EA5A0', letterSpacing: 0.5, background: '#E6F7F6', borderRadius: 999, padding: '2px 8px' }}>
-                    {current.genre.toUpperCase()}
+                    {String(current.genre).toUpperCase()}
                   </span>
                 </div>
               )}
