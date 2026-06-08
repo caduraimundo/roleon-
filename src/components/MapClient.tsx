@@ -684,7 +684,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
 
       const createMap = (initialCenter: { lat: number; lng: number }, knownPos?: { lat: number; lng: number }) => {
         const mapDiv = mapRef.current
-        if (!mapDiv) return
+        if (!mapDiv || !(mapDiv instanceof HTMLElement)) return
         const map = new google.maps.Map(mapDiv, {
           center: initialCenter, zoom: 15,
           mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID,
@@ -825,7 +825,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         class PinOverlay extends google.maps.OverlayView {
           onAdd()    { this.getPanes()?.overlayMouseTarget.appendChild(container) }
           draw()     { const projection = this.getProjection(); if (!projection) return; const p = projection.fromLatLngToDivPixel(position); if (p) { container.style.left=`${p.x}px`; container.style.top=`${p.y}px` } }
-          onRemove() { container.parentNode?.removeChild(container) }
+          onRemove() { try { container.parentNode?.removeChild(container) } catch { /* já removido */ } }
         }
         const overlay = new PinOverlay()
         overlay.setMap(mapInstanceRef.current)
