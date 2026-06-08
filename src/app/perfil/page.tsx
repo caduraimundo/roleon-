@@ -164,7 +164,7 @@ export default function PerfilPage() {
         </div>
         <div style={{
           position: 'absolute', left: '50%', transform: 'translateX(-50%)',
-          fontSize: 17, fontWeight: 700, color: '#1A1A1A',
+          fontSize: 17, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.5,
         }}>
           Perfil
         </div>
