@@ -42,25 +42,25 @@ export default function PainelPage() {
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.replace('/produtor'); return }
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) { router.replace('/produtor'); return }
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('name, role, bank_account')
-        .eq('id', user.id)
-        .single()
+      const [{ data: profile }, eventsRes] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('name, role, bank_account')
+          .eq('id', session.user.id)
+          .single(),
+        fetch('/api/produtor/events', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }),
+      ])
 
       if (profile?.role !== 'producer') { router.replace('/produtor/cadastro'); return }
-
       if (profile?.name) setProducerName(profile.name)
       setHasBank(!!profile?.bank_account)
 
-      const { data: { session } } = await supabase.auth.getSession()
-      const res = await fetch('/api/produtor/events', {
-        headers: { Authorization: `Bearer ${session?.access_token}` },
-      })
-      const data = await res.json()
+      const data = await eventsRes.json()
       setEventos(data.events ?? [])
       setLoading(false)
     }
