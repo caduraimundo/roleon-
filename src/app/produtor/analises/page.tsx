@@ -90,7 +90,7 @@ export default function AnalisesPage() {
             const active = period === p.id
             return (
               <button key={p.id} onClick={() => setPeriod(p.id)} style={{
-                padding: '8px 16px', borderRadius: 999,
+                padding: '8px 16px', borderRadius: 8,
                 border: active ? `1px solid ${T.primary}` : '1px solid #E8E8E8',
                 background: active ? T.primary : '#fff',
                 color: active ? '#fff' : T.text,

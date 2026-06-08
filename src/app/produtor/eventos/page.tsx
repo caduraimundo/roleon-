@@ -130,7 +130,7 @@ export default function EventosPage() {
               const active = f.id === filter
               return (
                 <button key={f.id} onClick={() => setFilter(f.id)} style={{
-                  padding: '8px 16px', borderRadius: 999,
+                  padding: '8px 16px', borderRadius: 8,
                   border: active ? '1px solid #0EA5A0' : '1px solid #E8E8E8',
                   background: active ? '#0EA5A0' : '#fff',
                   color: active ? '#fff' : '#1A1A1A',
