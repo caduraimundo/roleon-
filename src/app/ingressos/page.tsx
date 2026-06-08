@@ -146,6 +146,7 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
       }}
     >
 
+      <div style={{ width: 3, flexShrink: 0, background: (() => { const m: Record<string, string> = { paid: '#0EA5A0', confirmed: '#0EA5A0', used: '#6E6E73', pending: '#F59E0B', expired: '#6E6E73', refunded: '#3B82F6', chargebacked: '#F97316' }; return m[ticket.status] ?? '#F59E0B' })() }} />
       <div style={{ flex: 1, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 9 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, lineHeight: 1.3, flex: 1 }}>
