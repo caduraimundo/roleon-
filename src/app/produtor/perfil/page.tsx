@@ -62,12 +62,12 @@ export default function PerfilPage() {
         }}>
           {/* Avatar */}
           <div style={{
-            width: 72, height: 72, borderRadius: 16,
+            width: 72, height: 72, borderRadius: 20,
             background: '#0EA5A0', color: '#fff',
             display: 'flex', alignItems: 'center',
             justifyContent: 'center',
             fontSize: 28, fontWeight: 800, letterSpacing: -0.5,
-            boxShadow: '0 8px 20px rgba(14,165,160,0.28)',
+            boxShadow: 'none',
           }}>
             {profile.avatar_initials || profile.name.slice(0,2).toUpperCase()}
           </div>
