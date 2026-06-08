@@ -286,8 +286,8 @@ export default function IngressoPage() {
 
             {/* Local */}
             {evento?.location_name && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ flexShrink: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                <div style={{ flexShrink: 0, marginTop: 2 }}>
                   <IconLocation />
                 </div>
                 <span style={{ fontSize: 13, color: '#6E6E73' }}>{evento.location_name}</span>

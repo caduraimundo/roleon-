@@ -156,15 +156,15 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
         </div>
 
         {ev?.event_date && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <IconCalendar />
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+            <div style={{ flexShrink: 0, marginTop: 1 }}><IconCalendar /></div>
             <span style={{ fontSize: 12, color: DIM }}>{formatDate(ev.event_date)}</span>
           </div>
         )}
 
         {ev?.location_name && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <IconPin />
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+            <div style={{ flexShrink: 0, marginTop: 1 }}><IconPin /></div>
             <span style={{ fontSize: 12, color: DIM }}>{ev.location_name}</span>
           </div>
         )}
