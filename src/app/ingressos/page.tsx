@@ -137,15 +137,16 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
       onClick={onClick}
       style={{
         width: '100%', background: '#fff',
-        borderRadius: 12, border: 0, cursor: 'pointer',
-        boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
+        borderRadius: 12, cursor: 'pointer',
+        boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+        border: '1px solid #EFEFEF',
         display: 'flex', overflow: 'hidden', textAlign: 'left',
         padding: 0,
         fontFamily: "'Noto Sans', sans-serif",
       }}
     >
 
-      <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ flex: 1, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 9 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, lineHeight: 1.3, flex: 1 }}>
             {ev?.title ?? 'Evento'}
@@ -383,7 +384,7 @@ export default function IngressosPage() {
           )}
         </div>
       ) : (
-        <div style={{ flex: 1, padding: '16px 16px 96px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div style={{ flex: 1, padding: '16px 16px 96px', display: 'flex', flexDirection: 'column', gap: 16 }}>
           {list.map((t) => (
             <TicketCard
               key={t.id}
