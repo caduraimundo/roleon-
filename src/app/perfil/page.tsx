@@ -178,7 +178,7 @@ export default function PerfilPage() {
 
           {/* Avatar */}
           <div style={{
-            width: 72, height: 72, borderRadius: 999,
+            width: 72, height: 72, borderRadius: 20,
             background: '#0EA5A0',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 26, fontWeight: 800, color: '#fff',
