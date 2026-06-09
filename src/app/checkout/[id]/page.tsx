@@ -135,6 +135,13 @@ export default function CheckoutPage() {
   const [ticketTypeId,   setTicketTypeId]   = useState<string | null>(null)
   const [ticketTypeName, setTicketTypeName] = useState<string | null>(null)
   const [ticketTypePrice, setTicketTypePrice] = useState<number | null>(null)
+  const [couponInput,    setCouponInput]    = useState('')
+  const [couponData,     setCouponData]     = useState<{
+    coupon_id: string; coupon_code: string; discount_type: string
+    discount_value: number; discount_amount: number
+  } | null>(null)
+  const [couponError,    setCouponError]    = useState('')
+  const [couponLoading,  setCouponLoading]  = useState(false)
 
   useEffect(() => {
     supabase
@@ -175,10 +182,13 @@ export default function CheckoutPage() {
     )
   }
 
-  const price    = ticketTypePrice ?? Number(evento.price) ?? 0
-  const method   = payMethod === 'credit_card' ? 'card' : 'pix'
-  const { subtotal, roleonFee, pagarmeFee, total } = calcFees(price, quantity, method)
-  const totalFee = roleonFee + pagarmeFee
+  const price            = ticketTypePrice ?? Number(evento.price) ?? 0
+  const discountedPrice  = couponData ? price - couponData.discount_amount : price
+  const originalSubtotal = price * quantity
+  const totalDiscount    = couponData ? couponData.discount_amount * quantity : 0
+  const method           = payMethod === 'credit_card' ? 'card' : 'pix'
+  const { roleonFee, pagarmeFee, total } = calcFees(discountedPrice, quantity, method)
+  const totalFee         = roleonFee + pagarmeFee
 
   const parsed   = evento.event_date ? formatDate(evento.event_date) : null
 
@@ -205,6 +215,8 @@ export default function CheckoutPage() {
           total,
           customer_document: cpfInput.replace(/\D/g, ''),
           ticket_type_name: ticketTypeName ?? undefined,
+          coupon_code: couponData?.coupon_code ?? undefined,
+          discount_applied: couponData?.discount_amount ?? undefined,
         }))
         router.push(`/pagamento-cartao/${id}`)
         return
@@ -236,6 +248,8 @@ export default function CheckoutPage() {
           ticket_type_id: ticketTypeId ?? undefined,
           ticket_type_name: ticketTypeName ?? undefined,
           ticket_type_price: ticketTypePrice ?? undefined,
+          coupon_code: couponData?.coupon_code ?? undefined,
+          discount_applied: couponData?.discount_amount ?? undefined,
         }),
       })
       const data = await res.json()
@@ -264,6 +278,44 @@ export default function CheckoutPage() {
     } catch {
       setLoading(false)
     }
+  }
+
+  const applyCoupon = async () => {
+    if (!couponInput.trim() || couponLoading) return
+    setCouponLoading(true)
+    setCouponError('')
+    try {
+      const res = await fetch('/api/coupon/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code: couponInput.trim(),
+          event_id: id,
+          user_id: user?.id,
+          ticket_price: price,
+        }),
+      })
+      const data = await res.json()
+      if (data.valid) {
+        setCouponData(data)
+        setCouponError('')
+        sessionStorage.removeItem(`roleon_order_${id}`)
+      } else {
+        setCouponData(null)
+        setCouponError(data.error ?? 'Cupom invalido')
+      }
+    } catch {
+      setCouponError('Erro ao validar cupom')
+    } finally {
+      setCouponLoading(false)
+    }
+  }
+
+  const removeCoupon = () => {
+    setCouponData(null)
+    setCouponInput('')
+    setCouponError('')
+    sessionStorage.removeItem(`roleon_order_${id}`)
   }
 
   const btnDisabled = loading || (!evento.is_free && !validateCPF(cpfInput))
@@ -438,6 +490,76 @@ export default function CheckoutPage() {
           </div>
         )}
 
+        {/* CUPOM DE DESCONTO */}
+        {!evento.is_free && (
+          <div>
+            <div style={SECTION_LABEL}>Cupom de desconto</div>
+            {!couponData ? (
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="text"
+                  inputMode="text"
+                  placeholder="Codigo do cupom"
+                  value={couponInput}
+                  onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponError('') }}
+                  onKeyDown={e => { if (e.key === 'Enter') applyCoupon() }}
+                  style={{
+                    flex: 1, border: `1px solid ${couponError ? '#FF3B30' : '#E8E8E8'}`,
+                    borderRadius: 10, padding: '12px 14px',
+                    fontSize: 14, fontFamily: "'Noto Sans', sans-serif",
+                    background: '#fff', color: '#1A1A1A', outline: 'none',
+                    textTransform: 'uppercase', letterSpacing: 0.5,
+                  }}
+                />
+                <button
+                  onClick={applyCoupon}
+                  disabled={!couponInput.trim() || couponLoading}
+                  style={{
+                    padding: '12px 18px', borderRadius: 10,
+                    background: couponLoading || !couponInput.trim() ? '#E8E8E8' : '#0EA5A0',
+                    color: couponLoading || !couponInput.trim() ? '#9A9A9A' : '#fff',
+                    border: 0, cursor: couponLoading || !couponInput.trim() ? 'not-allowed' : 'pointer',
+                    fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
+                    flexShrink: 0,
+                  }}
+                >
+                  {couponLoading ? '...' : 'Aplicar'}
+                </button>
+              </div>
+            ) : (
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                background: '#E6F7F6', borderRadius: 10, padding: '12px 14px',
+                border: '1px solid #B2E8E6',
+              }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#0EA5A0', letterSpacing: 0.5 }}>
+                    {couponData.coupon_code}
+                  </span>
+                  <span style={{ fontSize: 12, color: '#0EA5A0' }}>
+                    {couponData.discount_type === 'percent'
+                      ? `${couponData.discount_value}% de desconto`
+                      : `R$ ${fmt(couponData.discount_value)} de desconto`}
+                  </span>
+                </div>
+                <button
+                  onClick={removeCoupon}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: 13, color: '#0EA5A0', fontWeight: 600,
+                    fontFamily: "'Noto Sans', sans-serif", padding: '4px 8px',
+                  }}
+                >
+                  Remover
+                </button>
+              </div>
+            )}
+            {couponError && (
+              <div style={{ fontSize: 11, color: '#FF3B30', marginTop: 4 }}>{couponError}</div>
+            )}
+          </div>
+        )}
+
         {/* DETALHES DO PREÇO */}
         {!evento.is_free && (
           <div>
@@ -445,8 +567,14 @@ export default function CheckoutPage() {
             <div style={{ ...CARD, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: 13, color: '#3A3A3A' }}>{quantity} × ingresso</span>
-                <span style={{ fontSize: 13, color: '#3A3A3A' }}>R$ {fmt(subtotal)}</span>
+                <span style={{ fontSize: 13, color: '#3A3A3A' }}>R$ {fmt(originalSubtotal)}</span>
               </div>
+              {couponData && totalDiscount > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: 13, color: '#0EA5A0' }}>Desconto ({couponData.coupon_code})</span>
+                  <span style={{ fontSize: 13, color: '#0EA5A0' }}>-R$ {fmt(totalDiscount)}</span>
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: 13, color: '#3A3A3A' }}>Taxa de serviço</span>
                 <span style={{ fontSize: 13, color: '#3A3A3A' }}>R$ {fmt(totalFee)}</span>
