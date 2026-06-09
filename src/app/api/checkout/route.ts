@@ -133,6 +133,8 @@ export async function POST(req: NextRequest) {
     const { total } = calcFees(price, quantity, isPix ? 'pix' : 'card')
     const amountCents = Math.round(total * 100)
     const { card_token, installments = 1, customer_document } = body
+    const couponCode = body.coupon_code ? String(body.coupon_code).toUpperCase().trim() : null
+    const discountApplied = couponCode ? Number(body.discount_applied) || 0 : 0
     let unitTotal = calcFees(price, 1, isPix ? 'pix' : 'card').total
 
     // ── PIX ───────────────────────────────────────────────────────────────────
@@ -172,6 +174,25 @@ export async function POST(req: NextRequest) {
         }
       }
 
+      if (couponCode && discountApplied > 0) {
+        const { data: couponResult } = await supabaseAdmin
+          .rpc('atomic_use_coupon', {
+            p_coupon_code: couponCode,
+            p_event_id: event_id,
+            p_user_id: userId ?? null,
+          })
+        const cr = Array.isArray(couponResult) ? couponResult[0] : couponResult
+        if (!cr?.success) {
+          return NextResponse.json(
+            { error: cr?.error_message ?? 'Cupom invalido ou esgotado' },
+            { status: 400 }
+          )
+        }
+        price = Math.max(0, price - discountApplied)
+        unitTotal = calcFees(price, 1, 'pix').total
+      }
+      const payAmountCents = Math.round(calcFees(price, quantity, 'pix').total * 100)
+
       for (let i = 0; i < quantity; i++) {
         if (body.ticket_type_id) {
           const { data: stockReserved, error: stockError } = await supabaseAdmin
@@ -200,6 +221,7 @@ export async function POST(req: NextRequest) {
         if (resolvedTypeName) insertPayload.ticket_type_name = resolvedTypeName
         if (user_email) insertPayload.recipient_email = user_email
         if (body.ticket_type_id) insertPayload.ticket_type_id = body.ticket_type_id
+        if (couponCode) { insertPayload.coupon_code = couponCode; insertPayload.discount_applied = discountApplied }
 
         console.log(`[checkout pix] inserindo ticket ${i + 1}/${quantity}:`, JSON.stringify(insertPayload))
         console.log('[PIX INSERT] ticket_type_name:', resolvedTypeName, 'ticket_type_id:', body.ticket_type_id, 'body.ticket_type_name:', body.ticket_type_name)
@@ -231,7 +253,7 @@ export async function POST(req: NextRequest) {
             },
           },
         },
-        items: [{ amount: amountCents, description: event.title, quantity: 1, code: event_id }],
+        items: [{ amount: payAmountCents, description: event.title, quantity: 1, code: event_id }],
         payments: [{ payment_method: 'pix', pix: { expires_in: 900 } }],
         ...(producerRecipientId && price > 0 ? {
           split: [{
@@ -336,6 +358,25 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Cartão ────────────────────────────────────────────────────────────────
+    if (couponCode && discountApplied > 0) {
+      const { data: couponResult } = await supabaseAdmin
+        .rpc('atomic_use_coupon', {
+          p_coupon_code: couponCode,
+          p_event_id: event_id,
+          p_user_id: userId ?? null,
+        })
+      const cr = Array.isArray(couponResult) ? couponResult[0] : couponResult
+      if (!cr?.success) {
+        return NextResponse.json(
+          { error: cr?.error_message ?? 'Cupom invalido ou esgotado' },
+          { status: 400 }
+        )
+      }
+      price = Math.max(0, price - discountApplied)
+      unitTotal = calcFees(price, 1, 'card').total
+    }
+    const payAmountCents = Math.round(calcFees(price, quantity, 'card').total * 100)
+
     const pagarmeRes = await fetch('https://api.pagar.me/core/v5/orders', {
       method: 'POST',
       headers: {
@@ -357,7 +398,7 @@ export async function POST(req: NextRequest) {
             },
           },
         },
-        items: [{ amount: amountCents, description: event.title, quantity: 1 }],
+        items: [{ amount: payAmountCents, description: event.title, quantity: 1 }],
         payments: [{
           payment_method: 'credit_card',
           credit_card: { card_token, installments, statement_descriptor: 'ROLEON' },
@@ -434,6 +475,7 @@ export async function POST(req: NextRequest) {
       if (user_email) insertPayload.recipient_email = user_email
       if (body.ticket_type_id) insertPayload.ticket_type_id = body.ticket_type_id
       if (ticketStatus === 'paid') insertPayload.checkin_token = randomBytes(32).toString('hex')
+      if (couponCode) { insertPayload.coupon_code = couponCode; insertPayload.discount_applied = discountApplied }
 
       console.log(`[checkout] inserindo ticket ${i + 1}/${quantity}:`, JSON.stringify(insertPayload))
       const { data: ticket, error: ticketError } = await supabaseAdmin
