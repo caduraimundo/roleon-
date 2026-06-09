@@ -336,6 +336,31 @@ export async function POST(req: NextRequest) {
 
     console.log(`[Webhook] Ticket atualizado para ${newStatus}:`, ticket.id);
     return NextResponse.json({ ok: true });
+  } else if (eventType === 'charge.expired' || eventType === 'order.closed') {
+    if (orderId) {
+      const { data: ticket } = await supabaseAdmin
+        .from('tickets')
+        .select('id, coupon_code, status')
+        .eq('order_id', orderId)
+        .maybeSingle()
+
+      if (ticket?.coupon_code && ticket.status === 'pending') {
+        await supabaseAdmin.rpc('release_coupon_use', {
+          p_coupon_code: ticket.coupon_code,
+        })
+        console.log(`[Webhook] cupom revertido para ticket ${ticket.id}: ${ticket.coupon_code}`)
+      }
+    }
+
+    await supabaseAdmin.from('webhook_logs').insert({
+      pagarme_event_id: pagarmeEventId,
+      event_type: eventType,
+      order_id: orderId,
+      status: 'processed',
+      error_message: null,
+      raw_payload: payload,
+    })
+    return NextResponse.json({ ok: true })
   } else {
     await supabaseAdmin.from('webhook_logs').insert({
       pagarme_event_id: pagarmeEventId,
