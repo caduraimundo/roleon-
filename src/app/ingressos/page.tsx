@@ -138,8 +138,7 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
       style={{
         width: '100%', background: '#fff',
         borderRadius: 12, cursor: 'pointer',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
-        border: '1px solid #E8E8E8',
+        border: 'none',
         display: 'flex', overflow: 'hidden', textAlign: 'left',
         padding: 0,
         fontFamily: "'Noto Sans', sans-serif",
@@ -147,6 +146,7 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
         WebkitMaskComposite: 'destination-in',
         maskImage: 'radial-gradient(circle at 0% 50%, transparent 11px, black 12px), radial-gradient(circle at 100% 50%, transparent 11px, black 12px)',
         maskComposite: 'intersect',
+        filter: 'drop-shadow(0 3px 10px rgba(0,0,0,0.16))',
       } as React.CSSProperties}
     >
       <div style={{ flex: 1, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 9 }}>
