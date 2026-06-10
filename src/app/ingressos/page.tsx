@@ -133,18 +133,29 @@ function LoadingScreen() {
 function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () => void }) {
   const ev = ticket.events
   return (
-    <button
-      onClick={onClick}
-      style={{
-        width: '100%', background: '#fff',
-        borderRadius: 12, cursor: 'pointer',
-        boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
-        border: '1px solid #EFEFEF',
-        display: 'flex', overflow: 'hidden', textAlign: 'left',
-        padding: 0,
-        fontFamily: "'Noto Sans', sans-serif",
-      }}
-    >
+    <div style={{ position: 'relative' }}>
+      <div style={{
+        position: 'absolute', left: -10, top: '50%', transform: 'translateY(-50%)',
+        width: 20, height: 20, borderRadius: '50%',
+        background: '#F9F9F9', border: '1px solid #EFEFEF', zIndex: 2, pointerEvents: 'none',
+      }} />
+      <div style={{
+        position: 'absolute', right: -10, top: '50%', transform: 'translateY(-50%)',
+        width: 20, height: 20, borderRadius: '50%',
+        background: '#F9F9F9', border: '1px solid #EFEFEF', zIndex: 2, pointerEvents: 'none',
+      }} />
+      <button
+        onClick={onClick}
+        style={{
+          width: '100%', background: '#fff',
+          borderRadius: 12, cursor: 'pointer',
+          boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
+          border: '1px solid #EFEFEF',
+          display: 'flex', overflow: 'hidden', textAlign: 'left',
+          padding: 0,
+          fontFamily: "'Noto Sans', sans-serif",
+        }}
+      >
 
       <div style={{ width: 3, flexShrink: 0, background: (() => { const m: Record<string, string> = { paid: '#0EA5A0', confirmed: '#0EA5A0', used: '#6E6E73', pending: '#F59E0B', expired: '#6E6E73', refunded: '#3B82F6', chargebacked: '#F97316' }; return m[ticket.status] ?? '#F59E0B' })() }} />
       <div style={{ flex: 1, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 9 }}>
@@ -193,6 +204,7 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
         </div>
       </div>
     </button>
+    </div>
   )
 }
 
