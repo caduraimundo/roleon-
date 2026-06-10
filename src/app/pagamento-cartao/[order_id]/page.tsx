@@ -14,6 +14,8 @@ interface CheckoutSession {
   user_email?: string
   user_name?: string
   customer_document?: string
+  coupon_code?: string
+  discount_applied?: number
 }
 
 function IconArrowLeft() {
