@@ -92,7 +92,7 @@ export default function PainelPage() {
   }
 
   return (
-    <div style={{ minHeight: 'calc(100vh - 56px)', background: '#F9F9F9' }}>
+    <div style={{ minHeight: 'calc(100vh - 56px)', background: '#F2F2F2' }}>
       <div style={{ maxWidth: 640, margin: '0 auto' }}>
 
         {/* Saudação */}

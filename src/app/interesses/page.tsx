@@ -103,7 +103,7 @@ export default function InteressesPage() {
 
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F9F9F9',
+      minHeight: '100dvh', background: '#F2F2F2',
       fontFamily: "'Noto Sans', sans-serif",
       paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 32px)',
     }}>

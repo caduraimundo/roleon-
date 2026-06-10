@@ -176,7 +176,7 @@ export default function CheckoutPage() {
 
   if (!evento) {
     return (
-      <div style={{ minHeight: '100dvh', background: '#F9F9F9', fontFamily: "'Noto Sans', sans-serif" }}>
+      <div style={{ minHeight: '100dvh', background: '#F2F2F2', fontFamily: "'Noto Sans', sans-serif" }}>
         <div style={{ height: 60, background: '#fff', borderBottom: '0.5px solid #EFEFEF' }} />
       </div>
     )
@@ -326,7 +326,7 @@ export default function CheckoutPage() {
 
   return (
     <div suppressHydrationWarning style={{
-      minHeight: '100dvh', background: '#F9F9F9',
+      minHeight: '100dvh', background: '#F2F2F2',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
       paddingBottom: 96,

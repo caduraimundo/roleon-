@@ -77,7 +77,7 @@ function formatTicketNumber(id: string) {
 function LoadingScreen() {
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F9F9F9',
+      minHeight: '100dvh', background: '#F2F2F2',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
@@ -93,7 +93,7 @@ function LoadingScreen() {
 function ErrorScreen({ message, onBack }: { message: string; onBack: () => void }) {
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F9F9F9',
+      minHeight: '100dvh', background: '#F2F2F2',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
     }}>
@@ -206,7 +206,7 @@ export default function IngressoPage() {
 
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F9F9F9',
+      minHeight: '100dvh', background: '#F2F2F2',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
     }}>
@@ -308,12 +308,12 @@ export default function IngressoPage() {
             <div style={{
               position: 'absolute', left: -10, top: '50%', transform: 'translateY(-50%)',
               width: 20, height: 20, borderRadius: '50%',
-              background: '#F9F9F9', zIndex: 1,
+              background: '#F2F2F2', zIndex: 1,
             }} />
             <div style={{
               position: 'absolute', right: -10, top: '50%', transform: 'translateY(-50%)',
               width: 20, height: 20, borderRadius: '50%',
-              background: '#F9F9F9', zIndex: 1,
+              background: '#F2F2F2', zIndex: 1,
             }} />
             <div style={{ borderTop: '2px dashed #E5E7EB', margin: '0 16px', position: 'relative', top: 1 }} />
           </div>

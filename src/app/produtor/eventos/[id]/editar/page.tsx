@@ -272,7 +272,7 @@ export default function EditarEventoPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F9F9F9', fontFamily: "'Noto Sans', sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: '#F2F2F2', fontFamily: "'Noto Sans', sans-serif" }}>
       {/* Header */}
       <header style={{
         background: '#fff',

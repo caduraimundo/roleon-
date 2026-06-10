@@ -229,7 +229,7 @@ export default function EventoPage() {
 
   if (!ev) {
     return (
-      <div style={{ minHeight: '100dvh', background: '#F9F9F9' }}>
+      <div style={{ minHeight: '100dvh', background: '#F2F2F2' }}>
         <div style={{ height: 260, background: DEFAULT_COLOR, opacity: 0.6 }} />
       </div>
     )
@@ -245,7 +245,7 @@ export default function EventoPage() {
 
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F9F9F9',
+      minHeight: '100dvh', background: '#F2F2F2',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
       paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 90px)',

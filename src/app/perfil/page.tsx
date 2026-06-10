@@ -117,7 +117,7 @@ export default function PerfilPage() {
   if (loading) {
     return (
       <div style={{
-        minHeight: '100dvh', background: '#F9F9F9',
+        minHeight: '100dvh', background: '#F2F2F2',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontFamily: "'Noto Sans', sans-serif", fontSize: 14, color: '#6E6E73',
       }}>
@@ -128,7 +128,7 @@ export default function PerfilPage() {
 
   if (showAuth) {
     return (
-      <div style={{ minHeight: '100dvh', background: '#F9F9F9' }}>
+      <div style={{ minHeight: '100dvh', background: '#F2F2F2' }}>
         <AuthSheet isOpen onClose={() => router.push('/')} />
       </div>
     )
@@ -143,7 +143,7 @@ export default function PerfilPage() {
 
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F9F9F9',
+      minHeight: '100dvh', background: '#F2F2F2',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
     }}>

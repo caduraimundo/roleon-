@@ -67,7 +67,7 @@ export default function AnalisesPage() {
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#F9F9F9',
+      minHeight: '100vh', background: '#F2F2F2',
       fontFamily: "'Noto Sans', sans-serif",
       paddingBottom: 80,
     }}>

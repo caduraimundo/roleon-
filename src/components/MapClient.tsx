@@ -994,7 +994,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   }, [activeEvent, onEventSelect, router])
 
   return (
-    <div style={{ position: 'absolute', inset: 0, background: '#F9F9F9', overflow: 'hidden' }}>
+    <div style={{ position: 'absolute', inset: 0, background: '#F2F2F2', overflow: 'hidden' }}>
 
       {/* Mapa */}
       <div ref={mapRef} style={{ position: 'absolute', inset: 0 }} />

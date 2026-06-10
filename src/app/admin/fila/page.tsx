@@ -79,7 +79,7 @@ export default function FilaAdminPage() {
   }
 
   return (
-    <div style={{ fontFamily: 'Noto Sans, sans-serif', minHeight: '100vh', background: '#F9F9F9' }}>
+    <div style={{ fontFamily: 'Noto Sans, sans-serif', minHeight: '100vh', background: '#F2F2F2' }}>
       {/* Header */}
       <div style={{
         background: '#fff',

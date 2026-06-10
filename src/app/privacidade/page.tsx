@@ -4,7 +4,7 @@ export default function PrivacidadePage() {
   return (
     <div style={{
       minHeight: '100dvh',
-      background: '#F9F9F9',
+      background: '#F2F2F2',
       fontFamily: "'Noto Sans', sans-serif",
       color: '#1A1A1A',
     }}>
