@@ -178,7 +178,7 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#F2F2F2',
+      background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       paddingBottom: 80,
     }}>
@@ -364,7 +364,7 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
                 style={{
                   padding: '12px 16px',
                   borderRadius: 10,
-                  background: '#F2F2F2',
+                  background: '#F7F7F7',
                   color: '#6E6E73',
                   border: 'none',
                   cursor: loadingLink ? 'not-allowed' : 'pointer',
@@ -386,7 +386,7 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
               width: '100%',
               padding: '13px 0',
               borderRadius: 10,
-              background: '#F2F2F2',
+              background: '#F7F7F7',
               color: '#1A1A1A',
               border: 'none',
               cursor: loadingLink ? 'not-allowed' : 'pointer',

@@ -170,7 +170,7 @@ export default function PagamentoCartaoPage() {
 
   if (paid) return (
     <div style={{
-      minHeight: '100dvh', background: '#F2F2F2',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
@@ -194,7 +194,7 @@ export default function PagamentoCartaoPage() {
 
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F2F2F2',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
       paddingBottom: 96,
@@ -214,7 +214,7 @@ export default function PagamentoCartaoPage() {
             aria-label="Voltar"
             style={{
               width: 36, height: 36, borderRadius: 999,
-              background: '#F2F2F2', border: 0, cursor: 'pointer',
+              background: '#F7F7F7', border: 0, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0, padding: 0,
             }}

@@ -107,10 +107,10 @@ export default function CuponsPage({ params }: { params: Promise<{ id: string }>
   const INPUT: React.CSSProperties = { width: '100%', border: '1px solid #E8E8E8', borderRadius: 10, padding: '11px 13px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", background: '#fff', color: '#1A1A1A', outline: 'none', boxSizing: 'border-box' }
 
   return (
-    <div style={{ minHeight: '100dvh', background: '#F2F2F2', fontFamily: "'Noto Sans', sans-serif", paddingBottom: 40 }}>
+    <div style={{ minHeight: '100dvh', background: '#F7F7F7', fontFamily: "'Noto Sans', sans-serif", paddingBottom: 40 }}>
       {/* Header */}
       <div style={{ background: '#fff', borderBottom: '0.5px solid rgba(0,0,0,0.07)', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-        <button onClick={() => router.back()} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F2F2F2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <button onClick={() => router.back()} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="#1A1A1A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </button>
         <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.5 }}>Cupons de desconto</span>

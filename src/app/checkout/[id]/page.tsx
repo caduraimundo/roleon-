@@ -176,7 +176,7 @@ export default function CheckoutPage() {
 
   if (!evento) {
     return (
-      <div style={{ minHeight: '100dvh', background: '#F2F2F2', fontFamily: "'Noto Sans', sans-serif" }}>
+      <div style={{ minHeight: '100dvh', background: '#F7F7F7', fontFamily: "'Noto Sans', sans-serif" }}>
         <div style={{ height: 60, background: '#fff', borderBottom: '0.5px solid #EFEFEF' }} />
       </div>
     )
@@ -326,7 +326,7 @@ export default function CheckoutPage() {
 
   return (
     <div suppressHydrationWarning style={{
-      minHeight: '100dvh', background: '#F2F2F2',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
       paddingBottom: 96,
@@ -389,7 +389,7 @@ export default function CheckoutPage() {
               {/* Badge quantidade */}
               <div style={{
                 display: 'inline-flex', alignItems: 'center',
-                background: '#F2F2F2', borderRadius: 6,
+                background: '#F7F7F7', borderRadius: 6,
                 padding: '3px 8px',
                 fontSize: 12, fontWeight: 600, color: '#3A3A3A',
               }}>

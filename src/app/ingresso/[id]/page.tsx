@@ -77,7 +77,7 @@ function formatTicketNumber(id: string) {
 function LoadingScreen() {
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F2F2F2',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
@@ -93,7 +93,7 @@ function LoadingScreen() {
 function ErrorScreen({ message, onBack }: { message: string; onBack: () => void }) {
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F2F2F2',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
     }}>
@@ -191,7 +191,7 @@ export default function IngressoPage() {
 
   const statusMap: Record<string, { label: string; bg: string; color: string; dot: string }> = {
     paid:         { label: 'Válido',     bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
-    used:         { label: 'Utilizado',  bg: '#F2F2F2', color: '#6E6E73', dot: '#6E6E73' },
+    used:         { label: 'Utilizado',  bg: '#F7F7F7', color: '#6E6E73', dot: '#6E6E73' },
     pending:      { label: 'Pendente',   bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
     expired:      { label: 'Expirado',   bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
     refunded:     { label: 'Estornado',  bg: '#EFF6FF', color: '#1D4ED8', dot: '#3B82F6' },
@@ -206,7 +206,7 @@ export default function IngressoPage() {
 
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F2F2F2',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
     }}>
@@ -308,12 +308,12 @@ export default function IngressoPage() {
             <div style={{
               position: 'absolute', left: -10, top: '50%', transform: 'translateY(-50%)',
               width: 20, height: 20, borderRadius: '50%',
-              background: '#F2F2F2', zIndex: 1,
+              background: '#F7F7F7', zIndex: 1,
             }} />
             <div style={{
               position: 'absolute', right: -10, top: '50%', transform: 'translateY(-50%)',
               width: 20, height: 20, borderRadius: '50%',
-              background: '#F2F2F2', zIndex: 1,
+              background: '#F7F7F7', zIndex: 1,
             }} />
             <div style={{ borderTop: '2px dashed #E5E7EB', margin: '0 16px', position: 'relative', top: 1 }} />
           </div>
@@ -364,7 +364,7 @@ export default function IngressoPage() {
                 )}
                 <div style={{
                   width: '100%', paddingTop: 14,
-                  borderTop: '1px solid #F2F2F2',
+                  borderTop: '1px solid #F7F7F7',
                   textAlign: 'center',
                   fontSize: 12, color: '#6E6E73', lineHeight: 1.5,
                 }}>

@@ -4,7 +4,7 @@ export default function TermosPage() {
   return (
     <div style={{
       minHeight: '100dvh',
-      background: '#F2F2F2',
+      background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       color: '#1A1A1A',
     }}>

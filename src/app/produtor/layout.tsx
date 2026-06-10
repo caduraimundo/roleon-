@@ -7,7 +7,7 @@ const noto = Noto_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className={noto.className}
-      style={{ minHeight: '100vh', background: '#F2F2F2' }}>
+      style={{ minHeight: '100vh', background: '#F7F7F7' }}>
 
       <header style={{
         background: '#fff',

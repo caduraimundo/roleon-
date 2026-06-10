@@ -142,7 +142,7 @@ export default function ParticipantesPage({
   const totalRefunded = tickets.filter(t => t.status === 'refunded' || t.status === 'cancelled').length
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F2F2F2', fontFamily: "'Noto Sans', sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: '#F7F7F7', fontFamily: "'Noto Sans', sans-serif" }}>
 
       {toast && (
         <div style={{
@@ -164,7 +164,7 @@ export default function ParticipantesPage({
       }}>
         <button onClick={() => router.back()} style={{
           width: 36, height: 36, borderRadius: '50%',
-          background: '#F2F2F2', border: 'none', cursor: 'pointer',
+          background: '#F7F7F7', border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none">

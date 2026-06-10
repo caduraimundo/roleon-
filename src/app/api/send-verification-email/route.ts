@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
       to: email,
       subject: 'Confirme seu cadastro no Roleon',
       html: `
-        <div style="font-family:'Noto Sans',sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#F2F2F2;">
+        <div style="font-family:'Noto Sans',sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#F7F7F7;">
           <div style="background:#fff;border-radius:16px;padding:32px;text-align:center;">
             <h1 style="color:#0EA5A0;font-size:22px;letter-spacing:3px;margin:0 0 24px;">roleon</h1>
             <h2 style="color:#1A1A1A;font-size:16px;font-weight:700;margin:0 0 12px;">Confirme seu e-mail</h2>

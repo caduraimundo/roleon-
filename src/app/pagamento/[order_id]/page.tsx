@@ -203,7 +203,7 @@ export default function PagamentoPage() {
 
   if (paid) return (
     <div style={{
-      minHeight: '100dvh', background: '#F2F2F2',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
@@ -227,7 +227,7 @@ export default function PagamentoPage() {
 
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F2F2F2',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
     }}>
@@ -247,7 +247,7 @@ export default function PagamentoPage() {
             aria-label="Cancelar"
             style={{
               width: 36, height: 36, borderRadius: 999,
-              background: '#F2F2F2', border: 0, cursor: 'pointer',
+              background: '#F7F7F7', border: 0, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#1A1A1A',
             }}
@@ -278,7 +278,7 @@ export default function PagamentoPage() {
           <div style={{ padding: '20px 20px 0', display: 'flex', justifyContent: 'center' }}>
             {expired ? (
               <div style={{
-                width: 200, height: 200, background: '#F2F2F2', borderRadius: 8,
+                width: 200, height: 200, background: '#F7F7F7', borderRadius: 8,
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 justifyContent: 'center', gap: 8,
               }}>
@@ -332,7 +332,7 @@ export default function PagamentoPage() {
           {/* Código PIX copiável */}
           <div style={{ padding: '16px 20px 20px' }}>
             <div style={{
-              background: '#F2F2F2', borderRadius: 10,
+              background: '#F7F7F7', borderRadius: 10,
               display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
             }}>
               <div style={{

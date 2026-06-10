@@ -272,7 +272,7 @@ export default function EditarEventoPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F2F2F2', fontFamily: "'Noto Sans', sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: '#F7F7F7', fontFamily: "'Noto Sans', sans-serif" }}>
       {/* Header */}
       <header style={{
         background: '#fff',
@@ -292,7 +292,7 @@ export default function EditarEventoPage() {
             width: 36,
             height: 36,
             borderRadius: '50%',
-            background: '#F2F2F2',
+            background: '#F7F7F7',
             border: 'none',
             cursor: 'pointer',
             display: 'flex',
@@ -314,7 +314,7 @@ export default function EditarEventoPage() {
               onClick={() => setMenuOpen(prev => !prev)}
               style={{
                 width: 36, height: 36, borderRadius: '50%',
-                background: menuOpen ? '#F2F2F2' : 'transparent',
+                background: menuOpen ? '#F7F7F7' : 'transparent',
                 border: 'none', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}

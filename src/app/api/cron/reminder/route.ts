@@ -60,7 +60,7 @@ export async function GET(req: Request) {
               </div>
               <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Seu evento é amanhã</h2>
               <p style="color: #6E6E73; margin-bottom: 20px;">Não esqueça que você tem ingresso para:</p>
-              <div style="background: #F2F2F2; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+              <div style="background: #F7F7F7; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
                 <div style="font-size: 17px; font-weight: 700; margin-bottom: 4px;">${event.title}</div>
                 <div style="color: #6E6E73; font-size: 14px;">${event.location_name || ''}</div>
                 <div style="color: #6E6E73; font-size: 14px; margin-top: 4px;">
@@ -158,7 +158,7 @@ export async function GET(req: Request) {
               </div>
               <h2 style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">Seu evento é amanhã</h2>
               <p style="color: #6E6E73; margin-bottom: 20px;">Não esqueça que você confirmou presença em:</p>
-              <div style="background: #F2F2F2; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+              <div style="background: #F7F7F7; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
                 <div style="font-size: 17px; font-weight: 700; margin-bottom: 4px;">${event.title}</div>
                 <div style="color: #6E6E73; font-size: 14px;">${event.location_name || ''}</div>
                 <div style="color: #6E6E73; font-size: 14px; margin-top: 4px;">

@@ -108,7 +108,7 @@ export default function SalvosPage() {
   return (
     <div style={{
       minHeight: '100dvh',
-      background: '#F2F2F2',
+      background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 90px)',
     }}>
@@ -127,7 +127,7 @@ export default function SalvosPage() {
           aria-label="Voltar"
           style={{
             width: 36, height: 36, borderRadius: 999,
-            background: '#F2F2F2', border: 0, cursor: 'pointer',
+            background: '#F7F7F7', border: 0, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#1A1A1A', flexShrink: 0,
           }}

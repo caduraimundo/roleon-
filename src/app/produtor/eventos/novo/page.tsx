@@ -233,7 +233,7 @@ export default function NovoEventoPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F2F2F2', fontFamily: "'Noto Sans', sans-serif" }}>
+    <div style={{ minHeight: '100vh', background: '#F7F7F7', fontFamily: "'Noto Sans', sans-serif" }}>
       {/* Header */}
       <header style={{
         background: '#fff',
@@ -253,7 +253,7 @@ export default function NovoEventoPage() {
             width: 36,
             height: 36,
             borderRadius: '50%',
-            background: '#F2F2F2',
+            background: '#F7F7F7',
             border: 'none',
             cursor: 'pointer',
             display: 'flex',

@@ -229,7 +229,7 @@ export default function EventoPage() {
 
   if (!ev) {
     return (
-      <div style={{ minHeight: '100dvh', background: '#F2F2F2' }}>
+      <div style={{ minHeight: '100dvh', background: '#F7F7F7' }}>
         <div style={{ height: 260, background: DEFAULT_COLOR, opacity: 0.6 }} />
       </div>
     )
@@ -245,7 +245,7 @@ export default function EventoPage() {
 
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F2F2F2',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
       paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 90px)',
@@ -336,7 +336,7 @@ export default function EventoPage() {
               </div>
             </div>
           )}
-          {ev.dateStr && ev.venue && <div style={{ height: 1, background: '#F2F2F2', margin: '0 16px' }} />}
+          {ev.dateStr && ev.venue && <div style={{ height: 1, background: '#F7F7F7', margin: '0 16px' }} />}
           {ev.venue && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
               <div style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: '#E6F7F6', color: '#0EA5A0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

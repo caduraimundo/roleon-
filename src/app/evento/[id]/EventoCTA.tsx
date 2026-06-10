@@ -374,7 +374,7 @@ const BTN_SOLD_OUT: React.CSSProperties = {
 
 const BTN_NOTIFY: React.CSSProperties = {
   ...BTN_TEAL,
-  background: '#F2F2F2',
+  background: '#F7F7F7',
   color: '#0EA5A0',
   border: '1.5px solid #0EA5A0',
   boxShadow: 'none',

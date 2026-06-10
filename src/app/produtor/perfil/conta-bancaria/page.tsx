@@ -207,7 +207,7 @@ export default function ContaBancariaPage() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F2F2F2', fontFamily: "'Noto Sans', sans-serif", paddingBottom: 110 }}>
+    <div style={{ minHeight: '100vh', background: '#F7F7F7', fontFamily: "'Noto Sans', sans-serif", paddingBottom: 110 }}>
 
       {/* Header */}
       <header style={{
@@ -220,7 +220,7 @@ export default function ContaBancariaPage() {
           onClick={() => step > 1 ? (setStep(s => s - 1), setError('')) : router.back()}
           style={{
             width: 36, height: 36, borderRadius: '50%',
-            background: '#F2F2F2', border: 'none', cursor: 'pointer',
+            background: '#F7F7F7', border: 'none', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
         >

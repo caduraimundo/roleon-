@@ -219,7 +219,7 @@ export default function ConfiguracoesPage() {
   if (loading) {
     return (
       <div style={{
-        minHeight: '100dvh', background: '#F2F2F2',
+        minHeight: '100dvh', background: '#F7F7F7',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontFamily: "'Noto Sans', sans-serif", fontSize: 14, color: '#6E6E73',
       }}>
@@ -230,7 +230,7 @@ export default function ConfiguracoesPage() {
 
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F2F2F2',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
     }}>

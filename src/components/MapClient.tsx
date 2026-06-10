@@ -994,7 +994,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   }, [activeEvent, onEventSelect, router])
 
   return (
-    <div style={{ position: 'absolute', inset: 0, background: '#F2F2F2', overflow: 'hidden' }}>
+    <div style={{ position: 'absolute', inset: 0, background: '#F7F7F7', overflow: 'hidden' }}>
 
       {/* Mapa */}
       <div ref={mapRef} style={{ position: 'absolute', inset: 0 }} />
@@ -1027,7 +1027,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
                   <div key={ev.id}
                     onClick={() => handleSelectEvent(ev.id, ev.lat, ev.lng)}
                     onPointerDown={() => handleSelectEvent(ev.id, ev.lat, ev.lng)}
-                    style={{ padding: '10px 16px', fontSize: 14, color: '#1A1A1A', cursor: 'pointer', borderBottom: '0.5px solid #F2F2F2' }}>
+                    style={{ padding: '10px 16px', fontSize: 14, color: '#1A1A1A', cursor: 'pointer', borderBottom: '0.5px solid #F7F7F7' }}>
                     {ev.title}
                   </div>
                 ))}
@@ -1040,7 +1040,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
                   <div key={pl.place_id}
                     onClick={() => handleSelectPlace(pl.place_id)}
                     onPointerDown={() => handleSelectPlace(pl.place_id)}
-                    style={{ padding: '10px 16px', fontSize: 14, color: '#1A1A1A', cursor: 'pointer', borderBottom: '0.5px solid #F2F2F2' }}>
+                    style={{ padding: '10px 16px', fontSize: 14, color: '#1A1A1A', cursor: 'pointer', borderBottom: '0.5px solid #F7F7F7' }}>
                     {pl.description}
                   </div>
                 ))}

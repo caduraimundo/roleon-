@@ -67,7 +67,7 @@ function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; bg: string; color: string; dot: string }> = {
     paid:         { label: 'Válido',     bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
     confirmed:    { label: 'Confirmado', bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
-    used:         { label: 'Utilizado',  bg: '#F2F2F2', color: '#6E6E73', dot: '#6E6E73' },
+    used:         { label: 'Utilizado',  bg: '#F7F7F7', color: '#6E6E73', dot: '#6E6E73' },
     pending:      { label: 'Pendente',   bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
     expired:      { label: 'Expirado',   bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
     refunded:     { label: 'Estornado',  bg: '#EFF6FF', color: '#1D4ED8', dot: '#3B82F6' },
@@ -117,7 +117,7 @@ function IconPin() {
 function LoadingScreen() {
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F2F2F2',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', alignItems: 'center', justifyContent: 'center',
     }}>
@@ -302,7 +302,7 @@ export default function IngressosPage() {
 
   return (
     <div style={{
-      minHeight: '100dvh', background: '#F2F2F2',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
     }}>
@@ -316,7 +316,7 @@ export default function IngressosPage() {
         paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
         <div style={{ position: 'absolute', left: 16 }}>
-          <button onClick={() => router.push('/')} aria-label="Voltar" style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F2F2F2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none', flexShrink: 0 }}>
+          <button onClick={() => router.push('/')} aria-label="Voltar" style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'none', flexShrink: 0 }}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 18l-6-6 6-6"/>
               </svg>
