@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     default: "Roleon",
     template: "%s | Roleon",
   },
-  description: "Descubra e compre ingressos para eventos culturais em Ouro Preto e Mariana, MG.",
+  description: "Descubra shows, festas e eventos culturais perto de voce. Compre seu ingresso com seguranca.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Roleon",
-    title: "Roleon — Eventos em Ouro Preto e Mariana",
-    description: "Descubra e compre ingressos para eventos culturais em Ouro Preto e Mariana, MG.",
+    title: "Roleon - Eventos e Ingressos",
+    description: "Descubra shows, festas e eventos culturais perto de voce. Compre seu ingresso com seguranca.",
     locale: "pt_BR",
   },
   icons: {

@@ -1,7 +1,7 @@
 {
   "name": "Roleon",
   "short_name": "Roleon",
-  "description": "Descubra e compre ingressos para eventos culturais em Ouro Preto e Mariana",
+  "description": "Descubra shows, festas e eventos culturais perto de voce.",
   "start_url": "/",
   "id": "/",
   "display": "standalone",
