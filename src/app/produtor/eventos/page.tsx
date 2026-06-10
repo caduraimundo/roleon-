@@ -328,6 +328,22 @@ export default function EventosPage() {
                             </svg>
                             Participantes
                           </a>
+                          <a href={`/produtor/eventos/${ev.id}/cupons`} style={{
+                            padding: '9px 10px', borderRadius: 10,
+                            border: '1px solid #E8E8E8',
+                            background: '#fff', color: '#1A1A1A',
+                            fontFamily: "'Noto Sans', sans-serif",
+                            fontSize: 13, fontWeight: 600,
+                            display: 'inline-flex', alignItems: 'center',
+                            justifyContent: 'center', gap: 6,
+                            textDecoration: 'none',
+                          }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                              <path d="M7 7h10M7 12h6M7 17h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                              <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" strokeWidth="2"/>
+                            </svg>
+                            Cupons
+                          </a>
                         </div>
                         {/* Copiar link — terciário, sem borda, cinza suave */}
                         <button
