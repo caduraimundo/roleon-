@@ -151,6 +151,8 @@ export default function PagamentoCartaoPage() {
           customer_document: session?.customer_document || '',
           ticket_type_name: ticketTypeName,
           ticket_type_price: ticketTypePrice ?? undefined,
+          coupon_code: session?.coupon_code ?? undefined,
+          discount_applied: session?.discount_applied ?? undefined,
         }),
       })
       const data = await res.json()
