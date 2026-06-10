@@ -291,7 +291,7 @@ export default function EventosPage() {
                           Portaria
                         </a>
                         {/* Editar + Participantes — secundário, 2 colunas */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
                           <a href={`/produtor/eventos/${ev.id}/editar`} style={{
                             padding: '9px 10px', borderRadius: 10,
                             border: '1px solid #E8E8E8',

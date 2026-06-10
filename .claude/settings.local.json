@@ -72,7 +72,12 @@
       "PowerShell(vercel --prod --cwd C:\\\\Users\\\\Carlo\\\\roleon-)",
       "PowerShell(npx vercel --prod --cwd \"C:\\\\Users\\\\Carlo\\\\roleon-\")",
       "PowerShell(vercel env add NEXT_PUBLIC_POSTHOG_KEY production --cwd C:\\\\Users\\\\Carlo\\\\roleon-)",
-      "PowerShell(\\(Get-Command npx\\).Source; npx vercel --version 2>&1 | Select-Object -First 3)"
+      "PowerShell(\\(Get-Command npx\\).Source; npx vercel --version 2>&1 | Select-Object -First 3)",
+      "PowerShell(npx vercel logs roleon- 2>&1)",
+      "mcp__721c7c4c-f150-40b4-9fa2-f83b2c012bf3__list_projects",
+      "mcp__721c7c4c-f150-40b4-9fa2-f83b2c012bf3__execute_sql",
+      "PowerShell($secret = [System.Convert]::ToBase64String\\(\\(1..32 | ForEach-Object { [byte]\\(Get-Random -Max 256\\) }\\)\\); Write-Output $secret; cd \"C:\\\\Users\\\\Carlo\\\\roleon-\"; npx vercel env add CRON_SECRET production --value $secret --yes)",
+      "Bash(curl -X GET https://www.roleon.com.br/api/cron/repasse -H \"Authorization: Bearer YiVqQhKwWoVnJpTrQtKqDcRjXzYsKnQwZaRoCeXx\")"
     ]
   }
 }
