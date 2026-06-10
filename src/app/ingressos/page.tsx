@@ -138,16 +138,18 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
       style={{
         width: '100%', background: '#fff',
         borderRadius: 12, cursor: 'pointer',
-        boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
-        border: '1px solid #EFEFEF',
-        display: 'flex', flexDirection: 'column',
-        overflow: 'visible', textAlign: 'left',
-        padding: 0, position: 'relative',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
+        border: '1px solid #E8E8E8',
+        display: 'flex', overflow: 'hidden', textAlign: 'left',
+        padding: 0,
         fontFamily: "'Noto Sans', sans-serif",
-      }}
+        WebkitMaskImage: 'radial-gradient(circle at 0% 50%, transparent 11px, black 12px), radial-gradient(circle at 100% 50%, transparent 11px, black 12px)',
+        WebkitMaskComposite: 'destination-in',
+        maskImage: 'radial-gradient(circle at 0% 50%, transparent 11px, black 12px), radial-gradient(circle at 100% 50%, transparent 11px, black 12px)',
+        maskComposite: 'intersect',
+      } as React.CSSProperties}
     >
-      {/* Corpo principal */}
-      <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 9 }}>
+      <div style={{ flex: 1, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 9 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, lineHeight: 1.3, flex: 1, letterSpacing: -0.3 }}>
             {ev?.title ?? 'Evento'}
@@ -166,48 +168,28 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
             <span style={{ fontSize: 12, color: DIM }}>{ev.location_name}</span>
           </div>
         )}
-      </div>
-
-      {/* Divisor picotado com recortes laterais */}
-      <div style={{ position: 'relative', height: 0, flexShrink: 0 }}>
-        <div style={{
-          position: 'absolute', left: -12, top: '50%', transform: 'translateY(-50%)',
-          width: 24, height: 24, borderRadius: '50%',
-          background: '#F9F9F9', border: '1px solid #EFEFEF', zIndex: 2, pointerEvents: 'none',
-        }} />
-        <div style={{
-          position: 'absolute', right: -12, top: '50%', transform: 'translateY(-50%)',
-          width: 24, height: 24, borderRadius: '50%',
-          background: '#F9F9F9', border: '1px solid #EFEFEF', zIndex: 2, pointerEvents: 'none',
-        }} />
-        <div style={{ borderTop: '1.5px dashed #E0E0E0' }} />
-      </div>
-
-      {/* Stub inferior */}
-      <div style={{
-        padding: '10px 18px 12px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {ticket.ticket_type_name && (
-            <span style={{
-              background: '#F0F0F0', color: '#1A1A1A',
-              borderRadius: 20, padding: '4px 10px',
-              fontSize: 12, fontWeight: 500,
-            }}>
-              {ticket.ticket_type_name}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {ticket.ticket_type_name && (
+              <span style={{
+                background: '#F0F0F0', color: '#1A1A1A',
+                borderRadius: 20, padding: '4px 10px',
+                fontSize: 12, fontWeight: 500,
+              }}>
+                {ticket.ticket_type_name}
+              </span>
+            )}
+            <div style={{ fontSize: 13, fontWeight: 600, color: TEAL }}>
+              {formatPrice(ticket.price_paid)}
+            </div>
+          </div>
+          {ticket.payment_method && ticket.payment_method !== 'free' && (
+            <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              {ticket.payment_method === 'pix' ? <IconPix /> : <IconCard />}
+              {ticket.payment_method === 'pix' ? 'PIX' : 'Cartao'}
             </span>
           )}
-          <div style={{ fontSize: 13, fontWeight: 600, color: TEAL }}>
-            {formatPrice(ticket.price_paid)}
-          </div>
         </div>
-        {ticket.payment_method && ticket.payment_method !== 'free' && (
-          <span style={{ fontSize: 12, fontWeight: 500, color: DIM, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-            {ticket.payment_method === 'pix' ? <IconPix /> : <IconCard />}
-            {ticket.payment_method === 'pix' ? 'PIX' : 'Cartao'}
-          </span>
-        )}
       </div>
     </button>
   )
