@@ -132,28 +132,24 @@ function LoadingScreen() {
 
 function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () => void }) {
   const ev = ticket.events
-  const barColor = (() => {
-    const m: Record<string, string> = {
-      paid: '#0EA5A0', confirmed: '#0EA5A0', used: '#6E6E73',
-      pending: '#F59E0B', expired: '#6E6E73', refunded: '#3B82F6', chargebacked: '#F97316',
-    }
-    return m[ticket.status] ?? '#6E6E73'
-  })()
   return (
     <button
       onClick={onClick}
       style={{
         width: '100%', background: '#fff',
         borderRadius: 12, cursor: 'pointer',
-        boxShadow: '0 2px 16px rgba(0,0,0,0.08)',
-        border: '1px solid #EFEFEF',
+        border: 'none',
         display: 'flex', overflow: 'hidden', textAlign: 'left',
         padding: 0,
         fontFamily: "'Noto Sans', sans-serif",
-      }}
+        WebkitMaskImage: 'radial-gradient(circle at 0% 50%, transparent 11px, black 12px), radial-gradient(circle at 100% 50%, transparent 11px, black 12px)',
+        WebkitMaskComposite: 'destination-in',
+        maskImage: 'radial-gradient(circle at 0% 50%, transparent 11px, black 12px), radial-gradient(circle at 100% 50%, transparent 11px, black 12px)',
+        maskComposite: 'intersect',
+        filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.07))',
+      } as React.CSSProperties}
     >
-      <div style={{ width: 3, flexShrink: 0, background: barColor }} />
-      <div style={{ flex: 1, padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 9 }}>
+      <div style={{ flex: 1, padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 9 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, lineHeight: 1.3, flex: 1, letterSpacing: -0.3 }}>
             {ev?.title ?? 'Evento'}
