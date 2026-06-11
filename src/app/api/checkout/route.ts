@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
   const token = req.headers.get('Authorization')?.replace('Bearer ', '') || ''
   const { data: { user } } = await supabaseAdmin.auth.getUser(token)
-  const userId = user?.id || body.user_id
+  const userId = user?.id ?? null
 
   if (isMock) {
     if (body.payment_method === 'credit_card') {
@@ -67,6 +67,10 @@ export async function POST(req: NextRequest) {
       amount: body.amount || 5000,
       expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
     })
+  }
+
+  if (!userId) {
+    return NextResponse.json({ error: 'Autenticação necessária' }, { status: 401 })
   }
 
   let cardReservedCount = 0
@@ -129,12 +133,29 @@ export async function POST(req: NextRequest) {
     }
 
     const isPix = payment_method !== 'credit_card'
-    let price = Number(body.ticket_type_price) || Number(event.price) || 0
-    const { total } = calcFees(price, quantity, isPix ? 'pix' : 'card')
-    const amountCents = Math.round(total * 100)
     const { card_token, installments = 1, customer_document } = body
     const couponCode = body.coupon_code ? String(body.coupon_code).toUpperCase().trim() : null
-    const discountApplied = couponCode ? Number(body.discount_applied) || 0 : 0
+
+    // F1: resolver preço e nome sempre do banco — nunca confiar no client
+    let price: number
+    let resolvedTypeName: string | null = null
+    if (body.ticket_type_id) {
+      const { data: tt, error: ttError } = await supabaseAdmin
+        .from('ticket_types')
+        .select('name, price, event_id')
+        .eq('id', body.ticket_type_id)
+        .single()
+      if (ttError || !tt) {
+        return NextResponse.json({ error: 'Tipo de ingresso não encontrado' }, { status: 400 })
+      }
+      if ((tt as any).event_id !== event_id) {
+        return NextResponse.json({ error: 'Tipo de ingresso não pertence a este evento' }, { status: 400 })
+      }
+      price = Number((tt as any).price) || 0
+      resolvedTypeName = String((tt as any).name)
+    } else {
+      price = Number(event.price) || 0
+    }
     let unitTotal = calcFees(price, 1, isPix ? 'pix' : 'card').total
 
     // ── PIX ───────────────────────────────────────────────────────────────────
@@ -143,38 +164,18 @@ export async function POST(req: NextRequest) {
       const tempOrderId = crypto.randomUUID()
       const ticketIds: string[] = []
 
-      // Resolver nome e preço do tipo de ingresso pelo banco
-      let resolvedTypeName: string | null = body.ticket_type_name || null
-      if (!body.ticket_type_price) {
-        if (body.ticket_type_id) {
-          // Busca direta pelo id específico — garante nome/preço corretos independente do evento
-          const { data: tt } = await supabaseAdmin
-            .from('ticket_types')
-            .select('name, price')
-            .eq('id', body.ticket_type_id)
-            .single()
-          if (tt) {
-            const ttPrice = Number((tt as { price: unknown }).price)
-            if (ttPrice) { price = ttPrice; unitTotal = calcFees(price, 1, 'pix').total }
-            if (!resolvedTypeName) resolvedTypeName = String((tt as { name: unknown }).name)
-          }
-        } else {
-          // Fallback: evento sem tipo selecionado — pega o mais barato
-          const { data: ttList } = await supabaseAdmin
-            .from('ticket_types')
-            .select('name, price')
-            .eq('event_id', event_id)
-            .order('price', { ascending: true })
-          if (ttList && ttList.length > 0) {
-            const tt = ttList[0]
-            const ttPrice = Number((tt as { price: unknown }).price)
-            if (ttPrice) { price = ttPrice; unitTotal = calcFees(price, 1, 'pix').total }
-            if (!resolvedTypeName) resolvedTypeName = String((tt as { name: unknown }).name)
-          }
+      // F2: calcular desconto server-side — nunca usar body.discount_applied
+      let serverDiscount = 0
+      if (couponCode) {
+        const { data: couponData } = await supabaseAdmin
+          .from('coupons')
+          .select('discount_type, discount_value')
+          .eq('code', couponCode)
+          .eq('active', true)
+          .maybeSingle()
+        if (!couponData) {
+          return NextResponse.json({ error: 'Cupom inválido ou inativo' }, { status: 400 })
         }
-      }
-
-      if (couponCode && discountApplied > 0) {
         const { data: couponResult } = await supabaseAdmin
           .rpc('atomic_use_coupon', {
             p_coupon_code: couponCode,
@@ -188,7 +189,14 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           )
         }
-        price = Math.max(0, price - discountApplied)
+        const discountValue = Number(couponData.discount_value)
+        if (couponData.discount_type === 'percent') {
+          serverDiscount = price * (discountValue / 100)
+        } else {
+          serverDiscount = Math.min(discountValue, price)
+        }
+        serverDiscount = Math.round(serverDiscount * 100) / 100
+        price = Math.max(0, price - serverDiscount)
         unitTotal = calcFees(price, 1, 'pix').total
       }
       const payAmountCents = Math.round(calcFees(price, quantity, 'pix').total * 100)
@@ -221,7 +229,7 @@ export async function POST(req: NextRequest) {
         if (resolvedTypeName) insertPayload.ticket_type_name = resolvedTypeName
         if (user_email) insertPayload.recipient_email = user_email
         if (body.ticket_type_id) insertPayload.ticket_type_id = body.ticket_type_id
-        if (couponCode) { insertPayload.coupon_code = couponCode; insertPayload.discount_applied = discountApplied }
+        if (couponCode) { insertPayload.coupon_code = couponCode; insertPayload.discount_applied = serverDiscount }
 
         console.log(`[checkout pix] inserindo ticket ${i + 1}/${quantity}:`, JSON.stringify(insertPayload))
         console.log('[PIX INSERT] ticket_type_name:', resolvedTypeName, 'ticket_type_id:', body.ticket_type_id, 'body.ticket_type_name:', body.ticket_type_name)
@@ -264,7 +272,7 @@ export async function POST(req: NextRequest) {
           }],
         } : {}),
       }
-      console.log('[checkout pix] enviando pedido para Pagar.me | producerRecipientId:', producerRecipientId, '| amountCents:', amountCents)
+      console.log('[checkout pix] enviando pedido para Pagar.me | producerRecipientId:', producerRecipientId, '| payAmountCents:', payAmountCents)
 
       let pagarmeRes: Response
       try {
@@ -352,13 +360,24 @@ export async function POST(req: NextRequest) {
         ticket_ids: ticketIds,
         qr_code_url: qrCodeUrl,
         pix_code: emvCode,
-        amount: amountCents,
+        amount: payAmountCents,
         expires_at: txn?.expires_at || '',
       })
     }
 
     // ── Cartão ────────────────────────────────────────────────────────────────
-    if (couponCode && discountApplied > 0) {
+    // F2: calcular desconto server-side — nunca usar body.discount_applied
+    let serverDiscount = 0
+    if (couponCode) {
+      const { data: couponData } = await supabaseAdmin
+        .from('coupons')
+        .select('discount_type, discount_value')
+        .eq('code', couponCode)
+        .eq('active', true)
+        .maybeSingle()
+      if (!couponData) {
+        return NextResponse.json({ error: 'Cupom inválido ou inativo' }, { status: 400 })
+      }
       const { data: couponResult } = await supabaseAdmin
         .rpc('atomic_use_coupon', {
           p_coupon_code: couponCode,
@@ -372,7 +391,14 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         )
       }
-      price = Math.max(0, price - discountApplied)
+      const discountValue = Number(couponData.discount_value)
+      if (couponData.discount_type === 'percent') {
+        serverDiscount = price * (discountValue / 100)
+      } else {
+        serverDiscount = Math.min(discountValue, price)
+      }
+      serverDiscount = Math.round(serverDiscount * 100) / 100
+      price = Math.max(0, price - serverDiscount)
       unitTotal = calcFees(price, 1, 'card').total
     }
     const payAmountCents = Math.round(calcFees(price, quantity, 'card').total * 100)
@@ -471,11 +497,11 @@ export async function POST(req: NextRequest) {
         payment_method: 'credit_card',
       }
       if (userId) insertPayload.user_id = userId
-      if (body.ticket_type_name) insertPayload.ticket_type_name = body.ticket_type_name
+      if (resolvedTypeName) insertPayload.ticket_type_name = resolvedTypeName
       if (user_email) insertPayload.recipient_email = user_email
       if (body.ticket_type_id) insertPayload.ticket_type_id = body.ticket_type_id
       if (ticketStatus === 'paid') insertPayload.checkin_token = randomBytes(32).toString('hex')
-      if (couponCode) { insertPayload.coupon_code = couponCode; insertPayload.discount_applied = discountApplied }
+      if (couponCode) { insertPayload.coupon_code = couponCode; insertPayload.discount_applied = serverDiscount }
 
       console.log(`[checkout] inserindo ticket ${i + 1}/${quantity}:`, JSON.stringify(insertPayload))
       const { data: ticket, error: ticketError } = await supabaseAdmin
