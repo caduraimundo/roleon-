@@ -135,6 +135,7 @@ export async function POST(req: NextRequest) {
     const isPix = payment_method !== 'credit_card'
     const { card_token, installments = 1, customer_document } = body
     const couponCode = body.coupon_code ? String(body.coupon_code).toUpperCase().trim() : null
+    let couponConsumed = false
 
     // F1: resolver preço e nome sempre do banco — nunca confiar no client
     let price: number
@@ -189,6 +190,7 @@ export async function POST(req: NextRequest) {
             { status: 400 }
           )
         }
+        couponConsumed = true
         const discountValue = Number(couponData.discount_value)
         if (couponData.discount_type === 'percent') {
           serverDiscount = price * (discountValue / 100)
@@ -209,6 +211,15 @@ export async function POST(req: NextRequest) {
           if (stockError || !stockReserved) {
             if (ticketIds.length > 0) {
               await supabaseAdmin.from('tickets').delete().in('id', ticketIds)
+              await supabaseAdmin
+                .rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: ticketIds.length })
+                .catch(e => console.error('[checkout pix] release_stock mid-loop falhou:', e))
+            }
+            if (couponConsumed) {
+              await supabaseAdmin
+                .rpc('release_coupon_use', { p_coupon_code: couponCode! })
+                .catch(e => console.error('[checkout pix] release_coupon mid-loop falhou:', e))
+              couponConsumed = false
             }
             return NextResponse.json(
               { error: 'Ingressos esgotados para este lote.' },
@@ -287,6 +298,19 @@ export async function POST(req: NextRequest) {
       } catch (fetchErr) {
         console.error('[checkout pix] fetch falhou:', fetchErr)
         await supabaseAdmin.from('tickets').delete().eq('order_id', tempOrderId)
+        if (body.ticket_type_id && ticketIds.length > 0) {
+          await supabaseAdmin
+            .rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: ticketIds.length })
+            .catch(e => console.error('[checkout pix] release_ticket_stock falhou:', e))
+          notifyWaitlist({ eventId: event_id, ticketTypeId: body.ticket_type_id })
+            .catch(e => console.error('[checkout pix] notifyWaitlist falhou:', e))
+        }
+        if (couponConsumed) {
+          await supabaseAdmin
+            .rpc('release_coupon_use', { p_coupon_code: couponCode! })
+            .catch(e => console.error('[checkout pix] release_coupon_use falhou:', e))
+          couponConsumed = false
+        }
         return NextResponse.json({ error: 'Falha ao criar pedido PIX' }, { status: 500 })
       }
 
@@ -298,6 +322,19 @@ export async function POST(req: NextRequest) {
         let err: unknown
         try { err = JSON.parse(errText) } catch { err = errText }
         await supabaseAdmin.from('tickets').delete().eq('order_id', tempOrderId)
+        if (body.ticket_type_id && ticketIds.length > 0) {
+          await supabaseAdmin
+            .rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: ticketIds.length })
+            .catch(e => console.error('[checkout pix] release_ticket_stock falhou:', e))
+          notifyWaitlist({ eventId: event_id, ticketTypeId: body.ticket_type_id })
+            .catch(e => console.error('[checkout pix] notifyWaitlist falhou:', e))
+        }
+        if (couponConsumed) {
+          await supabaseAdmin
+            .rpc('release_coupon_use', { p_coupon_code: couponCode! })
+            .catch(e => console.error('[checkout pix] release_coupon_use falhou:', e))
+          couponConsumed = false
+        }
         return NextResponse.json({ error: 'Falha ao criar pedido', detail: err }, { status: 500 })
       }
 
@@ -312,6 +349,19 @@ export async function POST(req: NextRequest) {
       if (order.status === 'failed') {
         console.error('[checkout pix] pedido recusado pelo Pagar.me:', JSON.stringify(order, null, 2))
         await supabaseAdmin.from('tickets').delete().eq('order_id', tempOrderId)
+        if (body.ticket_type_id && ticketIds.length > 0) {
+          await supabaseAdmin
+            .rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: ticketIds.length })
+            .catch(e => console.error('[checkout pix] release_ticket_stock falhou:', e))
+          notifyWaitlist({ eventId: event_id, ticketTypeId: body.ticket_type_id })
+            .catch(e => console.error('[checkout pix] notifyWaitlist falhou:', e))
+        }
+        if (couponConsumed) {
+          await supabaseAdmin
+            .rpc('release_coupon_use', { p_coupon_code: couponCode! })
+            .catch(e => console.error('[checkout pix] release_coupon_use falhou:', e))
+          couponConsumed = false
+        }
         return NextResponse.json({ error: 'Pagamento recusado', detail: order }, { status: 400 })
       }
 
@@ -391,6 +441,7 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         )
       }
+      couponConsumed = true
       const discountValue = Number(couponData.discount_value)
       if (couponData.discount_type === 'percent') {
         serverDiscount = price * (discountValue / 100)
@@ -447,6 +498,12 @@ export async function POST(req: NextRequest) {
         await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: cardReservedCount })
         notifyWaitlist({ eventId: event_id, ticketTypeId: body.ticket_type_id }).catch(err => console.error('[checkout] notifyWaitlist erro:', err))
       }
+      if (couponConsumed) {
+        await supabaseAdmin
+          .rpc('release_coupon_use', { p_coupon_code: couponCode! })
+          .catch(e => console.error('[checkout cartao] release_coupon_use falhou:', e))
+        couponConsumed = false
+      }
       return NextResponse.json({ error: 'Falha ao criar pedido', detail: err }, { status: 500 })
     }
 
@@ -457,6 +514,12 @@ export async function POST(req: NextRequest) {
       if (body.ticket_type_id && cardReservedCount > 0) {
         await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: cardReservedCount })
         notifyWaitlist({ eventId: event_id, ticketTypeId: body.ticket_type_id }).catch(err => console.error('[checkout] notifyWaitlist erro:', err))
+      }
+      if (couponConsumed) {
+        await supabaseAdmin
+          .rpc('release_coupon_use', { p_coupon_code: couponCode! })
+          .catch(e => console.error('[checkout cartao] release_coupon_use falhou:', e))
+        couponConsumed = false
       }
       const acquirerCode = order.charges?.[0]?.last_transaction?.acquirer_return_code ?? null
       return NextResponse.json(
@@ -671,6 +734,12 @@ export async function POST(req: NextRequest) {
     if (body.ticket_type_id && cardReservedCount > 0) {
       await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: cardReservedCount })
       notifyWaitlist({ eventId: body.event_id, ticketTypeId: body.ticket_type_id }).catch(e => console.error('[checkout] notifyWaitlist erro:', e))
+    }
+    if (couponConsumed) {
+      await supabaseAdmin
+        .rpc('release_coupon_use', { p_coupon_code: couponCode! })
+        .catch(e => console.error('[checkout] release_coupon catch geral falhou:', e))
+      couponConsumed = false
     }
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
