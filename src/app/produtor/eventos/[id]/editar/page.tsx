@@ -67,7 +67,7 @@ export default function EditarEventoPage() {
 
       const { data: ev } = await supabase
         .from('events')
-        .select('*')
+        .select('id, title, description, genre, event_date, location_name, location_lat, location_lng, price, is_free, is_unlimited, cover_image, producer_id, status, policies, age_rating, event_type, created_at')
         .eq('id', eventId)
         .single()
 
