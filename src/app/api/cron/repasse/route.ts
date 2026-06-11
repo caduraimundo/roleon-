@@ -13,9 +13,8 @@ function pagarmeAuth() {
 export async function GET(req: NextRequest) {
   const auth = req.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
-  const isVercelCron = req.headers.get('x-vercel-cron-auth') !== null
 
-  if (!isVercelCron && auth !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || auth !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -88,6 +87,21 @@ export async function GET(req: NextRequest) {
 
       console.log(`[cron/repasse] recipient ${recipientId} | saldo: R$${(available / 100).toFixed(2)}`)
 
+      // Claim-before-transfer: marca primeiro com condição atômica para evitar
+      // repasse duplicado em execuções concorrentes ou retries do cron.
+      const claimNow = new Date().toISOString()
+      const { data: claimed } = await supabaseAdmin
+        .from('events')
+        .update({ repasse_liberado_at: claimNow })
+        .in('id', producerData.eventIds)
+        .is('repasse_liberado_at', null)
+        .select('id')
+
+      if (!claimed?.length) {
+        console.log(`[cron/repasse] recipient ${recipientId} | eventos já marcados por outra execução, pulando`)
+        continue
+      }
+
       if (available > 0) {
         const transferRes = await fetch(
           `https://api.pagar.me/core/v5/recipients/${recipientId}/transfers`,
@@ -101,17 +115,17 @@ export async function GET(req: NextRequest) {
         if (!transferRes.ok) {
           const err = await transferRes.json().catch(() => ({}))
           console.error(`[cron/repasse] erro na transferência ${recipientId}:`, JSON.stringify(err))
+          // Reverte o claim para o próximo ciclo tentar novamente.
+          await supabaseAdmin
+            .from('events')
+            .update({ repasse_liberado_at: null })
+            .in('id', producerData.eventIds)
           continue
         }
 
         const transferData = await transferRes.json()
         console.log(`[cron/repasse] transferência criada: ${transferData.id} | R$${(available / 100).toFixed(2)}`)
       }
-
-      await supabaseAdmin
-        .from('events')
-        .update({ repasse_liberado_at: new Date().toISOString() })
-        .in('id', producerData.eventIds)
 
       processed++
     } catch (e) {
