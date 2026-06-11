@@ -77,7 +77,9 @@
       "mcp__721c7c4c-f150-40b4-9fa2-f83b2c012bf3__list_projects",
       "mcp__721c7c4c-f150-40b4-9fa2-f83b2c012bf3__execute_sql",
       "PowerShell($secret = [System.Convert]::ToBase64String\\(\\(1..32 | ForEach-Object { [byte]\\(Get-Random -Max 256\\) }\\)\\); Write-Output $secret; cd \"C:\\\\Users\\\\Carlo\\\\roleon-\"; npx vercel env add CRON_SECRET production --value $secret --yes)",
-      "Bash(curl -X GET https://www.roleon.com.br/api/cron/repasse -H \"Authorization: Bearer YiVqQhKwWoVnJpTrQtKqDcRjXzYsKnQwZaRoCeXx\")"
+      "Bash(curl -X GET https://www.roleon.com.br/api/cron/repasse -H \"Authorization: Bearer YiVqQhKwWoVnJpTrQtKqDcRjXzYsKnQwZaRoCeXx\")",
+      "Bash(curl -s -X POST https://www.roleon.com.br/api/checkout -H \"Content-Type: application/json\" -d '{\"event_id\":\"COLOQUE_UM_EVENT_ID_REAL\",\"quantity\":1,\"payment_method\":\"pix\",\"ticket_type_price\":0.01,\"user_email\":\"teste@teste.com\",\"user_name\":\"Teste\",\"user_phone\":\"31999999999\"}')",
+      "Bash(curl -s -X POST https://www.roleon.com.br/api/checkout -H \"Content-Type: application/json\" -d '{\"event_id\":\"a500d251-7d01-4666-ae0f-f3a25dab2a15\",\"quantity\":1,\"payment_method\":\"pix\",\"ticket_type_price\":0.01,\"user_email\":\"teste@roleon.com\",\"user_name\":\"Teste Seguranca\",\"user_phone\":\"31999999999\"}')"
     ]
   }
 }

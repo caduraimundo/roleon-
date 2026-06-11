@@ -1,10 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { Resend } from 'resend'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 async function getAuthUser(req: NextRequest) {
   const token = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
@@ -25,7 +27,7 @@ export async function PUT(
 
   const { data: event } = await supabaseAdmin
     .from('events')
-    .select('id, producer_id, status')
+    .select('id, producer_id, status, event_date, location_name, is_free, title')
     .eq('id', id)
     .single()
 
@@ -52,6 +54,30 @@ export async function PUT(
     policies,
     ticket_types,
   } = body
+
+  // Buscar tickets vendidos - usado em múltiplos pontos abaixo
+  const { data: soldTickets } = await supabaseAdmin
+    .from('tickets')
+    .select('id, recipient_email, ticket_type_id')
+    .eq('event_id', id)
+    .in('status', ['paid', 'valid'])
+  const hasSoldTickets = (soldTickets?.length ?? 0) > 0
+
+  // Bloquear conversão pago → gratuito se já há ingressos vendidos
+  if (is_free === true && (event as any).is_free === false && hasSoldTickets) {
+    return NextResponse.json({
+      error: 'Nao e possivel converter um evento pago em gratuito apos ingressos vendidos. Para isso, cancele o evento.',
+    }, { status: 400 })
+  }
+
+  // Detectar mudancas que exigem notificacao
+  const currentDateMs = (event as any).event_date
+    ? new Date(((event as any).event_date as string).replace(' ', 'T')).getTime()
+    : null
+  const newDateMs = event_date ? new Date(String(event_date)).getTime() : null
+  const dateChanged = event_date !== undefined && newDateMs !== currentDateMs
+  const locationChanged = location_name !== undefined && location_name !== (event as any).location_name
+  const shouldNotify = (dateChanged || locationChanged) && hasSoldTickets
 
   const update: Record<string, unknown> = {}
   if (title !== undefined) update.title = title
@@ -86,10 +112,19 @@ export async function PUT(
   }
 
   if (Array.isArray(ticket_types) && ticket_types.length > 0) {
-    const { error: deleteError } = await supabaseAdmin
-      .from('ticket_types')
-      .delete()
-      .eq('event_id', id)
+    const soldTypeIds = [
+      ...new Set(
+        (soldTickets ?? [])
+          .map(t => (t as any).ticket_type_id)
+          .filter(Boolean) as string[]
+      ),
+    ]
+    const deleteBuilder = supabaseAdmin.from('ticket_types').delete().eq('event_id', id)
+    const { error: deleteError } = await (
+      soldTypeIds.length > 0
+        ? deleteBuilder.not('id', 'in', `(${soldTypeIds.join(',')})`)
+        : deleteBuilder
+    )
 
     if (deleteError) {
       return NextResponse.json({ error: 'Erro ao atualizar tipos de ingresso' }, { status: 500 })
@@ -105,6 +140,63 @@ export async function PUT(
     const { error: insertError } = await supabaseAdmin.from('ticket_types').insert(rows)
     if (insertError) {
       return NextResponse.json({ error: 'Erro ao salvar tipos de ingresso' }, { status: 500 })
+    }
+  }
+
+  if (shouldNotify) {
+    const uniqueEmails = [
+      ...new Set(
+        (soldTickets ?? [])
+          .map(t => (t as any).recipient_email)
+          .filter(Boolean) as string[]
+      ),
+    ]
+    if (uniqueEmails.length > 0) {
+      const eventTitle = (update.title as string) ?? (event as any).title ?? 'Evento'
+      const changes: string[] = []
+      if (dateChanged && event_date) {
+        const dateObj = new Date(String(event_date))
+        const formatted = dateObj.toLocaleDateString('pt-BR', {
+          weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+          timeZone: 'America/Sao_Paulo',
+        })
+        const time = dateObj.toLocaleTimeString('pt-BR', {
+          hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo',
+        })
+        changes.push(`Nova data: ${formatted.charAt(0).toUpperCase() + formatted.slice(1)}, ${time}`)
+      }
+      if (locationChanged && location_name) {
+        changes.push(`Novo local: ${location_name}`)
+      }
+      const changesHtml = changes
+        .map(c => `<p style="margin:0 0 8px;color:#1A1A1A;font-size:14px;font-family:'Noto Sans',Arial,sans-serif;">• ${c}</p>`)
+        .join('')
+      await Promise.allSettled(
+        uniqueEmails.map(email =>
+          resend.emails.send({
+            from: 'Roleon <noreply@roleon.com.br>',
+            to: email,
+            subject: `Atualizacao: ${eventTitle}`,
+            html: `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#F7F7F7;font-family:'Noto Sans',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#F7F7F7;padding:32px 16px;">
+  <tr><td align="center">
+    <table width="100%" style="max-width:480px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+      <tr><td style="background:#0EA5A0;padding:24px;text-align:center;">
+        <p style="margin:0;color:#fff;font-size:20px;font-weight:700;font-family:'Noto Sans',Arial,sans-serif;">Atualizacao do Evento</p>
+      </td></tr>
+      <tr><td style="padding:32px 24px;">
+        <p style="margin:0 0 16px;color:#1A1A1A;font-size:16px;font-weight:600;font-family:'Noto Sans',Arial,sans-serif;">${eventTitle}</p>
+        <p style="margin:0 0 16px;color:#555;font-size:14px;font-family:'Noto Sans',Arial,sans-serif;">O evento foi atualizado com as seguintes mudancas:</p>
+        ${changesHtml}
+        <p style="margin:16px 0 0;color:#888;font-size:12px;font-family:'Noto Sans',Arial,sans-serif;">Caso tenha duvidas, entre em contato com o organizador.</p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`,
+          })
+        )
+      )
     }
   }
 
