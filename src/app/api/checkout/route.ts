@@ -564,12 +564,27 @@ export async function POST(req: NextRequest) {
         .select('id')
         .single()
       if (ticketError) {
-        console.error('TICKET INSERT ERROR:', JSON.stringify(ticketError))
-        if (body.ticket_type_id) {
-          await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: 1 })
-          notifyWaitlist({ eventId: event_id, ticketTypeId: body.ticket_type_id }).catch(err => console.error('[checkout] notifyWaitlist erro:', err))
+        console.error('[checkout cartão] CRÍTICO: INSERT ticket falhou após Pagar.me cobrar. order_id:', order.id, '| erro:', JSON.stringify(ticketError))
+
+        // Deletar tickets órfãos já inseridos neste pedido
+        if (ticketIds.length > 0) {
+          await supabaseAdmin.from('tickets').delete().in('id', ticketIds)
         }
-        return NextResponse.json({ error: 'Falha ao salvar ticket', detail: ticketError.message, hint: ticketError.hint }, { status: 500 })
+
+        // Liberar estoque de todas as unidades reservadas (anteriores + atual)
+        if (body.ticket_type_id) {
+          const totalToRelease = ticketIds.length + 1
+          await supabaseAdmin
+            .rpc('release_ticket_stock', { p_ticket_type_id: body.ticket_type_id, p_quantity: totalToRelease })
+          notifyWaitlist({ eventId: event_id, ticketTypeId: body.ticket_type_id })
+            .catch(e => console.error('[checkout cartão] notifyWaitlist falhou:', e))
+        }
+
+        return NextResponse.json({
+          error: 'Falha ao salvar ingresso. O pagamento foi processado - entre em contato com suporte@roleon.com.br informando o código: ' + order.id,
+          detail: ticketError.message,
+          hint: ticketError.hint,
+        }, { status: 500 })
       }
       console.log(`[checkout] ticket ${i + 1} criado:`, ticket?.id)
       if (ticket?.id) ticketIds.push(ticket.id)
