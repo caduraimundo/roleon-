@@ -86,15 +86,32 @@ export default function EditarEventoPage() {
       setExistingCoverUrl(ev.cover_image || null)
       setEventStatus(ev.status || '')
 
-      const parts = ev.location_name?.split(', ') || []
-      setRua(parts[0] || '')
-      setNumero(parts[1] || '')
-      setBairro(parts[2] || '')
-      const cidadeEstado = parts[3]?.split(' - ') || []
-      setCidade(cidadeEstado[0] || '')
-      setEstado(cidadeEstado[1] || '')
-      const cepPart = parts[4]?.replace('CEP ', '') || ''
-      setCep(cepPart)
+      const locationStr = ev.location_name || ''
+      const cepMatch = locationStr.match(/CEP\s*([\d-]{8,9})/)
+      setCep(cepMatch ? cepMatch[1] : '')
+      const withoutCep = locationStr.replace(/,?\s*CEP\s*[\d-]+/, '').trim()
+      const parts = withoutCep.split(', ')
+      if (parts.length >= 4) {
+        // Formato novo: rua, numero, bairro, cidade - estado
+        setRua(parts[0] || '')
+        setNumero(parts[1] || '')
+        setBairro(parts[2] || '')
+        const cidadeEstado = (parts[3] || '').split(' - ')
+        setCidade(cidadeEstado[0] || '')
+        setEstado(cidadeEstado[1] || '')
+      } else if (parts.length === 3) {
+        // Formato antigo: rua, numero - bairro, cidade - estado
+        setRua(parts[0] || '')
+        const numeroBairro = (parts[1] || '').split(' - ')
+        setNumero(numeroBairro[0] || '')
+        setBairro(numeroBairro[1] || '')
+        const cidadeEstado = (parts[2] || '').split(' - ')
+        setCidade(cidadeEstado[0] || '')
+        setEstado(cidadeEstado[1] || '')
+      } else {
+        setRua(parts[0] || '')
+        setNumero(parts[1] || '')
+      }
 
       const { data: tipos } = await supabase
         .from('ticket_types')
