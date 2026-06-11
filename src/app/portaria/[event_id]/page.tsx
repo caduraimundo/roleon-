@@ -15,6 +15,7 @@ export default function PortariaPublicaPage({
   const [scanning, setScanning] = useState(true)
   const [feedback, setFeedback] = useState<null | 'success' | 'error'>(null)
   const [feedbackMsg, setFeedbackMsg] = useState('')
+  const [feedbackExtra, setFeedbackExtra] = useState('')
   const [manualCode, setManualCode] = useState('')
   const [loadingManual, setLoadingManual] = useState(false)
   const [tokenError, setTokenError] = useState(false)
@@ -92,16 +93,24 @@ export default function PortariaPublicaPage({
 
       if (res.ok) {
         setFeedback('success')
-        setFeedbackMsg(`${json.ticket_type} - Entrada confirmada`)
-
+        setFeedbackMsg(json.buyer_name || json.ticket_type || 'Entrada confirmada')
+        setFeedbackExtra(json.buyer_name
+          ? `${json.ticket_type || 'Ingresso'} - Entrada confirmada`
+          : 'Entrada confirmada')
       } else if (res.status === 409) {
         setFeedback('error')
         setFeedbackMsg('Ingresso ja utilizado')
+        setFeedbackExtra(json.checked_in_at
+          ? `Entrada as ${new Date(json.checked_in_at).toLocaleTimeString('pt-BR', {
+              hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo',
+            })}`
+          : '')
       } else {
         setFeedback('error')
         setFeedbackMsg(json.error || 'Ingresso invalido')
+        setFeedbackExtra('')
       }
-      setTimeout(() => { setFeedback(null); setScanning(true) }, 2500)
+      setTimeout(() => { setFeedback(null); setFeedbackExtra(''); setScanning(true) }, 2500)
     } catch {
       setFeedback('error')
       setFeedbackMsg('Ingresso invalido')
@@ -222,11 +231,18 @@ export default function PortariaPublicaPage({
                   strokeLinecap="round"/>
               </svg>
             )}
-            <div style={{
-              fontSize: 17, fontWeight: 700, color: '#fff',
-              textAlign: 'center', padding: '0 20px',
-            }}>
-              {feedbackMsg}
+            <div style={{ textAlign: 'center', padding: '0 20px' }}>
+              <div style={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>
+                {feedbackMsg}
+              </div>
+              {feedbackExtra && (
+                <div style={{
+                  fontSize: 13, color: 'rgba(255,255,255,0.82)',
+                  marginTop: 6, letterSpacing: 0.1,
+                }}>
+                  {feedbackExtra}
+                </div>
+              )}
             </div>
           </div>
         )}

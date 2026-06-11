@@ -31,7 +31,7 @@ export async function POST(
 
     const query = supabaseAdmin
       .from('tickets')
-      .select('id, status, event_id, ticket_type_name, checkin_token')
+      .select('id, status, event_id, ticket_type_name, checkin_token, user_id, recipient_email, checked_in_at')
 
     const { data: ticket } = await (
       checkin_token.length <= 6
@@ -46,15 +46,31 @@ export async function POST(
       return NextResponse.json({ error: 'Ingresso não é deste evento' }, { status: 400 })
     }
     if (ticket.status === 'used') {
-      return NextResponse.json({ error: 'Ingresso já utilizado' }, { status: 409 })
+      return NextResponse.json({
+        error: 'Ingresso já utilizado',
+        checked_in_at: (ticket as any).checked_in_at ?? null,
+      }, { status: 409 })
     }
-    if (ticket.status !== 'paid') {
+    if (ticket.status !== 'paid' && ticket.status !== 'valid') {
       return NextResponse.json({ error: 'Ingresso inválido' }, { status: 400 })
+    }
+
+    let buyer_name: string | null = null
+    if ((ticket as any).user_id) {
+      const { data: profile } = await supabaseAdmin
+        .from('profiles')
+        .select('name')
+        .eq('id', (ticket as any).user_id)
+        .maybeSingle()
+      buyer_name = profile?.name ?? null
+    }
+    if (!buyer_name && (ticket as any).recipient_email) {
+      buyer_name = (ticket as any).recipient_email
     }
 
     const { data: updated, error: updateError } = await supabaseAdmin
       .from('tickets')
-      .update({ status: 'used' })
+      .update({ status: 'used', checked_in_at: new Date().toISOString() })
       .eq('id', ticket.id)
       .eq('status', ticket.status)
       .select('id')
@@ -76,6 +92,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       ticket_type: ticket.ticket_type_name ?? 'Ingresso',
+      buyer_name,
       total_sold,
       total_checkins,
     })
