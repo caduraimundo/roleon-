@@ -7,11 +7,20 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 )
 
-export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get('authorization') || ''
-  const token = authHeader.replace('Bearer ', '')
+async function getAuthAdmin(req: NextRequest) {
+  const bearerToken = req.headers.get('authorization')?.replace('Bearer ', '') ?? ''
+  if (!bearerToken) return null
+  const { data: { user } } = await supabaseAdmin.auth.getUser(bearerToken)
+  if (!user) return null
+  const { data: profile } = await supabaseAdmin
+    .from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return null
+  return user
+}
 
-  if (!token || token !== process.env.PAGARME_WEBHOOK_SECRET) {
+export async function POST(req: NextRequest) {
+  const user = await getAuthAdmin(req)
+  if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

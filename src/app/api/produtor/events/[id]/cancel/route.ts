@@ -82,13 +82,15 @@ export async function POST(
       }
     }
 
-    await supabaseAdmin
-      .from('events')
-      .update({ status: 'cancelled' })
-      .eq('id', event_id)
+    if (results.failed === 0) {
+      await supabaseAdmin
+        .from('events')
+        .update({ status: 'cancelled' })
+        .eq('id', event_id)
+    }
 
     return NextResponse.json({
-      success: true,
+      success: results.failed === 0,
       event_id,
       refunded: results.refunded,
       cancelled: results.cancelled,
