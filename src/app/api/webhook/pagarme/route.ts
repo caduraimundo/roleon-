@@ -37,6 +37,11 @@ export async function POST(req: NextRequest) {
   const expectedUser = process.env.PAGARME_WEBHOOK_USER || '';
   const expectedPass = process.env.PAGARME_WEBHOOK_SECRET || '';
 
+  if (!expectedUser || !expectedPass) {
+    console.error('[Webhook] PAGARME_WEBHOOK_USER ou PAGARME_WEBHOOK_SECRET nao configurados');
+    return NextResponse.json({ error: 'Configuracao invalida' }, { status: 500 });
+  }
+
   if (user !== expectedUser || pass !== expectedPass) {
     console.error('[Webhook] Autenticação inválida');
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
