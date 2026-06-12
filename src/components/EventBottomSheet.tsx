@@ -105,6 +105,7 @@ function EventThumb({ ev, size = 76 }: { ev: RoleonEvent; size?: number }) {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
+            objectPosition: 'center top',
             display: 'block',
             borderRadius: 'inherit',
           }}
