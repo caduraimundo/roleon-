@@ -581,14 +581,21 @@ export default function NovoEventoPage() {
                     style={inputStyle}
                   />
                   <div style={{ display: 'flex', gap: 10 }}>
-                    <input
-                      type="number"
-                      step="0.01"
-                      placeholder="Preço (R$)"
-                      value={ticket.price}
-                      onChange={e => updateTicket(i, 'price', e.target.value)}
-                      style={{ ...inputStyle, flex: 1 }}
-                    />
+                    <div style={{ position: 'relative', flex: 1 }}>
+                      <span style={{
+                        position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+                        fontSize: 14, fontWeight: 600, color: '#1A1A1A',
+                        fontFamily: "'Noto Sans', sans-serif", pointerEvents: 'none',
+                      }}>R$</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="0,00"
+                        value={ticket.price}
+                        onChange={e => updateTicket(i, 'price', e.target.value)}
+                        style={{ ...inputStyle, width: '100%', paddingLeft: 34 }}
+                      />
+                    </div>
                     <input
                       type="number"
                       placeholder="∞ ilimitado"
