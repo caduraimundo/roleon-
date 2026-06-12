@@ -83,7 +83,24 @@ export async function PUT(
   if (title !== undefined) update.title = title
   if (description !== undefined) update.description = description
   if (event_date !== undefined) update.event_date = event_date
-  if (location_name !== undefined) update.location_name = location_name
+  if (location_name !== undefined) {
+    update.location_name = location_name
+    // Geocodifica o novo endereço para atualizar o pin no mapa
+    try {
+      const geoRes = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location_name)}&key=${process.env.GOOGLE_MAPS_SERVER_KEY}`
+      )
+      const geoData = await geoRes.json()
+      if (geoData.status === 'OK' && geoData.results?.[0]) {
+        update.location_lat = geoData.results[0].geometry.location.lat
+        update.location_lng = geoData.results[0].geometry.location.lng
+      } else {
+        console.warn('[event-edit] geocoding sem resultado para:', location_name, geoData.status)
+      }
+    } catch (geoErr) {
+      console.error('[event-edit] geocoding falhou:', geoErr)
+    }
+  }
   if (location_lat !== undefined && location_lat !== null) update.location_lat = location_lat
   if (location_lng !== undefined && location_lng !== null) update.location_lng = location_lng
   if (genre !== undefined) update.genre = genre
@@ -182,7 +199,7 @@ export async function PUT(
   <tr><td align="center">
     <table width="100%" style="max-width:480px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
       <tr><td style="background:#0EA5A0;padding:24px;text-align:center;">
-        <p style="margin:0;color:#fff;font-size:20px;font-weight:700;font-family:'Noto Sans',Arial,sans-serif;">Atualizacao do Evento</p>
+        <p style="margin:0;color:#fff;font-size:20px;font-weight:700;font-family:'Noto Sans',Arial,sans-serif;">Atualização do Evento</p>
       </td></tr>
       <tr><td style="padding:32px 24px;">
         <p style="margin:0 0 16px;color:#1A1A1A;font-size:16px;font-weight:600;font-family:'Noto Sans',Arial,sans-serif;">${eventTitle}</p>
