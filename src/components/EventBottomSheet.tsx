@@ -194,7 +194,7 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight, us
 
           {/* Data · Hora */}
           <div style={{
-            display: 'flex', alignItems: 'center', gap: 10,
+            display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', rowGap: 2,
             fontSize: 11.5, color: T.textDim, fontWeight: 500, marginTop: 1,
           }}>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
