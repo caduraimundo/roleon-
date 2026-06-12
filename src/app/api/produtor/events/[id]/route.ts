@@ -176,7 +176,7 @@ export async function PUT(
           resend.emails.send({
             from: 'Roleon <noreply@roleon.com.br>',
             to: email,
-            subject: `Atualizacao: ${eventTitle}`,
+            subject: `Atualização: ${eventTitle}`,
             html: `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#F7F7F7;font-family:'Noto Sans',Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#F7F7F7;padding:32px 16px;">
   <tr><td align="center">
@@ -186,9 +186,9 @@ export async function PUT(
       </td></tr>
       <tr><td style="padding:32px 24px;">
         <p style="margin:0 0 16px;color:#1A1A1A;font-size:16px;font-weight:600;font-family:'Noto Sans',Arial,sans-serif;">${eventTitle}</p>
-        <p style="margin:0 0 16px;color:#555;font-size:14px;font-family:'Noto Sans',Arial,sans-serif;">O evento foi atualizado com as seguintes mudancas:</p>
+        <p style="margin:0 0 16px;color:#555;font-size:14px;font-family:'Noto Sans',Arial,sans-serif;">O evento foi atualizado com as seguintes mudanças:</p>
         ${changesHtml}
-        <p style="margin:16px 0 0;color:#888;font-size:12px;font-family:'Noto Sans',Arial,sans-serif;">Caso tenha duvidas, entre em contato com o organizador.</p>
+        <p style="margin:16px 0 0;color:#888;font-size:12px;font-family:'Noto Sans',Arial,sans-serif;">Caso tenha dúvidas, entre em contato com o organizador.</p>
       </td></tr>
     </table>
   </td></tr>
