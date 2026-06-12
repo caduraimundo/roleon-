@@ -523,7 +523,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     setLoading(true)
     supabase
       .from('events')
-      .select('*, ticket_types(id, quantity, quantity_sold)')
+      .select('id, title, genre, event_date, location_name, location_lat, location_lng, price, is_free, cover_image, ticket_types(id, quantity, quantity_sold)')
       .eq('status', 'active')
       .gte('event_date', new Date().toISOString())
       .then(({ data, error }) => {
