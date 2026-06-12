@@ -464,7 +464,7 @@ export default function EditarEventoPage() {
             </div>
           )}
           <span style={{ fontSize: 11, color: '#6E6E73', marginTop: 6 }}>JPEG, PNG ou WebP · máximo 5MB</span>
-          <span style={{ fontSize: 11, color: '#6E6E73', marginTop: 2 }}>Recomendado: 1200 × 630 px (proporção 16:9)</span>
+          <span style={{ fontSize: 11, color: '#6E6E73', marginTop: 2 }}>Recomendado: 1200 × 600 px (proporção 2:1)</span>
         </div>
 
         {/* Título */}
