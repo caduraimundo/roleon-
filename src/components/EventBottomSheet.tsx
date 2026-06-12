@@ -82,11 +82,12 @@ function IconClock() {
 
 // ── Miniatura do evento (placeholder colorido) ───────────────────────────────
 
-function EventThumb({ ev, size = 76 }: { ev: RoleonEvent; size?: number }) {
+function EventThumb({ ev, size = 76, width }: { ev: RoleonEvent; size?: number; width?: number }) {
+  const thumbW = width ?? size
   return (
     <div
       style={{
-        width: size,
+        width: thumbW,
         height: size,
         borderRadius: 12,
         background: ev.color,
@@ -167,7 +168,7 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight, us
 
       {/* Conteúdo principal */}
       <div style={{ display: 'flex', gap: 12, alignItems: 'stretch' }}>
-        <EventThumb ev={ev} size={76} />
+        <EventThumb ev={ev} size={76} width={152} />
 
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
           {/* Gênero */}

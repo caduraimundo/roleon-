@@ -359,11 +359,11 @@ export default function CheckoutPage() {
               <img
                 src={evento.cover_image}
                 alt={evento.title}
-                style={{ width: 72, height: 72, borderRadius: 8, objectFit: 'cover', objectPosition: 'center top', flexShrink: 0 }}
+                style={{ width: 144, height: 72, borderRadius: 8, objectFit: 'cover', objectPosition: 'center top', flexShrink: 0 }}
               />
             ) : (
               <div style={{
-                width: 72, height: 72, borderRadius: 8, flexShrink: 0,
+                width: 144, height: 72, borderRadius: 8, flexShrink: 0,
                 background: '#0EA5A0',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: 0.5,
