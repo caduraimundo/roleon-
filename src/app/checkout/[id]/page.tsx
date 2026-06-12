@@ -142,6 +142,7 @@ export default function CheckoutPage() {
   } | null>(null)
   const [couponError,    setCouponError]    = useState('')
   const [couponLoading,  setCouponLoading]  = useState(false)
+  const [titleExpanded, setTitleExpanded] = useState(false)
 
   useEffect(() => {
     supabase
@@ -375,7 +376,15 @@ export default function CheckoutPage() {
 
             {/* Info */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 5 }}>
+              <div
+                onClick={() => setTitleExpanded(e => !e)}
+                style={{
+                  fontSize: 15, fontWeight: 700, color: '#1A1A1A', marginBottom: 5, cursor: 'pointer',
+                  ...(titleExpanded ? {} : {
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                  }),
+                }}
+              >
                 {evento.title}
               </div>
               {parsed && (
