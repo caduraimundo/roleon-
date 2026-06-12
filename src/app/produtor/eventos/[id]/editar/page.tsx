@@ -711,29 +711,35 @@ export default function EditarEventoPage() {
                     onChange={e => updateTicket(i, 'name', e.target.value)}
                     style={inputStyle}
                   />
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <div style={{ position: 'relative', flex: 1 }}>
-                      <span style={{
-                        position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
-                        fontSize: 14, fontWeight: 600, color: '#1A1A1A',
-                        fontFamily: "'Noto Sans', sans-serif", pointerEvents: 'none',
-                      }}>R$</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif", textTransform: 'uppercase', letterSpacing: 0.4 }}>Preço</span>
+                      <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif", textTransform: 'uppercase', letterSpacing: 0.4 }}>Quantidade</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <div style={{ position: 'relative', flex: 1 }}>
+                        <span style={{
+                          position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+                          fontSize: 14, fontWeight: 600, color: '#1A1A1A',
+                          fontFamily: "'Noto Sans', sans-serif", pointerEvents: 'none',
+                        }}>R$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          placeholder="0,00"
+                          value={ticket.price}
+                          onChange={e => updateTicket(i, 'price', e.target.value)}
+                          style={{ ...inputStyle, width: '100%', paddingLeft: 34 }}
+                        />
+                      </div>
                       <input
                         type="number"
-                        step="0.01"
-                        placeholder="0,00"
-                        value={ticket.price}
-                        onChange={e => updateTicket(i, 'price', e.target.value)}
-                        style={{ ...inputStyle, width: '100%', paddingLeft: 34 }}
+                        placeholder="∞ ilimitado"
+                        value={ticket.quantity}
+                        onChange={e => updateTicket(i, 'quantity', e.target.value)}
+                        style={{ ...inputStyle, flex: 1 }}
                       />
                     </div>
-                    <input
-                      type="number"
-                      placeholder="∞ ilimitado"
-                      value={ticket.quantity}
-                      onChange={e => updateTicket(i, 'quantity', e.target.value)}
-                      style={{ ...inputStyle, flex: 1 }}
-                    />
                   </div>
                   {ticketTypes.length > 1 && (
                     <button
