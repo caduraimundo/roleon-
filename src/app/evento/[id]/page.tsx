@@ -272,13 +272,14 @@ export default function EventoPage() {
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.42) 0%, transparent 100%)',
           zIndex: 1, pointerEvents: 'none',
         }} />
-        <svg viewBox="0 0 100 100" preserveAspectRatio="none"
+        {/* grade decorativa - só aparece quando não há foto */}
+        {!ev.cover_image && <svg viewBox="0 0 100 100" preserveAspectRatio="none"
           style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.12, pointerEvents: 'none' }}>
           <g stroke="#fff" strokeWidth="0.5" fill="none">
             <path d="M0 20 L100 20 M0 40 L100 40 M0 60 L100 60 M0 80 L100 80"/>
             <path d="M20 0 L20 100 M40 0 L40 100 M60 0 L60 100 M80 0 L80 100"/>
           </g>
-        </svg>
+        </svg>}
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0, height: 80,
           background: 'linear-gradient(to top, rgba(0,0,0,0.48) 0%, transparent 100%)',
