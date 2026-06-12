@@ -354,7 +354,7 @@ export default function CheckoutPage() {
         {/* RESUMO DO INGRESSO */}
         <div>
           <div style={SECTION_LABEL}>Resumo do ingresso</div>
-          <div style={{ ...CARD, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ ...CARD, padding: '14px 16px', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
             {/* Thumbnail */}
             {evento.cover_image ? (
               <img
