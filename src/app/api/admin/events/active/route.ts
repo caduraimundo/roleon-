@@ -1,0 +1,43 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
+
+async function getAuthUser(req: NextRequest) {
+  const token = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
+  const { data: { user } } = await supabaseAdmin.auth.getUser(token)
+  return user
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const user = await getAuthUser(req)
+    if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+
+    const { data: profile } = await supabaseAdmin
+      .from('profiles').select('role').eq('id', user.id).single()
+    if (profile?.role !== 'admin') return NextResponse.json({ error: 'Acesso restrito' }, { status: 403 })
+
+    const { data } = await supabaseAdmin
+      .from('events')
+      .select('id, title, genre, price, is_free, location_name, event_date, producer_id, status, profiles!producer_id(name, email)')
+      .in('status', ['active', 'cancelled', 'rejected'])
+      .order('event_date', { ascending: false })
+      .limit(50)
+
+    const events = (data ?? []).map((e: any) => ({
+      ...e,
+      producer_name: e.profiles?.name ?? '',
+      producer_email: e.profiles?.email ?? '',
+      profiles: undefined,
+    }))
+
+    return NextResponse.json({ events })
+  } catch (err) {
+    console.error('[active-events] erro:', err)
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
+  }
+}

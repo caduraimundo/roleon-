@@ -293,6 +293,16 @@ export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('moderacao')
   const [maisSection, setMaisSection] = useState<MaisSection>(null)
 
+  // Moderacao
+  const [pendingEvents, setPendingEvents] = useState<any[]>([])
+  const [activeEvents, setActiveEvents] = useState<any[]>([])
+  const [modLoading, setModLoading] = useState(false)
+  const [modFilter, setModFilter] = useState<'pending' | 'active' | 'cancelled' | 'rejected' | 'todos'>('pending')
+  const [actionId, setActionId] = useState<string | null>(null)
+  const [motivoSheet, setMotivoSheet] = useState<{ id: string; tipo: 'rejeitar' | 'cancelar' } | null>(null)
+  const [motivo, setMotivo] = useState('')
+  const [feedback, setFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
+
   useEffect(() => {
     const check = async () => {
       const { data: { session } } = await supabase.auth.getSession()
@@ -310,10 +320,76 @@ export default function AdminPage() {
     check()
   }, [router])
 
+  const loadModeracao = async () => {
+    setModLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token ?? ''
+    const [r1, r2] = await Promise.all([
+      fetch('/api/admin/fila', { headers: { Authorization: `Bearer ${token}` } }),
+      fetch('/api/admin/events/active', { headers: { Authorization: `Bearer ${token}` } }),
+    ])
+    const d1 = await r1.json()
+    const d2 = await r2.json()
+    setPendingEvents(d1.events ?? [])
+    setActiveEvents(d2.events ?? [])
+    setModLoading(false)
+  }
+
+  const aprovar = async (eventId: string) => {
+    setActionId(eventId)
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch(`/api/admin/events/${eventId}/approve`, {
+      method: 'POST', headers: { Authorization: `Bearer ${session?.access_token}` },
+    })
+    if (res.ok) {
+      setPendingEvents(prev => prev.filter(e => e.id !== eventId))
+      setFeedback({ tipo: 'ok', msg: 'Evento aprovado e produtor notificado.' })
+    } else {
+      setFeedback({ tipo: 'erro', msg: 'Erro ao aprovar evento.' })
+    }
+    setActionId(null)
+    setTimeout(() => setFeedback(null), 3500)
+  }
+
+  const confirmarMotivo = async () => {
+    if (!motivoSheet || !motivo.trim()) return
+    setActionId(motivoSheet.id)
+    const { data: { session } } = await supabase.auth.getSession()
+    const endpoint = motivoSheet.tipo === 'rejeitar'
+      ? `/api/admin/events/${motivoSheet.id}/reject`
+      : `/api/admin/events/${motivoSheet.id}/cancel`
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ motivo }),
+    })
+    if (res.ok) {
+      if (motivoSheet.tipo === 'rejeitar') {
+        setPendingEvents(prev => prev.filter(e => e.id !== motivoSheet.id))
+        setFeedback({ tipo: 'ok', msg: 'Evento rejeitado e produtor notificado.' })
+      } else {
+        setActiveEvents(prev => prev.map(e => e.id === motivoSheet.id ? { ...e, status: 'cancelled' } : e))
+        setFeedback({ tipo: 'ok', msg: 'Evento cancelado e produtor notificado.' })
+      }
+    } else {
+      setFeedback({ tipo: 'erro', msg: 'Erro ao processar ação.' })
+    }
+    setMotivoSheet(null)
+    setMotivo('')
+    setActionId(null)
+    setTimeout(() => setFeedback(null), 3500)
+  }
+
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.replace('/')
   }
+
+  useEffect(() => {
+    if (tab === 'moderacao' && !modLoading && pendingEvents.length === 0 && activeEvents.length === 0) {
+      loadModeracao()
+    }
+  }, [tab])
 
   if (loading) {
     return (
@@ -369,7 +445,182 @@ export default function AdminPage() {
     }
     // Abas principais
     if (tab === 'moderacao') {
-      return <PlaceholderSection title="Moderacao de Eventos" icon={<IconShield />} desc="Lista de eventos aguardando aprovacao. Aprovar, rejeitar com motivo ou cancelar eventos ativos." />
+      const allEvents = [...pendingEvents.map(e => ({ ...e, status: 'pending' })), ...activeEvents]
+      const filtered = modFilter === 'todos' ? allEvents
+        : modFilter === 'pending' ? pendingEvents.map(e => ({ ...e, status: 'pending' }))
+        : activeEvents.filter(e => e.status === modFilter)
+
+      const formatDate = (d: string) => {
+        if (!d) return ''
+        return new Date(d.replace(' ', 'T')).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })
+      }
+
+      const formatPrice = (e: any) => e.is_free ? 'Gratuito' : `R$ ${Number(e.price ?? 0).toFixed(2).replace('.', ',')}`
+
+      const badgeMap: Record<string, { label: string; bg: string; color: string; border: string }> = {
+        pending:   { label: 'Aguardando', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
+        active:    { label: 'Ativo',      bg: '#E6F7F6', color: '#0A7A76', border: '#A7E8E6' },
+        cancelled: { label: 'Cancelado',  bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
+        rejected:  { label: 'Recusado',   bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
+      }
+
+      return (
+        <>
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
+            {/* Titulo + reload */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Moderacao</div>
+                {pendingEvents.length > 0 && (
+                  <div style={{ fontSize: 12, color: '#92400E', fontWeight: 600, marginTop: 2 }}>
+                    {pendingEvents.length} aguardando aprovacao
+                  </div>
+                )}
+              </div>
+              <button onClick={loadModeracao} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 13, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif" }}>
+                Atualizar
+              </button>
+            </div>
+
+            {/* Filtros */}
+            <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, marginBottom: 14 }} className="no-scrollbar">
+              {([
+                { id: 'pending',   label: `Aguardando (${pendingEvents.length})` },
+                { id: 'active',    label: 'Ativos' },
+                { id: 'todos',     label: 'Todos' },
+                { id: 'cancelled', label: 'Cancelados' },
+                { id: 'rejected',  label: 'Recusados' },
+              ] as const).map(f => {
+                const on = modFilter === f.id
+                return (
+                  <button key={f.id} onClick={() => setModFilter(f.id)} style={{
+                    flexShrink: 0, padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500,
+                    background: on ? TEAL : WHITE, color: on ? WHITE : '#374151',
+                    border: on ? 'none' : `1px solid ${BORDER}`,
+                    cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
+                  }}>{f.label}</button>
+                )
+              })}
+            </div>
+
+            {/* Feedback */}
+            {feedback && (
+              <div style={{
+                background: feedback.tipo === 'ok' ? '#E6F7F6' : '#FEF2F2',
+                color: feedback.tipo === 'ok' ? '#0A7A76' : '#991B1B',
+                border: `1px solid ${feedback.tipo === 'ok' ? '#A7E8E6' : '#FECACA'}`,
+                borderRadius: 10, padding: '10px 14px', marginBottom: 12,
+                fontSize: 13, fontWeight: 600,
+              }}>{feedback.msg}</div>
+            )}
+
+            {/* Loading */}
+            {modLoading && (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: DIM, fontSize: 14 }}>Carregando...</div>
+            )}
+
+            {/* Lista vazia */}
+            {!modLoading && filtered.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '40px 16px', color: DIM }}>
+                <div style={{ fontSize: 14 }}>Nenhum evento nesta categoria.</div>
+              </div>
+            )}
+
+            {/* Cards de evento */}
+            {!modLoading && filtered.map((ev: any) => {
+              const badge = badgeMap[ev.status] ?? badgeMap.pending
+              return (
+                <div key={ev.id} style={{
+                  background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`,
+                  padding: 14, marginBottom: 10,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: TEXT, lineHeight: 1.3, flex: 1 }}>{ev.title}</div>
+                    <span style={{
+                      fontSize: 10.5, fontWeight: 600, flexShrink: 0,
+                      background: badge.bg, color: badge.color,
+                      border: `1px solid ${badge.border}`,
+                      borderRadius: 6, padding: '2px 7px', whiteSpace: 'nowrap',
+                    }}>{badge.label}</span>
+                  </div>
+
+                  <div style={{ fontSize: 12, color: DIM, marginTop: 5 }}>
+                    {ev.producer_name && <span>Por {ev.producer_name} · </span>}
+                    {ev.event_date && <span>{formatDate(ev.event_date)} · </span>}
+                    <span>{formatPrice(ev)}</span>
+                  </div>
+
+                  {ev.location_name && (
+                    <div style={{ fontSize: 11.5, color: DIM, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.location_name}</div>
+                  )}
+
+                  {/* Acoes */}
+                  <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                    {ev.status === 'pending' && (
+                      <>
+                        <button
+                          onClick={() => aprovar(ev.id)}
+                          disabled={actionId === ev.id}
+                          style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: TEAL, color: WHITE, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: actionId === ev.id ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
+                        >{actionId === ev.id ? '...' : 'Aprovar'}</button>
+                        <button
+                          onClick={() => { setMotivoSheet({ id: ev.id, tipo: 'rejeitar' }); setMotivo('') }}
+                          disabled={actionId === ev.id}
+                          style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                        >Rejeitar</button>
+                      </>
+                    )}
+                    {ev.status === 'active' && (
+                      <button
+                        onClick={() => { setMotivoSheet({ id: ev.id, tipo: 'cancelar' }); setMotivo('') }}
+                        style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                      >Cancelar evento</button>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Bottom sheet de motivo */}
+          {motivoSheet && (
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+              <div style={{ background: WHITE, borderRadius: '16px 16px 0 0', padding: '24px 20px', width: '100%', maxWidth: 480 }}>
+                <div style={{ fontSize: 17, fontWeight: 700, color: TEXT, marginBottom: 6 }}>
+                  {motivoSheet.tipo === 'rejeitar' ? 'Motivo da rejeicao' : 'Motivo do cancelamento'}
+                </div>
+                <div style={{ fontSize: 13, color: DIM, marginBottom: 16 }}>
+                  {motivoSheet.tipo === 'rejeitar'
+                    ? 'Esse motivo sera enviado por e-mail ao produtor.'
+                    : 'O produtor sera notificado por e-mail com o motivo.'}
+                </div>
+                <textarea
+                  value={motivo}
+                  onChange={e => setMotivo(e.target.value)}
+                  placeholder="Descreva o motivo..."
+                  style={{
+                    width: '100%', height: 100, padding: '12px 14px',
+                    border: `1px solid ${BORDER}`, borderRadius: 10,
+                    fontSize: 14, resize: 'none', boxSizing: 'border-box',
+                    fontFamily: "'Noto Sans', sans-serif", color: TEXT, outline: 'none',
+                  }}
+                />
+                <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                  <button
+                    onClick={() => { setMotivoSheet(null); setMotivo('') }}
+                    style={{ flex: 1, padding: 12, borderRadius: 10, border: `1px solid ${BORDER}`, background: WHITE, color: DIM, fontSize: 14, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                  >Cancelar</button>
+                  <button
+                    onClick={confirmarMotivo}
+                    disabled={!motivo.trim() || actionId !== null}
+                    style={{ flex: 1, padding: 12, borderRadius: 10, border: 'none', background: '#FF3B30', color: WHITE, fontSize: 14, fontWeight: 600, cursor: motivo.trim() ? 'pointer' : 'not-allowed', opacity: !motivo.trim() || actionId !== null ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
+                  >{actionId !== null ? 'Enviando...' : 'Confirmar'}</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )
     }
     if (tab === 'produtores') {
       return <PlaceholderSection title="Gestao de Produtores" icon={<IconUsers />} desc="Lista de produtores, detalhe, conceder/remover selo Verificado e desativar/reativar conta." />
