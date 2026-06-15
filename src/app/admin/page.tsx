@@ -195,11 +195,15 @@ function PlaceholderSection({ title, icon, desc }: { title: string; icon: React.
 
 // ── SECAO "MAIS" ─────────────────────────────────────────────────────────────
 function MaisSection({ onNavigate }: { onNavigate: (s: MaisSection) => void }) {
+  const router = useRouter()
   const items = [
     { id: 'ingressos' as MaisSection, label: 'Ingressos',        desc: 'Buscar, ver detalhes e reembolsar', Icon: IconTicket   },
     { id: 'logs'      as MaisSection, label: 'Logs',             desc: 'Webhook e auditoria de tickets',   Icon: IconFileText },
     { id: 'cupons'    as MaisSection, label: 'Cupons',           desc: 'Listar e desativar cupons',        Icon: IconTag      },
   ]
+
+  const handleVoltar = () => router.push('/')
+
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px', fontFamily: "'Noto Sans', sans-serif" }}>
       <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, marginBottom: 20, letterSpacing: -0.4 }}>Mais</div>
@@ -231,6 +235,39 @@ function MaisSection({ onNavigate }: { onNavigate: (s: MaisSection) => void }) {
             <IconChevronRight />
           </button>
         ))}
+        <button
+          onClick={handleVoltar}
+          style={{
+            background: '#E8F7F6',
+            border: '1px solid #C4EAE9',
+            borderRadius: 12,
+            padding: '13px 14px',
+            display: 'flex', alignItems: 'center', gap: 14,
+            width: '100%', cursor: 'pointer', textAlign: 'left',
+            fontFamily: "'Noto Sans', sans-serif",
+            marginTop: 8,
+          }}
+        >
+          <div style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: '#0EA5A0', color: '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="11" r="8.5" stroke="currentColor" strokeWidth="1.6"/>
+              <path d="M11 7v4l2.5 2.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+              <path d="M4 4l3 3M18 4l-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#0A7A76', letterSpacing: -0.2 }}>Portal do Consumidor</div>
+            <div style={{ fontSize: 13, color: '#4AA8A4', marginTop: 2, fontWeight: 500 }}>Voltar ao app principal</div>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
       </div>
     </div>
   )

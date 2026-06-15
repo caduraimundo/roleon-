@@ -232,30 +232,32 @@ export default function PerfilPage() {
             <div
               onClick={() => router.push('/admin')}
               style={{
-                background: '#fff',
-                border: '0.5px solid #E5E5EA',
+                background: '#E8F7F6',
+                border: '1px solid #C4EAE9',
                 borderRadius: 12,
                 padding: '13px 14px',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-                display: 'flex', alignItems: 'center', gap: 12,
-                width: '100%', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', gap: 14,
+                cursor: 'pointer',
               }}
             >
               <div style={{
                 width: 34, height: 34, borderRadius: 10,
-                background: '#E6F7F6',
+                background: '#0EA5A0',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
+                flexShrink: 0, color: '#fff',
               }}>
                 <svg width="19" height="19" viewBox="0 0 22 22" fill="none">
-                  <path d="M11 2.5L4 5.5v5c0 4.2 3 8.1 7 9 4-.9 7-4.8 7-9v-5L11 2.5z" stroke="#0EA5A0" strokeWidth="1.6" strokeLinejoin="round"/>
-                  <path d="M8.5 11l1.8 1.8 3.2-3.8" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M11 2.5L4 5.5v5c0 4.2 3 8.1 7 9 4-.9 7-4.8 7-9v-5L11 2.5z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+                  <path d="M8.5 11l1.8 1.8 3.2-3.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 14.5, fontWeight: 600, color: '#1A1A1A' }}>Painel Admin</div>
-                <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 1 }}>Gerenciar o Roleon</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#0A7A76', letterSpacing: -0.2 }}>Painel Admin</div>
+                <div style={{ fontSize: 13, color: '#4AA8A4', marginTop: 2, fontWeight: 500 }}>Gerenciar o Roleon</div>
               </div>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
             </div>
           ) : role === 'producer' ? (
             /* produtor ja cadastrado: acessa o painel */
