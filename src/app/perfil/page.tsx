@@ -142,17 +142,11 @@ export default function PerfilPage() {
   ]
 
   return (
-    <div style={{ background: '#F7F7F7', minHeight: '100dvh', display: 'flex', justifyContent: 'center' }}>
+    <div style={{ background: '#F7F7F7', minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+    {/* Header - full width */}
     <div style={{
-      width: '100%', maxWidth: 480,
-      fontFamily: "'Noto Sans', sans-serif",
-      display: 'flex', flexDirection: 'column',
-    }}>
-
-      {/* Header */}
-      <div style={{
-        display: 'flex', alignItems: 'center',
-        height: 56,
+      display: 'flex', alignItems: 'center',
+      height: 56,
         paddingTop: 'env(safe-area-inset-top, 0px)',
         paddingLeft: 16, paddingRight: 16,
         background: '#fff',
@@ -170,6 +164,8 @@ export default function PerfilPage() {
           Perfil
         </div>
       </div>
+    <div style={{ width: '100%', maxWidth: 480, margin: '0 auto', flex: 1,
+      fontFamily: "'Noto Sans', sans-serif", display: 'flex', flexDirection: 'column' }}>
 
       {/* Conteúdo */}
       <div style={{ flex: 1, padding: '28px 20px 108px', display: 'flex', flexDirection: 'column', gap: 20 }}>

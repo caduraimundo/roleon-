@@ -297,15 +297,10 @@ export default function IngressosPage() {
   const list = activeTab === 'proximos' ? proximos : historico
 
   return (
-    <div style={{ background: '#F7F7F7', minHeight: '100dvh', display: 'flex', justifyContent: 'center' }}>
+    <div style={{ background: '#F7F7F7', minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
+    {/* Header - full width */}
     <div style={{
-      width: '100%', maxWidth: 480,
-      fontFamily: "'Noto Sans', sans-serif",
-      display: 'flex', flexDirection: 'column',
-    }}>
-      {/* Header */}
-      <div style={{
-        position: 'sticky', top: 0, zIndex: 50,
+      position: 'sticky', top: 0, zIndex: 50,
         background: '#fff',
         boxShadow: '0 1px 0 rgba(0,0,0,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -321,6 +316,8 @@ export default function IngressosPage() {
         </div>
         <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, letterSpacing: -0.5 }}>Meus Ingressos</span>
       </div>
+    <div style={{ width: '100%', maxWidth: 480, margin: '0 auto', flex: 1,
+      fontFamily: "'Noto Sans', sans-serif", display: 'flex', flexDirection: 'column' }}>
 
       {/* Tabs - pill/segmented */}
       <div style={{
