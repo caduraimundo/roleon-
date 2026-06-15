@@ -255,9 +255,8 @@ function MaisSection({ onNavigate }: { onNavigate: (s: MaisSection) => void }) {
             flexShrink: 0,
           }}>
             <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-              <circle cx="11" cy="11" r="8.5" stroke="currentColor" strokeWidth="1.6"/>
-              <path d="M11 7v4l2.5 2.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-              <path d="M4 4l3 3M18 4l-3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+              <path d="M11 2.5C7.96 2.5 5.5 5 5.5 8c0 4.5 5.5 11 5.5 11s5.5-6.5 5.5-11c0-3-2.46-5.5-5.5-5.5z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+              <circle cx="11" cy="8" r="2" stroke="currentColor" strokeWidth="1.5"/>
             </svg>
           </div>
           <div style={{ flex: 1 }}>
