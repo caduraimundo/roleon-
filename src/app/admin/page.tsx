@@ -621,18 +621,18 @@ export default function AdminPage() {
         <>
           <div style={{ flex: 1, padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
             {/* Titulo + reload */}
-            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
-              <div>
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Moderação</div>
-                {pendingEvents.length > 0 && (
-                  <div style={{ fontSize: 12, color: '#92400E', fontWeight: 600, marginTop: 2 }}>
-                    {pendingEvents.length} aguardando aprovação
-                  </div>
-                )}
+                <button onClick={loadModeracao} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 13, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", paddingBottom: 2 }}>
+                  Atualizar
+                </button>
               </div>
-              <button onClick={loadModeracao} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 13, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif" }}>
-                Atualizar
-              </button>
+              {pendingEvents.length > 0 && (
+                <div style={{ fontSize: 12, color: '#92400E', fontWeight: 600, marginTop: 4 }}>
+                  {pendingEvents.length} aguardando aprovação
+                </div>
+              )}
             </div>
 
             {/* Filtros */}
@@ -904,12 +904,12 @@ export default function AdminPage() {
 
       return (
         <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
-            <div>
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
               <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Produtores</div>
-              <div style={{ fontSize: 12, color: DIM, marginTop: 2 }}>{producers.length} cadastrados</div>
+              <button onClick={loadProdutores} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 13, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", paddingBottom: 2 }}>Atualizar</button>
             </div>
-            <button onClick={loadProdutores} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 13, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif" }}>Atualizar</button>
+            <div style={{ fontSize: 12, color: DIM, marginTop: 4 }}>{producers.length} cadastrados</div>
           </div>
 
           {/* Filtros */}

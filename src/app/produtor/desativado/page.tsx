@@ -71,24 +71,36 @@ export default function ContaDesativada() {
           <span style={{ fontSize: 14, fontWeight: 600, color: TEAL }}>contato@roleon.com.br</span>
         </div>
 
-        {/* Botão sair */}
-        <button
-          onClick={handleSair}
-          style={{
-            width: '100%', padding: '13px 0',
-            background: TEXT, color: WHITE,
-            border: 'none', borderRadius: 12,
-            fontSize: 15, fontWeight: 600,
-            cursor: 'pointer',
-            fontFamily: "'Noto Sans', sans-serif",
-          }}
-        >
-          Sair da conta
-        </button>
+        {/* Botões */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <button
+            onClick={handleSair}
+            style={{
+              width: '100%', padding: '13px 0',
+              background: TEAL, color: WHITE,
+              border: 'none', borderRadius: 12,
+              fontSize: 15, fontWeight: 600,
+              cursor: 'pointer',
+              fontFamily: "'Noto Sans', sans-serif",
+            }}
+          >
+            Sair da conta
+          </button>
+          <button
+            onClick={() => router.push('/')}
+            style={{
+              width: '100%', padding: '13px 0',
+              background: 'transparent', color: DIM,
+              border: `1px solid ${BORDER}`, borderRadius: 12,
+              fontSize: 15, fontWeight: 500,
+              cursor: 'pointer',
+              fontFamily: "'Noto Sans', sans-serif",
+            }}
+          >
+            Voltar ao app
+          </button>
+        </div>
       </div>
-
-      {/* Rodapé */}
-      <div style={{ fontSize: 12, color: DIM, marginTop: 20 }}>Roleon - Ouro Preto & Mariana</div>
     </div>
   )
 }
