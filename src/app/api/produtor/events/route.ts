@@ -79,12 +79,15 @@ export async function POST(req: NextRequest) {
 
   const { data: profile } = await supabaseAdmin
     .from('profiles')
-    .select('role')
+    .select('role, producer_disabled')
     .eq('id', user.id)
     .single()
 
   if (profile?.role !== 'producer') {
     return NextResponse.json({ error: 'Apenas produtores podem criar eventos' }, { status: 403 })
+  }
+  if (profile?.producer_disabled) {
+    return NextResponse.json({ error: 'Conta desativada. Entre em contato com o suporte.' }, { status: 403 })
   }
 
   try {

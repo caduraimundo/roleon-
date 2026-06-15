@@ -48,7 +48,7 @@ export default function PainelPage() {
       const [{ data: profile }, eventsRes] = await Promise.all([
         supabase
           .from('profiles')
-          .select('name, role, bank_account')
+          .select('name, role, bank_account, producer_disabled')
           .eq('id', session.user.id)
           .single(),
         fetch('/api/produtor/events', {
@@ -57,6 +57,7 @@ export default function PainelPage() {
       ])
 
       if (profile?.role !== 'producer') { router.replace('/produtor/cadastro'); return }
+      if (profile?.producer_disabled) { router.replace('/produtor?disabled=1'); return }
       if (profile?.name) setProducerName(profile.name)
       setHasBank(!!profile?.bank_account)
 

@@ -307,6 +307,17 @@ export default function AdminPage() {
   const [detailData, setDetailData] = useState<any | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
+  // Produtores
+  const [producers, setProducers] = useState<any[]>([])
+  const [prodLoading, setProdLoading] = useState(false)
+  const [prodFilter, setProdFilter] = useState<'todos' | 'verificados' | 'desativados'>('todos')
+  const [prodSearch, setProdSearch] = useState('')
+  const [prodDetail, setProdDetail] = useState<any | null>(null)
+  const [prodDetailData, setProdDetailData] = useState<{ producer: any; events: any[] } | null>(null)
+  const [prodDetailLoading, setProdDetailLoading] = useState(false)
+  const [prodActionLoading, setProdActionLoading] = useState(false)
+  const [prodFeedback, setProdFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
+
   useEffect(() => {
     const check = async () => {
       const { data: { session } } = await supabase.auth.getSession()
@@ -396,6 +407,57 @@ export default function AdminPage() {
     setTimeout(() => setFeedback(null), 3500)
   }
 
+  const loadProdutores = async () => {
+    setProdLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch('/api/admin/producers', {
+      headers: { Authorization: `Bearer ${session?.access_token}` },
+    })
+    const d = await res.json()
+    setProducers(d.producers ?? [])
+    setProdLoading(false)
+  }
+
+  const openProdDetail = async (p: any) => {
+    setProdDetail(p)
+    setProdDetailLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch(`/api/admin/producers/${p.id}`, {
+      headers: { Authorization: `Bearer ${session?.access_token}` },
+    })
+    const d = await res.json()
+    setProdDetailData(d)
+    setProdDetailLoading(false)
+  }
+
+  const prodAction = async (id: string, field: 'verified' | 'producer_disabled', value: boolean) => {
+    setProdActionLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch(`/api/admin/producers/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ [field]: value }),
+    })
+    if (res.ok) {
+      setProducers(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p))
+      if (prodDetail?.id === id) setProdDetail((prev: any) => ({ ...prev, [field]: value }))
+      if (prodDetailData?.producer?.id === id) {
+        setProdDetailData(prev => prev ? { ...prev, producer: { ...prev.producer, [field]: value } } : prev)
+      }
+      const msgs: Record<string, string> = {
+        'verified-true':           'Selo Verificado concedido.',
+        'verified-false':          'Selo Verificado removido.',
+        'producer_disabled-true':  'Produtor desativado.',
+        'producer_disabled-false': 'Produtor reativado.',
+      }
+      setProdFeedback({ tipo: 'ok', msg: msgs[`${field}-${value}`] ?? 'Atualizado.' })
+    } else {
+      setProdFeedback({ tipo: 'erro', msg: 'Erro ao atualizar produtor.' })
+    }
+    setProdActionLoading(false)
+    setTimeout(() => setProdFeedback(null), 3000)
+  }
+
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.replace('/')
@@ -404,6 +466,9 @@ export default function AdminPage() {
   useEffect(() => {
     if (tab === 'moderacao' && !modLoading && pendingEvents.length === 0 && activeEvents.length === 0) {
       loadModeracao()
+    }
+    if (tab === 'produtores' && !prodLoading && producers.length === 0) {
+      loadProdutores()
     }
   }, [tab])
 
@@ -767,7 +832,159 @@ export default function AdminPage() {
       )
     }
     if (tab === 'produtores') {
-      return <PlaceholderSection title="Gestao de Produtores" icon={<IconUsers />} desc="Lista de produtores, detalhe, conceder/remover selo Verificado e desativar/reativar conta." />
+      const formatDate = (d: string) => d ? new Date(d).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
+
+      const statusBadge = (p: any) => {
+        if (p.producer_disabled) return { label: 'Desativado', bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' }
+        if (p.verified)          return { label: 'Verificado', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' }
+        return                          { label: 'Ativo',      bg: '#E6F7F6', color: '#0A7A76', border: '#A7E8E6' }
+      }
+
+      // Tela de detalhe do produtor
+      if (prodDetail) {
+        const p = prodDetailData?.producer ?? prodDetail
+        const evs = prodDetailData?.events ?? []
+        const sb = statusBadge(p)
+        const initials = p.avatar_initials || p.name?.slice(0,2)?.toUpperCase() || 'P'
+
+        return (
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
+            <button onClick={() => { setProdDetail(null); setProdDetailData(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", padding: '0 0 16px 0' }}>
+              ← Produtores
+            </button>
+
+            {prodDetailLoading ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: DIM }}>Carregando...</div>
+            ) : (
+              <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, padding: 20 }}>
+                {/* Avatar + nome + badge */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 20, fontWeight: 700 }}>{initials}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: TEXT }}>{p.name}</div>
+                  <span style={{ fontSize: 11, fontWeight: 600, background: sb.bg, color: sb.color, border: `1px solid ${sb.border}`, borderRadius: 6, padding: '3px 10px' }}>{sb.label}</span>
+                </div>
+
+                <div style={{ borderTop: `1px solid ${BORDER}`, marginBottom: 14 }} />
+
+                {/* Feedback */}
+                {prodFeedback && (
+                  <div style={{ background: prodFeedback.tipo === 'ok' ? '#E6F7F6' : '#FEF2F2', color: prodFeedback.tipo === 'ok' ? '#0A7A76' : '#991B1B', border: `1px solid ${prodFeedback.tipo === 'ok' ? '#A7E8E6' : '#FECACA'}`, borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 13, fontWeight: 600 }}>{prodFeedback.msg}</div>
+                )}
+
+                {/* Informações */}
+                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Informações</div>
+                {[
+                  { label: 'Email',       value: p.email },
+                  { label: 'CPF',         value: p.cpf || '-' },
+                  { label: 'Cadastro',    value: formatDate(p.created_at) },
+                  { label: 'Recipient ID', value: p.pagar_me_recipient_id || '-' },
+                ].map((f, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '9px 0', borderBottom: `1px solid #F7F7F7`, gap: 12 }}>
+                    <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0 }}>{f.label}</span>
+                    <span style={{ fontSize: f.label === 'Recipient ID' ? 10 : 13, color: TEXT, textAlign: 'right', wordBreak: 'break-all', fontFamily: f.label === 'Recipient ID' ? 'monospace' : 'inherit' }}>{f.value}</span>
+                  </div>
+                ))}
+
+                {/* Eventos */}
+                {evs.length > 0 && (
+                  <>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 6 }}>Eventos</div>
+                    {evs.map((ev: any) => {
+                      const eb = ({ pending: { label: 'Aguardando', color: '#92400E' }, active: { label: 'Ativo', color: '#0A7A76' }, cancelled: { label: 'Cancelado', color: '#991B1B' }, rejected: { label: 'Recusado', color: '#991B1B' } } as Record<string, {label:string;color:string}>)[ev.status] ?? { label: ev.status, color: DIM }
+                      return (
+                        <div key={ev.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid #F7F7F7`, gap: 8 }}>
+                          <span style={{ fontSize: 13, color: TEXT, flex: 1 }}>{ev.title}</span>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: eb.color, flexShrink: 0 }}>{eb.label}</span>
+                        </div>
+                      )
+                    })}
+                  </>
+                )}
+
+                {evs.length === 0 && !prodDetailLoading && (
+                  <div style={{ fontSize: 13, color: DIM, marginTop: 12 }}>Nenhum evento cadastrado.</div>
+                )}
+
+                {/* Ações */}
+                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 20, marginBottom: 10 }}>Ações</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {!p.producer_disabled && !p.verified && (
+                    <button onClick={() => prodAction(p.id, 'verified', true)} disabled={prodActionLoading} style={{ width: '100%', padding: 12, background: TEAL, color: WHITE, border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Conceder selo Verificado</button>
+                  )}
+                  {p.verified && !p.producer_disabled && (
+                    <button onClick={() => prodAction(p.id, 'verified', false)} disabled={prodActionLoading} style={{ width: '100%', padding: 12, background: 'transparent', border: '1.5px solid #F59E0B', color: '#92400E', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Remover verificação</button>
+                  )}
+                  {!p.producer_disabled ? (
+                    <button onClick={() => prodAction(p.id, 'producer_disabled', true)} disabled={prodActionLoading} style={{ width: '100%', padding: 12, background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Desativar produtor</button>
+                  ) : (
+                    <button onClick={() => prodAction(p.id, 'producer_disabled', false)} disabled={prodActionLoading} style={{ width: '100%', padding: 12, background: TEAL, color: WHITE, border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Reativar produtor</button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      }
+
+      // Lista de produtores
+      const filtered = producers
+        .filter(p => {
+          if (prodFilter === 'verificados') return p.verified && !p.producer_disabled
+          if (prodFilter === 'desativados') return p.producer_disabled
+          return true
+        })
+        .filter(p => !prodSearch.trim() || p.name?.toLowerCase().includes(prodSearch.toLowerCase()) || p.email?.toLowerCase().includes(prodSearch.toLowerCase()))
+
+      return (
+        <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Produtores</div>
+              <div style={{ fontSize: 12, color: DIM, marginTop: 2 }}>{producers.length} cadastrados</div>
+            </div>
+            <button onClick={loadProdutores} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 13, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif" }}>Atualizar</button>
+          </div>
+
+          {/* Filtros */}
+          <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+            {([{ id: 'todos', label: 'Todos' }, { id: 'verificados', label: 'Verificados' }, { id: 'desativados', label: 'Desativados' }] as const).map(f => {
+              const on = prodFilter === f.id
+              return <button key={f.id} onClick={() => setProdFilter(f.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : '#374151', border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{f.label}</button>
+            })}
+          </div>
+
+          {/* Busca */}
+          <div style={{ position: 'relative', marginBottom: 14 }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: DIM, pointerEvents: 'none' }}>
+              <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            <input value={prodSearch} onChange={e => setProdSearch(e.target.value)} placeholder="Buscar por nome ou email" style={{ width: '100%', border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px 10px 34px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }} />
+          </div>
+
+          {prodLoading && <div style={{ textAlign: 'center', padding: '40px 0', color: DIM, fontSize: 14 }}>Carregando...</div>}
+
+          {!prodLoading && filtered.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '40px 0', color: DIM, fontSize: 14 }}>Nenhum produtor encontrado.</div>
+          )}
+
+          {!prodLoading && filtered.map((p: any) => {
+            const sb = statusBadge(p)
+            const initials = p.avatar_initials || p.name?.slice(0,2)?.toUpperCase() || 'P'
+            return (
+              <div key={p.id} onClick={() => openProdDetail(p)} style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, padding: 14, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
+                <div style={{ width: 40, height: 40, borderRadius: '50%', background: TEAL, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 14, fontWeight: 700 }}>{initials}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: TEXT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
+                  <div style={{ fontSize: 12, color: DIM, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.email}</div>
+                  <div style={{ fontSize: 11, color: DIM, marginTop: 2 }}>{formatDate(p.created_at)}</div>
+                </div>
+                <span style={{ fontSize: 10.5, fontWeight: 600, background: sb.bg, color: sb.color, border: `1px solid ${sb.border}`, borderRadius: 6, padding: '2px 7px', whiteSpace: 'nowrap', flexShrink: 0 }}>{sb.label}</span>
+              </div>
+            )
+          })}
+        </div>
+      )
     }
     if (tab === 'vendas') {
       return <PlaceholderSection title="Vendas e Repasses" icon={<IconBarChart />} desc="Dashboard de vendas, repasses pendentes, status do cron D+3 e forcar repasse manual." />
