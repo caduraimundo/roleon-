@@ -142,8 +142,9 @@ export default function PerfilPage() {
   ]
 
   return (
+    <div style={{ background: '#F7F7F7', minHeight: '100dvh', display: 'flex', justifyContent: 'center' }}>
     <div style={{
-      minHeight: '100dvh', background: '#F7F7F7',
+      width: '100%', maxWidth: 480,
       fontFamily: "'Noto Sans', sans-serif",
       display: 'flex', flexDirection: 'column',
     }}>
@@ -327,6 +328,7 @@ export default function PerfilPage() {
         if (tab === 'explorar')  router.push('/')
         if (tab === 'ingressos') router.push('/ingressos')
       }} />
+    </div>
     </div>
   )
 }
