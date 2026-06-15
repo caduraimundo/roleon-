@@ -474,7 +474,7 @@ export default function AdminPage() {
 
       return (
         <>
-          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
+          <div style={{ flex: 1, padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
             {/* Titulo + reload */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <div>
@@ -671,13 +671,14 @@ export default function AdminPage() {
       {/* Conteudo centralizado 480px */}
       <div style={{
         flex: 1, width: '100%', maxWidth: 480, margin: '0 auto',
-        display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        display: 'flex', flexDirection: 'column', overflowY: 'auto' as const,
+        paddingBottom: 72,
       }}>
         {renderContent()}
       </div>
 
-      {/* Bottom nav full-width */}
-      <div style={{ width: '100%' }}>
+      {/* Bottom nav fixed */}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50 }}>
         <div style={{ maxWidth: 480, margin: '0 auto' }}>
           <AdminBottomNav
             active={tab}
