@@ -698,7 +698,7 @@ export default function AdminPage() {
                   <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                     <button
                       onClick={() => openDetail(ev)}
-                      style={{ padding: '8px 12px', borderRadius: 8, border: `1.5px solid ${TEAL}`, background: WHITE, color: TEAL, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", flexShrink: 0 }}
+                      style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1.5px solid ${TEAL}`, background: WHITE, color: TEAL, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
                     >Ver</button>
                     {ev.status === 'pending' && (
                       <>
