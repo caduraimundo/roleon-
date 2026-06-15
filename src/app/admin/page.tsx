@@ -303,6 +303,9 @@ export default function AdminPage() {
   const [motivo, setMotivo] = useState('')
   const [feedback, setFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
   const [modSearch, setModSearch] = useState('')
+  const [detailEvent, setDetailEvent] = useState<any | null>(null)
+  const [detailData, setDetailData] = useState<any | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
 
   useEffect(() => {
     const check = async () => {
@@ -334,6 +337,18 @@ export default function AdminPage() {
     setPendingEvents(d1.events ?? [])
     setActiveEvents(d2.events ?? [])
     setModLoading(false)
+  }
+
+  const openDetail = async (ev: any) => {
+    setDetailEvent(ev)
+    setDetailLoading(true)
+    const { data } = await supabase
+      .from('events')
+      .select('id, title, description, genre, event_date, location_name, price, is_free, cover_image, producer_id, profiles!producer_id(name, email, avatar_initials), ticket_types(id, name, price, quantity, quantity_sold)')
+      .eq('id', ev.id)
+      .maybeSingle()
+    setDetailData(data)
+    setDetailLoading(false)
   }
 
   const aprovar = async (eventId: string) => {
@@ -446,6 +461,104 @@ export default function AdminPage() {
     }
     // Abas principais
     if (tab === 'moderacao') {
+
+      // Tela de detalhe do evento
+      if (detailEvent) {
+        const ev = detailData
+        const badge: Record<string, { label: string; bg: string; color: string; border: string }> = {
+          pending:   { label: 'Aguardando', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
+          active:    { label: 'Ativo',      bg: '#E6F7F6', color: '#0A7A76', border: '#A7E8E6' },
+          cancelled: { label: 'Cancelado',  bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
+          rejected:  { label: 'Recusado',   bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
+        }
+        const b = badge[detailEvent.status] ?? badge.pending
+        const producer = ev?.profiles as any
+        const tickets = (ev?.ticket_types ?? []) as any[]
+        const formatDate = (d: string) => d ? new Date(d.replace(' ', 'T')).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'
+        const formatPrice = (p: number) => p ? `R$ ${Number(p).toFixed(2).replace('.', ',')}` : 'Gratuito'
+
+        return (
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
+            <button onClick={() => { setDetailEvent(null); setDetailData(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", padding: '0 0 16px 0' }}>
+              ← Moderação
+            </button>
+
+            {detailLoading ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: DIM }}>Carregando...</div>
+            ) : (
+              <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, padding: 20, display: 'flex', flexDirection: 'column', gap: 0 }}>
+                {/* Badge + título + produtor */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, background: b.bg, color: b.color, border: `1px solid ${b.border}`, borderRadius: 6, padding: '3px 10px' }}>{b.label}</span>
+                </div>
+                <div style={{ fontSize: 19, fontWeight: 700, color: TEXT, textAlign: 'center', lineHeight: 1.3, marginBottom: 4 }}>{detailEvent.title}</div>
+                <div style={{ fontSize: 13, color: DIM, textAlign: 'center', marginBottom: 16 }}>{detailEvent.producer_name}</div>
+
+                <div style={{ borderTop: `1px solid ${BORDER}`, marginBottom: 14 }} />
+
+                {/* Informações */}
+                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Informações do Evento</div>
+                {[
+                  { label: 'Data',      value: formatDate(detailEvent.event_date) },
+                  { label: 'Local',     value: detailEvent.location_name || '—' },
+                  { label: 'Gênero',    value: Array.isArray(detailEvent.genre) ? detailEvent.genre.join(', ') : (detailEvent.genre || '—') },
+                  { label: 'Descrição', value: ev?.description || '—' },
+                ].map((f, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '9px 0', borderBottom: `1px solid #F7F7F7`, gap: 12 }}>
+                    <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0 }}>{f.label}</span>
+                    <span style={{ fontSize: 13, color: TEXT, textAlign: 'right', lineHeight: 1.4 }}>{f.value}</span>
+                  </div>
+                ))}
+
+                {/* Ingressos */}
+                {tickets.length > 0 && (
+                  <>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 6 }}>Ingressos Configurados</div>
+                    {tickets.map((tk: any, i: number) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: `1px solid #F7F7F7`, gap: 8 }}>
+                        <span style={{ fontSize: 13, color: TEXT }}>{tk.name}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          {tk.quantity && <span style={{ fontSize: 11, color: '#9CA3AF' }}>Qtd: {tk.quantity}</span>}
+                          <span style={{ fontSize: 13, fontWeight: 600, color: TEAL }}>{formatPrice(tk.price)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {ev?.is_free && tickets.length === 0 && (
+                  <div style={{ fontSize: 13, color: DIM, marginTop: 12 }}>Evento gratuito</div>
+                )}
+
+                {/* Produtor */}
+                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 8 }}>Produtor</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: TEAL, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 13, fontWeight: 700 }}>
+                    {producer?.avatar_initials || (producer?.name?.slice(0,1) ?? 'P')}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: TEXT }}>{producer?.name || detailEvent.producer_name}</div>
+                    <div style={{ fontSize: 12, color: DIM, marginTop: 2 }}>{producer?.email || detailEvent.producer_email}</div>
+                  </div>
+                </div>
+
+                {/* Ações */}
+                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 20, marginBottom: 10 }}>Ações</div>
+                {detailEvent.status === 'pending' && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <button onClick={() => { aprovar(detailEvent.id); setDetailEvent(null); setDetailData(null) }} style={{ width: '100%', padding: 13, background: TEAL, color: WHITE, border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Aprovar evento</button>
+                    <button onClick={() => { setDetailEvent(null); setDetailData(null); setMotivoSheet({ id: detailEvent.id, tipo: 'rejeitar' }); setMotivo('') }} style={{ width: '100%', padding: 13, background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Rejeitar evento</button>
+                  </div>
+                )}
+                {detailEvent.status === 'active' && (
+                  <button onClick={() => { setDetailEvent(null); setDetailData(null); setMotivoSheet({ id: detailEvent.id, tipo: 'cancelar' }); setMotivo('') }} style={{ width: '100%', padding: 13, background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Cancelar evento</button>
+                )}
+              </div>
+            )}
+          </div>
+        )
+      }
+
       const allEvents = [...pendingEvents.map(e => ({ ...e, status: 'pending' })), ...activeEvents]
       const byStatus = modFilter === 'pending'
         ? pendingEvents.map(e => ({ ...e, status: 'pending' }))
@@ -583,6 +696,10 @@ export default function AdminPage() {
 
                   {/* Acoes */}
                   <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                    <button
+                      onClick={() => openDetail(ev)}
+                      style={{ padding: '8px 12px', borderRadius: 8, border: `1.5px solid ${BORDER}`, background: WHITE, color: TEXT, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", flexShrink: 0 }}
+                    >Ver</button>
                     {ev.status === 'pending' && (
                       <>
                         <button

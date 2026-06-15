@@ -35,6 +35,7 @@ export default function NovoEventoPage() {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [draftLoaded, setDraftLoaded] = useState(false)
+  const [showSuccessToast, setShowSuccessToast] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -197,7 +198,8 @@ export default function NovoEventoPage() {
       const data = await res.json()
       if (res.ok) {
         localStorage.removeItem(DRAFT_KEY)
-        router.replace('/produtor/painel')
+        setShowSuccessToast(true)
+        setTimeout(() => router.replace('/produtor/painel'), 2200)
       } else {
         showError(data.error || 'Erro ao criar evento')
       }
@@ -733,6 +735,29 @@ export default function NovoEventoPage() {
           {uploading ? 'Enviando capa...' : loading ? 'Enviando...' : 'Publicar evento'}
         </button>
       </div>
+
+        {showSuccessToast && (
+          <div style={{
+            position: 'fixed', bottom: 90, left: '50%', transform: 'translateX(-50%)',
+            background: '#1A1A1A', color: '#fff',
+            borderRadius: 12, padding: '14px 20px',
+            display: 'flex', alignItems: 'center', gap: 10,
+            boxShadow: '0 4px 20px rgba(0,0,0,0.18)',
+            zIndex: 999, fontFamily: "'Noto Sans', sans-serif",
+            maxWidth: 340, width: 'calc(100% - 40px)',
+            animation: 'fadeInUp 0.25s ease',
+          }}>
+            <style>{`@keyframes fadeInUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
+            <svg width="20" height="20" viewBox="0 0 22 22" fill="none" style={{ flexShrink: 0 }}>
+              <circle cx="11" cy="11" r="9" stroke="#0EA5A0" strokeWidth="1.8"/>
+              <path d="M7.5 11l2.5 2.5 4.5-4.5" stroke="#0EA5A0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>Evento enviado para aprovação!</div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 }}>O time Roleon vai revisar em breve.</div>
+            </div>
+          </div>
+        )}
     </div>
   )
 }
