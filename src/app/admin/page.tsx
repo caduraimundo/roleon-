@@ -194,7 +194,7 @@ function PlaceholderSection({ title, icon, desc }: { title: string; icon: React.
 }
 
 // ── SECAO "MAIS" ─────────────────────────────────────────────────────────────
-function MaisSection({ onNavigate }: { onNavigate: (s: MaisSection) => void }) {
+function MaisSection({ onNavigate, onSignOut }: { onNavigate: (s: MaisSection) => void; onSignOut: () => void }) {
   const router = useRouter()
   const items = [
     { id: 'ingressos' as MaisSection, label: 'Ingressos',        desc: 'Buscar, ver detalhes e reembolsar', Icon: IconTicket   },
@@ -266,6 +266,20 @@ function MaisSection({ onNavigate }: { onNavigate: (s: MaisSection) => void }) {
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
+        </button>
+
+        <button
+          onClick={onSignOut}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: 13, fontWeight: 600, color: '#9A9A9A',
+            padding: '6px 0', marginTop: 16,
+            letterSpacing: 0.1,
+            fontFamily: "'Noto Sans', sans-serif",
+            width: '100%',
+          }}
+        >
+          Sair da conta
         </button>
       </div>
     </div>
@@ -364,7 +378,7 @@ export default function AdminPage() {
       return <PlaceholderSection title="Vendas e Repasses" icon={<IconBarChart />} desc="Dashboard de vendas, repasses pendentes, status do cron D+3 e forcar repasse manual." />
     }
     // tab === 'mais' sem subsecao
-    return <MaisSection onNavigate={(s) => setMaisSection(s)} />
+    return <MaisSection onNavigate={(s) => setMaisSection(s)} onSignOut={handleSignOut} />
   }
 
   return (
