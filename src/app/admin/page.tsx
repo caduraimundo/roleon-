@@ -302,6 +302,7 @@ export default function AdminPage() {
   const [motivoSheet, setMotivoSheet] = useState<{ id: string; tipo: 'rejeitar' | 'cancelar' } | null>(null)
   const [motivo, setMotivo] = useState('')
   const [feedback, setFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
+  const [modSearch, setModSearch] = useState('')
 
   useEffect(() => {
     const check = async () => {
@@ -446,9 +447,16 @@ export default function AdminPage() {
     // Abas principais
     if (tab === 'moderacao') {
       const allEvents = [...pendingEvents.map(e => ({ ...e, status: 'pending' })), ...activeEvents]
-      const filtered = modFilter === 'todos' ? allEvents
-        : modFilter === 'pending' ? pendingEvents.map(e => ({ ...e, status: 'pending' }))
+      const byStatus = modFilter === 'pending'
+        ? pendingEvents.map(e => ({ ...e, status: 'pending' }))
         : activeEvents.filter(e => e.status === modFilter)
+
+      const filtered = modSearch.trim()
+        ? byStatus.filter(e =>
+            e.title?.toLowerCase().includes(modSearch.toLowerCase()) ||
+            e.producer_name?.toLowerCase().includes(modSearch.toLowerCase())
+          )
+        : byStatus
 
       const formatDate = (d: string) => {
         if (!d) return ''
@@ -500,6 +508,26 @@ export default function AdminPage() {
                   }}>{f.label}</button>
                 )
               })}
+            </div>
+
+            {/* Busca */}
+            <div style={{ position: 'relative', marginBottom: 12 }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: DIM, pointerEvents: 'none' }}>
+                <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              <input
+                value={modSearch}
+                onChange={e => setModSearch(e.target.value)}
+                placeholder="Buscar por evento ou produtor"
+                style={{
+                  width: '100%', border: `1px solid ${BORDER}`, borderRadius: 10,
+                  padding: '10px 12px 10px 34px', fontSize: 14,
+                  fontFamily: "'Noto Sans', sans-serif", outline: 'none',
+                  color: TEXT, background: WHITE, boxSizing: 'border-box' as const,
+                }}
+              />
             </div>
 
             {/* Feedback */}
