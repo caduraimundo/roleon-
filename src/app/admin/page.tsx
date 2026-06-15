@@ -172,7 +172,7 @@ function AdminBottomNav({ active, onChange }: { active: Tab; onChange: (t: Tab) 
 }
 
 // ── PLACEHOLDER (sections ainda nao implementadas) ────────────────────────────
-function PlaceholderSection({ title, icon, desc }: { title: string; icon: JSX.Element; desc: string }) {
+function PlaceholderSection({ title, icon, desc }: { title: string; icon: React.JSX.Element; desc: string }) {
   return (
     <div style={{
       flex: 1, display: 'flex', flexDirection: 'column',
