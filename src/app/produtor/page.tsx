@@ -16,10 +16,12 @@ export default function PortalEntrada() {
       }
       const { data: profile } = await supabase
         .from('profiles')
-        .select('role')
+        .select('role, producer_disabled')
         .eq('id', user.id)
         .single()
-      if (profile?.role === 'producer') {
+      if (profile?.role === 'producer' && profile?.producer_disabled) {
+        router.replace('/produtor/desativado')
+      } else if (profile?.role === 'producer') {
         router.replace('/produtor/painel')
       } else {
         router.replace('/produtor/cadastro')

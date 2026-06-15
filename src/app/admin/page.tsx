@@ -132,7 +132,7 @@ function AdminHeader({ onSignOut }: { onSignOut: () => void }) {
 // ── BOTTOM NAV ───────────────────────────────────────────────────────────────
 function AdminBottomNav({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) {
   const items: { id: Tab; label: string; Icon: () => React.JSX.Element }[] = [
-    { id: 'moderacao',  label: 'Moderacao',  Icon: IconShield   },
+    { id: 'moderacao',  label: 'Moderação',  Icon: IconShield   },
     { id: 'produtores', label: 'Produtores', Icon: IconUsers    },
     { id: 'vendas',     label: 'Vendas',     Icon: IconBarChart },
     { id: 'mais',       label: 'Mais',       Icon: IconGrid     },
@@ -235,39 +235,6 @@ function MaisSection({ onNavigate, onSignOut }: { onNavigate: (s: MaisSection) =
             <IconChevronRight />
           </button>
         ))}
-        <button
-          onClick={handleVoltar}
-          style={{
-            background: '#E8F7F6',
-            border: '1px solid #C4EAE9',
-            borderRadius: 12,
-            padding: '13px 14px',
-            display: 'flex', alignItems: 'center', gap: 14,
-            width: '100%', cursor: 'pointer', textAlign: 'left',
-            fontFamily: "'Noto Sans', sans-serif",
-            marginTop: 8,
-          }}
-        >
-          <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: '#0EA5A0', color: '#fff',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-          }}>
-            <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-              <path d="M11 2.5C7.96 2.5 5.5 5 5.5 8c0 4.5 5.5 11 5.5 11s5.5-6.5 5.5-11c0-3-2.46-5.5-5.5-5.5z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
-              <circle cx="11" cy="8" r="2" stroke="currentColor" strokeWidth="1.5"/>
-            </svg>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#0A7A76', letterSpacing: -0.2 }}>Portal do Consumidor</div>
-            <div style={{ fontSize: 13, color: '#4AA8A4', marginTop: 2, fontWeight: 500 }}>Voltar ao app principal</div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-
         <button
           onClick={onSignOut}
           style={{
@@ -654,7 +621,7 @@ export default function AdminPage() {
         <>
           <div style={{ flex: 1, padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
             {/* Titulo + reload */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
               <div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Moderação</div>
                 {pendingEvents.length > 0 && (
@@ -937,7 +904,7 @@ export default function AdminPage() {
 
       return (
         <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
             <div>
               <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Produtores</div>
               <div style={{ fontSize: 12, color: DIM, marginTop: 2 }}>{producers.length} cadastrados</div>

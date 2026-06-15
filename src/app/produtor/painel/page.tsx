@@ -57,7 +57,7 @@ export default function PainelPage() {
       ])
 
       if (profile?.role !== 'producer') { router.replace('/produtor/cadastro'); return }
-      if (profile?.producer_disabled) { router.replace('/produtor?disabled=1'); return }
+      if (profile?.producer_disabled) { router.replace('/produtor/desativado'); return }
       if (profile?.name) setProducerName(profile.name)
       setHasBank(!!profile?.bank_account)
 
