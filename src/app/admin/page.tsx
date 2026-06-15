@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
@@ -131,7 +131,7 @@ function AdminHeader({ onSignOut }: { onSignOut: () => void }) {
 
 // ── BOTTOM NAV ───────────────────────────────────────────────────────────────
 function AdminBottomNav({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) {
-  const items: { id: Tab; label: string; Icon: () => JSX.Element }[] = [
+  const items: { id: Tab; label: string; Icon: () => React.JSX.Element }[] = [
     { id: 'moderacao',  label: 'Moderacao',  Icon: IconShield   },
     { id: 'produtores', label: 'Produtores', Icon: IconUsers    },
     { id: 'vendas',     label: 'Vendas',     Icon: IconBarChart },
