@@ -470,10 +470,10 @@ export default function AdminPage() {
             {/* Titulo + reload */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <div>
-                <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Moderacao</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Moderação</div>
                 {pendingEvents.length > 0 && (
                   <div style={{ fontSize: 12, color: '#92400E', fontWeight: 600, marginTop: 2 }}>
-                    {pendingEvents.length} aguardando aprovacao
+                    {pendingEvents.length} aguardando aprovação
                   </div>
                 )}
               </div>
@@ -487,7 +487,6 @@ export default function AdminPage() {
               {([
                 { id: 'pending',   label: `Aguardando (${pendingEvents.length})` },
                 { id: 'active',    label: 'Ativos' },
-                { id: 'todos',     label: 'Todos' },
                 { id: 'cancelled', label: 'Cancelados' },
                 { id: 'rejected',  label: 'Recusados' },
               ] as const).map(f => {
@@ -587,12 +586,12 @@ export default function AdminPage() {
             <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
               <div style={{ background: WHITE, borderRadius: '16px 16px 0 0', padding: '24px 20px', width: '100%', maxWidth: 480 }}>
                 <div style={{ fontSize: 17, fontWeight: 700, color: TEXT, marginBottom: 6 }}>
-                  {motivoSheet.tipo === 'rejeitar' ? 'Motivo da rejeicao' : 'Motivo do cancelamento'}
+                  {motivoSheet.tipo === 'rejeitar' ? 'Motivo da rejeição' : 'Motivo do cancelamento'}
                 </div>
                 <div style={{ fontSize: 13, color: DIM, marginBottom: 16 }}>
                   {motivoSheet.tipo === 'rejeitar'
-                    ? 'Esse motivo sera enviado por e-mail ao produtor.'
-                    : 'O produtor sera notificado por e-mail com o motivo.'}
+                    ? 'Esse motivo será enviado por e-mail ao produtor.'
+                    : 'O produtor será notificado por e-mail com o motivo.'}
                 </div>
                 <textarea
                   value={motivo}
