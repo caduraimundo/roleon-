@@ -158,11 +158,11 @@ function AdminBottomNav({ active, onChange }: { active: Tab; onChange: (t: Tab) 
             onClick={() => onChange(id)}
             style={{
               flex: 1, background: 'none', border: 'none', cursor: 'pointer',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3,
               color: on ? TEAL : '#C7C7CC',
               fontFamily: "'Noto Sans', sans-serif",
               fontSize: 10.5, fontWeight: on ? 600 : 500,
-              padding: '2px 0',
+              padding: '6px 0 4px',
               position: 'relative',
             }}
           >
