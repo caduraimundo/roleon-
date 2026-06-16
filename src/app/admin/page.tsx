@@ -104,23 +104,25 @@ function AdminHeader({ onSignOut }: { onSignOut: () => void }) {
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <div style={{
-          width: 30, height: 30, background: TEAL, borderRadius: 8,
+          width: 26, height: 26, background: TEAL, borderRadius: 7,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: WHITE, fontSize: 15, fontWeight: 800, flexShrink: 0,
+          color: WHITE, fontSize: 14, fontWeight: 800, flexShrink: 0,
         }}>R</div>
-        <span style={{ fontSize: 17, fontWeight: 700, color: TEXT }}>Roleon</span>
+        <span style={{ fontSize: 17, fontWeight: 800, color: TEXT, letterSpacing: -0.5 }}>Roleon</span>
         <span style={{
-          fontSize: 10, color: DIM,
-          border: `1px solid ${BORDER}`, borderRadius: 4,
-          padding: '2px 6px', letterSpacing: 0.5, fontWeight: 600,
+          fontSize: 9.5, color: TEAL,
+          background: TEAL_BG, borderRadius: 999,
+          padding: '4px 10px', letterSpacing: 0.4, fontWeight: 800,
+          textTransform: 'uppercase' as const,
           fontFamily: "'Noto Sans', sans-serif",
+          lineHeight: 1,
         }}>ADMIN</span>
       </div>
       <button
         onClick={onSignOut}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          color: RED, fontSize: 13, fontWeight: 600,
+          color: DIM, fontSize: 13, fontWeight: 500,
           fontFamily: "'Noto Sans', sans-serif",
           padding: '4px 0',
         }}
@@ -160,10 +162,12 @@ function AdminBottomNav({ active, onChange }: { active: Tab; onChange: (t: Tab) 
               fontFamily: "'Noto Sans', sans-serif",
               fontSize: 10, fontWeight: on ? 700 : 500,
               padding: '2px 0',
+              position: 'relative',
             }}
           >
-            <Icon />
-            <span>{label}</span>
+            <div style={{ position: 'absolute', top: 2, width: 48, height: 26, borderRadius: 999, background: on ? TEAL_BG : 'transparent' }} />
+            <span style={{ position: 'relative', zIndex: 1 }}><Icon /></span>
+            <span style={{ position: 'relative', zIndex: 1 }}>{label}</span>
           </button>
         )
       })}
