@@ -168,10 +168,20 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       if (event.data?.type === 'ROLEON_AUTH_SUCCESS') {
         window.removeEventListener('message', handleMessage)
         popup?.close()
-        supabase.auth.getSession().then(({ data: { session } }) => {
+        supabase.auth.getSession().then(async ({ data: { session } }) => {
           if (session) {
-            onClose()
-            window.location.href = event.data?.redirect || next
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', session.user.id)
+                .maybeSingle()
+              onClose()
+              window.location.href = profile?.role === 'admin' ? '/admin' : next
+            } catch (_) {
+              onClose()
+              window.location.href = next
+            }
           }
         })
       }
