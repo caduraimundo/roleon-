@@ -42,7 +42,22 @@ export async function GET(request: Request) {
 
   // Confirmação de e-mail via code
   if (code) {
-    await supabase.auth.exchangeCodeForSession(code)
+    const { data: sessionData } = await supabase.auth.exchangeCodeForSession(code)
+
+    // Admin no fluxo redirect vai direto para /admin (popup é tratado pelo SIGNED_IN do parent)
+    if (sessionData.session?.user && searchParams.get('popup') !== '1') {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', sessionData.session.user.id)
+        .maybeSingle()
+      if (profile?.role === 'admin') {
+        return new NextResponse(
+          `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><script>window.location.replace(${JSON.stringify(`${origin}/admin`)})</script></body></html>`,
+          { status: 200, headers: { 'Content-Type': 'text/html' } }
+        )
+      }
+    }
   }
 
   const next = searchParams.get('next') || '/'
