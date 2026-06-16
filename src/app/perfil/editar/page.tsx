@@ -122,7 +122,7 @@ export default function EditarPerfilPage() {
 
         {/* Avatar */}
         <div style={{
-          width: 80, height: 80, borderRadius: 999,
+          width: 80, height: 80, borderRadius: 22,
           background: '#0EA5A0',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: 28, fontWeight: 800, color: '#fff',
