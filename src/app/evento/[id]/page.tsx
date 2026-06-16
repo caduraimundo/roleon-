@@ -405,7 +405,7 @@ export default function EventoPage() {
         )}
 
         {/* Bottom sheet organizador */}
-            {showOrgSheet && (
+        {organizer && showOrgSheet && (
               <div
                 onClick={() => setShowOrgSheet(false)}
                 style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
@@ -448,8 +448,6 @@ export default function EventoPage() {
                   </div>
                 </div>
               </div>
-            )}
-          </div>
         )}
 
         {/* Seletor de tipos de ingresso */}
