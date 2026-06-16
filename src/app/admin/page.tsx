@@ -282,7 +282,7 @@ export default function AdminPage() {
   // Produtores
   const [producers, setProducers] = useState<any[]>([])
   const [prodLoading, setProdLoading] = useState(false)
-  const [prodFilter, setProdFilter] = useState<'todos' | 'verificados' | 'desativados'>('todos')
+  const [prodFilter, setProdFilter] = useState<'verificados' | 'ativos' | 'desativados'>('verificados')
   const [prodSearch, setProdSearch] = useState('')
   const [prodDetail, setProdDetail] = useState<any | null>(null)
   const [prodDetailData, setProdDetailData] = useState<{ producer: any; events: any[] } | null>(null)
@@ -819,8 +819,8 @@ export default function AdminPage() {
 
       const statusBadge = (p: any) => {
         if (p.producer_disabled) return { label: 'Desativado', bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' }
-        if (p.verified)          return { label: 'Verificado', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' }
-        return                          { label: 'Ativo',      bg: '#E6F7F6', color: '#0A7A76', border: '#A7E8E6' }
+        if (p.verified)          return { label: 'Verificado', bg: '#ECFDF5', color: '#047857', border: '#A7F3D0' }
+        return                          { label: 'Ativo',      bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE' }
       }
 
       // Tela de detalhe do produtor
@@ -919,7 +919,7 @@ export default function AdminPage() {
         .filter(p => {
           if (prodFilter === 'verificados') return p.verified && !p.producer_disabled
           if (prodFilter === 'desativados') return p.producer_disabled
-          return true
+          return !p.verified && !p.producer_disabled
         })
         .filter(p => !prodSearch.trim() || p.name?.toLowerCase().includes(prodSearch.toLowerCase()) || p.email?.toLowerCase().includes(prodSearch.toLowerCase()))
 
@@ -935,7 +935,7 @@ export default function AdminPage() {
 
           {/* Filtros */}
           <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-            {([{ id: 'todos', label: 'Todos' }, { id: 'verificados', label: 'Verificados' }, { id: 'desativados', label: 'Desativados' }] as const).map(f => {
+            {([{ id: 'verificados', label: 'Verificados' }, { id: 'ativos', label: 'Ativos' }, { id: 'desativados', label: 'Desativados' }] as const).map(f => {
               const on = prodFilter === f.id
               return <button key={f.id} onClick={() => setProdFilter(f.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : '#374151', border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{f.label}</button>
             })}
