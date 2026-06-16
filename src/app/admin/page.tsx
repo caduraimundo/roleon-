@@ -262,8 +262,20 @@ function MaisSection({ onNavigate, onSignOut }: { onNavigate: (s: MaisSection) =
 export default function AdminPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState<Tab>('moderacao')
-  const [maisSection, setMaisSection] = useState<MaisSection>(null)
+  const [tab, setTab] = useState<Tab>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('tab') as Tab
+      if (p && (['moderacao', 'produtores', 'vendas', 'mais'] as string[]).includes(p)) return p
+    }
+    return 'moderacao'
+  })
+  const [maisSection, setMaisSection] = useState<MaisSection>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('section') as MaisSection
+      if (p && (['ingressos', 'logs', 'cupons'] as string[]).includes(p)) return p
+    }
+    return null
+  })
 
   // Moderacao
   const [pendingEvents, setPendingEvents] = useState<any[]>([])
@@ -978,7 +990,7 @@ export default function AdminPage() {
       return <PlaceholderSection title="Vendas e Repasses" icon={<IconBarChart />} desc="Dashboard de vendas, repasses pendentes, status do cron D+3 e forcar repasse manual." />
     }
     // tab === 'mais' sem subsecao
-    return <MaisSection onNavigate={(s) => setMaisSection(s)} onSignOut={handleSignOut} />
+    return <MaisSection onNavigate={(s) => { setMaisSection(s); router.replace(s ? `/admin?tab=mais&section=${s}` : '/admin?tab=mais', { scroll: false }) }} onSignOut={handleSignOut} />
   }
 
   return (
@@ -1003,7 +1015,11 @@ export default function AdminPage() {
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50 }}>
         <AdminBottomNav
           active={tab}
-          onChange={(t) => { setTab(t); setMaisSection(null) }}
+          onChange={(t) => {
+            setTab(t)
+            setMaisSection(null)
+            router.replace(`/admin?tab=${t}`, { scroll: false })
+          }}
         />
       </div>
     </div>
