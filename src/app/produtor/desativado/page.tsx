@@ -14,6 +14,22 @@ const BORDER = '#E5E5EA'
 export default function ContaDesativada() {
   const router = useRouter()
 
+  useEffect(() => {
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) { router.replace('/produtor'); return }
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('producer_disabled')
+        .eq('id', session.user.id)
+        .maybeSingle()
+      if (!profile?.producer_disabled) {
+        router.replace('/produtor')
+      }
+    }
+    check()
+  }, [router])
+
   const handleSair = async () => {
     await supabase.auth.signOut()
     router.replace('/produtor')
