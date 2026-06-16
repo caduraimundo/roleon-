@@ -999,14 +999,12 @@ export default function AdminPage() {
         {renderContent()}
       </div>
 
-      {/* Bottom nav fixed */}
+      {/* Bottom nav fixed - full width igual ao portal do produtor */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50 }}>
-        <div style={{ maxWidth: 480, margin: '0 auto' }}>
-          <AdminBottomNav
-            active={tab}
-            onChange={(t) => { setTab(t); setMaisSection(null) }}
-          />
-        </div>
+        <AdminBottomNav
+          active={tab}
+          onChange={(t) => { setTab(t); setMaisSection(null) }}
+        />
       </div>
     </div>
   )
