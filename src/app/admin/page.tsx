@@ -461,9 +461,11 @@ export default function AdminPage() {
     if (tab === 'mais' && maisSection === 'ingressos') {
       return (
         <>
-          <div style={{ width: '100%', background: WHITE, borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', height: 48, paddingLeft: 16, gap: 10, flexShrink: 0 }}>
-            <button onClick={() => setMaisSection(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", padding: 0 }}>← Mais</button>
-            <span style={{ fontSize: 15, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Ingressos</span>
+          <div style={{ width: '100%', background: WHITE, borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, position: 'relative', flexShrink: 0 }}>
+            <button onClick={() => setMaisSection(null)} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Ingressos</span>
           </div>
           <PlaceholderSection title="Gestao de Ingressos" icon={<IconTicket />} desc="Buscar ingresso por codigo, ver detalhes, emitir reembolso e historico de check-ins." />
         </>
@@ -472,9 +474,11 @@ export default function AdminPage() {
     if (tab === 'mais' && maisSection === 'logs') {
       return (
         <>
-          <div style={{ width: '100%', background: WHITE, borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', height: 48, paddingLeft: 16, gap: 10, flexShrink: 0 }}>
-            <button onClick={() => setMaisSection(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", padding: 0 }}>← Mais</button>
-            <span style={{ fontSize: 15, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Logs</span>
+          <div style={{ width: '100%', background: WHITE, borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, position: 'relative', flexShrink: 0 }}>
+            <button onClick={() => setMaisSection(null)} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Logs</span>
           </div>
           <PlaceholderSection title="Logs e Monitoramento" icon={<IconFileText />} desc="Webhook logs do Pagar.me e historico de transicoes de status dos tickets." />
         </>
@@ -483,9 +487,11 @@ export default function AdminPage() {
     if (tab === 'mais' && maisSection === 'cupons') {
       return (
         <>
-          <div style={{ width: '100%', background: WHITE, borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', height: 48, paddingLeft: 16, gap: 10, flexShrink: 0 }}>
-            <button onClick={() => setMaisSection(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", padding: 0 }}>← Mais</button>
-            <span style={{ fontSize: 15, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Cupons</span>
+          <div style={{ width: '100%', background: WHITE, borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, position: 'relative', flexShrink: 0 }}>
+            <button onClick={() => setMaisSection(null)} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+            <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Cupons</span>
           </div>
           <PlaceholderSection title="Gestao de Cupons" icon={<IconTag />} desc="Listar todos os cupons ativos na plataforma e desativar em caso de abuso." />
         </>
@@ -510,10 +516,14 @@ export default function AdminPage() {
         const formatPrice = (p: number) => p ? `R$ ${Number(p).toFixed(2).replace('.', ',')}` : 'Gratuito'
 
         return (
-          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
-            <button onClick={() => { setDetailEvent(null); setDetailData(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", padding: '0 0 16px 0' }}>
-              ← Moderação
-            </button>
+          <>
+            <div style={{ width: '100%', background: WHITE, borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, position: 'relative', flexShrink: 0 }}>
+              <button onClick={() => { setDetailEvent(null); setDetailData(null) }} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Detalhe do Evento</span>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
 
             {detailLoading ? (
               <div style={{ textAlign: 'center', padding: '40px 0', color: DIM }}>Carregando...</div>
@@ -588,6 +598,7 @@ export default function AdminPage() {
               </div>
             )}
           </div>
+          </>
         )
       }
 
@@ -815,10 +826,14 @@ export default function AdminPage() {
         const initials = p.avatar_initials || p.name?.slice(0,2)?.toUpperCase() || 'P'
 
         return (
-          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
-            <button onClick={() => { setProdDetail(null); setProdDetailData(null) }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", padding: '0 0 16px 0' }}>
-              ← Produtores
-            </button>
+          <>
+            <div style={{ width: '100%', background: WHITE, borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, position: 'relative', flexShrink: 0 }}>
+              <button onClick={() => { setProdDetail(null); setProdDetailData(null) }} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Detalhe do Produtor</span>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
 
             {prodDetailLoading ? (
               <div style={{ textAlign: 'center', padding: '40px 0', color: DIM }}>Carregando...</div>
@@ -890,6 +905,7 @@ export default function AdminPage() {
               </div>
             )}
           </div>
+          </>
         )
       }
 
