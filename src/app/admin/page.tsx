@@ -97,7 +97,7 @@ function AdminHeader({ onSignOut }: { onSignOut: () => void }) {
       borderBottom: `0.5px solid ${BORDER}`,
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       height: 56,
-      paddingLeft: 20, paddingRight: 20,
+      paddingLeft: 24, paddingRight: 24,
       paddingTop: 'env(safe-area-inset-top, 0px)',
       flexShrink: 0,
       fontFamily: "'Noto Sans', sans-serif",
@@ -143,7 +143,8 @@ function AdminBottomNav({ active, onChange }: { active: Tab; onChange: (t: Tab) 
     <div style={{
       width: '100%',
       background: WHITE,
-      borderTop: `0.5px solid ${BORDER}`,
+      borderTop: '1px solid #EAEAEA',
+      boxShadow: '0 -4px 14px rgba(0,0,0,0.04)',
       display: 'flex',
       paddingTop: 10,
       paddingBottom: 'max(20px, env(safe-area-inset-bottom, 20px))',
@@ -160,12 +161,12 @@ function AdminBottomNav({ active, onChange }: { active: Tab; onChange: (t: Tab) 
               display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
               color: on ? TEAL : '#C7C7CC',
               fontFamily: "'Noto Sans', sans-serif",
-              fontSize: 10, fontWeight: on ? 700 : 500,
+              fontSize: 10.5, fontWeight: on ? 600 : 500,
               padding: '2px 0',
               position: 'relative',
             }}
           >
-            <div style={{ position: 'absolute', top: 2, width: 48, height: 26, borderRadius: 999, background: on ? TEAL_BG : 'transparent' }} />
+            <div style={{ position: 'absolute', top: 4, width: 48, height: 26, borderRadius: 999, background: on ? TEAL_BG : 'transparent' }} />
             <span style={{ position: 'relative', zIndex: 1 }}><Icon /></span>
             <span style={{ position: 'relative', zIndex: 1 }}>{label}</span>
           </button>
