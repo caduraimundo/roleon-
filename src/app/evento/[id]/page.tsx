@@ -404,47 +404,7 @@ export default function EventoPage() {
           </div>
         )}
 
-        {/* Organizador */}
-        {organizer && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>Organizador</div>
-            <button
-              onClick={() => setShowOrgSheet(true)}
-              style={{
-                width: '100%', background: '#fff',
-                border: '1px solid #EFEFEF', borderRadius: 14,
-                padding: '12px 14px',
-                display: 'flex', alignItems: 'center', gap: 12,
-                cursor: 'pointer', textAlign: 'left',
-                fontFamily: "'Noto Sans', sans-serif",
-              }}
-            >
-
-              <div style={{
-                width: 40, height: 40, borderRadius: 10,
-                background: '#0EA5A0', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontSize: 14, fontWeight: 700,
-              }}>
-                {organizer.avatar_initials || organizer.name.slice(0,2).toUpperCase()}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>{organizer.name}</span>
-                  {organizer.verified && (
-                    <span style={{ fontSize: 10, fontWeight: 700, background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', borderRadius: 999, padding: '2px 7px', flexShrink: 0 }}>Verificado</span>
-                  )}
-                </div>
-                <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 2 }}>
-                  Ativo desde {new Date(organizer.member_since).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
-                </div>
-              </div>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M6 4l4 4-4 4" stroke="#C8C8C8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-
-            {/* Bottom sheet organizador */}
+        {/* Bottom sheet organizador */}
             {showOrgSheet && (
               <div
                 onClick={() => setShowOrgSheet(false)}
@@ -457,7 +417,7 @@ export default function EventoPage() {
                   <button onClick={() => setShowOrgSheet(false)} style={{ position: 'absolute', top: 16, right: 16, width: 32, height: 32, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#1A1A1A" strokeWidth="1.8" strokeLinecap="round"/></svg>
                   </button>
-                  <div style={{ width: 36, height: 4, background: '#E5E5EA', borderRadius: 2, margin: '0 auto 20px' }} />
+
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
                     <div style={{
                       width: 64, height: 64, borderRadius: 18,
@@ -527,6 +487,30 @@ export default function EventoPage() {
           </div>
         )}
       </div>
+
+      {organizer && (
+        <button
+          onClick={() => setShowOrgSheet(true)}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            padding: '2px 20px 12px',
+            display: 'flex', alignItems: 'center', gap: 5,
+            fontFamily: "'Noto Sans', sans-serif",
+          }}
+        >
+          <span style={{ fontSize: 12.5, color: '#6E6E73' }}>Organizado por</span>
+          <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1A1A1A' }}>{organizer.name}</span>
+          {organizer.verified && (
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <circle cx="7" cy="7" r="7" fill="#0EA5A0"/>
+              <path d="M4 7l2 2 4-4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          )}
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ marginLeft: 1 }}>
+            <path d="M4.5 3l3 3-3 3" stroke="#C8C8C8" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+      )}
 
       <EventoCTA
         id={ev.id}
