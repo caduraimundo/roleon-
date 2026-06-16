@@ -32,19 +32,10 @@ export default function Home() {
     checkAdmin()
   }, [])
 
-  // Cobre login via popup (SIGNED_IN dispara quando popup fecha)
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         router.push('/auth/reset-password')
-      }
-      if (event === 'SIGNED_IN' && session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .maybeSingle()
-        if (profile?.role === 'admin') router.replace('/admin')
       }
     })
     return () => subscription.unsubscribe()
