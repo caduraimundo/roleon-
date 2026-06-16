@@ -990,9 +990,9 @@ export default function AdminPage() {
       {/* Header full-width */}
       <AdminHeader onSignOut={handleSignOut} />
 
-      {/* Conteudo centralizado 480px */}
+      {/* Conteudo full-width igual ao portal do produtor */}
       <div style={{
-        flex: 1, width: '100%', maxWidth: 480, margin: '0 auto',
+        flex: 1, width: '100%',
         display: 'flex', flexDirection: 'column', overflowY: 'auto' as const,
         paddingBottom: 72,
       }}>
