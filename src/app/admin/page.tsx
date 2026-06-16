@@ -159,7 +159,7 @@ function AdminBottomNav({ active, onChange }: { active: Tab; onChange: (t: Tab) 
             style={{
               flex: 1, background: 'none', border: 'none', cursor: 'pointer',
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3,
-              color: on ? TEAL : '#C7C7CC',
+              color: on ? TEAL : '#9A9A9A',
               fontFamily: "'Noto Sans', sans-serif",
               fontSize: 10.5, fontWeight: on ? 600 : 500,
               padding: '6px 0 4px',
