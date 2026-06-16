@@ -406,7 +406,8 @@ export default function EventoPage() {
 
         {/* Organizador */}
         {organizer && (
-          <>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>Organizador</div>
             <button
               onClick={() => setShowOrgSheet(true)}
               style={{
@@ -418,8 +419,7 @@ export default function EventoPage() {
                 fontFamily: "'Noto Sans', sans-serif",
               }}
             >
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8, position: 'absolute', top: -18, left: 0 }}>
-              </div>
+
               <div style={{
                 width: 40, height: 40, borderRadius: 10,
                 background: '#0EA5A0', flexShrink: 0,
@@ -452,8 +452,11 @@ export default function EventoPage() {
               >
                 <div
                   onClick={e => e.stopPropagation()}
-                  style={{ background: '#fff', borderRadius: '20px 20px 0 0', padding: '24px 20px 40px', width: '100%', maxWidth: 480, fontFamily: "'Noto Sans', sans-serif" }}
+                  style={{ background: '#fff', borderRadius: '20px 20px 0 0', padding: '24px 20px 40px', width: '100%', maxWidth: 480, fontFamily: "'Noto Sans', sans-serif", position: 'relative' }}
                 >
+                  <button onClick={() => setShowOrgSheet(false)} style={{ position: 'absolute', top: 16, right: 16, width: 32, height: 32, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#1A1A1A" strokeWidth="1.8" strokeLinecap="round"/></svg>
+                  </button>
                   <div style={{ width: 36, height: 4, background: '#E5E5EA', borderRadius: 2, margin: '0 auto 20px' }} />
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
                     <div style={{
@@ -486,7 +489,7 @@ export default function EventoPage() {
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
 
         {/* Seletor de tipos de ingresso */}
