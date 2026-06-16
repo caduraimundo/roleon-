@@ -663,7 +663,7 @@ export default function AdminPage() {
                 return (
                   <button key={f.id} onClick={() => setModFilter(f.id)} style={{
                     flexShrink: 0, padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500,
-                    background: on ? TEAL : WHITE, color: on ? WHITE : '#374151',
+                    background: on ? TEAL : WHITE, color: on ? WHITE : TEXT,
                     border: on ? 'none' : `1px solid ${BORDER}`,
                     cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
                   }}>{f.label}</button>
@@ -899,7 +899,7 @@ export default function AdminPage() {
                     <button onClick={() => prodAction(p.id, 'verified', true)} disabled={prodActionLoading} style={{ width: '100%', padding: 12, background: TEAL, color: WHITE, border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Conceder selo Verificado</button>
                   )}
                   {p.verified && !p.producer_disabled && (
-                    <button onClick={() => prodAction(p.id, 'verified', false)} disabled={prodActionLoading} style={{ width: '100%', padding: 12, background: 'transparent', border: '1.5px solid #F59E0B', color: '#92400E', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Remover verificação</button>
+                    <button onClick={() => prodAction(p.id, 'verified', false)} disabled={prodActionLoading} style={{ width: '100%', padding: 12, background: 'transparent', border: `1.5px solid ${BORDER}`, color: TEXT, borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Remover verificação</button>
                   )}
                   {!p.producer_disabled ? (
                     <button onClick={() => prodAction(p.id, 'producer_disabled', true)} disabled={prodActionLoading} style={{ width: '100%', padding: 12, background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Desativar produtor</button>
@@ -937,7 +937,7 @@ export default function AdminPage() {
           <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
             {([{ id: 'verificados', label: 'Verificados' }, { id: 'ativos', label: 'Ativos' }, { id: 'desativados', label: 'Desativados' }] as const).map(f => {
               const on = prodFilter === f.id
-              return <button key={f.id} onClick={() => setProdFilter(f.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : '#374151', border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{f.label}</button>
+              return <button key={f.id} onClick={() => setProdFilter(f.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{f.label}</button>
             })}
           </div>
 
