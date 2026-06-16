@@ -580,7 +580,7 @@ export default function AdminPage() {
                 {/* Produtor */}
                 <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 8 }}>Produtor</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: TEAL, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 13, fontWeight: 700 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: TEAL, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 13, fontWeight: 700 }}>
                     {producer?.avatar_initials || (producer?.name?.slice(0,1) ?? 'P')}
                   </div>
                   <div style={{ flex: 1 }}>
@@ -846,7 +846,7 @@ export default function AdminPage() {
               <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, padding: 20 }}>
                 {/* Avatar + nome + badge */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                  <div style={{ width: 56, height: 56, borderRadius: '50%', background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 20, fontWeight: 700 }}>{initials}</div>
+                  <div style={{ width: 56, height: 56, borderRadius: 16, background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 20, fontWeight: 700 }}>{initials}</div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: TEXT }}>{p.name}</div>
                   <span style={{ fontSize: 11, fontWeight: 600, background: sb.bg, color: sb.color, border: `1px solid ${sb.border}`, borderRadius: 6, padding: '3px 10px' }}>{sb.label}</span>
                 </div>
@@ -961,7 +961,7 @@ export default function AdminPage() {
             const initials = p.avatar_initials || p.name?.slice(0,2)?.toUpperCase() || 'P'
             return (
               <div key={p.id} onClick={() => openProdDetail(p)} style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, padding: 14, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-                <div style={{ width: 40, height: 40, borderRadius: '50%', background: TEAL, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 14, fontWeight: 700 }}>{initials}</div>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: TEAL, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 14, fontWeight: 700 }}>{initials}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: TEXT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</div>
                   <div style={{ fontSize: 12, color: DIM, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.email}</div>
