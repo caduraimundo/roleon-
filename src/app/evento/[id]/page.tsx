@@ -168,6 +168,11 @@ export default function EventoPage() {
   const [selectedTypeId, setSelectedTypeId] = useState<string>('')
   const [isSoldOut,      setIsSoldOut]      = useState(false)
   const [missing,        setMissing]        = useState(false)
+  const [organizer, setOrganizer] = useState<{
+    name: string; avatar_initials: string; verified: boolean
+    member_since: string; event_count: number
+  } | null>(null)
+  const [showOrgSheet, setShowOrgSheet] = useState(false)
   const [showAuth,       setShowAuth]       = useState(false)
   const [toast,          setToast]          = useState<string | null>(null)
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -180,7 +185,7 @@ export default function EventoPage() {
 
     supabase
       .from('events')
-      .select('id, title, genre, price, location_name, event_date, is_free, description, policies, cover_image, location_lat, location_lng')
+      .select('id, title, genre, price, location_name, event_date, is_free, description, policies, cover_image, location_lat, location_lng, producer_id')
       .eq('id', id)
       .single()
       .then(({ data }) => {
@@ -188,6 +193,13 @@ export default function EventoPage() {
         const full = fromSupabase(data as Record<string, unknown>)
         setEv(full)
         try { sessionStorage.setItem(`evento-${id}`, JSON.stringify(full)) } catch {}
+        const producerId = (data as Record<string, unknown>).producer_id as string | null
+        if (producerId) {
+          fetch(`/api/public/organizador/${producerId}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(d => { if (d && d.name) setOrganizer(d) })
+            .catch(() => {})
+        }
       })
 
     supabase
@@ -390,6 +402,91 @@ export default function EventoPage() {
             </div>
             <p style={{ margin: 0, fontSize: 14.5, color: '#3A3A3A', lineHeight: 1.7 }}>{ev.description}</p>
           </div>
+        )}
+
+        {/* Organizador */}
+        {organizer && (
+          <>
+            <button
+              onClick={() => setShowOrgSheet(true)}
+              style={{
+                width: '100%', background: '#fff',
+                border: '1px solid #EFEFEF', borderRadius: 14,
+                padding: '12px 14px',
+                display: 'flex', alignItems: 'center', gap: 12,
+                cursor: 'pointer', textAlign: 'left',
+                fontFamily: "'Noto Sans', sans-serif",
+              }}
+            >
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8, position: 'absolute', top: -18, left: 0 }}>
+              </div>
+              <div style={{
+                width: 40, height: 40, borderRadius: 10,
+                background: '#0EA5A0', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#fff', fontSize: 14, fontWeight: 700,
+              }}>
+                {organizer.avatar_initials || organizer.name.slice(0,2).toUpperCase()}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>{organizer.name}</span>
+                  {organizer.verified && (
+                    <span style={{ fontSize: 10, fontWeight: 700, background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', borderRadius: 999, padding: '2px 7px', flexShrink: 0 }}>Verificado</span>
+                  )}
+                </div>
+                <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 2 }}>
+                  Ativo desde {new Date(organizer.member_since).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })}
+                </div>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 4l4 4-4 4" stroke="#C8C8C8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            {/* Bottom sheet organizador */}
+            {showOrgSheet && (
+              <div
+                onClick={() => setShowOrgSheet(false)}
+                style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+              >
+                <div
+                  onClick={e => e.stopPropagation()}
+                  style={{ background: '#fff', borderRadius: '20px 20px 0 0', padding: '24px 20px 40px', width: '100%', maxWidth: 480, fontFamily: "'Noto Sans', sans-serif" }}
+                >
+                  <div style={{ width: 36, height: 4, background: '#E5E5EA', borderRadius: 2, margin: '0 auto 20px' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                    <div style={{
+                      width: 64, height: 64, borderRadius: 18,
+                      background: '#0EA5A0',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#fff', fontSize: 22, fontWeight: 700,
+                    }}>
+                      {organizer.avatar_initials || organizer.name.slice(0,2).toUpperCase()}
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.3 }}>{organizer.name}</div>
+                      {organizer.verified && (
+                        <span style={{ display: 'inline-block', marginTop: 6, fontSize: 11, fontWeight: 700, background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', borderRadius: 999, padding: '3px 10px' }}>Verificado</span>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid #EFEFEF', borderRadius: 12, overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid #F7F7F7' }}>
+                      <span style={{ fontSize: 13, color: '#6E6E73' }}>Membro desde</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>
+                        {new Date(organizer.member_since).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px' }}>
+                      <span style={{ fontSize: 13, color: '#6E6E73' }}>Eventos na plataforma</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{organizer.event_count}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Seletor de tipos de ingresso */}
