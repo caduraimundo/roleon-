@@ -44,16 +44,24 @@ export async function GET(request: Request) {
   if (code) {
     const { data: sessionData } = await supabase.auth.exchangeCodeForSession(code)
 
-    // Admin no fluxo redirect vai direto para /admin (popup é tratado pelo SIGNED_IN do parent)
-    if (sessionData.session?.user && searchParams.get('popup') !== '1') {
+    // Admin: redirect direto para /admin nos dois fluxos
+    if (sessionData.session?.user) {
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', sessionData.session.user.id)
         .maybeSingle()
       if (profile?.role === 'admin') {
+        const adminUrl = `${origin}/admin`
+        const isPopupFlow = searchParams.get('popup') === '1'
+        if (isPopupFlow) {
+          return new NextResponse(
+            `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><script>if(window.opener){window.opener.postMessage({type:'ROLEON_AUTH_SUCCESS',redirect:'/admin'},${JSON.stringify(origin)});window.close();}else{window.location.replace(${JSON.stringify(adminUrl)});}</script></body></html>`,
+            { status: 200, headers: { 'Content-Type': 'text/html' } }
+          )
+        }
         return new NextResponse(
-          `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><script>window.location.replace(${JSON.stringify(`${origin}/admin`)})</script></body></html>`,
+          `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body><script>window.location.replace(${JSON.stringify(adminUrl)})</script></body></html>`,
           { status: 200, headers: { 'Content-Type': 'text/html' } }
         )
       }

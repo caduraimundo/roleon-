@@ -171,7 +171,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
         supabase.auth.getSession().then(({ data: { session } }) => {
           if (session) {
             onClose()
-            window.location.href = next
+            window.location.href = event.data?.redirect || next
           }
         })
       }
