@@ -119,18 +119,17 @@ export default function PerfilProdutorPage() {
   ]
 
   return (
-    <div style={{ background: '#F7F7F7', minHeight: '100vh', display: 'flex', justifyContent: 'center' }}>
+    <div style={{ background: '#F7F7F7', display: 'flex', justifyContent: 'center' }}>
     <div style={{
       width: '100%', maxWidth: 480,
       fontFamily: "'Noto Sans', sans-serif",
-      paddingBottom: 80,
     }}>
       <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column' }}>
 
         {/* Hero */}
         <div style={{
           display: 'flex', flexDirection: 'column',
-          alignItems: 'center', padding: '20px 0 28px',
+          alignItems: 'center', padding: '28px 0 28px',
         }}>
           <div style={{
             width: 72, height: 72, borderRadius: 20,
@@ -141,19 +140,22 @@ export default function PerfilProdutorPage() {
             {profile.avatar_initials || profile.name.slice(0,2).toUpperCase()}
           </div>
 
-          {/* Nome + badge verificado centralizado */}
+          {/* Nome centralizado de verdade + badge flutuante que nao afeta a centralizacao */}
           <div style={{
             marginTop: 14,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            position: 'relative',
+            display: 'inline-flex',
           }}>
-            {/* Espacador invisível para manter nome centralizado */}
-            {profile.verified && <span style={{ width: 26, flexShrink: 0 }} />}
             <span style={{
               fontSize: 21, fontWeight: 700,
               color: '#1A1A1A', letterSpacing: -0.4,
             }}>{profile.name}</span>
             {profile.verified && (
-              <span style={{ marginLeft: 6, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+              <span style={{
+                position: 'absolute', left: '100%', top: '50%',
+                transform: 'translateY(-50%)', marginLeft: 6,
+                display: 'flex', alignItems: 'center',
+              }}>
                 <svg width="18" height="18" viewBox="0 0 14 14" fill="none">
                   <circle cx="7" cy="7" r="7" fill="#0EA5A0"/>
                   <path d="M4 7l2 2 4-4" stroke="#fff" strokeWidth="1.5"
