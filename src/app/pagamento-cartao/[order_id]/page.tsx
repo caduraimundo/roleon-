@@ -3,13 +3,16 @@
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSmartBack } from '../../../hooks/useSmartBack'
+import { calcFees } from '../../../lib/pricing'
 import { supabase } from '../../../lib/supabase'
 
 interface CheckoutSession {
   event_id?: string
   event_title?: string
   total?: number
+  unit_price?: number
   ticket_id?: string
+  ticket_type_id?: string
   quantity?: number
   user_id?: string
   user_email?: string
@@ -37,20 +40,6 @@ function maskExpiry(v: string) {
 function fmt(n: number) {
   return n.toFixed(2).replace('.', ',')
 }
-// total1x = preco * 1.0819 + 0.99  →  preco = (total1x - 0.99) / 1.0819
-// totalComTaxa (2x-6x) = preco * 1.0949 + 0.99
-function calcInstallment(total1x: number, n: number): number {
-  if (n === 1) return total1x
-  const preco = (total1x - 0.99) / 1.0819
-  const totalComTaxa = preco * 1.0949 + 0.99
-  return totalComTaxa / n
-}
-
-function calcTotalForInstallments(total1x: number, n: number): number {
-  if (n === 1) return total1x
-  const preco = (total1x - 0.99) / 1.0819
-  return preco * 1.0949 + 0.99
-}
 
 const INPUT_STYLE: React.CSSProperties = {
   border: '1px solid #E8E8E8', borderRadius: 10, padding: '12px 14px',
@@ -75,6 +64,8 @@ export default function PagamentoCartaoPage() {
   })
 
   const total = Number(session?.total) || 0
+  const unitPrice = Number(session?.unit_price) || 0
+  const qty = Number(session?.quantity) || 1
   const eventTitle = session?.event_title || 'Evento'
   const ticketId = session?.ticket_id || 'mock_ticket_001'
 
@@ -156,6 +147,7 @@ export default function PagamentoCartaoPage() {
           card_token: cardToken,
           installments,
           customer_document: session?.customer_document || '',
+          ticket_type_id: session?.ticket_type_id ?? undefined,
           ticket_type_name: ticketTypeName,
           ticket_type_price: ticketTypePrice ?? undefined,
           coupon_code: session?.coupon_code ?? undefined,
@@ -300,10 +292,10 @@ export default function PagamentoCartaoPage() {
                 cursor: 'pointer',
               }}
             >
-              <option value={1}>1x de R$ {fmt(total)} (sem juros)</option>
+              <option value={1}>1x de R$ {fmt(calcFees(unitPrice, qty, 'card', 1).total)} (sem juros)</option>
               {[2, 3, 4, 5, 6].map(n => (
                 <option key={n} value={n}>
-                  {n}x de R$ {fmt(calcInstallment(total, n))}
+                  {n}x de R$ {fmt(calcFees(unitPrice, qty, 'card', n).total / n)}
                 </option>
               ))}
             </select>
@@ -320,7 +312,7 @@ export default function PagamentoCartaoPage() {
         }}>
           <div style={{ fontSize: 14, color: '#3A3A3A', marginBottom: 6 }}>{eventTitle}</div>
           <div style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A' }}>
-            Total: R$ {fmt(calcTotalForInstallments(total, installments))}
+            Total: R$ {fmt(calcFees(unitPrice, qty, 'card', installments).total)}
           </div>
         </div>
 

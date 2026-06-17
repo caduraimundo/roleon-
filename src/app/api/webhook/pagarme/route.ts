@@ -187,7 +187,7 @@ export async function POST(req: NextRequest) {
           for (let i = 0; i < ticketsCompletos.length; i++) {
             const tc = ticketsCompletos[i];
             try {
-              const ticketNumber = tc.id.slice(-4).toUpperCase();
+              const ticketNumber = (tc.checkin_token ?? tc.id).slice(0, 6).toUpperCase();
               const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(tc.checkin_token ?? tc.id)}`;
               const pdfBuffer = await generateTicketPDF({
                 eventTitle: evento.title,

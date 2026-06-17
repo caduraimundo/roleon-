@@ -6,7 +6,7 @@
 // Cartão 2x-6x:  4,49% do valor
 // Margem Roleon: 4%
 
-export function calcFees(ticketPrice: number, qty: number = 1, method: 'pix' | 'card' = 'pix') {
+export function calcFees(ticketPrice: number, qty: number = 1, method: 'pix' | 'card' = 'pix', installments: number = 1) {
   const subtotal = ticketPrice * qty;
 
   if (method === 'pix') {
@@ -18,9 +18,11 @@ export function calcFees(ticketPrice: number, qty: number = 1, method: 'pix' | '
     return { subtotal, roleonFee, pagarmeFee, total };
   } else {
     // Cartão 1x: total = subtotal * 1.0719 + 0.99
-    // (4% Roleon + 3,19% Pagar.me + R$0,55 processamento + R$0,44 antifraude)
+    // Cartão 2x-6x: total = subtotal * 1.0849 + 0.99
+    // (4% Roleon + 3,19% ou 4,49% Pagar.me + R$0,55 processamento + R$0,44 antifraude)
+    const pagarmePercent = installments >= 2 ? 0.0449 : 0.0319;
     const roleonFee  = subtotal * 0.04;
-    const pagarmeFee = subtotal * 0.0319 + 0.99;
+    const pagarmeFee = subtotal * pagarmePercent + 0.99;
     const total      = subtotal + roleonFee + pagarmeFee;
     return { subtotal, roleonFee, pagarmeFee, total };
   }

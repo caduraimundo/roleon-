@@ -162,7 +162,7 @@ export default function IngressoPage() {
 
       const { data: t, error: tErr } = await supabase
         .from('tickets')
-        .select('*, events(*)')
+        .select('id, event_id, user_id, price_paid, qr_code, status, created_at, ticket_type_name, checkin_token, events(title, event_date, location_name)')
         .eq('id', ticketId)
         .single()
 

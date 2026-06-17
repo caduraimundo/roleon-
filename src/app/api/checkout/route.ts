@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
     } else {
       price = Number(event.price) || 0
     }
-    let unitTotal = calcFees(price, 1, isPix ? 'pix' : 'card').total
+    let unitTotal = calcFees(price, 1, isPix ? 'pix' : 'card', isPix ? 1 : installments).total
 
     // ── PIX ───────────────────────────────────────────────────────────────────
     if (isPix) {
@@ -444,9 +444,9 @@ export async function POST(req: NextRequest) {
       }
       serverDiscount = Math.round(serverDiscount * 100) / 100
       price = Math.max(0, price - serverDiscount)
-      unitTotal = calcFees(price, 1, 'card').total
+      unitTotal = calcFees(price, 1, 'card', installments).total
     }
-    const payAmountCents = Math.round(calcFees(price, quantity, 'card').total * 100)
+    const payAmountCents = Math.round(calcFees(price, quantity, 'card', installments).total * 100)
 
     const pagarmeRes = await fetch('https://api.pagar.me/core/v5/orders', {
       method: 'POST',
@@ -642,7 +642,7 @@ export async function POST(req: NextRequest) {
               dataCapitalizadaFinal = dataEvento.charAt(0).toUpperCase() + dataEvento.slice(1);
             }
 
-            const ticketNumber = ticketCompleto.id.slice(-4).toUpperCase();
+            const ticketNumber = (ticketCompleto.checkin_token ?? ticketCompleto.id).slice(0, 6).toUpperCase();
             const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(ticketCompleto.checkin_token ?? ticketCompleto.id)}`;
             const eventDateForPDF = `${dataCapitalizadaFinal} - ${horaEventoFinal}`;
 
