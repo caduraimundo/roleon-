@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useSmartBack } from '../../../hooks/useSmartBack'
+import { supabase } from '../../../lib/supabase'
 
 interface CheckoutSession {
   event_id?: string
@@ -138,9 +139,13 @@ export default function PagamentoCartaoPage() {
         }
       } catch {}
 
+      const { data: { session: authSession } } = await supabase.auth.getSession()
       const res = await fetch('/api/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authSession?.access_token}`,
+        },
         body: JSON.stringify({
           event_id: session?.event_id,
           quantity: session?.quantity,

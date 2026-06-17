@@ -238,9 +238,13 @@ export default function CheckoutPage() {
         return
       }
 
+      const { data: { session } } = await supabase.auth.getSession()
       const res = await fetch('/api/checkout', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
         body: JSON.stringify({
           event_id: id, quantity,
           user_id: user.id, user_email: emailInput || user.email, user_name: user.name,
