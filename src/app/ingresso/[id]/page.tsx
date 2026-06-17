@@ -172,7 +172,7 @@ export default function IngressoPage() {
         return
       }
 
-      const ticket = t as Ticket
+      const ticket = t as unknown as Ticket
       if (ticket.user_id !== user.id) {
         setError('Este ingresso não pertence à sua conta.')
         setLoading(false)
