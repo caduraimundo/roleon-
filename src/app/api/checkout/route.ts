@@ -234,6 +234,7 @@ export async function POST(req: NextRequest) {
           qr_code: `pix_pending_${tempOrderId}_${i}`,
           status: 'pending',
           payment_method: 'pix',
+          producer_amount: price,
         }
         if (userId) insertPayload.user_id = userId
         if (resolvedTypeName) insertPayload.ticket_type_name = resolvedTypeName
@@ -549,6 +550,7 @@ export async function POST(req: NextRequest) {
         qr_code: `card_${order.id}_${uniqueSuffix}`,
         status: ticketStatus,
         payment_method: 'credit_card',
+        producer_amount: price,
       }
       if (userId) insertPayload.user_id = userId
       if (resolvedTypeName) insertPayload.ticket_type_name = resolvedTypeName
