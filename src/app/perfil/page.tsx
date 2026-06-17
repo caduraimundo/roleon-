@@ -288,7 +288,7 @@ export default function PerfilPage() {
                   Acessar portal do produtor
                 </div>
                 <div style={{ fontSize: 13, color: '#4AA8A4', marginTop: 2, fontWeight: 500 }}>
-                  Painel de eventos e check-in
+                  Painel de eventos e portaria
                 </div>
               </div>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
