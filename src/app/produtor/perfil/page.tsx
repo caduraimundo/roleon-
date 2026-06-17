@@ -140,11 +140,12 @@ export default function PerfilProdutorPage() {
             {profile.avatar_initials || profile.name.slice(0,2).toUpperCase()}
           </div>
 
-          {/* Nome centralizado de verdade + badge flutuante que nao afeta a centralizacao */}
+          {/* Nome + badge de verificado centralizados juntos como bloco */}
           <div style={{
             marginTop: 12,
-            position: 'relative',
             display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
           }}>
             <span style={{
               fontSize: 20, fontWeight: 700,
@@ -152,9 +153,7 @@ export default function PerfilProdutorPage() {
             }}>{profile.name}</span>
             {profile.verified && (
               <span style={{
-                position: 'absolute', left: '100%', top: '50%',
-                transform: 'translateY(-50%)', marginLeft: 6,
-                display: 'flex', alignItems: 'center',
+                display: 'flex', alignItems: 'center', flexShrink: 0,
               }}>
                 <svg width="18" height="18" viewBox="0 0 14 14" fill="none">
                   <circle cx="7" cy="7" r="7" fill="#0EA5A0"/>
