@@ -71,7 +71,7 @@ export default function ConfiguracoesProdutorPage() {
           position: 'absolute', left: '50%', transform: 'translateX(-50%)',
           fontSize: 17, fontWeight: 700, color: '#1A1A1A',
         }}>
-          Configuracoes
+          Configurações
         </div>
       </div>
 
