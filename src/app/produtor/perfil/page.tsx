@@ -8,6 +8,14 @@ function formatMemberSince(dateStr: string): string {
   return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
 }
 
+function IconChevronRight() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: '#C8C8C8', flexShrink: 0 }}>
+      <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+
 export default function PerfilProdutorPage() {
   const [profile, setProfile] = useState<{
     name: string
@@ -16,7 +24,6 @@ export default function PerfilProdutorPage() {
     verified: boolean
     created_at: string
   } | null>(null)
-  const [email, setEmail] = useState('')
   const router = useRouter()
 
   useEffect(() => {
@@ -27,7 +34,6 @@ export default function PerfilProdutorPage() {
       )
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/produtor'); return }
-      setEmail(user.email ?? '')
       const { data } = await supabase
         .from('profiles')
         .select('name, avatar_initials, bank_account, verified, created_at')
@@ -53,6 +59,23 @@ export default function PerfilProdutorPage() {
         Carregando...
       </div>
     )
+  }
+
+  const cardStyle: React.CSSProperties = {
+    width: '100%', textAlign: 'left',
+    background: '#fff', border: '0.5px solid #E5E5EA',
+    borderRadius: 12, cursor: 'pointer',
+    padding: '13px 14px',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+    display: 'flex', alignItems: 'center', gap: 12,
+    fontFamily: "'Noto Sans', sans-serif",
+    textDecoration: 'none',
+  }
+
+  const iconBoxStyle: React.CSSProperties = {
+    width: 34, height: 34, borderRadius: 10,
+    background: '#E6F7F6', color: '#0EA5A0', flexShrink: 0,
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
   }
 
   const menuItems = [
@@ -93,18 +116,6 @@ export default function PerfilProdutorPage() {
         </svg>
       ),
     },
-    {
-      label: 'Configurações',
-      badge: null,
-      onClick: () => router.push('/produtor/perfil/configuracoes'),
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
-          <circle cx="11" cy="11" r="2.5" stroke="currentColor" strokeWidth="1.6"/>
-          <path d="M11 3.5v1.2M11 17.3v1.2M3.5 11h1.2M17.3 11h1.2M5.8 5.8l.85.85M15.35 15.35l.85.85M5.8 16.2l.85-.85M15.35 6.65l.85-.85"
-            stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-        </svg>
-      ),
-    },
   ]
 
   return (
@@ -114,7 +125,6 @@ export default function PerfilProdutorPage() {
       fontFamily: "'Noto Sans', sans-serif",
       paddingBottom: 80,
     }}>
-
       <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column' }}>
 
         {/* Hero */}
@@ -131,55 +141,43 @@ export default function PerfilProdutorPage() {
             {profile.avatar_initials || profile.name.slice(0,2).toUpperCase()}
           </div>
 
-          {/* Nome + ícone verificado inline */}
+          {/* Nome + badge verificado centralizado */}
           <div style={{
             marginTop: 14,
-            display: 'flex', alignItems: 'center', gap: 6,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
+            {/* Espacador invisível para manter nome centralizado */}
+            {profile.verified && <span style={{ width: 26, flexShrink: 0 }} />}
             <span style={{
               fontSize: 21, fontWeight: 700,
               color: '#1A1A1A', letterSpacing: -0.4,
             }}>{profile.name}</span>
             {profile.verified && (
-              <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
-                <path d="M11 2l2.2 1.9 2.8.2.2 2.8L18 9l-1.8 2.1-.2 2.8-2.8.2L11 16l-2.2-1.9-2.8-.2-.2-2.8L4 9l1.8-2.1.2-2.8 2.8-.2L11 2z"
-                  fill="#0EA5A0"/>
-                <path d="M7.5 10.5l2 2 5-5" stroke="#fff"
-                  strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <span style={{ marginLeft: 6, flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                <svg width="18" height="18" viewBox="0 0 14 14" fill="none">
+                  <circle cx="7" cy="7" r="7" fill="#0EA5A0"/>
+                  <path d="M4 7l2 2 4-4" stroke="#fff" strokeWidth="1.5"
+                    strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </span>
             )}
           </div>
 
           <div style={{
-            marginTop: 6, fontSize: 13,
-            color: '#6E6E73', fontWeight: 500,
-          }}>{email}</div>
-
-          <div style={{
-            marginTop: 3, fontSize: 12,
+            marginTop: 6, fontSize: 12,
             color: '#9A9A9A', fontWeight: 400,
           }}>
             Membro desde {formatMemberSince(profile.created_at)}
           </div>
         </div>
 
-        {/* Menu */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+        {/* Todos os cards — gap uniforme */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 32 }}>
+
+          {/* Menu principal */}
           {menuItems.map((item, i) => (
-            <button key={i} onClick={item.onClick} style={{
-              width: '100%', textAlign: 'left',
-              background: '#fff', border: '0.5px solid #E5E5EA',
-              borderRadius: 12, cursor: 'pointer',
-              padding: '13px 14px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-              display: 'flex', alignItems: 'center', gap: 12,
-              fontFamily: "'Noto Sans', sans-serif",
-            }}>
-              <span style={{
-                width: 34, height: 34, borderRadius: 10,
-                background: '#E6F7F6', color: '#0EA5A0', flexShrink: 0,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>{item.icon}</span>
+            <button key={i} onClick={item.onClick} style={cardStyle as React.CSSProperties}>
+              <span style={iconBoxStyle}>{item.icon}</span>
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{
                   fontSize: 14.5, fontWeight: 600,
@@ -194,54 +192,84 @@ export default function PerfilProdutorPage() {
                   }}>{item.badge}</span>
                 )}
               </div>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
-                style={{ color: '#C8C8C8', flexShrink: 0 }}>
-                <path d="M6 3.5L10.5 8L6 12.5" stroke="currentColor"
-                  strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
+              <IconChevronRight />
             </button>
           ))}
-        </div>
 
-        {/* Ir para o Roleon — card teal destacado */}
-        <div
-          onClick={() => router.push('/')}
-          style={{
-            background: '#E8F7F6',
-            border: '1px solid #C4EAE9',
-            borderRadius: 12,
-            padding: '13px 14px',
-            display: 'flex', alignItems: 'center', gap: 14,
-            cursor: 'pointer',
-            marginBottom: 32,
-          }}
-        >
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: '#0EA5A0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0, color: '#fff',
-          }}>
-            <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
-              <path d="M3.5 10.5L11 4l7.5 6.5" stroke="currentColor" strokeWidth="1.6"
-                strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M5.5 9v8.5a1 1 0 001 1h3.5v-4h2v4h3.5a1 1 0 001-1V9"
-                stroke="currentColor" strokeWidth="1.6"
+          {/* Política de privacidade */}
+          <a href="/privacidade" style={cardStyle as React.CSSProperties}>
+            <span style={iconBoxStyle}>
+              <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+                <path d="M6 3.5h6l4 4V18a1.5 1.5 0 01-1.5 1.5h-8A1.5 1.5 0 015 18V5A1.5 1.5 0 016 3.5z"
+                  stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+                <path d="M12 3.5v4h4M8 12h6M8 15h4"
+                  stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+            <span style={{
+              flex: 1, fontSize: 14.5, fontWeight: 600,
+              color: '#1A1A1A', letterSpacing: -0.2,
+            }}>Política de privacidade</span>
+            <IconChevronRight />
+          </a>
+
+          {/* Termos do produtor */}
+          <a href="/termos" style={cardStyle as React.CSSProperties}>
+            <span style={iconBoxStyle}>
+              <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+                <path d="M11 2.5L4 5.5v5c0 4.2 3 8.1 7 9 4-.9 7-4.8 7-9v-5L11 2.5z"
+                  stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/>
+                <path d="M8.5 11l1.8 1.8 3.2-3.8" stroke="currentColor"
+                  strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </span>
+            <span style={{
+              flex: 1, fontSize: 14.5, fontWeight: 600,
+              color: '#1A1A1A', letterSpacing: -0.2,
+            }}>Termos do produtor</span>
+            <IconChevronRight />
+          </a>
+
+          {/* Ir para o Roleon — card teal destacado, mesmo gap */}
+          <div
+            onClick={() => router.push('/')}
+            style={{
+              background: '#E8F7F6',
+              border: '1px solid #C4EAE9',
+              borderRadius: 12,
+              padding: '13px 14px',
+              display: 'flex', alignItems: 'center', gap: 14,
+              cursor: 'pointer',
+            }}
+          >
+            <div style={{
+              width: 34, height: 34, borderRadius: 10,
+              background: '#0EA5A0',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0, color: '#fff',
+            }}>
+              <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+                <path d="M3.5 10.5L11 4l7.5 6.5" stroke="currentColor" strokeWidth="1.6"
+                  strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M5.5 9v8.5a1 1 0 001 1h3.5v-4h2v4h3.5a1 1 0 001-1V9"
+                  stroke="currentColor" strokeWidth="1.6"
+                  strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#0A7A76', letterSpacing: -0.2 }}>
+                Ir para o Roleon
+              </div>
+              <div style={{ fontSize: 13, color: '#4AA8A4', marginTop: 2, fontWeight: 500 }}>
+                Explorar eventos e comprar ingressos
+              </div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6"
                 strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#0A7A76', letterSpacing: -0.2 }}>
-              Ir para o Roleon
-            </div>
-            <div style={{ fontSize: 13, color: '#4AA8A4', marginTop: 2, fontWeight: 500 }}>
-              Explorar eventos e comprar ingressos
-            </div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.6"
-              strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+
         </div>
 
         {/* Sair */}
