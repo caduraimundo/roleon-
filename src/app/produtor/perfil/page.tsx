@@ -135,20 +135,20 @@ export default function PerfilProdutorPage() {
             width: 72, height: 72, borderRadius: 20,
             background: '#0EA5A0', color: '#fff',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 28, fontWeight: 800, letterSpacing: -0.5,
+            fontSize: 26, fontWeight: 800, letterSpacing: -0.5,
           }}>
             {profile.avatar_initials || profile.name.slice(0,2).toUpperCase()}
           </div>
 
           {/* Nome centralizado de verdade + badge flutuante que nao afeta a centralizacao */}
           <div style={{
-            marginTop: 14,
+            marginTop: 12,
             position: 'relative',
             display: 'inline-flex',
           }}>
             <span style={{
-              fontSize: 21, fontWeight: 700,
-              color: '#1A1A1A', letterSpacing: -0.4,
+              fontSize: 20, fontWeight: 700,
+              color: '#1A1A1A', letterSpacing: -0.3,
             }}>{profile.name}</span>
             {profile.verified && (
               <span style={{
@@ -166,7 +166,7 @@ export default function PerfilProdutorPage() {
           </div>
 
           <div style={{
-            marginTop: 6, fontSize: 12,
+            marginTop: 8, fontSize: 12,
             color: '#9A9A9A', fontWeight: 400,
           }}>
             Membro desde {formatMemberSince(profile.created_at)}
