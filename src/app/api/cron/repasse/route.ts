@@ -64,12 +64,42 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: true, processed: 0, message: 'Sem recipients configurados' })
   }
 
+  // Soma o valor exato a repassar por evento, direto da nossa tabela de
+  // tickets (producer_amount). Corrige o F8: antes a transferência usava o
+  // saldo agregado (available_amount) do recipient, que mistura dinheiro de
+  // eventos diferentes do mesmo produtor quando há mais de um pendente.
+  const allEventIds = events.map((e) => e.id)
+  const { data: ticketSums, error: ticketsError } = await supabaseAdmin
+    .from('tickets')
+    .select('event_id, producer_amount')
+    .in('event_id', allEventIds)
+    .in('status', ['paid', 'used'])
+
+  if (ticketsError) {
+    console.error('[cron/repasse] erro ao buscar tickets:', ticketsError)
+    return NextResponse.json({ error: 'Erro ao buscar tickets' }, { status: 500 })
+  }
+
+  const amountByEvent = new Map<string, number>()
+  for (const t of ticketSums ?? []) {
+    const cents = Math.round(Number(t.producer_amount) * 100)
+    amountByEvent.set(t.event_id, (amountByEvent.get(t.event_id) ?? 0) + cents)
+  }
+
   let processed = 0
 
   for (const profile of profiles) {
     const recipientId = profile.pagar_me_recipient_id!
     const producerData = producerMap.get(profile.id)
     if (!producerData) continue
+
+    // Valor esperado = soma do producer_amount dos eventos elegíveis desse
+    // produtor. Nunca o saldo total do recipient, que pode incluir dinheiro
+    // de outro evento ainda dentro do prazo de D+3.
+    const expectedCents = producerData.eventIds.reduce(
+      (sum, eventId) => sum + (amountByEvent.get(eventId) ?? 0),
+      0
+    )
 
     try {
       const balanceRes = await fetch(
@@ -85,7 +115,7 @@ export async function GET(req: NextRequest) {
       const balanceData = await balanceRes.json()
       const available = balanceData.available_amount ?? balanceData.available?.amount ?? 0
 
-      console.log(`[cron/repasse] recipient ${recipientId} | saldo: R$${(available / 100).toFixed(2)}`)
+      console.log(`[cron/repasse] recipient ${recipientId} | esperado: R$${(expectedCents / 100).toFixed(2)} | saldo disponível: R$${(available / 100).toFixed(2)}`)
 
       // Claim-before-transfer: marca primeiro com condição atômica para evitar
       // repasse duplicado em execuções concorrentes ou retries do cron.
@@ -102,34 +132,56 @@ export async function GET(req: NextRequest) {
         continue
       }
 
-      if (available > 0) {
-        const transferRes = await fetch(
-          `https://api.pagar.me/core/v5/recipients/${recipientId}/transfers`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: pagarmeAuth() },
-            body: JSON.stringify({ amount: available }),
-          }
-        )
-
-        if (!transferRes.ok) {
-          const err = await transferRes.json().catch(() => ({}))
-          console.error(`[cron/repasse] erro na transferência ${recipientId}:`, JSON.stringify(err))
-          // Reverte o claim para o próximo ciclo tentar novamente.
-          await supabaseAdmin
-            .from('events')
-            .update({ repasse_liberado_at: null })
-            .in('id', producerData.eventIds)
-          continue
-        }
-
-        const transferData = await transferRes.json()
-        console.log(`[cron/repasse] transferência criada: ${transferData.id} | R$${(available / 100).toFixed(2)}`)
+      if (expectedCents === 0) {
+        console.log(`[cron/repasse] recipient ${recipientId} | nenhum ticket pago encontrado, nada a repassar`)
+        processed++
+        continue
       }
+
+      if (available < expectedCents) {
+        // available_amount é só o teto de segurança: se o saldo real no
+        // Pagar.me não cobre o valor esperado pelos nossos registros, o
+        // split provavelmente não creditou (bug conhecido no ambiente de
+        // teste). Não falha silenciosamente nem transfere o saldo errado —
+        // reverte o claim pro próximo ciclo tentar de novo.
+        console.error(`[cron/repasse] recipient ${recipientId} | saldo insuficiente: esperado R$${(expectedCents / 100).toFixed(2)}, disponível R$${(available / 100).toFixed(2)} - split pode não ter sido aplicado`)
+        await supabaseAdmin
+          .from('events')
+          .update({ repasse_liberado_at: null })
+          .in('id', producerData.eventIds)
+        continue
+      }
+
+      const transferRes = await fetch(
+        `https://api.pagar.me/core/v5/recipients/${recipientId}/transfers`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: pagarmeAuth() },
+          body: JSON.stringify({ amount: expectedCents }),
+        }
+      )
+
+      if (!transferRes.ok) {
+        const err = await transferRes.json().catch(() => ({}))
+        console.error(`[cron/repasse] erro na transferência ${recipientId}:`, JSON.stringify(err))
+        // Reverte o claim para o próximo ciclo tentar novamente.
+        await supabaseAdmin
+          .from('events')
+          .update({ repasse_liberado_at: null })
+          .in('id', producerData.eventIds)
+        continue
+      }
+
+      const transferData = await transferRes.json()
+      console.log(`[cron/repasse] transferência criada: ${transferData.id} | R$${(expectedCents / 100).toFixed(2)}`)
 
       processed++
     } catch (e) {
       console.error(`[cron/repasse] exception ${recipientId}:`, e)
+      await supabaseAdmin
+        .from('events')
+        .update({ repasse_liberado_at: null })
+        .in('id', producerData.eventIds)
     }
   }
 
