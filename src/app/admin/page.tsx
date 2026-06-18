@@ -246,12 +246,26 @@ function VendasSection({
     const d = new Date(iso.replace(' ', 'T'))
     return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
   }
+  const formatDateTime = (iso: string) => {
+    const d = new Date(iso.includes('T') ? iso : iso.replace(' ', 'T'))
+    return `${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+  }
 
   const cards = resumo ? [
-    { label: 'Total arrecadado', value: formatBRL(resumo.total_arrecadado_brl ?? 0), sub: null },
-    { label: 'Ingressos vendidos', value: resumo.total_ingressos ?? 0, sub: null },
-    { label: 'Repasse pendente', value: formatBRL(resumo.repasse_pendente_brl ?? 0), sub: `${resumo.repasse_pendente_eventos ?? 0} evento(s)` },
-    { label: 'Cron D+3', value: resumo.cron ? (resumo.cron.status === 'ok' ? 'OK' : 'Erro') : 'Nunca rodou', sub: resumo.cron ? `Ultimo: ${formatDate(resumo.cron.ultimo_run)}` : null },
+    { label: 'Total arrecadado', value: formatBRL(resumo.total_arrecadado_brl ?? 0), sub: null as React.ReactNode },
+    { label: 'Ingressos vendidos', value: resumo.total_ingressos ?? 0, sub: null as React.ReactNode },
+    { label: 'Repasse pendente', value: formatBRL(resumo.repasse_pendente_brl ?? 0), sub: `${resumo.repasse_pendente_eventos ?? 0} evento(s)` as React.ReactNode },
+    {
+      label: 'Cron D+3',
+      value: resumo.cron ? (resumo.cron.status === 'ok' ? 'OK' : 'Erro') : 'Nunca rodou',
+      sub: resumo.cron ? (
+        <>
+          Ultimo: {formatDateTime(resumo.cron.ultimo_run)}<br/>
+          Proximo: {formatDateTime(resumo.cron.proximo_run)}<br/>
+          {resumo.cron.events_processed} processado(s)
+        </>
+      ) : null as React.ReactNode,
+    },
   ] : []
 
   return (
