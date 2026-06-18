@@ -224,7 +224,7 @@ function PlaceholderSection({ title, icon, desc }: { title: string; icon: React.
 // ── SECAO "VENDAS E REPASSES" ─────────────────────────────────────────────────
 function VendasSection({
   resumo, eventos, loading, filtro, onFiltroChange,
-  onRefresh, forceRepasseId, onForceRepasseSelect, onForceRepasseConfirm,
+  onRefresh, search, onSearchChange, forceRepasseId, onForceRepasseSelect, onForceRepasseConfirm,
   forceLoading, feedback,
 }: {
   resumo: any | null
@@ -233,6 +233,8 @@ function VendasSection({
   filtro: 'todos' | 'pendentes' | 'repassados'
   onFiltroChange: (f: 'todos' | 'pendentes' | 'repassados') => void
   onRefresh: () => void
+  search: string
+  onSearchChange: (v: string) => void
   forceRepasseId: string | null
   onForceRepasseSelect: (id: string | null) => void
   onForceRepasseConfirm: (id: string) => void
@@ -314,16 +316,38 @@ function VendasSection({
         ))}
       </div>
 
+      {/* Busca */}
+      <div style={{ position: 'relative', marginBottom: 14 }}>
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: '#6E6E73', pointerEvents: 'none' }}>
+          <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
+          <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+        <input
+          value={search}
+          onChange={e => onSearchChange(e.target.value)}
+          placeholder="Buscar por nome do evento ou produtor"
+          style={{ width: '100%', border: '1px solid #E5E5EA', borderRadius: 10, padding: '10px 12px 10px 34px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: '#1A1A1A', background: '#FFFFFF', boxSizing: 'border-box' as const }}
+        />
+      </div>
+
       {/* Lista de eventos */}
       {loading ? (
         <div style={{ textAlign: 'center', padding: '24px 0', color: '#6E6E73', fontSize: 13 }}>Atualizando...</div>
-      ) : eventos.length === 0 ? (
+      ) : eventos.filter(ev =>
+          !search.trim() ||
+          ev.title?.toLowerCase().includes(search.toLowerCase()) ||
+          ev.producer_name?.toLowerCase().includes(search.toLowerCase())
+        ).length === 0 ? (
         <div style={{ textAlign: 'center', padding: '32px 0', color: '#6E6E73', fontSize: 14 }}>
-          {filtro === 'pendentes' ? 'Nenhum repasse pendente' : 'Nenhum evento encontrado'}
+          {search.trim() ? 'Nenhum evento encontrado para essa busca' : filtro === 'pendentes' ? 'Nenhum repasse pendente' : 'Nenhum evento encontrado'}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {eventos.map((ev) => {
+          {eventos.filter(ev =>
+            !search.trim() ||
+            ev.title?.toLowerCase().includes(search.toLowerCase()) ||
+            ev.producer_name?.toLowerCase().includes(search.toLowerCase())
+          ).map((ev) => {
             const isOpen = forceRepasseId === ev.id
             const isPendente = !ev.repasse_liberado_at
             const cutoff = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
@@ -521,6 +545,7 @@ export default function AdminPage() {
   const [vendasEventos, setVendasEventos] = useState<any[]>([])
   const [vendasLoading, setVendasLoading] = useState(false)
   const [vendasFiltro, setVendasFiltro] = useState<'todos' | 'pendentes' | 'repassados'>('pendentes')
+  const [vendasSearch, setVendasSearch] = useState('')
   const [forceRepasseId, setForceRepasseId] = useState<string | null>(null)
   const [forceLoading, setForceLoading] = useState(false)
   const [vendasFeedback, setVendasFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
@@ -1266,8 +1291,10 @@ export default function AdminPage() {
           eventos={vendasEventos}
           loading={vendasLoading}
           filtro={vendasFiltro}
-          onFiltroChange={(f) => { setVendasFiltro(f); loadVendas(f) }}
-          onRefresh={() => loadVendas(vendasFiltro)}
+          onFiltroChange={(f) => { setVendasFiltro(f); setVendasSearch(''); loadVendas(f) }}
+          onRefresh={() => { setVendasSearch(''); loadVendas(vendasFiltro) }}
+          search={vendasSearch}
+          onSearchChange={setVendasSearch}
           forceRepasseId={forceRepasseId}
           onForceRepasseSelect={setForceRepasseId}
           onForceRepasseConfirm={handleForceRepasse}
