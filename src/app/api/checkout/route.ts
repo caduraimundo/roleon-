@@ -337,6 +337,7 @@ export async function POST(req: NextRequest) {
       }
 
       const order = await pagarmeRes.json()
+      await supabaseAdmin.from('debug_split_log').insert({ payload: { tipo: 'response_criacao_order', status: pagarmeRes.status, body: order } })
       const isRealOrderId = order.id?.startsWith('or_')
       console.log('[checkout pix] order recebido:', JSON.stringify({ id: order.id, status: order.status, isRealOrderId }))
 
@@ -506,6 +507,7 @@ export async function POST(req: NextRequest) {
     }
 
     const order = await pagarmeRes.json()
+    await supabaseAdmin.from('debug_split_log').insert({ payload: { tipo: 'response_criacao_order', status: pagarmeRes.status, body: order } })
 
     if (order.status === 'failed') {
       console.log('[checkout cartão] pedido recusado:', JSON.stringify(order, null, 2))
