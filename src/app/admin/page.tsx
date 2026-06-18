@@ -337,9 +337,12 @@ function VendasSection({
           <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
         <input
+          id="vendas-search"
+          name="vendas-search"
           value={search}
           onChange={e => onSearchChange(e.target.value)}
           placeholder="Buscar por nome do evento ou produtor"
+          autoComplete="off"
           style={{ width: '100%', border: '1px solid #E5E5EA', borderRadius: 10, padding: '10px 12px 10px 34px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: '#1A1A1A', background: '#FFFFFF', boxSizing: 'border-box' as const }}
         />
       </div>
@@ -366,7 +369,8 @@ function VendasSection({
             const isPendente = !ev.repasse_liberado_at
             const cutoff = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
             const eventoDate = new Date(ev.event_date.replace(' ', 'T'))
-            const elegivel = isPendente && eventoDate <= cutoff
+            const temValorARepassar = Number(ev.repasse_produtor_brl) > 0
+            const elegivel = isPendente && eventoDate <= cutoff && temValorARepassar
             return (
               <div key={ev.id} style={{
                 background: '#FFFFFF', borderRadius: 12,
