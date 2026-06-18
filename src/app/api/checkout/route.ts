@@ -284,6 +284,7 @@ export async function POST(req: NextRequest) {
         } : {}),
       }
       console.log('[checkout pix] enviando pedido para Pagar.me | producerRecipientId:', producerRecipientId, '| payAmountCents:', payAmountCents)
+      console.log('[DEBUG SPLIT]', JSON.stringify({ producerRecipientId, split: (pixPayload as any).split }))
 
       let pagarmeRes: Response
       try {
@@ -448,6 +449,7 @@ export async function POST(req: NextRequest) {
     }
     const payAmountCents = Math.round(calcFees(price, quantity, 'card', installments).total * 100)
 
+    console.log('[DEBUG SPLIT]', JSON.stringify({ producerRecipientId, split: producerRecipientId && price > 0 ? [{ amount: Math.round(price * quantity * 100), recipient_id: producerRecipientId, type: 'flat', options: { charge_processing_fee: false, charge_remainder_fee: false, liable: false } }] : undefined }))
     const pagarmeRes = await fetch('https://api.pagar.me/core/v5/orders', {
       method: 'POST',
       headers: {
