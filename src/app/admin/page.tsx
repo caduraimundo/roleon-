@@ -256,12 +256,18 @@ function VendasSection({
     <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>Vendas e Repasses</div>
-        <button onClick={onRefresh} disabled={loading} style={{
-          background: 'none', border: 'none', cursor: loading ? 'default' : 'pointer',
-          color: '#0EA5A0', opacity: loading ? 0.5 : 1, padding: 4,
-        }}><IconRefresh /></button>
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.4 }}>Vendas e Repasses</div>
+          <button onClick={onRefresh} disabled={loading} style={{
+            background: 'none', border: 'none', cursor: loading ? 'default' : 'pointer',
+            color: '#0EA5A0', fontSize: 13, fontWeight: 600,
+            fontFamily: "'Noto Sans', sans-serif", paddingBottom: 2, opacity: loading ? 0.5 : 1,
+          }}>Atualizar</button>
+        </div>
+        <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 4 }}>
+          {resumo ? `${resumo.repasse_pendente_eventos ?? 0} evento(s) pendente(s)` : ''}
+        </div>
       </div>
 
       {/* Feedback */}
@@ -369,7 +375,11 @@ function VendasSection({
                       fontSize: 13, fontWeight: 600, color: '#1A1A1A',
                       cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                     }}>
-                      Forcar repasse <IconChevronDown />
+                      Forçar repasse{' '}
+                      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"
+                        style={{ transition: 'transform 0.2s', transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>
+                        <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                     </button>
                   )}
                 </div>
@@ -378,7 +388,7 @@ function VendasSection({
                 {isOpen && (
                   <div style={{ background: '#FFF8E1', padding: '12px 14px', borderTop: '1px solid #FFE082' }}>
                     <div style={{ fontSize: 13, color: '#5D4037', fontWeight: 500, marginBottom: 10, lineHeight: 1.4 }}>
-                      Confirmar repasse de {formatBRL(ev.repasse_produtor_brl)} para {ev.producer_name ?? 'produtor'}? Essa acao e irreversivel.
+                      Confirmar repasse de {formatBRL(ev.repasse_produtor_brl)} para {ev.producer_name ?? 'produtor'}? Essa ação é irreversível.
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button onClick={() => onForceRepasseSelect(null)} style={{
