@@ -68,18 +68,32 @@ export async function GET(req: NextRequest) {
       statsByEvent.set(t.event_id, cur)
     }
 
-    const resultado = (events ?? []).map((e: any) => ({
-      id: e.id,
-      title: e.title,
-      event_date: e.event_date,
-      status: e.status,
-      repasse_liberado_at: e.repasse_liberado_at,
-      producer_name: e.profiles?.name ?? null,
-      producer_id: e.producer_id,
-      tickets_vendidos: statsByEvent.get(e.id)?.tickets ?? 0,
-      arrecadado_brl: (statsByEvent.get(e.id)?.arrecadado ?? 0).toFixed(2),
-      repasse_produtor_brl: (statsByEvent.get(e.id)?.produtor ?? 0).toFixed(2),
-    }))
+    const resultado = (events ?? []).map((e: any) => {
+      const stats = statsByEvent.get(e.id) ?? { tickets: 0, arrecadado: 0, produtor: 0 }
+      // Split Roleon e fee Pagar.me derivados dos valores reais gravados em
+      // cada ticket (price_paid e producer_amount), nao reimplementando a
+      // tabela de taxas (calcFees) - evita o tipo de divergencia que ja
+      // causou bug antes na tela de parcelamento. roleonFee = 4% sobre o
+      // valor que o produtor recebe (mesma base usada no checkout); o
+      // restante da diferenca e taxa do Pagar.me (processamento + antifraude
+      // + percentual, que varia por metodo/parcelas).
+      const splitRoleon = stats.produtor * 0.04
+      const feePagarme = stats.arrecadado - stats.produtor - splitRoleon
+      return {
+        id: e.id,
+        title: e.title,
+        event_date: e.event_date,
+        status: e.status,
+        repasse_liberado_at: e.repasse_liberado_at,
+        producer_name: e.profiles?.name ?? null,
+        producer_id: e.producer_id,
+        tickets_vendidos: stats.tickets,
+        arrecadado_brl: stats.arrecadado.toFixed(2),
+        repasse_produtor_brl: stats.produtor.toFixed(2),
+        split_roleon_brl: splitRoleon.toFixed(2),
+        fee_pagarme_brl: feePagarme.toFixed(2),
+      }
+    })
 
     return NextResponse.json({ events: resultado })
   } catch (e) {

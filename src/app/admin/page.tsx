@@ -410,6 +410,17 @@ function VendasSection({
                     </div>
                   </div>
 
+                  <div style={{ display: 'flex', gap: 16, marginTop: 8, paddingTop: 8, borderTop: '1px solid #F7F7F7' }}>
+                    <div>
+                      <div style={{ fontSize: 10, color: '#6E6E73', fontWeight: 500 }}>SPLIT ROLEON (4%)</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#0EA5A0' }}>{formatBRL(ev.split_roleon_brl)}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, color: '#6E6E73', fontWeight: 500 }}>FEE PAGAR.ME (est.)</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#6E6E73' }}>{formatBRL(ev.fee_pagarme_brl)}</div>
+                    </div>
+                  </div>
+
                   {elegivel && (
                     <button onClick={() => onForceRepasseSelect(isOpen ? null : ev.id)} style={{
                       marginTop: 10, width: '100%', padding: '8px 0',
