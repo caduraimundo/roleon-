@@ -87,6 +87,29 @@ function IconChevronRight() {
     </svg>
   )
 }
+function IconRefresh() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+      <path d="M4.5 11A6.5 6.5 0 1111 4.5a6.5 6.5 0 014.6 1.9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+      <path d="M15 3v4h-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+function IconChevronDown() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+      <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+}
+function IconClock() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="11" r="8.5" stroke="currentColor" strokeWidth="1.6"/>
+      <path d="M11 7v4.5l3 2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+    </svg>
+  )
+}
 
 // ── HEADER ───────────────────────────────────────────────────────────────────
 function AdminHeader({ onSignOut }: { onSignOut: () => void }) {
@@ -198,6 +221,187 @@ function PlaceholderSection({ title, icon, desc }: { title: string; icon: React.
   )
 }
 
+// ── SECAO "VENDAS E REPASSES" ─────────────────────────────────────────────────
+function VendasSection({
+  resumo, eventos, loading, filtro, onFiltroChange,
+  onRefresh, forceRepasseId, onForceRepasseSelect, onForceRepasseConfirm,
+  forceLoading, feedback,
+}: {
+  resumo: any | null
+  eventos: any[]
+  loading: boolean
+  filtro: 'todos' | 'pendentes' | 'repassados'
+  onFiltroChange: (f: 'todos' | 'pendentes' | 'repassados') => void
+  onRefresh: () => void
+  forceRepasseId: string | null
+  onForceRepasseSelect: (id: string | null) => void
+  onForceRepasseConfirm: (id: string) => void
+  forceLoading: boolean
+  feedback: { tipo: 'ok' | 'erro'; msg: string } | null
+}) {
+  const formatBRL = (v: string | number) => `R$ ${Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+  const formatDate = (iso: string) => {
+    const d = new Date(iso.replace(' ', 'T'))
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })
+  }
+
+  const cards = resumo ? [
+    { label: 'Total arrecadado', value: formatBRL(resumo.total_arrecadado_brl ?? 0), sub: null },
+    { label: 'Ingressos vendidos', value: resumo.total_ingressos ?? 0, sub: null },
+    { label: 'Repasse pendente', value: formatBRL(resumo.repasse_pendente_brl ?? 0), sub: `${resumo.repasse_pendente_eventos ?? 0} evento(s)` },
+    { label: 'Cron D+3', value: resumo.cron ? (resumo.cron.status === 'ok' ? 'OK' : 'Erro') : 'Nunca rodou', sub: resumo.cron ? `Ultimo: ${formatDate(resumo.cron.ultimo_run)}` : null },
+  ] : []
+
+  return (
+    <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <div style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>Vendas e Repasses</div>
+        <button onClick={onRefresh} disabled={loading} style={{
+          background: 'none', border: 'none', cursor: loading ? 'default' : 'pointer',
+          color: '#0EA5A0', opacity: loading ? 0.5 : 1, padding: 4,
+        }}><IconRefresh /></button>
+      </div>
+
+      {/* Feedback */}
+      {feedback && (
+        <div style={{
+          background: feedback.tipo === 'ok' ? '#E6F7F6' : '#FFF0F0',
+          color: feedback.tipo === 'ok' ? '#0EA5A0' : '#FF3B30',
+          borderRadius: 10, padding: '10px 14px', fontSize: 13, fontWeight: 500,
+          marginBottom: 14,
+        }}>{feedback.msg}</div>
+      )}
+
+      {/* Cards 2x2 */}
+      {loading && !resumo ? (
+        <div style={{ textAlign: 'center', padding: '40px 0', color: '#6E6E73', fontSize: 14 }}>Carregando...</div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+          {cards.map((c, i) => (
+            <div key={i} style={{
+              background: '#FFFFFF', borderRadius: 12,
+              padding: '14px 12px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+            }}>
+              <div style={{ fontSize: 11, color: '#6E6E73', fontWeight: 500, marginBottom: 4, lineHeight: 1.3 }}>{c.label}</div>
+              <div style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A', lineHeight: 1.2 }}>{c.value}</div>
+              {c.sub && <div style={{ fontSize: 11, color: '#6E6E73', marginTop: 2 }}>{c.sub}</div>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Filtros */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        {(['pendentes', 'repassados', 'todos'] as const).map((f) => (
+          <button key={f} onClick={() => onFiltroChange(f)} style={{
+            flex: 1, padding: '7px 4px', borderRadius: 8, border: 'none', cursor: 'pointer',
+            fontSize: 12, fontWeight: 600,
+            background: filtro === f ? '#0EA5A0' : '#FFFFFF',
+            color: filtro === f ? '#FFFFFF' : '#6E6E73',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+          }}>
+            {f === 'pendentes' ? 'Pendentes' : f === 'repassados' ? 'Repassados' : 'Todos'}
+          </button>
+        ))}
+      </div>
+
+      {/* Lista de eventos */}
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: '24px 0', color: '#6E6E73', fontSize: 13 }}>Atualizando...</div>
+      ) : eventos.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '32px 0', color: '#6E6E73', fontSize: 14 }}>
+          {filtro === 'pendentes' ? 'Nenhum repasse pendente' : 'Nenhum evento encontrado'}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {eventos.map((ev) => {
+            const isOpen = forceRepasseId === ev.id
+            const isPendente = !ev.repasse_liberado_at
+            const cutoff = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+            const eventoDate = new Date(ev.event_date.replace(' ', 'T'))
+            const elegivel = isPendente && eventoDate <= cutoff
+            return (
+              <div key={ev.id} style={{
+                background: '#FFFFFF', borderRadius: 12,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                overflow: 'hidden',
+              }}>
+                <div style={{ padding: '14px 14px 12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ev.title}</div>
+                      <div style={{ fontSize: 12, color: '#6E6E73', display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <IconClock />{formatDate(ev.event_date)} - {ev.producer_name ?? 'Produtor'}
+                      </div>
+                    </div>
+                    <div style={{
+                      flexShrink: 0, fontSize: 11, fontWeight: 600, padding: '3px 8px',
+                      borderRadius: 999,
+                      background: ev.repasse_liberado_at ? '#E6F7F6' : elegivel ? '#FFF3E0' : '#F5F5F5',
+                      color: ev.repasse_liberado_at ? '#0EA5A0' : elegivel ? '#E65100' : '#6E6E73',
+                    }}>
+                      {ev.repasse_liberado_at ? 'Repassado' : elegivel ? 'Pendente' : 'Aguardando D+3'}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 16, marginTop: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 10, color: '#6E6E73', fontWeight: 500 }}>ARRECADADO</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A' }}>{formatBRL(ev.arrecadado_brl)}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, color: '#6E6E73', fontWeight: 500 }}>REPASSE PRODUTOR</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A' }}>{formatBRL(ev.repasse_produtor_brl)}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 10, color: '#6E6E73', fontWeight: 500 }}>INGRESSOS</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1A1A' }}>{ev.tickets_vendidos}</div>
+                    </div>
+                  </div>
+
+                  {elegivel && (
+                    <button onClick={() => onForceRepasseSelect(isOpen ? null : ev.id)} style={{
+                      marginTop: 10, width: '100%', padding: '8px 0',
+                      background: '#F7F7F7', border: 'none', borderRadius: 8,
+                      fontSize: 13, fontWeight: 600, color: '#1A1A1A',
+                      cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                    }}>
+                      Forcar repasse <IconChevronDown />
+                    </button>
+                  )}
+                </div>
+
+                {/* Painel de confirmacao do repasse forcado */}
+                {isOpen && (
+                  <div style={{ background: '#FFF8E1', padding: '12px 14px', borderTop: '1px solid #FFE082' }}>
+                    <div style={{ fontSize: 13, color: '#5D4037', fontWeight: 500, marginBottom: 10, lineHeight: 1.4 }}>
+                      Confirmar repasse de {formatBRL(ev.repasse_produtor_brl)} para {ev.producer_name ?? 'produtor'}? Essa acao e irreversivel.
+                    </div>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => onForceRepasseSelect(null)} style={{
+                        flex: 1, padding: '8px 0', background: '#FFFFFF', border: '1px solid #E0E0E0',
+                        borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#6E6E73', cursor: 'pointer',
+                      }}>Cancelar</button>
+                      <button onClick={() => onForceRepasseConfirm(ev.id)} disabled={forceLoading} style={{
+                        flex: 1, padding: '8px 0', background: '#0EA5A0', border: 'none',
+                        borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#FFFFFF',
+                        cursor: forceLoading ? 'default' : 'pointer', opacity: forceLoading ? 0.7 : 1,
+                      }}>{forceLoading ? 'Processando...' : 'Confirmar'}</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── SECAO "MAIS" ─────────────────────────────────────────────────────────────
 function MaisSection({ onNavigate, onSignOut }: { onNavigate: (s: MaisSection) => void; onSignOut: () => void }) {
   const router = useRouter()
@@ -301,6 +505,15 @@ export default function AdminPage() {
   const [prodDetailLoading, setProdDetailLoading] = useState(false)
   const [prodActionLoading, setProdActionLoading] = useState(false)
   const [prodFeedback, setProdFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
+
+  // Vendas
+  const [vendasResumo, setVendasResumo] = useState<any | null>(null)
+  const [vendasEventos, setVendasEventos] = useState<any[]>([])
+  const [vendasLoading, setVendasLoading] = useState(false)
+  const [vendasFiltro, setVendasFiltro] = useState<'todos' | 'pendentes' | 'repassados'>('pendentes')
+  const [forceRepasseId, setForceRepasseId] = useState<string | null>(null)
+  const [forceLoading, setForceLoading] = useState(false)
+  const [vendasFeedback, setVendasFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
 
   useEffect(() => {
     const check = async () => {
@@ -447,12 +660,62 @@ export default function AdminPage() {
     router.replace('/')
   }
 
+  const loadVendas = async (filtro: 'todos' | 'pendentes' | 'repassados' = 'pendentes') => {
+    setVendasLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const token = session.access_token
+      const [resumoRes, eventosRes] = await Promise.all([
+        fetch('/api/admin/vendas-resumo', { headers: { Authorization: `Bearer ${token}` } }),
+        fetch(`/api/admin/vendas-eventos?filtro=${filtro}`, { headers: { Authorization: `Bearer ${token}` } }),
+      ])
+      const resumo = await resumoRes.json()
+      const eventos = await eventosRes.json()
+      setVendasResumo(resumo)
+      setVendasEventos(eventos.events ?? [])
+    } catch {
+      setVendasFeedback({ tipo: 'erro', msg: 'Erro ao carregar dados de vendas' })
+    } finally {
+      setVendasLoading(false)
+    }
+  }
+
+  const handleForceRepasse = async (eventId: string) => {
+    setForceLoading(true)
+    setVendasFeedback(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const res = await fetch('/api/admin/force-repasse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ event_id: eventId }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setVendasFeedback({ tipo: 'erro', msg: data.error ?? 'Erro ao forcar repasse' })
+      } else {
+        setVendasFeedback({ tipo: 'ok', msg: `Repasse de R$${data.expected_brl} iniciado` })
+        setForceRepasseId(null)
+        await loadVendas(vendasFiltro)
+      }
+    } catch {
+      setVendasFeedback({ tipo: 'erro', msg: 'Erro de conexao' })
+    } finally {
+      setForceLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (tab === 'moderacao' && !modLoading && pendingEvents.length === 0 && activeEvents.length === 0) {
       loadModeracao()
     }
     if (tab === 'produtores' && !prodLoading && producers.length === 0) {
       loadProdutores()
+    }
+    if (tab === 'vendas' && !vendasLoading && !vendasResumo) {
+      loadVendas('pendentes')
     }
   }, [tab])
 
@@ -987,7 +1250,21 @@ export default function AdminPage() {
       )
     }
     if (tab === 'vendas') {
-      return <PlaceholderSection title="Vendas e Repasses" icon={<IconBarChart />} desc="Dashboard de vendas, repasses pendentes, status do cron D+3 e forcar repasse manual." />
+      return (
+        <VendasSection
+          resumo={vendasResumo}
+          eventos={vendasEventos}
+          loading={vendasLoading}
+          filtro={vendasFiltro}
+          onFiltroChange={(f) => { setVendasFiltro(f); loadVendas(f) }}
+          onRefresh={() => loadVendas(vendasFiltro)}
+          forceRepasseId={forceRepasseId}
+          onForceRepasseSelect={setForceRepasseId}
+          onForceRepasseConfirm={handleForceRepasse}
+          forceLoading={forceLoading}
+          feedback={vendasFeedback}
+        />
+      )
     }
     // tab === 'mais' sem subsecao
     return <MaisSection onNavigate={(s) => { setMaisSection(s); router.replace(s ? `/admin?tab=mais&section=${s}` : '/admin?tab=mais', { scroll: false }) }} onSignOut={handleSignOut} />
