@@ -79,7 +79,22 @@
       "PowerShell($secret = [System.Convert]::ToBase64String\\(\\(1..32 | ForEach-Object { [byte]\\(Get-Random -Max 256\\) }\\)\\); Write-Output $secret; cd \"C:\\\\Users\\\\Carlo\\\\roleon-\"; npx vercel env add CRON_SECRET production --value $secret --yes)",
       "Bash(curl -X GET https://www.roleon.com.br/api/cron/repasse -H \"Authorization: Bearer YiVqQhKwWoVnJpTrQtKqDcRjXzYsKnQwZaRoCeXx\")",
       "Bash(curl -s -X POST https://www.roleon.com.br/api/checkout -H \"Content-Type: application/json\" -d '{\"event_id\":\"COLOQUE_UM_EVENT_ID_REAL\",\"quantity\":1,\"payment_method\":\"pix\",\"ticket_type_price\":0.01,\"user_email\":\"teste@teste.com\",\"user_name\":\"Teste\",\"user_phone\":\"31999999999\"}')",
-      "Bash(curl -s -X POST https://www.roleon.com.br/api/checkout -H \"Content-Type: application/json\" -d '{\"event_id\":\"a500d251-7d01-4666-ae0f-f3a25dab2a15\",\"quantity\":1,\"payment_method\":\"pix\",\"ticket_type_price\":0.01,\"user_email\":\"teste@roleon.com\",\"user_name\":\"Teste Seguranca\",\"user_phone\":\"31999999999\"}')"
+      "Bash(curl -s -X POST https://www.roleon.com.br/api/checkout -H \"Content-Type: application/json\" -d '{\"event_id\":\"a500d251-7d01-4666-ae0f-f3a25dab2a15\",\"quantity\":1,\"payment_method\":\"pix\",\"ticket_type_price\":0.01,\"user_email\":\"teste@roleon.com\",\"user_name\":\"Teste Seguranca\",\"user_phone\":\"31999999999\"}')",
+      "Bash(npx tsx *)",
+      "Bash(node -e \"require\\('dotenv'\\)\")",
+      "Bash(node -e \"require\\('dotenv'\\).config\\({ path: '.env.local' }\\); console.log\\('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'SET' : 'MISSING', 'KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'MISSING'\\)\")",
+      "Bash(node -e \"const r = require\\('dotenv'\\).config\\({ path: '.env.local' }\\); console.log\\(JSON.stringify\\(r.error || 'OK'\\)\\); console.log\\('Keys found:', Object.keys\\(r.parsed || {}\\).join\\(', '\\)\\)\")",
+      "Bash(node --env-file=.env.local -e \"console.log\\('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'SET' : 'MISSING'\\)\")",
+      "Bash(node --env-file=.env.local -e \"console.log\\('URL:', process.env.NEXT_PUBLIC_SUPABASE_URL ? 'SET' : 'MISSING', 'KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'MISSING'\\)\")",
+      "Bash(node -e \"console.log\\('existing URL:', JSON.stringify\\(process.env.NEXT_PUBLIC_SUPABASE_URL\\)\\); console.log\\('existing KEY:', JSON.stringify\\(process.env.SUPABASE_SERVICE_ROLE_KEY\\)\\)\")",
+      "Bash(node -e \"const r = require\\('dotenv'\\).config\\({ path: '.env.local' }\\); console.log\\('URL value:', JSON.stringify\\(r.parsed.NEXT_PUBLIC_SUPABASE_URL\\)\\); console.log\\('KEY value:', JSON.stringify\\(r.parsed.SUPABASE_SERVICE_ROLE_KEY ? '[REDACTED]' : 'EMPTY'\\)\\)\")",
+      "Bash(curl -s -u \"sk_test_nXQvJbxzFKIx42Y1:\" \"https://api.pagar.me/core/v5/orders/or_dKg8ya6CwsEx541m\")",
+      "Bash(findstr /i \"split recipient producerRecipientId\")",
+      "Bash(findstr /i /c:\"split\" /c:\"recipient\" /c:\"producerRecipientId\")",
+      "Read(//c/Users/Carlo/.config/**)",
+      "Read(//c/Users/Carlo/.local/share/**)",
+      "Read(//c/Users/Carlo/**)",
+      "mcp__721c7c4c-f150-40b4-9fa2-f83b2c012bf3__apply_migration"
     ]
   }
 }
