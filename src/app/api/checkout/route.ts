@@ -236,6 +236,7 @@ export async function POST(req: NextRequest) {
           payment_method: 'pix',
           producer_amount: price,
         }
+        if (customer_document) insertPayload.customer_document = customer_document
         if (userId) insertPayload.user_id = userId
         if (resolvedTypeName) insertPayload.ticket_type_name = resolvedTypeName
         if (user_email) insertPayload.recipient_email = user_email
@@ -559,6 +560,7 @@ export async function POST(req: NextRequest) {
         payment_method: 'credit_card',
         producer_amount: price,
       }
+      if (customer_document) insertPayload.customer_document = customer_document
       if (userId) insertPayload.user_id = userId
       if (resolvedTypeName) insertPayload.ticket_type_name = resolvedTypeName
       if (user_email) insertPayload.recipient_email = user_email
