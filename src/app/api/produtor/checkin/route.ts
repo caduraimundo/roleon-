@@ -120,7 +120,7 @@ export async function POST(req: NextRequest) {
 
     const { data: updated, error: updateError } = await supabaseAdmin
       .from('tickets')
-      .update({ status: 'used' })
+      .update({ status: 'used', checked_in_at: new Date().toISOString() })
       .eq('id', ticket.id)
       .eq('status', ticket.status)
       .select('id')
@@ -129,6 +129,16 @@ export async function POST(req: NextRequest) {
     if (updateError || !updated) {
       return NextResponse.json({ error: 'Ingresso já utilizado' }, { status: 409 })
     }
+
+    ;(async () => {
+      await supabaseAdmin.from('ticket_audit_log').insert({
+        ticket_id: updated.id,
+        old_status: ticket.status,
+        new_status: 'used',
+        triggered_by: 'checkin',
+        metadata: { source: 'produtor_camera', event_id, ticket_type_name: ticket.ticket_type_name },
+      })
+    })().catch(() => {})
 
     const { total_sold, total_checkins } = await getTicketCounts(event_id)
     return NextResponse.json({

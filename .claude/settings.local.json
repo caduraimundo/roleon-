@@ -94,7 +94,9 @@
       "Read(//c/Users/Carlo/.config/**)",
       "Read(//c/Users/Carlo/.local/share/**)",
       "Read(//c/Users/Carlo/**)",
-      "mcp__721c7c4c-f150-40b4-9fa2-f83b2c012bf3__apply_migration"
+      "mcp__721c7c4c-f150-40b4-9fa2-f83b2c012bf3__apply_migration",
+      "Bash(curl -s \"https://www.roleon.com.br/admin\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"https://www.roleon.com.br/api/admin/vendas-eventos\")"
     ]
   }
 }
