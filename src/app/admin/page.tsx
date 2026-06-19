@@ -157,7 +157,7 @@ function AdminHeader({ onSignOut }: { onSignOut: () => void }) {
 // ── BOTTOM NAV ───────────────────────────────────────────────────────────────
 function AdminBottomNav({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) {
   const items: { id: Tab; label: string; Icon: () => React.JSX.Element }[] = [
-    { id: 'moderacao',  label: 'Moderação',  Icon: IconShield   },
+    { id: 'moderacao',  label: 'Eventos',  Icon: IconShield   },
     { id: 'produtores', label: 'Produtores', Icon: IconUsers    },
     { id: 'vendas',     label: 'Vendas',     Icon: IconBarChart },
     { id: 'mais',       label: 'Mais',       Icon: IconGrid     },
@@ -1268,7 +1268,7 @@ export default function AdminPage() {
             {/* Titulo + reload */}
             <div style={{ marginBottom: 14 }}>
               <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-                <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Moderação</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Eventos</div>
                 <button onClick={loadModeracao} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 13, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", paddingBottom: 2 }}>
                   Atualizar
                 </button>
