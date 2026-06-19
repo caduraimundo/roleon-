@@ -132,6 +132,7 @@ export default function CheckoutPage() {
   const [emailInput,   setEmailInput]   = useState('')
   const [cpfInput,     setCpfInput]     = useState('')
   const [cpfError,     setCpfError]     = useState('')
+  const [checkoutError, setCheckoutError] = useState('')
   const [ticketTypeId,   setTicketTypeId]   = useState<string | null>(null)
   const [ticketTypeName, setTicketTypeName] = useState<string | null>(null)
   const [ticketTypePrice, setTicketTypePrice] = useState<number | null>(null)
@@ -201,6 +202,7 @@ export default function CheckoutPage() {
       return
     }
     setCpfError('')
+    setCheckoutError('')
 
     setLoading(true)
     try {
@@ -282,7 +284,8 @@ export default function CheckoutPage() {
       }))
 
       router.push(`/pagamento/${data.order_id}`)
-    } catch {
+    } catch (err) {
+      setCheckoutError(err instanceof Error ? err.message : 'Erro ao processar pagamento. Tente novamente.')
       setLoading(false)
     }
   }
@@ -655,6 +658,14 @@ export default function CheckoutPage() {
         padding: '12px 16px calc(env(safe-area-inset-bottom, 0px) + 12px)',
         zIndex: 50,
       }}>
+        {checkoutError && (
+          <div style={{
+            fontSize: 13, color: '#FF3B30', textAlign: 'center',
+            marginBottom: 8, fontWeight: 600,
+          }}>
+            {checkoutError}
+          </div>
+        )}
         <button
           onClick={handlePagar}
           disabled={btnDisabled}
