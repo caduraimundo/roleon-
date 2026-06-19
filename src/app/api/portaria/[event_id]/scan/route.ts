@@ -55,19 +55,6 @@ export async function POST(
       return NextResponse.json({ error: 'Ingresso inválido' }, { status: 400 })
     }
 
-    let buyer_name: string | null = null
-    if ((ticket as any).user_id) {
-      const { data: profile } = await supabaseAdmin
-        .from('profiles')
-        .select('name')
-        .eq('id', (ticket as any).user_id)
-        .maybeSingle()
-      buyer_name = profile?.name ?? null
-    }
-    if (!buyer_name && (ticket as any).recipient_email) {
-      buyer_name = (ticket as any).recipient_email
-    }
-
     const { data: updated, error: updateError } = await supabaseAdmin
       .from('tickets')
       .update({ status: 'used', checked_in_at: new Date().toISOString() })
@@ -102,7 +89,6 @@ export async function POST(
     return NextResponse.json({
       success: true,
       ticket_type: ticket.ticket_type_name ?? 'Ingresso',
-      buyer_name,
       total_sold,
       total_checkins,
     })

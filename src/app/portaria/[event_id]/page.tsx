@@ -93,10 +93,8 @@ export default function PortariaPublicaPage({
 
       if (res.ok) {
         setFeedback('success')
-        setFeedbackMsg(json.buyer_name || json.ticket_type || 'Entrada confirmada')
-        setFeedbackExtra(json.buyer_name
-          ? `${json.ticket_type || 'Ingresso'} - Entrada confirmada`
-          : 'Entrada confirmada')
+        setFeedbackMsg(`${json.ticket_type || 'Ingresso'} - Entrada confirmada`)
+        setFeedbackExtra('')
       } else if (res.status === 409) {
         setFeedback('error')
         setFeedbackMsg('Ingresso ja utilizado')
