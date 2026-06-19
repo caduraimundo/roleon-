@@ -26,6 +26,7 @@ function formatCurrency(value: number) {
 
 type Ticket = {
   id: string
+  codigo: string
   buyer_name: string
   buyer_email: string
   ticket_type_name: string
@@ -303,6 +304,9 @@ export default function ParticipantesPage({
                       {ticket.price_paid > 0 && (
                         <span style={{ marginLeft: 6 }}>{formatCurrency(ticket.price_paid)}</span>
                       )}
+                    </div>
+                    <div style={{ fontSize: 11, color: '#9A9A9A', marginTop: 2, letterSpacing: 0.5 }}>
+                      Código: {ticket.codigo}
                     </div>
                   </div>
                   <span style={{

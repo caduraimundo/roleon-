@@ -32,7 +32,7 @@ export async function GET(
 
     const { data: tickets, error } = await supabaseAdmin
       .from('tickets')
-      .select('id, user_id, status, price_paid, payment_method, ticket_type_name, recipient_email, created_at')
+      .select('id, user_id, status, price_paid, payment_method, ticket_type_name, recipient_email, created_at, checkin_token')
       .eq('event_id', event_id)
       .in('status', ['paid', 'used', 'refunded', 'valid', 'cancelled'])
       .order('created_at', { ascending: false })
@@ -60,6 +60,7 @@ export async function GET(
 
     const result = tickets.map(t => ({
       id: t.id,
+      codigo: (t.checkin_token ?? t.id).slice(0, 6).toUpperCase(),
       buyer_name: profileMap[t.user_id] ?? 'Participante',
       buyer_email: t.recipient_email ?? '',
       ticket_type_name: t.ticket_type_name ?? 'Ingresso',
