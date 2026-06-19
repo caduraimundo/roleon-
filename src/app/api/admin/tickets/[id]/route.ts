@@ -34,8 +34,7 @@ export async function GET(
         id, status, ticket_type_name, price_paid, checked_in_at, checkin_token,
         created_at, recipient_email, user_id, event_id, payment_method,
         coupon_code, discount_applied, customer_document, order_id,
-        event:event_id (title, event_date, location_name),
-        profiles:user_id (name, email)
+        event:event_id (title, event_date, location_name)
       `)
       .eq('id', id)
       .maybeSingle()
@@ -50,6 +49,10 @@ export async function GET(
       .order('created_at', { ascending: true })
 
     const t: any = ticket
+    const { data: perfil } = t.user_id
+      ? await supabaseAdmin.from('profiles').select('name, email').eq('id', t.user_id).maybeSingle()
+      : { data: null as any }
+
     return NextResponse.json({
       id: t.id,
       codigo: (t.checkin_token ?? t.id).slice(0, 6).toUpperCase(),
@@ -62,8 +65,8 @@ export async function GET(
       order_id: t.order_id,
       coupon_code: t.coupon_code,
       discount_applied: t.discount_applied,
-      comprador_nome: t.profiles?.name ?? null,
-      comprador_email: t.profiles?.email ?? t.recipient_email ?? null,
+      comprador_nome: perfil?.name ?? null,
+      comprador_email: perfil?.email ?? t.recipient_email ?? null,
       comprador_cpf: t.customer_document ?? null,
       evento_titulo: t.event?.title ?? null,
       evento_data: t.event?.event_date ?? null,

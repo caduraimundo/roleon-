@@ -35,27 +35,35 @@ export async function GET(req: NextRequest) {
       .select(`
         id, status, ticket_type_name, price_paid, checked_in_at, checkin_token,
         created_at, recipient_email, user_id, event_id,
-        event:event_id (title, event_date),
-        profiles:user_id (name, email)
+        event:event_id (title, event_date)
       `)
       .ilike('checkin_token', code + '%')
       .limit(10)
 
     if (error) throw error
 
-    const resultado = (tickets ?? []).map((t: any) => ({
-      id: t.id,
-      codigo: (t.checkin_token ?? t.id).slice(0, 6).toUpperCase(),
-      status: t.status,
-      ticket_type_name: t.ticket_type_name,
-      price_paid: t.price_paid,
-      checked_in_at: t.checked_in_at,
-      created_at: t.created_at,
-      comprador_nome: t.profiles?.name ?? null,
-      comprador_email: t.profiles?.email ?? t.recipient_email ?? null,
-      evento_titulo: t.event?.title ?? null,
-      evento_data: t.event?.event_date ?? null,
-    }))
+    const userIds = [...new Set((tickets ?? []).map((t: any) => t.user_id).filter(Boolean))]
+    const { data: perfis } = userIds.length
+      ? await supabaseAdmin.from('profiles').select('id, name, email').in('id', userIds)
+      : { data: [] as any[] }
+    const perfilPorId = new Map((perfis ?? []).map((p: any) => [p.id, p]))
+
+    const resultado = (tickets ?? []).map((t: any) => {
+      const perfil = t.user_id ? perfilPorId.get(t.user_id) : null
+      return {
+        id: t.id,
+        codigo: (t.checkin_token ?? t.id).slice(0, 6).toUpperCase(),
+        status: t.status,
+        ticket_type_name: t.ticket_type_name,
+        price_paid: t.price_paid,
+        checked_in_at: t.checked_in_at,
+        created_at: t.created_at,
+        comprador_nome: perfil?.name ?? null,
+        comprador_email: perfil?.email ?? t.recipient_email ?? null,
+        evento_titulo: t.event?.title ?? null,
+        evento_data: t.event?.event_date ?? null,
+      }
+    })
 
     return NextResponse.json({ tickets: resultado })
   } catch (e) {
