@@ -470,6 +470,8 @@ function IngressosSection({
   selectedId, onSelect, detail, detailLoading,
   refundOpen, onRefundToggle, refundReason, onRefundReasonChange,
   refundLoading, refundFeedback, onRefundConfirm,
+  eventoSearch, onEventoSearchChange, onEventoSearch, eventoSearchLoading, eventoSearchError,
+  eventoResults, onEventoSelect, eventoCheckins, eventoCheckinsLoading, onEventoBack,
 }: {
   code: string
   onCodeChange: (v: string) => void
@@ -488,6 +490,16 @@ function IngressosSection({
   refundLoading: boolean
   refundFeedback: { tipo: 'ok' | 'erro'; msg: string } | null
   onRefundConfirm: () => void
+  eventoSearch: string
+  onEventoSearchChange: (v: string) => void
+  onEventoSearch: () => void
+  eventoSearchLoading: boolean
+  eventoSearchError: string
+  eventoResults: any[]
+  onEventoSelect: (id: string) => void
+  eventoCheckins: any | null
+  eventoCheckinsLoading: boolean
+  onEventoBack: () => void
 }) {
   const formatBRL = (v: string | number) => `R$ ${Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
   const formatDateTime = (iso: string) => {
@@ -644,6 +656,90 @@ function IngressosSection({
           )}
         </div>
       )}
+
+        <div style={{ marginTop: 28, paddingTop: 20, borderTop: `1px solid ${BORDER}` }}>
+          <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, marginBottom: 4 }}>Check-ins por evento</div>
+          <div style={{ fontSize: 12, color: DIM, marginBottom: 12 }}>Busque pelo nome do evento pra ver todos os check-ins</div>
+
+          <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+            <input
+              id="evento-checkins-search"
+              name="evento-checkins-search"
+              value={eventoSearch}
+              onChange={e => onEventoSearchChange(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') onEventoSearch() }}
+              placeholder="Nome do evento"
+              autoComplete="off"
+              style={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }}
+            />
+            <button onClick={onEventoSearch} disabled={eventoSearchLoading} style={{
+              padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
+              fontSize: 14, fontWeight: 600, color: WHITE, cursor: eventoSearchLoading ? 'default' : 'pointer',
+              opacity: eventoSearchLoading ? 0.7 : 1,
+            }}>{eventoSearchLoading ? '...' : 'Buscar'}</button>
+          </div>
+
+          {eventoSearchError && (
+            <div style={{ background: '#FFF0F0', color: '#FF3B30', borderRadius: 10, padding: '10px 14px', fontSize: 13, fontWeight: 500, marginBottom: 14 }}>{eventoSearchError}</div>
+          )}
+
+          {eventoResults.length > 0 && !eventoCheckins && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {eventoResults.map((e: any) => (
+                <button key={e.id} onClick={() => onEventoSelect(e.id)} style={{
+                  textAlign: 'left', background: WHITE, border: 'none', borderRadius: 10,
+                  padding: '10px 12px', cursor: 'pointer', boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>{e.title}</div>
+                  <div style={{ fontSize: 12, color: DIM }}>{formatDateTime(e.event_date)}</div>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {eventoCheckinsLoading && (
+            <div style={{ textAlign: 'center', padding: '24px 0', color: DIM, fontSize: 13 }}>Carregando check-ins...</div>
+          )}
+
+          {eventoCheckins && !eventoCheckinsLoading && (
+            <div>
+              <button onClick={onEventoBack} style={{
+                background: 'none', border: 'none', color: TEAL, fontSize: 13, fontWeight: 600,
+                cursor: 'pointer', padding: 0, marginBottom: 10,
+              }}>‹ Voltar pra busca</button>
+
+              <div style={{ display: 'flex', gap: 20, marginBottom: 14 }}>
+                <div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: TEXT }}>{eventoCheckins.total}</div>
+                  <div style={{ fontSize: 11, color: DIM }}>Ingressos</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: TEAL }}>{eventoCheckins.com_checkin}</div>
+                  <div style={{ fontSize: 11, color: DIM }}>Com check-in</div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {eventoCheckins.tickets.map((t: any) => (
+                  <div key={t.id} style={{ background: WHITE, borderRadius: 10, padding: '10px 12px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>{t.comprador_nome}</div>
+                        <div style={{ fontSize: 11, color: DIM, marginTop: 2 }}>{t.ticket_type_name} · {t.codigo}</div>
+                      </div>
+                      <div style={{
+                        fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 999,
+                        background: t.checked_in_at ? TEAL_BG : '#F5F5F5',
+                        color: t.checked_in_at ? TEAL : DIM,
+                        whiteSpace: 'nowrap',
+                      }}>{t.checked_in_at ? formatDateTime(t.checked_in_at) : 'Aguardando'}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
     </div>
   )
 }
@@ -774,6 +870,14 @@ export default function AdminPage() {
   const [refundReason, setRefundReason] = useState<'arrependimento' | 'cancelamento' | 'adiamento'>('cancelamento')
   const [refundLoading, setRefundLoading] = useState(false)
   const [refundFeedback, setRefundFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
+
+  // Check-ins por evento
+  const [eventoSearch, setEventoSearch] = useState('')
+  const [eventoResults, setEventoResults] = useState<any[]>([])
+  const [eventoSearchLoading, setEventoSearchLoading] = useState(false)
+  const [eventoSearchError, setEventoSearchError] = useState('')
+  const [eventoCheckins, setEventoCheckins] = useState<any | null>(null)
+  const [eventoCheckinsLoading, setEventoCheckinsLoading] = useState(false)
 
   useEffect(() => {
     const check = async () => {
@@ -1043,6 +1147,52 @@ export default function AdminPage() {
     }
   }
 
+  const handleEventoSearch = async () => {
+    if (eventoSearch.trim().length < 2) { setEventoSearchError('Digite pelo menos 2 caracteres'); return }
+    setEventoSearchLoading(true)
+    setEventoSearchError('')
+    setEventoResults([])
+    setEventoCheckins(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const res = await fetch(`/api/admin/events/search?q=${encodeURIComponent(eventoSearch.trim())}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const data = await res.json()
+      if (!res.ok) { setEventoSearchError(data.error ?? 'Erro ao buscar'); return }
+      if (!data.events || data.events.length === 0) { setEventoSearchError('Nenhum evento encontrado'); return }
+      setEventoResults(data.events)
+    } catch {
+      setEventoSearchError('Erro de conexao')
+    } finally {
+      setEventoSearchLoading(false)
+    }
+  }
+
+  const handleEventoSelect = async (id: string) => {
+    setEventoCheckinsLoading(true)
+    setEventoCheckins(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const res = await fetch(`/api/admin/events/${id}/tickets`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const data = await res.json()
+      if (!res.ok) { setEventoSearchError(data.error ?? 'Erro ao buscar check-ins'); return }
+      setEventoCheckins(data)
+    } catch {
+      setEventoSearchError('Erro de conexao')
+    } finally {
+      setEventoCheckinsLoading(false)
+    }
+  }
+
+  const handleEventoBack = () => {
+    setEventoCheckins(null)
+  }
+
   useEffect(() => {
     if (tab === 'moderacao' && !modLoading && pendingEvents.length === 0 && activeEvents.length === 0) {
       loadModeracao()
@@ -1101,6 +1251,16 @@ export default function AdminPage() {
             refundLoading={refundLoading}
             refundFeedback={refundFeedback}
             onRefundConfirm={handleRefundConfirm}
+            eventoSearch={eventoSearch}
+            onEventoSearchChange={setEventoSearch}
+            onEventoSearch={handleEventoSearch}
+            eventoSearchLoading={eventoSearchLoading}
+            eventoSearchError={eventoSearchError}
+            eventoResults={eventoResults}
+            onEventoSelect={handleEventoSelect}
+            eventoCheckins={eventoCheckins}
+            eventoCheckinsLoading={eventoCheckinsLoading}
+            onEventoBack={handleEventoBack}
           />
         </>
       )
