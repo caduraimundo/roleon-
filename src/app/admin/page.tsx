@@ -468,6 +468,8 @@ function VendasSection({
 function IngressosSection({
   code, onCodeChange, onSearch, searchLoading, searchError, results,
   selectedId, onSelect, detail, detailLoading,
+  refundOpen, onRefundToggle, refundReason, onRefundReasonChange,
+  refundLoading, refundFeedback, onRefundConfirm,
 }: {
   code: string
   onCodeChange: (v: string) => void
@@ -479,6 +481,13 @@ function IngressosSection({
   onSelect: (id: string) => void
   detail: any | null
   detailLoading: boolean
+  refundOpen: boolean
+  onRefundToggle: (v: boolean) => void
+  refundReason: 'arrependimento' | 'cancelamento' | 'adiamento'
+  onRefundReasonChange: (r: 'arrependimento' | 'cancelamento' | 'adiamento') => void
+  refundLoading: boolean
+  refundFeedback: { tipo: 'ok' | 'erro'; msg: string } | null
+  onRefundConfirm: () => void
 }) {
   const formatBRL = (v: string | number) => `R$ ${Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
   const formatDateTime = (iso: string) => {
@@ -583,6 +592,54 @@ function IngressosSection({
             <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #F7F7F7' }}>
               <div style={{ fontSize: 11, color: DIM, fontWeight: 500, textTransform: 'uppercase', marginBottom: 4 }}>Cupom</div>
               <div style={{ fontSize: 13, color: TEXT }}>{detail.coupon_code} (-{formatBRL(detail.discount_applied)})</div>
+            </div>
+          )}
+
+          {refundFeedback && (
+            <div style={{
+              marginTop: 14,
+              background: refundFeedback.tipo === 'ok' ? TEAL_BG : '#FFF0F0',
+              color: refundFeedback.tipo === 'ok' ? TEAL : '#FF3B30',
+              borderRadius: 10, padding: '10px 14px', fontSize: 13, fontWeight: 500,
+            }}>{refundFeedback.msg}</div>
+          )}
+
+          {(detail.status === 'paid' || detail.status === 'used') && (
+            <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid #F7F7F7' }}>
+              {!refundOpen ? (
+                <button onClick={() => onRefundToggle(true)} style={{
+                  width: '100%', padding: '10px 0', background: '#FFF0F0', border: 'none',
+                  borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#FF3B30', cursor: 'pointer',
+                }}>Reembolsar ingresso</button>
+              ) : (
+                <div style={{ background: '#FFF8E1', borderRadius: 10, padding: '12px 14px' }}>
+                  <div style={{ fontSize: 12, color: DIM, fontWeight: 500, marginBottom: 8 }}>Motivo do reembolso</div>
+                  <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+                    {(['arrependimento', 'cancelamento', 'adiamento'] as const).map((r) => (
+                      <button key={r} onClick={() => onRefundReasonChange(r)} style={{
+                        flex: 1, padding: '6px 2px', borderRadius: 6, border: 'none', cursor: 'pointer',
+                        fontSize: 11, fontWeight: 600,
+                        background: refundReason === r ? TEAL : '#FFFFFF',
+                        color: refundReason === r ? '#FFFFFF' : DIM,
+                      }}>{r === 'arrependimento' ? 'Arrependimento' : r === 'cancelamento' ? 'Cancelamento' : 'Adiamento'}</button>
+                    ))}
+                  </div>
+                  <div style={{ fontSize: 13, color: '#5D4037', fontWeight: 500, marginBottom: 10, lineHeight: 1.4 }}>
+                    Confirmar reembolso de {formatBRL(detail.price_paid)}? Essa ação é irreversível.
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button onClick={() => onRefundToggle(false)} style={{
+                      flex: 1, padding: '8px 0', background: '#FFFFFF', border: '1px solid #E0E0E0',
+                      borderRadius: 8, fontSize: 13, fontWeight: 600, color: DIM, cursor: 'pointer',
+                    }}>Cancelar</button>
+                    <button onClick={onRefundConfirm} disabled={refundLoading} style={{
+                      flex: 1, padding: '8px 0', background: '#FF3B30', border: 'none',
+                      borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#FFFFFF',
+                      cursor: refundLoading ? 'default' : 'pointer', opacity: refundLoading ? 0.7 : 1,
+                    }}>{refundLoading ? 'Processando...' : 'Confirmar reembolso'}</button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -713,6 +770,10 @@ export default function AdminPage() {
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null)
   const [ticketDetail, setTicketDetail] = useState<any | null>(null)
   const [ticketDetailLoading, setTicketDetailLoading] = useState(false)
+  const [refundOpen, setRefundOpen] = useState(false)
+  const [refundReason, setRefundReason] = useState<'arrependimento' | 'cancelamento' | 'adiamento'>('cancelamento')
+  const [refundLoading, setRefundLoading] = useState(false)
+  const [refundFeedback, setRefundFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
 
   useEffect(() => {
     const check = async () => {
@@ -910,6 +971,8 @@ export default function AdminPage() {
     setSelectedTicketId(id)
     setTicketDetailLoading(true)
     setTicketDetail(null)
+    setRefundOpen(false)
+    setRefundFeedback(null)
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
@@ -950,6 +1013,33 @@ export default function AdminPage() {
       setTicketSearchError('Erro de conexao')
     } finally {
       setTicketSearchLoading(false)
+    }
+  }
+
+  const handleRefundConfirm = async () => {
+    if (!ticketDetail) return
+    setRefundLoading(true)
+    setRefundFeedback(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const res = await fetch('/api/admin/refund', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ ticket_id: ticketDetail.id, reason: refundReason }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setRefundFeedback({ tipo: 'erro', msg: data.error ?? 'Erro ao reembolsar' })
+      } else {
+        setRefundFeedback({ tipo: 'ok', msg: `Reembolso de R$${data.refund_amount} confirmado` })
+        setRefundOpen(false)
+        await handleTicketSelect(ticketDetail.id)
+      }
+    } catch {
+      setRefundFeedback({ tipo: 'erro', msg: 'Erro de conexao' })
+    } finally {
+      setRefundLoading(false)
     }
   }
 
@@ -1004,6 +1094,13 @@ export default function AdminPage() {
             onSelect={handleTicketSelect}
             detail={ticketDetail}
             detailLoading={ticketDetailLoading}
+            refundOpen={refundOpen}
+            onRefundToggle={setRefundOpen}
+            refundReason={refundReason}
+            onRefundReasonChange={setRefundReason}
+            refundLoading={refundLoading}
+            refundFeedback={refundFeedback}
+            onRefundConfirm={handleRefundConfirm}
           />
         </>
       )
