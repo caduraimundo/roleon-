@@ -465,6 +465,132 @@ function VendasSection({
   )
 }
 
+function IngressosSection({
+  code, onCodeChange, onSearch, searchLoading, searchError, results,
+  selectedId, onSelect, detail, detailLoading,
+}: {
+  code: string
+  onCodeChange: (v: string) => void
+  onSearch: () => void
+  searchLoading: boolean
+  searchError: string
+  results: any[]
+  selectedId: string | null
+  onSelect: (id: string) => void
+  detail: any | null
+  detailLoading: boolean
+}) {
+  const formatBRL = (v: string | number) => `R$ ${Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+  const formatDateTime = (iso: string) => {
+    const d = new Date(iso.includes('T') ? iso : iso.replace(' ', 'T'))
+    return `${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+  }
+  const statusLabel = (s: string) => s === 'paid' ? 'Pago' : s === 'used' ? 'Usado' : s === 'refunded' ? 'Reembolsado' : s === 'pending' ? 'Pendente' : s === 'expired' ? 'Expirado' : s === 'chargebacked' ? 'Chargeback' : s
+  const statusColor = (s: string) => s === 'paid' ? { bg: TEAL_BG, fg: TEAL } : s === 'used' ? { bg: '#E8F0FE', fg: '#1A56DB' } : s === 'refunded' ? { bg: '#F5F5F5', fg: DIM } : s === 'pending' ? { bg: '#FFF3E0', fg: '#E65100' } : { bg: '#FFF0F0', fg: '#FF3B30' }
+
+  return (
+    <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
+      <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4, marginBottom: 4 }}>Ingressos</div>
+      <div style={{ fontSize: 12, color: DIM, marginBottom: 16 }}>Busque pelo código manual de 6 caracteres impresso no ingresso</div>
+
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        <input
+          id="tickets-search"
+          name="tickets-search"
+          value={code}
+          onChange={e => onCodeChange(e.target.value.toUpperCase())}
+          onKeyDown={e => { if (e.key === 'Enter') onSearch() }}
+          placeholder="EX: A5ADDF"
+          autoComplete="off"
+          maxLength={20}
+          style={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const, textTransform: 'uppercase' }}
+        />
+        <button onClick={onSearch} disabled={searchLoading} style={{
+          padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
+          fontSize: 14, fontWeight: 600, color: WHITE, cursor: searchLoading ? 'default' : 'pointer',
+          opacity: searchLoading ? 0.7 : 1,
+        }}>{searchLoading ? '...' : 'Buscar'}</button>
+      </div>
+
+      {searchError && (
+        <div style={{ background: '#FFF0F0', color: '#FF3B30', borderRadius: 10, padding: '10px 14px', fontSize: 13, fontWeight: 500, marginBottom: 14 }}>{searchError}</div>
+      )}
+
+      {results.length > 1 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+          {results.map((r) => (
+            <button key={r.id} onClick={() => onSelect(r.id)} style={{
+              textAlign: 'left', background: selectedId === r.id ? TEAL_BG : WHITE,
+              border: 'none', borderRadius: 10, padding: '10px 12px', cursor: 'pointer',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+            }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>{r.codigo} - {r.ticket_type_name}</div>
+              <div style={{ fontSize: 12, color: DIM }}>{r.evento_titulo}</div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {detailLoading && (
+        <div style={{ textAlign: 'center', padding: '24px 0', color: DIM, fontSize: 13 }}>Carregando detalhes...</div>
+      )}
+
+      {detail && !detailLoading && (
+        <div style={{ background: WHITE, borderRadius: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.06)', padding: '16px 14px' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div>
+              <div style={{ fontSize: 11, color: DIM, fontWeight: 500 }}>CÓDIGO</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, letterSpacing: 1 }}>{detail.codigo}</div>
+            </div>
+            <div style={{
+              fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 999,
+              background: statusColor(detail.status).bg, color: statusColor(detail.status).fg,
+            }}>{statusLabel(detail.status)}</div>
+          </div>
+
+          <div style={{ fontSize: 11, color: DIM, fontWeight: 500, textTransform: 'uppercase', marginTop: 12, marginBottom: 4 }}>Evento</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: TEXT }}>{detail.evento_titulo}</div>
+          <div style={{ fontSize: 12, color: DIM, marginTop: 2 }}>{detail.evento_data ? formatDateTime(detail.evento_data) : ''}{detail.evento_local ? ` - ${detail.evento_local}` : ''}</div>
+
+          <div style={{ display: 'flex', gap: 16, marginTop: 14, paddingTop: 12, borderTop: '1px solid #F7F7F7' }}>
+            <div>
+              <div style={{ fontSize: 10, color: DIM, fontWeight: 500 }}>TIPO</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: TEXT }}>{detail.ticket_type_name}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, color: DIM, fontWeight: 500 }}>VALOR PAGO</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: TEXT }}>{formatBRL(detail.price_paid)}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 10, color: DIM, fontWeight: 500 }}>PAGAMENTO</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: TEXT }}>{detail.payment_method === 'pix' ? 'PIX' : detail.payment_method === 'credit_card' ? 'Cartão' : detail.payment_method}</div>
+            </div>
+          </div>
+
+          <div style={{ fontSize: 11, color: DIM, fontWeight: 500, textTransform: 'uppercase', marginTop: 16, marginBottom: 4 }}>Comprador</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: TEXT }}>{detail.comprador_nome ?? 'Não identificado'}</div>
+          <div style={{ fontSize: 12, color: DIM, marginTop: 2 }}>{detail.comprador_email ?? '-'}</div>
+          <div style={{ fontSize: 12, color: DIM, marginTop: 2 }}>{detail.comprador_cpf ? `CPF: ${detail.comprador_cpf}` : 'CPF não informado'}</div>
+
+          {detail.checked_in_at && (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #F7F7F7' }}>
+              <div style={{ fontSize: 11, color: DIM, fontWeight: 500, textTransform: 'uppercase', marginBottom: 4 }}>Check-in</div>
+              <div style={{ fontSize: 13, color: TEXT }}>{formatDateTime(detail.checked_in_at)}</div>
+            </div>
+          )}
+
+          {detail.coupon_code && (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #F7F7F7' }}>
+              <div style={{ fontSize: 11, color: DIM, fontWeight: 500, textTransform: 'uppercase', marginBottom: 4 }}>Cupom</div>
+              <div style={{ fontSize: 13, color: TEXT }}>{detail.coupon_code} (-{formatBRL(detail.discount_applied)})</div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ── SECAO "MAIS" ─────────────────────────────────────────────────────────────
 function MaisSection({ onNavigate, onSignOut }: { onNavigate: (s: MaisSection) => void; onSignOut: () => void }) {
   const router = useRouter()
@@ -578,6 +704,15 @@ export default function AdminPage() {
   const [forceRepasseId, setForceRepasseId] = useState<string | null>(null)
   const [forceLoading, setForceLoading] = useState(false)
   const [vendasFeedback, setVendasFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
+
+  // Ingressos
+  const [ticketCode, setTicketCode] = useState('')
+  const [ticketResults, setTicketResults] = useState<any[]>([])
+  const [ticketSearchLoading, setTicketSearchLoading] = useState(false)
+  const [ticketSearchError, setTicketSearchError] = useState('')
+  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null)
+  const [ticketDetail, setTicketDetail] = useState<any | null>(null)
+  const [ticketDetailLoading, setTicketDetailLoading] = useState(false)
 
   useEffect(() => {
     const check = async () => {
@@ -771,6 +906,53 @@ export default function AdminPage() {
     }
   }
 
+  const handleTicketSelect = async (id: string) => {
+    setSelectedTicketId(id)
+    setTicketDetailLoading(true)
+    setTicketDetail(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const res = await fetch(`/api/admin/tickets/${id}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const data = await res.json()
+      if (!res.ok) { setTicketSearchError(data.error ?? 'Erro ao buscar detalhe'); return }
+      setTicketDetail(data)
+    } catch {
+      setTicketSearchError('Erro de conexao')
+    } finally {
+      setTicketDetailLoading(false)
+    }
+  }
+
+  const handleTicketSearch = async () => {
+    if (ticketCode.trim().length < 4) { setTicketSearchError('Digite pelo menos 4 caracteres'); return }
+    setTicketSearchLoading(true)
+    setTicketSearchError('')
+    setTicketResults([])
+    setSelectedTicketId(null)
+    setTicketDetail(null)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const res = await fetch(`/api/admin/tickets/search?code=${encodeURIComponent(ticketCode.trim())}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const data = await res.json()
+      if (!res.ok) { setTicketSearchError(data.error ?? 'Erro ao buscar'); return }
+      if (!data.tickets || data.tickets.length === 0) { setTicketSearchError('Nenhum ingresso encontrado para esse código'); return }
+      setTicketResults(data.tickets)
+      if (data.tickets.length === 1) {
+        handleTicketSelect(data.tickets[0].id)
+      }
+    } catch {
+      setTicketSearchError('Erro de conexao')
+    } finally {
+      setTicketSearchLoading(false)
+    }
+  }
+
   useEffect(() => {
     if (tab === 'moderacao' && !modLoading && pendingEvents.length === 0 && activeEvents.length === 0) {
       loadModeracao()
@@ -811,7 +993,18 @@ export default function AdminPage() {
             </button>
             <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Ingressos</span>
           </div>
-          <PlaceholderSection title="Gestao de Ingressos" icon={<IconTicket />} desc="Buscar ingresso por codigo, ver detalhes, emitir reembolso e historico de check-ins." />
+          <IngressosSection
+            code={ticketCode}
+            onCodeChange={setTicketCode}
+            onSearch={handleTicketSearch}
+            searchLoading={ticketSearchLoading}
+            searchError={ticketSearchError}
+            results={ticketResults}
+            selectedId={selectedTicketId}
+            onSelect={handleTicketSelect}
+            detail={ticketDetail}
+            detailLoading={ticketDetailLoading}
+          />
         </>
       )
     }
