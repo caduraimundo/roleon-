@@ -514,8 +514,6 @@ function IngressosSection({
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
-      <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4, marginBottom: 12 }}>Ingressos</div>
-
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
         {([{ id: 'busca' as const, label: 'Buscar ingresso' }, { id: 'checkins' as const, label: 'Check-ins por evento' }]).map(t => {
           const on = ticketsTab === t.id
