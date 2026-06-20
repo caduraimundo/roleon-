@@ -506,8 +506,8 @@ function IngressosSection({
     const d = new Date(iso.includes('T') ? iso : iso.replace(' ', 'T'))
     return `${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
   }
-  const statusLabel = (s: string) => s === 'paid' ? 'Pago' : s === 'used' ? 'Usado' : s === 'refunded' ? 'Reembolsado' : s === 'pending' ? 'Pendente' : s === 'expired' ? 'Expirado' : s === 'chargebacked' ? 'Chargeback' : s
-  const statusColor = (s: string) => s === 'paid' ? { bg: TEAL_BG, fg: TEAL } : s === 'used' ? { bg: '#E8F0FE', fg: '#1A56DB' } : s === 'refunded' ? { bg: '#F5F5F5', fg: DIM } : s === 'pending' ? { bg: '#FFF3E0', fg: '#E65100' } : { bg: '#FFF0F0', fg: '#FF3B30' }
+  const statusLabel = (s: string) => s === 'paid' ? 'Pago' : s === 'used' ? 'Usado' : s === 'refunded' ? 'Reembolsado' : s === 'cancelled' ? 'Cancelado' : s === 'pending' ? 'Pendente' : s === 'expired' ? 'Expirado' : s === 'chargebacked' ? 'Chargeback' : s
+  const statusColor = (s: string) => s === 'paid' ? { bg: TEAL_BG, fg: TEAL } : s === 'used' ? { bg: '#E8F0FE', fg: '#1A56DB' } : (s === 'refunded' || s === 'cancelled') ? { bg: '#F5F5F5', fg: DIM } : s === 'pending' ? { bg: '#FFF3E0', fg: '#E65100' } : { bg: '#FFF0F0', fg: '#FF3B30' }
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
@@ -616,7 +616,7 @@ function IngressosSection({
             }}>{refundFeedback.msg}</div>
           )}
 
-          {(detail.status === 'paid' || detail.status === 'used') && (
+          {detail.status === 'paid' && (
             <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid #F7F7F7' }}>
               {!refundOpen ? (
                 <button onClick={() => onRefundToggle(true)} style={{
@@ -727,12 +727,19 @@ function IngressosSection({
                         <div style={{ fontSize: 13, fontWeight: 600, color: TEXT }}>{t.comprador_nome}</div>
                         <div style={{ fontSize: 11, color: DIM, marginTop: 2 }}>{t.ticket_type_name} · {t.codigo}</div>
                       </div>
-                      <div style={{
-                        fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 999,
-                        background: t.checked_in_at ? TEAL_BG : '#F5F5F5',
-                        color: t.checked_in_at ? TEAL : DIM,
-                        whiteSpace: 'nowrap',
-                      }}>{t.checked_in_at ? formatDateTime(t.checked_in_at) : 'Aguardando'}</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                        <div style={{
+                          fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 999,
+                          background: statusColor(t.status).bg, color: statusColor(t.status).fg,
+                          whiteSpace: 'nowrap',
+                        }}>{statusLabel(t.status)}</div>
+                        <div style={{
+                          fontSize: 10, fontWeight: 600, padding: '3px 8px', borderRadius: 999,
+                          background: t.checked_in_at ? TEAL_BG : '#F5F5F5',
+                          color: t.checked_in_at ? TEAL : DIM,
+                          whiteSpace: 'nowrap',
+                        }}>{t.checked_in_at ? formatDateTime(t.checked_in_at) : 'Aguardando check-in'}</div>
+                      </div>
                     </div>
                   </div>
                 ))}
