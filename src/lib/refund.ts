@@ -26,7 +26,7 @@ export async function performRefund({
 }): Promise<RefundResult> {
   const { data: ticket, error: fetchError } = await supabaseAdmin
     .from('tickets')
-    .select('id, status, order_id, event_id, ticket_type_id, price_paid, discount_applied, payment_method, created_at, recipient_email')
+    .select('id, status, order_id, event_id, ticket_type_id, price_paid, producer_amount, discount_applied, payment_method, created_at, recipient_email')
     .eq('id', ticket_id)
     .maybeSingle()
 
@@ -52,7 +52,7 @@ export async function performRefund({
     return { success: false, error: 'Evento não encontrado', status: 400 }
   }
 
-  const refundAmount = Math.max(0, Number(event.price) - Number(ticket.discount_applied || 0))
+  const refundAmount = Math.max(0, Number(ticket.producer_amount ?? ticket.price_paid))
   const refundAmountCents = Math.round(refundAmount * 100)
   const orderId = ticket.order_id
   const pagarmeAuth = `Basic ${Buffer.from(process.env.PAGARME_API_KEY! + ':').toString('base64')}`

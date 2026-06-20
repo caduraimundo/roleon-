@@ -466,6 +466,7 @@ function VendasSection({
 }
 
 function IngressosSection({
+  ticketsTab, onTicketsTabChange,
   code, onCodeChange, onSearch, searchLoading, searchError, results,
   selectedId, onSelect, detail, detailLoading,
   refundOpen, onRefundToggle, refundReason, onRefundReasonChange,
@@ -473,6 +474,8 @@ function IngressosSection({
   eventoSearch, onEventoSearchChange, onEventoSearch, eventoSearchLoading, eventoSearchError,
   eventoResults, onEventoSelect, eventoCheckins, eventoCheckinsLoading, onEventoBack,
 }: {
+  ticketsTab: 'busca' | 'checkins'
+  onTicketsTabChange: (t: 'busca' | 'checkins') => void
   code: string
   onCodeChange: (v: string) => void
   onSearch: () => void
@@ -511,7 +514,17 @@ function IngressosSection({
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
-      <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4, marginBottom: 4 }}>Ingressos</div>
+      <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4, marginBottom: 12 }}>Ingressos</div>
+
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+        {([{ id: 'busca' as const, label: 'Buscar ingresso' }, { id: 'checkins' as const, label: 'Check-ins por evento' }]).map(t => {
+          const on = ticketsTab === t.id
+          return <button key={t.id} onClick={() => onTicketsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{t.label}</button>
+        })}
+      </div>
+
+      {ticketsTab === 'busca' && (
+      <>
       <div style={{ fontSize: 12, color: DIM, marginBottom: 16 }}>Busque pelo código manual de 6 caracteres impresso no ingresso</div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
@@ -656,9 +669,11 @@ function IngressosSection({
           )}
         </div>
       )}
+      </>
+      )}
 
-        <div style={{ marginTop: 28, paddingTop: 20, borderTop: `1px solid ${BORDER}` }}>
-          <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, marginBottom: 4 }}>Check-ins por evento</div>
+      {ticketsTab === 'checkins' && (
+        <div>
           <div style={{ fontSize: 12, color: DIM, marginBottom: 12 }}>Busque pelo nome do evento pra ver todos os check-ins</div>
 
           <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
@@ -747,6 +762,7 @@ function IngressosSection({
             </div>
           )}
         </div>
+      )}
     </div>
   )
 }
@@ -866,6 +882,7 @@ export default function AdminPage() {
   const [vendasFeedback, setVendasFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
 
   // Ingressos
+  const [ticketsTab, setTicketsTab] = useState<'busca' | 'checkins'>('busca')
   const [ticketCode, setTicketCode] = useState('')
   const [ticketResults, setTicketResults] = useState<any[]>([])
   const [ticketSearchLoading, setTicketSearchLoading] = useState(false)
@@ -1268,6 +1285,8 @@ export default function AdminPage() {
             eventoCheckins={eventoCheckins}
             eventoCheckinsLoading={eventoCheckinsLoading}
             onEventoBack={handleEventoBack}
+            ticketsTab={ticketsTab}
+            onTicketsTabChange={setTicketsTab}
           />
         </>
       )
