@@ -580,6 +580,10 @@ function IngressosSection({
             }}>{statusLabel(detail.status)}</div>
           </div>
 
+          {detail.created_at && (
+            <div style={{ fontSize: 11, color: DIM, marginTop: -8, marginBottom: 8 }}>Comprado em {formatDateTime(detail.created_at)}</div>
+          )}
+
           <div style={{ fontSize: 11, color: DIM, fontWeight: 500, textTransform: 'uppercase', marginTop: 12, marginBottom: 4 }}>Evento</div>
           <div style={{ fontSize: 14, fontWeight: 600, color: TEXT }}>{detail.evento_titulo}</div>
           <div style={{ fontSize: 12, color: DIM, marginTop: 2 }}>{detail.evento_data ? formatDateTime(detail.evento_data) : ''}{detail.evento_local ? ` - ${detail.evento_local}` : ''}</div>
@@ -615,6 +619,27 @@ function IngressosSection({
             <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #F7F7F7' }}>
               <div style={{ fontSize: 11, color: DIM, fontWeight: 500, textTransform: 'uppercase', marginBottom: 4 }}>Cupom</div>
               <div style={{ fontSize: 13, color: TEXT }}>{detail.coupon_code} (-{formatBRL(detail.discount_applied)})</div>
+            </div>
+          )}
+
+          {detail.historico && detail.historico.length > 0 && (
+            <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid #F7F7F7' }}>
+              <div style={{ fontSize: 11, color: DIM, fontWeight: 500, textTransform: 'uppercase', marginBottom: 6 }}>Histórico</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {detail.historico.map((h: any, i: number) => {
+                  const origem = h.triggered_by === 'webhook' ? 'Pagamento confirmado'
+                    : h.triggered_by === 'checkout' ? 'Compra realizada'
+                    : h.triggered_by === 'checkin' ? 'Check-in'
+                    : h.triggered_by === 'admin' ? 'Ação do admin'
+                    : h.triggered_by === 'producer' ? 'Ação do produtor'
+                    : 'Sistema'
+                  return (
+                    <div key={i} style={{ fontSize: 12, color: TEXT }}>
+                      <span style={{ color: DIM }}>{formatDateTime(h.created_at)}</span> · {origem} · {statusLabel(h.old_status)} → {statusLabel(h.new_status)}
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           )}
 
