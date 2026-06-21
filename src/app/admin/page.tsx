@@ -1068,8 +1068,20 @@ function LogsSection({
 }
 
 function PayloadSheet({ log, onClose }: { log: any; onClose: () => void }) {
+  const [copiado, setCopiado] = useState(false)
   if (!log) return null
   const payloadFormatado = JSON.stringify(log.raw_payload, null, 2)
+
+  async function copiarPayload() {
+    try {
+      await navigator.clipboard.writeText(payloadFormatado)
+      setCopiado(true)
+      setTimeout(() => setCopiado(false), 2000)
+    } catch {
+      setCopiado(false)
+    }
+  }
+
   return (
     <div
       onClick={onClose}
@@ -1088,6 +1100,16 @@ function PayloadSheet({ log, onClose }: { log: any; onClose: () => void }) {
       >
         <div style={{ padding: '14px 16px', borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Payload do webhook</span>
+          <button
+            onClick={copiarPayload}
+            style={{
+              padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+              border: `1.5px solid ${BORDER}`, background: 'transparent', color: copiado ? TEAL : TEXT,
+              cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
+              minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              marginLeft: 'auto', marginRight: 8,
+            }}
+          >{copiado ? 'Copiado!' : 'Copiar'}</button>
           <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
