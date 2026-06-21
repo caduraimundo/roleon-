@@ -386,7 +386,7 @@ function VendasSection({
                       </div>
                     </div>
                     <div style={{
-                      flexShrink: 0, fontSize: 11, fontWeight: 600, padding: '3px 8px',
+                      flexShrink: 0, fontSize: 11, fontWeight: 600, padding: '3px 10px',
                       borderRadius: 999,
                       background: ev.repasse_liberado_at ? '#E6F7F6' : elegivel ? '#FFF3E0' : '#F5F5F5',
                       color: ev.repasse_liberado_at ? '#0EA5A0' : elegivel ? '#E65100' : '#6E6E73',
@@ -575,7 +575,7 @@ function IngressosSection({
               <div style={{ fontSize: 16, fontWeight: 700, color: TEXT, letterSpacing: 1 }}>{detail.codigo}</div>
             </div>
             <div style={{
-              fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 999,
+              fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 999,
               background: statusColor(detail.status).bg, color: statusColor(detail.status).fg,
             }}>{statusLabel(detail.status)}</div>
           </div>
@@ -859,10 +859,10 @@ function CuponsSection({
               <div style={{ fontSize: 11, color: DIM, display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span>Usos: {formatUsos(c)} - Expira: {formatExpira(c)}</span>
                 {c.expires_at && new Date(c.expires_at) < new Date() && (
-                  <span style={{ fontSize: 10, fontWeight: 700, color: '#FF3B30', background: '#FFF0F0', padding: '1px 6px', borderRadius: 6 }}>Expirado</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#FF3B30', background: '#FFF0F0', padding: '3px 10px', borderRadius: 999 }}>Expirado</span>
                 )}
                 {c.max_uses && c.uses_count >= c.max_uses && (
-                  <span style={{ fontSize: 10, fontWeight: 700, color: '#FF3B30', background: '#FFF0F0', padding: '1px 6px', borderRadius: 6 }}>Esgotado</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: '#FF3B30', background: '#FFF0F0', padding: '3px 10px', borderRadius: 999 }}>Esgotado</span>
                 )}
               </div>
               <button
@@ -876,7 +876,7 @@ function CuponsSection({
                 }}
               >{c.active ? 'Desativar' : 'Reativar'}</button>
               {!c.active && c.locked_by_admin && (
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#FF3B30', background: '#FFF0F0', padding: '2px 8px', borderRadius: 6, marginLeft: 8 }}>Bloqueado por você</span>
+                <span style={{ fontSize: 11, fontWeight: 600, color: '#FF3B30', background: '#FFF0F0', padding: '3px 10px', borderRadius: 999, marginLeft: 8 }}>Bloqueado por você</span>
               )}
             </div>
           </div>
@@ -991,8 +991,8 @@ function LogsSection({
               return (
                 <div key={w.id} style={{ background: WHITE, borderRadius: 10, padding: '12px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: sBadge.bg, color: sBadge.fg }}>{sBadge.label}</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: aBadge.bg, color: aBadge.fg }}>{aBadge.label}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 999, background: sBadge.bg, color: sBadge.fg }}>{sBadge.label}</span>
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 999, background: aBadge.bg, color: aBadge.fg }}>{aBadge.label}</span>
                   </div>
                   <div style={{ fontSize: 14, fontWeight: 700, color: TEXT, marginTop: 6 }}>{w.event_type}</div>
                   <div style={{ fontSize: 12, color: DIM }}>
@@ -1878,7 +1878,7 @@ export default function AdminPage() {
               <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, padding: 20, display: 'flex', flexDirection: 'column', gap: 0 }}>
                 {/* Badge + título + produtor */}
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, background: b.bg, color: b.color, border: `1px solid ${b.border}`, borderRadius: 6, padding: '3px 10px' }}>{b.label}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, background: b.bg, color: b.color, border: `1px solid ${b.border}`, borderRadius: 999, padding: '3px 10px' }}>{b.label}</span>
                 </div>
                 <div style={{ fontSize: 19, fontWeight: 700, color: TEXT, textAlign: 'center', lineHeight: 1.3, marginBottom: 4 }}>{detailEvent.title}</div>
                 <div style={{ fontSize: 13, color: DIM, textAlign: 'center', marginBottom: 16 }}>{detailEvent.producer_name}</div>
@@ -2068,10 +2068,10 @@ export default function AdminPage() {
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
                     <div style={{ fontSize: 14, fontWeight: 600, color: TEXT, lineHeight: 1.3, flex: 1 }}>{ev.title}</div>
                     <span style={{
-                      fontSize: 10.5, fontWeight: 600, flexShrink: 0,
+                      fontSize: 11, fontWeight: 600, flexShrink: 0,
                       background: badge.bg, color: badge.color,
                       border: `1px solid ${badge.border}`,
-                      borderRadius: 6, padding: '2px 7px', whiteSpace: 'nowrap',
+                      borderRadius: 999, padding: '3px 10px', whiteSpace: 'nowrap',
                     }}>{badge.label}</span>
                   </div>
 
@@ -2191,7 +2191,7 @@ export default function AdminPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                   <div style={{ width: 56, height: 56, borderRadius: 16, background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 20, fontWeight: 700 }}>{initials}</div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: TEXT }}>{p.name}</div>
-                  <span style={{ fontSize: 11, fontWeight: 600, background: sb.bg, color: sb.color, border: `1px solid ${sb.border}`, borderRadius: 6, padding: '3px 10px' }}>{sb.label}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, background: sb.bg, color: sb.color, border: `1px solid ${sb.border}`, borderRadius: 999, padding: '3px 10px' }}>{sb.label}</span>
                 </div>
 
                 <div style={{ borderTop: `1px solid ${BORDER}`, marginBottom: 14 }} />
@@ -2310,7 +2310,7 @@ export default function AdminPage() {
                   <div style={{ fontSize: 12, color: DIM, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.email}</div>
                   <div style={{ fontSize: 11, color: DIM, marginTop: 2 }}>{formatDate(p.created_at)}</div>
                 </div>
-                <span style={{ fontSize: 10.5, fontWeight: 600, background: sb.bg, color: sb.color, border: `1px solid ${sb.border}`, borderRadius: 6, padding: '2px 7px', whiteSpace: 'nowrap', flexShrink: 0 }}>{sb.label}</span>
+                <span style={{ fontSize: 11, fontWeight: 600, background: sb.bg, color: sb.color, border: `1px solid ${sb.border}`, borderRadius: 999, padding: '3px 10px', whiteSpace: 'nowrap', flexShrink: 0 }}>{sb.label}</span>
               </div>
             )
           })}
