@@ -25,22 +25,16 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url)
     const activeParam = searchParams.get('active')
+    const queryParam = (searchParams.get('q') ?? '').trim()
 
-    let query = supabaseAdmin
-      .from('coupons')
-      .select(`
-        id, code, discount_type, discount_value, max_uses, uses_count,
-        max_uses_per_user, expires_at, active, created_at,
-        event:event_id (title, event_date),
-        creator:created_by (name, email)
-      `)
-      .order('created_at', { ascending: false })
-      .limit(200)
+    const p_active = activeParam === 'true' ? true : activeParam === 'false' ? false : null
 
-    if (activeParam === 'true') query = query.eq('active', true)
-    if (activeParam === 'false') query = query.eq('active', false)
+    const { data: coupons, error } = await supabaseAdmin
+      .rpc('admin_search_coupons', {
+        p_query: queryParam.length > 0 ? queryParam : null,
+        p_active,
+      })
 
-    const { data: coupons, error } = await query
     if (error) throw error
 
     const resultado = (coupons ?? []).map((c: any) => ({
@@ -54,10 +48,10 @@ export async function GET(req: NextRequest) {
       expires_at: c.expires_at,
       active: c.active,
       created_at: c.created_at,
-      evento_titulo: c.event?.title ?? null,
-      evento_data: c.event?.event_date ?? null,
-      produtor_nome: c.creator?.name ?? null,
-      produtor_email: c.creator?.email ?? null,
+      evento_titulo: c.evento_titulo ?? null,
+      evento_data: c.evento_data ?? null,
+      produtor_nome: c.produtor_nome ?? null,
+      produtor_email: c.produtor_email ?? null,
     }))
 
     return NextResponse.json({ coupons: resultado })

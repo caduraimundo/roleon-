@@ -792,6 +792,7 @@ function IngressosSection({
 
 function CuponsSection({
   cuponsTab, onCuponsTabChange, cupons, cuponsLoading, cuponsError, onToggleRequest,
+  cuponsSearch, onCuponsSearchChange, onCuponsSearchSubmit,
 }: {
   cuponsTab: 'ativos' | 'inativos'
   onCuponsTabChange: (t: 'ativos' | 'inativos') => void
@@ -799,6 +800,9 @@ function CuponsSection({
   cuponsLoading: boolean
   cuponsError: string
   onToggleRequest: (c: any) => void
+  cuponsSearch: string
+  onCuponsSearchChange: (v: string) => void
+  onCuponsSearchSubmit: () => void
 }) {
   const formatDesconto = (c: any) => c.discount_type === 'percent' ? `${Number(c.discount_value)}%` : `R$ ${Number(c.discount_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
   const formatUsos = (c: any) => c.max_uses ? `${c.uses_count}/${c.max_uses}` : `${c.uses_count} (sem limite)`
@@ -806,6 +810,23 @@ function CuponsSection({
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        <input
+          id="cupons-search"
+          name="cupons-search"
+          value={cuponsSearch}
+          onChange={e => onCuponsSearchChange(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') onCuponsSearchSubmit() }}
+          placeholder="Buscar por código, evento ou produtor"
+          autoComplete="off"
+          style={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }}
+        />
+        <button onClick={onCuponsSearchSubmit} style={{
+          padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
+          fontSize: 14, fontWeight: 600, color: WHITE, cursor: 'pointer',
+        }}>Buscar</button>
+      </div>
+
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
         {([{ id: 'ativos' as const, label: 'Ativos' }, { id: 'inativos' as const, label: 'Inativos' }]).map(t => {
           const on = cuponsTab === t.id
@@ -1002,6 +1023,7 @@ export default function AdminPage() {
   const [cuponsList, setCuponsList] = useState<any[]>([])
   const [cuponsLoading, setCuponsLoading] = useState(false)
   const [cuponsError, setCuponsError] = useState('')
+  const [cuponsSearch, setCuponsSearch] = useState('')
   const [deactivateSheet, setDeactivateSheet] = useState<{ id: string; code: string; active: boolean } | null>(null)
   const [deactivateLoading, setDeactivateLoading] = useState(false)
 
@@ -1273,14 +1295,15 @@ export default function AdminPage() {
     }
   }
 
-  const fetchCupons = async (tabAlvo: 'ativos' | 'inativos') => {
+  const fetchCupons = async (tabAlvo: 'ativos' | 'inativos', searchAlvo?: string) => {
     setCuponsLoading(true)
     setCuponsError('')
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
       const activeParam = tabAlvo === 'ativos' ? 'true' : 'false'
-      const res = await fetch(`/api/admin/coupons?active=${activeParam}`, {
+      const q = (searchAlvo ?? cuponsSearch).trim()
+      const res = await fetch(`/api/admin/coupons?active=${activeParam}${q ? `&q=${encodeURIComponent(q)}` : ''}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       const data = await res.json()
@@ -1467,6 +1490,9 @@ export default function AdminPage() {
             cuponsLoading={cuponsLoading}
             cuponsError={cuponsError}
             onToggleRequest={(c) => setDeactivateSheet({ id: c.id, code: c.code, active: c.active })}
+            cuponsSearch={cuponsSearch}
+            onCuponsSearchChange={setCuponsSearch}
+            onCuponsSearchSubmit={() => fetchCupons(cuponsTab)}
           />
 
           {deactivateSheet && (
