@@ -199,7 +199,6 @@ export default function CuponsPage({ params }: { params: Promise<{ id: string }>
                     <button
                       onClick={() => { if (!c.locked_by_admin) toggleActive(c.id, c.active) }}
                       disabled={c.locked_by_admin}
-                      title={c.locked_by_admin ? 'Desativado pelo administrador' : undefined}
                       style={{
                         flexShrink: 0, padding: '5px 12px', borderRadius: 8,
                         border: c.locked_by_admin ? '1px solid #FF3B30' : `1px solid ${c.active ? '#0EA5A0' : '#E8E8E8'}`,
@@ -208,9 +207,10 @@ export default function CuponsPage({ params }: { params: Promise<{ id: string }>
                         fontSize: 12, fontWeight: 600,
                         cursor: c.locked_by_admin ? 'not-allowed' : 'pointer',
                         fontFamily: "'Noto Sans', sans-serif",
+                        whiteSpace: 'nowrap' as const,
                       }}
                     >
-                      {c.locked_by_admin ? 'Bloqueado' : (c.active ? 'Ativo' : 'Inativo')}
+                      {c.locked_by_admin ? 'Inativo pelo admin' : (c.active ? 'Ativo' : 'Inativo')}
                     </button>
                   </div>
                   <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
