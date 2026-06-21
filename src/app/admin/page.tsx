@@ -810,7 +810,14 @@ function CuponsSection({
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+        {([{ id: 'ativos' as const, label: 'Ativos' }, { id: 'inativos' as const, label: 'Inativos' }]).map(t => {
+          const on = cuponsTab === t.id
+          return <button key={t.id} onClick={() => onCuponsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{t.label}</button>
+        })}
+      </div>
+
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         <input
           id="cupons-search"
           name="cupons-search"
@@ -825,13 +832,6 @@ function CuponsSection({
           padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
           fontSize: 14, fontWeight: 600, color: WHITE, cursor: 'pointer',
         }}>Buscar</button>
-      </div>
-
-      <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
-        {([{ id: 'ativos' as const, label: 'Ativos' }, { id: 'inativos' as const, label: 'Inativos' }]).map(t => {
-          const on = cuponsTab === t.id
-          return <button key={t.id} onClick={() => onCuponsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{t.label}</button>
-        })}
       </div>
 
       {cuponsLoading && <div style={{ fontSize: 13, color: DIM, textAlign: 'center', padding: '20px 0' }}>Carregando...</div>}
