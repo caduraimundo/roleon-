@@ -84,7 +84,7 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
   }, [])
 
   useEffect(() => {
-    if (!eventId || !token) return
+    if (!eventId || !token || loading) return
 
     let scanner: any
 
@@ -106,7 +106,7 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
     return () => {
       scanner?.destroy()
     }
-  }, [eventId, token])
+  }, [eventId, token, loading])
 
   const handleScan = async (data: string) => {
     if (!scanning) return
