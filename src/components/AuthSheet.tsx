@@ -153,6 +153,9 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       options: {
         redirectTo: callbackUrl,
         skipBrowserRedirect: true,
+        queryParams: {
+          prompt: 'select_account',
+        },
       },
     })
 
