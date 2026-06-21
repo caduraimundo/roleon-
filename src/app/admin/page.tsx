@@ -889,6 +889,7 @@ function LogsSection({
   logsTab, onLogsTabChange,
   webhooks, webhooksLoading, webhooksError, webhooksStatusFilter, onWebhooksStatusFilterChange, webhooksAmbienteFilter, onWebhooksAmbienteFilterChange, webhooksSearch, onWebhooksSearchChange, onWebhooksSearchSubmit,
   audit, auditLoading, auditError, auditSearch, onAuditSearchChange, onAuditSearchSubmit,
+  onViewPayload,
 }: {
   logsTab: 'webhooks' | 'auditoria'
   onLogsTabChange: (t: 'webhooks' | 'auditoria') => void
@@ -908,6 +909,7 @@ function LogsSection({
   auditSearch: string
   onAuditSearchChange: (v: string) => void
   onAuditSearchSubmit: () => void
+  onViewPayload: (log: any) => void
 }) {
   const statusBadge = (status: string) => {
     if (status === 'processed') return { bg: TEAL_BG, fg: TEAL, label: 'Processado' }
@@ -1001,6 +1003,14 @@ function LogsSection({
                   <div style={{ fontSize: 11, color: DIM, marginTop: 8 }}>
                     {new Date(w.created_at).toLocaleString('pt-BR')}{w.order_id ? ` · ${w.order_id}` : ''}
                   </div>
+                  <button
+                    onClick={() => onViewPayload(w)}
+                    style={{
+                      marginTop: 8, padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                      border: `1.5px solid ${BORDER}`, background: 'transparent', color: TEXT,
+                      cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
+                    }}
+                  >Ver payload</button>
                 </div>
               )
             })}
@@ -1051,6 +1061,43 @@ function LogsSection({
           </div>
         </>
       )}
+    </div>
+  )
+}
+
+function PayloadSheet({ log, onClose }: { log: any; onClose: () => void }) {
+  if (!log) return null
+  const payloadFormatado = JSON.stringify(log.raw_payload, null, 2)
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100,
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: '100%', maxWidth: 480, maxHeight: '75vh', background: WHITE,
+          borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column',
+          boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
+        }}
+      >
+        <div style={{ padding: '14px 16px', borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Payload do webhook</span>
+          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div style={{ padding: 16, overflowY: 'auto', flex: 1 }}>
+          <pre style={{
+            margin: 0, fontSize: 11, lineHeight: 1.5, color: TEXT, whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word', fontFamily: 'monospace', background: '#F7F7F7',
+            borderRadius: 10, padding: 12,
+          }}>{payloadFormatado}</pre>
+        </div>
+      </div>
     </div>
   )
 }
@@ -1212,6 +1259,7 @@ export default function AdminPage() {
   const [auditLoading, setAuditLoading] = useState(false)
   const [auditError, setAuditError] = useState('')
   const [auditSearch, setAuditSearch] = useState('')
+  const [payloadSheetLog, setPayloadSheetLog] = useState<any | null>(null)
 
   useEffect(() => {
     const check = async () => {
@@ -1718,6 +1766,7 @@ export default function AdminPage() {
             auditSearch={auditSearch}
             onAuditSearchChange={setAuditSearch}
             onAuditSearchSubmit={() => fetchAuditLogs()}
+            onViewPayload={(log) => setPayloadSheetLog(log)}
           />
         </>
       )
@@ -2295,6 +2344,8 @@ export default function AdminPage() {
           }}
         />
       </div>
+
+      <PayloadSheet log={payloadSheetLog} onClose={() => setPayloadSheetLog(null)} />
     </div>
   )
 }
