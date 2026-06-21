@@ -517,7 +517,7 @@ function IngressosSection({
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
         {([{ id: 'busca' as const, label: 'Buscar ingresso' }, { id: 'checkins' as const, label: 'Check-ins por evento' }]).map(t => {
           const on = ticketsTab === t.id
-          return <button key={t.id} onClick={() => onTicketsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{t.label}</button>
+          return <button key={t.id} onClick={() => onTicketsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t.label}</button>
         })}
       </div>
 
@@ -813,7 +813,7 @@ function CuponsSection({
       <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
         {([{ id: 'ativos' as const, label: 'Ativos' }, { id: 'inativos' as const, label: 'Inativos' }]).map(t => {
           const on = cuponsTab === t.id
-          return <button key={t.id} onClick={() => onCuponsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{t.label}</button>
+          return <button key={t.id} onClick={() => onCuponsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t.label}</button>
         })}
       </div>
 
@@ -872,6 +872,7 @@ function CuponsSection({
                   border: c.active ? '1.5px solid #FF3B30' : `1.5px solid ${TEAL}`,
                   background: 'transparent', color: c.active ? '#FF3B30' : TEAL,
                   cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
+                  minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                 }}
               >{c.active ? 'Desativar' : 'Reativar'}</button>
               {!c.active && c.locked_by_admin && (
@@ -927,7 +928,7 @@ function LogsSection({
       <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
         {([{ id: 'webhooks' as const, label: 'Webhooks' }, { id: 'auditoria' as const, label: 'Auditoria' }]).map(t => {
           const on = logsTab === t.id
-          return <button key={t.id} onClick={() => onLogsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{t.label}</button>
+          return <button key={t.id} onClick={() => onLogsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t.label}</button>
         })}
       </div>
 
@@ -1009,6 +1010,7 @@ function LogsSection({
                       marginTop: 8, padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
                       border: `1.5px solid ${BORDER}`, background: 'transparent', color: TEXT,
                       cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
+                      minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                     }}
                   >Ver payload</button>
                 </div>
@@ -1984,6 +1986,7 @@ export default function AdminPage() {
                     background: on ? TEAL : WHITE, color: on ? WHITE : TEXT,
                     border: on ? 'none' : `1px solid ${BORDER}`,
                     cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
+                    minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   }}>{f.label}</button>
                 )
               })}
@@ -2255,7 +2258,7 @@ export default function AdminPage() {
           <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
             {([{ id: 'verificados', label: 'Verificados' }, { id: 'ativos', label: 'Ativos' }, { id: 'desativados', label: 'Desativados' }] as const).map(f => {
               const on = prodFilter === f.id
-              return <button key={f.id} onClick={() => setProdFilter(f.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{f.label}</button>
+              return <button key={f.id} onClick={() => setProdFilter(f.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{f.label}</button>
             })}
           </div>
 
