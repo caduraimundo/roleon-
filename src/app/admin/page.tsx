@@ -874,6 +874,9 @@ function CuponsSection({
                   cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
                 }}
               >{c.active ? 'Desativar' : 'Reativar'}</button>
+              {!c.active && c.locked_by_admin && (
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#FF3B30', background: '#FFF0F0', padding: '2px 8px', borderRadius: 6, marginLeft: 8 }}>Bloqueado por você</span>
+              )}
             </div>
           </div>
         ))}

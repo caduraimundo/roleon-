@@ -13,6 +13,7 @@ type Coupon = {
   max_uses_per_user: number
   expires_at: string | null
   active: boolean
+  locked_by_admin?: boolean
   created_at: string
 }
 
@@ -98,8 +99,11 @@ export default function CuponsPage({ params }: { params: Promise<{ id: string }>
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ active: !current }),
     })
+    const data = await res.json().catch(() => ({}))
     if (res.ok) {
       setCoupons(prev => prev.map(c => c.id === couponId ? { ...c, active: !current } : c))
+    } else {
+      setError(data.error ?? 'Erro ao atualizar cupom')
     }
   }
 
@@ -193,10 +197,20 @@ export default function CuponsPage({ params }: { params: Promise<{ id: string }>
                       <CouponBadge type={c.discount_type} value={Number(c.discount_value)} />
                     </div>
                     <button
-                      onClick={() => toggleActive(c.id, c.active)}
-                      style={{ flexShrink: 0, padding: '5px 12px', borderRadius: 8, border: `1px solid ${c.active ? '#0EA5A0' : '#E8E8E8'}`, background: c.active ? '#E6F7F6' : '#F5F5F5', color: c.active ? '#0EA5A0' : '#6E6E73', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                      onClick={() => { if (!c.locked_by_admin) toggleActive(c.id, c.active) }}
+                      disabled={c.locked_by_admin}
+                      title={c.locked_by_admin ? 'Desativado pelo administrador' : undefined}
+                      style={{
+                        flexShrink: 0, padding: '5px 12px', borderRadius: 8,
+                        border: c.locked_by_admin ? '1px solid #FF3B30' : `1px solid ${c.active ? '#0EA5A0' : '#E8E8E8'}`,
+                        background: c.locked_by_admin ? '#FFF0F0' : (c.active ? '#E6F7F6' : '#F5F5F5'),
+                        color: c.locked_by_admin ? '#FF3B30' : (c.active ? '#0EA5A0' : '#6E6E73'),
+                        fontSize: 12, fontWeight: 600,
+                        cursor: c.locked_by_admin ? 'not-allowed' : 'pointer',
+                        fontFamily: "'Noto Sans', sans-serif",
+                      }}
                     >
-                      {c.active ? 'Ativo' : 'Inativo'}
+                      {c.locked_by_admin ? 'Bloqueado' : (c.active ? 'Ativo' : 'Inativo')}
                     </button>
                   </div>
                   <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>

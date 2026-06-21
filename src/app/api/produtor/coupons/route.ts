@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
     const { data: coupons, error } = await supabaseAdmin
       .from('coupons')
-      .select('id, code, discount_type, discount_value, max_uses, uses_count, max_uses_per_user, expires_at, active, created_at')
+      .select('id, code, discount_type, discount_value, max_uses, uses_count, max_uses_per_user, expires_at, active, locked_by_admin, created_at')
       .eq('event_id', event_id)
       .order('created_at', { ascending: false })
 

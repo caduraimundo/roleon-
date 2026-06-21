@@ -25,14 +25,22 @@ export async function PATCH(
     const { active } = await req.json()
 
     const { data: coupon } = await supabaseAdmin
-      .from('coupons').select('id, created_by').eq('id', id).maybeSingle()
+      .from('coupons').select('id, created_by, locked_by_admin').eq('id', id).maybeSingle()
     if (!coupon) return NextResponse.json({ error: 'Cupom nao encontrado' }, { status: 404 })
     if (profile?.role !== 'admin' && coupon.created_by !== user.id) {
       return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
     }
+    if (profile?.role !== 'admin' && coupon.locked_by_admin) {
+      return NextResponse.json({ error: 'Este cupom foi desativado pelo administrador e so pode ser reativado por ele' }, { status: 403 })
+    }
+
+    const updatePayload: { active: boolean; locked_by_admin?: boolean } = { active }
+    if (profile?.role === 'admin') {
+      updatePayload.locked_by_admin = !active
+    }
 
     const { data: updated, error } = await supabaseAdmin
-      .from('coupons').update({ active }).eq('id', id).select().single()
+      .from('coupons').update(updatePayload).eq('id', id).select().single()
     if (error) return NextResponse.json({ error: 'Erro ao atualizar cupom' }, { status: 500 })
 
     return NextResponse.json({ coupon: updated })
