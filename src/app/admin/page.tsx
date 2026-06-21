@@ -885,6 +885,176 @@ function CuponsSection({
   )
 }
 
+function LogsSection({
+  logsTab, onLogsTabChange,
+  webhooks, webhooksLoading, webhooksError, webhooksStatusFilter, onWebhooksStatusFilterChange, webhooksAmbienteFilter, onWebhooksAmbienteFilterChange, webhooksSearch, onWebhooksSearchChange, onWebhooksSearchSubmit,
+  audit, auditLoading, auditError, auditSearch, onAuditSearchChange, onAuditSearchSubmit,
+}: {
+  logsTab: 'webhooks' | 'auditoria'
+  onLogsTabChange: (t: 'webhooks' | 'auditoria') => void
+  webhooks: any[]
+  webhooksLoading: boolean
+  webhooksError: string
+  webhooksStatusFilter: '' | 'processed' | 'error' | 'ignored'
+  onWebhooksStatusFilterChange: (v: '' | 'processed' | 'error' | 'ignored') => void
+  webhooksAmbienteFilter: '' | 'teste' | 'producao' | 'desconhecido'
+  onWebhooksAmbienteFilterChange: (v: '' | 'teste' | 'producao' | 'desconhecido') => void
+  webhooksSearch: string
+  onWebhooksSearchChange: (v: string) => void
+  onWebhooksSearchSubmit: () => void
+  audit: any[]
+  auditLoading: boolean
+  auditError: string
+  auditSearch: string
+  onAuditSearchChange: (v: string) => void
+  onAuditSearchSubmit: () => void
+}) {
+  const statusBadge = (status: string) => {
+    if (status === 'processed') return { bg: TEAL_BG, fg: TEAL, label: 'Processado' }
+    if (status === 'error') return { bg: '#FFF0F0', fg: '#FF3B30', label: 'Erro' }
+    return { bg: '#F0F0F0', fg: DIM, label: 'Ignorado' }
+  }
+  const ambienteBadge = (ambiente: string) => {
+    if (ambiente === 'producao') return { bg: TEAL_BG, fg: TEAL, label: 'Produção' }
+    if (ambiente === 'teste') return { bg: '#FFF7E6', fg: '#B45309', label: 'Teste' }
+    return { bg: '#F0F0F0', fg: DIM, label: 'Desconhecido' }
+  }
+
+  return (
+    <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+        {([{ id: 'webhooks' as const, label: 'Webhooks' }, { id: 'auditoria' as const, label: 'Auditoria' }]).map(t => {
+          const on = logsTab === t.id
+          return <button key={t.id} onClick={() => onLogsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{t.label}</button>
+        })}
+      </div>
+
+      {logsTab === 'webhooks' && (
+        <>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+            <select
+              value={webhooksStatusFilter}
+              onChange={e => onWebhooksStatusFilterChange(e.target.value as '' | 'processed' | 'error' | 'ignored')}
+              style={{ padding: '6px 10px', borderRadius: 8, fontSize: 12, border: `1px solid ${BORDER}`, background: WHITE, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}
+            >
+              <option value="">Todos os status</option>
+              <option value="processed">Processado</option>
+              <option value="error">Erro</option>
+              <option value="ignored">Ignorado</option>
+            </select>
+            <select
+              value={webhooksAmbienteFilter}
+              onChange={e => onWebhooksAmbienteFilterChange(e.target.value as '' | 'teste' | 'producao' | 'desconhecido')}
+              style={{ padding: '6px 10px', borderRadius: 8, fontSize: 12, border: `1px solid ${BORDER}`, background: WHITE, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}
+            >
+              <option value="">Todos os ambientes</option>
+              <option value="producao">Produção</option>
+              <option value="teste">Teste</option>
+              <option value="desconhecido">Desconhecido</option>
+            </select>
+          </div>
+
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            <input
+              id="webhooks-search"
+              name="webhooks-search"
+              value={webhooksSearch}
+              onChange={e => onWebhooksSearchChange(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') onWebhooksSearchSubmit() }}
+              placeholder="Buscar por nome do evento"
+              autoComplete="off"
+              style={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }}
+            />
+            <button onClick={onWebhooksSearchSubmit} style={{
+              padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
+              fontSize: 14, fontWeight: 600, color: WHITE, cursor: 'pointer',
+            }}>Buscar</button>
+          </div>
+
+          {webhooksLoading && <div style={{ fontSize: 13, color: DIM, textAlign: 'center', padding: '20px 0' }}>Carregando...</div>}
+
+          {webhooksError && (
+            <div style={{ background: '#FFF0F0', color: '#FF3B30', borderRadius: 10, padding: '10px 14px', fontSize: 13, fontWeight: 500, marginBottom: 14 }}>{webhooksError}</div>
+          )}
+
+          {!webhooksLoading && !webhooksError && webhooks.length === 0 && (
+            <div style={{ fontSize: 13, color: DIM, textAlign: 'center', padding: '20px 0' }}>Nenhum log encontrado.</div>
+          )}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {webhooks.map((w) => {
+              const sBadge = statusBadge(w.status)
+              const aBadge = ambienteBadge(w.ambiente)
+              return (
+                <div key={w.id} style={{ background: WHITE, borderRadius: 10, padding: '12px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: sBadge.bg, color: sBadge.fg }}>{sBadge.label}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: aBadge.bg, color: aBadge.fg }}>{aBadge.label}</span>
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: TEXT, marginTop: 6 }}>{w.event_type}</div>
+                  <div style={{ fontSize: 12, color: DIM }}>
+                    {w.evento_titulo ?? <span style={{ fontStyle: 'italic' }}>Sem ticket vinculado</span>}
+                  </div>
+                  {w.error_message && (
+                    <div style={{ fontSize: 12, color: '#FF3B30', marginTop: 4 }}>{w.error_message}</div>
+                  )}
+                  <div style={{ fontSize: 11, color: DIM, marginTop: 8 }}>
+                    {new Date(w.created_at).toLocaleString('pt-BR')}{w.order_id ? ` · ${w.order_id}` : ''}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </>
+      )}
+
+      {logsTab === 'auditoria' && (
+        <>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            <input
+              id="audit-search"
+              name="audit-search"
+              value={auditSearch}
+              onChange={e => onAuditSearchChange(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') onAuditSearchSubmit() }}
+              placeholder="Buscar por nome do evento"
+              autoComplete="off"
+              style={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }}
+            />
+            <button onClick={onAuditSearchSubmit} style={{
+              padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
+              fontSize: 14, fontWeight: 600, color: WHITE, cursor: 'pointer',
+            }}>Buscar</button>
+          </div>
+
+          {auditLoading && <div style={{ fontSize: 13, color: DIM, textAlign: 'center', padding: '20px 0' }}>Carregando...</div>}
+
+          {auditError && (
+            <div style={{ background: '#FFF0F0', color: '#FF3B30', borderRadius: 10, padding: '10px 14px', fontSize: 13, fontWeight: 500, marginBottom: 14 }}>{auditError}</div>
+          )}
+
+          {!auditLoading && !auditError && audit.length === 0 && (
+            <div style={{ fontSize: 13, color: DIM, textAlign: 'center', padding: '20px 0' }}>Nenhum log encontrado.</div>
+          )}
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {audit.map((a) => (
+              <div key={a.id} style={{ background: WHITE, borderRadius: 10, padding: '12px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: TEXT }}>{a.old_status} -&gt; {a.new_status}</div>
+                <div style={{ fontSize: 12, color: DIM }}>
+                  {a.evento_titulo ?? <span style={{ fontStyle: 'italic' }}>Sem ticket vinculado</span>}
+                </div>
+                <div style={{ fontSize: 11, color: DIM, marginTop: 4 }}>Disparado por: {a.triggered_by}</div>
+                <div style={{ fontSize: 11, color: DIM, marginTop: 8 }}>{new Date(a.created_at).toLocaleString('pt-BR')}</div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 // ── SECAO "MAIS" ─────────────────────────────────────────────────────────────
 function MaisSection({ onNavigate, onSignOut }: { onNavigate: (s: MaisSection) => void; onSignOut: () => void }) {
   const router = useRouter()
@@ -1029,6 +1199,19 @@ export default function AdminPage() {
   const [cuponsSearch, setCuponsSearch] = useState('')
   const [deactivateSheet, setDeactivateSheet] = useState<{ id: string; code: string; active: boolean } | null>(null)
   const [deactivateLoading, setDeactivateLoading] = useState(false)
+
+  // Logs
+  const [logsTab, setLogsTab] = useState<'webhooks' | 'auditoria'>('webhooks')
+  const [webhooksList, setWebhooksList] = useState<any[]>([])
+  const [webhooksLoading, setWebhooksLoading] = useState(false)
+  const [webhooksError, setWebhooksError] = useState('')
+  const [webhooksStatusFilter, setWebhooksStatusFilter] = useState<'' | 'processed' | 'error' | 'ignored'>('')
+  const [webhooksAmbienteFilter, setWebhooksAmbienteFilter] = useState<'' | 'teste' | 'producao' | 'desconhecido'>('')
+  const [webhooksSearch, setWebhooksSearch] = useState('')
+  const [auditList, setAuditList] = useState<any[]>([])
+  const [auditLoading, setAuditLoading] = useState(false)
+  const [auditError, setAuditError] = useState('')
+  const [auditSearch, setAuditSearch] = useState('')
 
   useEffect(() => {
     const check = async () => {
@@ -1319,6 +1502,48 @@ export default function AdminPage() {
     }
   }
 
+  const fetchWebhookLogs = async (status = webhooksStatusFilter, ambiente = webhooksAmbienteFilter, q = webhooksSearch) => {
+    setWebhooksLoading(true)
+    setWebhooksError('')
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const params = new URLSearchParams()
+      if (status) params.set('status', status)
+      if (ambiente) params.set('ambiente', ambiente)
+      if (q.trim()) params.set('q', q.trim())
+      const res = await fetch(`/api/admin/logs/webhooks?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      })
+      const data = await res.json()
+      if (res.ok) setWebhooksList(data.logs ?? [])
+      else setWebhooksError(data.error ?? 'Erro ao carregar logs')
+    } catch {
+      setWebhooksError('Erro ao carregar logs')
+    } finally {
+      setWebhooksLoading(false)
+    }
+  }
+
+  const fetchAuditLogs = async (q = auditSearch) => {
+    setAuditLoading(true)
+    setAuditError('')
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const params = new URLSearchParams()
+      if (q.trim()) params.set('q', q.trim())
+      const res = await fetch(`/api/admin/logs/audit?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      })
+      const data = await res.json()
+      if (res.ok) setAuditList(data.logs ?? [])
+      else setAuditError(data.error ?? 'Erro ao carregar logs')
+    } catch {
+      setAuditError('Erro ao carregar logs')
+    } finally {
+      setAuditLoading(false)
+    }
+  }
+
   const handleToggleConfirm = async () => {
     if (!deactivateSheet) return
     setDeactivateLoading(true)
@@ -1342,6 +1567,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (maisSection === 'cupons') fetchCupons(cuponsTab)
+    if (maisSection === 'logs') { fetchWebhookLogs(); fetchAuditLogs() }
   }, [maisSection])
 
   const handleEventoSearch = async () => {
@@ -1473,7 +1699,26 @@ export default function AdminPage() {
             </button>
             <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Logs</span>
           </div>
-          <PlaceholderSection title="Logs e Monitoramento" icon={<IconFileText />} desc="Webhook logs do Pagar.me e historico de transicoes de status dos tickets." />
+          <LogsSection
+            logsTab={logsTab}
+            onLogsTabChange={(t) => { setLogsTab(t) }}
+            webhooks={webhooksList}
+            webhooksLoading={webhooksLoading}
+            webhooksError={webhooksError}
+            webhooksStatusFilter={webhooksStatusFilter}
+            onWebhooksStatusFilterChange={(v) => { setWebhooksStatusFilter(v); fetchWebhookLogs(v, webhooksAmbienteFilter, webhooksSearch) }}
+            webhooksAmbienteFilter={webhooksAmbienteFilter}
+            onWebhooksAmbienteFilterChange={(v) => { setWebhooksAmbienteFilter(v); fetchWebhookLogs(webhooksStatusFilter, v, webhooksSearch) }}
+            webhooksSearch={webhooksSearch}
+            onWebhooksSearchChange={setWebhooksSearch}
+            onWebhooksSearchSubmit={() => fetchWebhookLogs()}
+            audit={auditList}
+            auditLoading={auditLoading}
+            auditError={auditError}
+            auditSearch={auditSearch}
+            onAuditSearchChange={setAuditSearch}
+            onAuditSearchSubmit={() => fetchAuditLogs()}
+          />
         </>
       )
     }
