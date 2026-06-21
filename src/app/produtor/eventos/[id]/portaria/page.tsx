@@ -192,30 +192,23 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
       paddingBottom: 80,
     }}>
       <div style={{
-        padding: '16px 20px',
-        display: 'flex',
-        alignItems: 'center',
+        position: 'sticky', top: 0, zIndex: 100, height: 56,
+        background: '#fff', borderBottom: '1px solid #E8E8E8',
+        display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between', padding: '0 16px',
       }}>
-        <button
-          onClick={() => router.back()}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            fontSize: 14,
-            fontWeight: 600,
-            color: '#1A1A1A',
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M10 5L5 10l5 5" stroke="currentColor" strokeWidth="1.8"
+        <button onClick={() => router.back()} style={{
+          width: 36, height: 36, borderRadius: '50%',
+          background: '#F7F7F7', border: 'none', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M15 19l-7-7 7-7" stroke="#1A1A1A" strokeWidth="2"
               strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          Voltar
         </button>
+        <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>Portaria</span>
+        <div style={{ width: 36 }} />
       </div>
 
       {loading && (
