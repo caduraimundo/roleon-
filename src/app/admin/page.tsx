@@ -790,13 +790,76 @@ function IngressosSection({
   )
 }
 
+function CuponsSection({
+  cuponsTab, onCuponsTabChange, cupons, cuponsLoading, cuponsError, onToggleRequest,
+}: {
+  cuponsTab: 'ativos' | 'inativos'
+  onCuponsTabChange: (t: 'ativos' | 'inativos') => void
+  cupons: any[]
+  cuponsLoading: boolean
+  cuponsError: string
+  onToggleRequest: (c: any) => void
+}) {
+  const formatDesconto = (c: any) => c.discount_type === 'percent' ? `${Number(c.discount_value)}%` : `R$ ${Number(c.discount_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+  const formatUsos = (c: any) => c.max_uses ? `${c.uses_count}/${c.max_uses}` : `${c.uses_count} (sem limite)`
+  const formatExpira = (c: any) => c.expires_at ? new Date(c.expires_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' }) : 'Sem validade'
+
+  return (
+    <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+        {([{ id: 'ativos' as const, label: 'Ativos' }, { id: 'inativos' as const, label: 'Inativos' }]).map(t => {
+          const on = cuponsTab === t.id
+          return <button key={t.id} onClick={() => onCuponsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{t.label}</button>
+        })}
+      </div>
+
+      {cuponsLoading && <div style={{ fontSize: 13, color: DIM, textAlign: 'center', padding: '20px 0' }}>Carregando...</div>}
+
+      {cuponsError && (
+        <div style={{ background: '#FFF0F0', color: '#FF3B30', borderRadius: 10, padding: '10px 14px', fontSize: 13, fontWeight: 500, marginBottom: 14 }}>{cuponsError}</div>
+      )}
+
+      {!cuponsLoading && !cuponsError && cupons.length === 0 && (
+        <div style={{ fontSize: 13, color: DIM, textAlign: 'center', padding: '20px 0' }}>
+          Nenhum cupom {cuponsTab === 'ativos' ? 'ativo' : 'inativo'} encontrado.
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {cupons.map((c) => (
+          <div key={c.id} style={{ background: WHITE, borderRadius: 10, padding: '12px 14px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: TEXT, fontFamily: 'monospace' }}>{c.code}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: TEAL }}>{formatDesconto(c)}</div>
+            </div>
+            <div style={{ fontSize: 12, color: DIM, marginBottom: 2 }}>{c.evento_titulo ?? 'Evento nao encontrado'}</div>
+            <div style={{ fontSize: 12, color: DIM, marginBottom: 8 }}>Produtor: {c.produtor_nome ?? 'Desconhecido'}</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontSize: 11, color: DIM }}>Usos: {formatUsos(c)} - Expira: {formatExpira(c)}</div>
+              <button
+                onClick={() => onToggleRequest(c)}
+                style={{
+                  padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                  border: c.active ? '1.5px solid #FF3B30' : `1.5px solid ${TEAL}`,
+                  background: 'transparent', color: c.active ? '#FF3B30' : TEAL,
+                  cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
+                }}
+              >{c.active ? 'Desativar' : 'Reativar'}</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ── SECAO "MAIS" ─────────────────────────────────────────────────────────────
 function MaisSection({ onNavigate, onSignOut }: { onNavigate: (s: MaisSection) => void; onSignOut: () => void }) {
   const router = useRouter()
   const items = [
     { id: 'ingressos' as MaisSection, label: 'Ingressos',        desc: 'Buscar, ver detalhes e reembolsar', Icon: IconTicket   },
-    { id: 'logs'      as MaisSection, label: 'Logs',             desc: 'Webhook e auditoria de tickets',   Icon: IconFileText },
     { id: 'cupons'    as MaisSection, label: 'Cupons',           desc: 'Listar e desativar cupons',        Icon: IconTag      },
+    { id: 'logs'      as MaisSection, label: 'Logs',             desc: 'Webhook e auditoria de tickets',   Icon: IconFileText },
   ]
 
   const handleVoltar = () => router.push('/')
@@ -925,6 +988,14 @@ export default function AdminPage() {
   const [eventoSearchError, setEventoSearchError] = useState('')
   const [eventoCheckins, setEventoCheckins] = useState<any | null>(null)
   const [eventoCheckinsLoading, setEventoCheckinsLoading] = useState(false)
+
+  // Cupons
+  const [cuponsTab, setCuponsTab] = useState<'ativos' | 'inativos'>('ativos')
+  const [cuponsList, setCuponsList] = useState<any[]>([])
+  const [cuponsLoading, setCuponsLoading] = useState(false)
+  const [cuponsError, setCuponsError] = useState('')
+  const [deactivateSheet, setDeactivateSheet] = useState<{ id: string; code: string; active: boolean } | null>(null)
+  const [deactivateLoading, setDeactivateLoading] = useState(false)
 
   useEffect(() => {
     const check = async () => {
@@ -1194,6 +1265,51 @@ export default function AdminPage() {
     }
   }
 
+  const fetchCupons = async (tabAlvo: 'ativos' | 'inativos') => {
+    setCuponsLoading(true)
+    setCuponsError('')
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const activeParam = tabAlvo === 'ativos' ? 'true' : 'false'
+      const res = await fetch(`/api/admin/coupons?active=${activeParam}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const data = await res.json()
+      if (!res.ok) { setCuponsError(data.error ?? 'Erro ao buscar cupons'); setCuponsList([]); return }
+      setCuponsList(data.coupons ?? [])
+    } catch {
+      setCuponsError('Erro de conexao')
+    } finally {
+      setCuponsLoading(false)
+    }
+  }
+
+  const handleToggleConfirm = async () => {
+    if (!deactivateSheet) return
+    setDeactivateLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) return
+      const novoActive = !deactivateSheet.active
+      const res = await fetch(`/api/produtor/coupons/${deactivateSheet.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ active: novoActive }),
+      })
+      if (res.ok) {
+        setDeactivateSheet(null)
+        await fetchCupons(cuponsTab)
+      }
+    } finally {
+      setDeactivateLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (maisSection === 'cupons') fetchCupons(cuponsTab)
+  }, [maisSection])
+
   const handleEventoSearch = async () => {
     if (eventoSearch.trim().length < 2) { setEventoSearchError('Digite pelo menos 2 caracteres'); return }
     setEventoSearchLoading(true)
@@ -1336,7 +1452,40 @@ export default function AdminPage() {
             </button>
             <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Cupons</span>
           </div>
-          <PlaceholderSection title="Gestao de Cupons" icon={<IconTag />} desc="Listar todos os cupons ativos na plataforma e desativar em caso de abuso." />
+          <CuponsSection
+            cuponsTab={cuponsTab}
+            onCuponsTabChange={(t) => { setCuponsTab(t); fetchCupons(t) }}
+            cupons={cuponsList}
+            cuponsLoading={cuponsLoading}
+            cuponsError={cuponsError}
+            onToggleRequest={(c) => setDeactivateSheet({ id: c.id, code: c.code, active: c.active })}
+          />
+
+          {deactivateSheet && (
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+              <div style={{ background: WHITE, borderRadius: '16px 16px 0 0', padding: '24px 20px', width: '100%', maxWidth: 480 }}>
+                <div style={{ fontSize: 17, fontWeight: 700, color: TEXT, marginBottom: 6 }}>
+                  {deactivateSheet.active ? 'Desativar cupom' : 'Reativar cupom'}
+                </div>
+                <div style={{ fontSize: 13, color: DIM, marginBottom: 16 }}>
+                  {deactivateSheet.active
+                    ? `O cupom "${deactivateSheet.code}" deixara de funcionar imediatamente para novas compras.`
+                    : `O cupom "${deactivateSheet.code}" voltara a funcionar para novas compras.`}
+                </div>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button
+                    onClick={() => setDeactivateSheet(null)}
+                    style={{ flex: 1, padding: 12, borderRadius: 10, border: `1px solid ${BORDER}`, background: WHITE, color: DIM, fontSize: 14, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                  >Cancelar</button>
+                  <button
+                    onClick={handleToggleConfirm}
+                    disabled={deactivateLoading}
+                    style={{ flex: 1, padding: 12, borderRadius: 10, border: 'none', background: deactivateSheet.active ? '#FF3B30' : TEAL, color: WHITE, fontSize: 14, fontWeight: 600, cursor: 'pointer', opacity: deactivateLoading ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
+                  >{deactivateLoading ? 'Aguarde...' : 'Confirmar'}</button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )
     }
