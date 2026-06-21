@@ -21,9 +21,12 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
   const [loadingLink, setLoadingLink] = useState(false)
   const [copied, setCopied] = useState(false)
   const [cameraError, setCameraError] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
 
-  useEffect(() => {
-    const init = async () => {
+  const init = async () => {
+    setLoadError(false)
+    try {
       const { id } = await params
       setEventId(id)
 
@@ -65,12 +68,18 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
       const res = await fetch(`/api/produtor/checkin?event_id=${id}`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       })
-      if (res.ok) {
-        const data = await res.json()
-        setTotalSold(data.total_sold ?? 0)
-        setTotalCheckins(data.total_checkins ?? 0)
-      }
+      if (!res.ok) throw new Error('Falha ao carregar dados da portaria')
+      const data = await res.json()
+      setTotalSold(data.total_sold ?? 0)
+      setTotalCheckins(data.total_checkins ?? 0)
+    } catch {
+      setLoadError(true)
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     init()
   }, [])
 
@@ -208,6 +217,13 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
           Voltar
         </button>
       </div>
+
+      {loadError && (
+        <div style={{ textAlign: 'center', padding: '32px 16px' }}>
+          <p style={{ color: '#FF3B30', fontSize: 14, marginBottom: 12 }}>Nao foi possivel carregar seus eventos. Verifique sua conexao.</p>
+          <button onClick={() => { setLoading(true); init() }} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44 }}>Tentar de novo</button>
+        </div>
+      )}
 
       <div style={{
         margin: '0 20px',

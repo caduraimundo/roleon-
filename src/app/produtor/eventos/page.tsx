@@ -45,10 +45,12 @@ export default function EventosPage() {
   const router = useRouter()
   const [events, setEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [filter, setFilter] = useState('active')
 
-  useEffect(() => {
-    const init = async () => {
+  const init = async () => {
+    setLoadError(false)
+    try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.replace('/produtor'); return }
 
@@ -64,10 +66,17 @@ export default function EventosPage() {
       const res = await fetch('/api/produtor/events', {
         headers: { Authorization: `Bearer ${session?.access_token}` },
       })
+      if (!res.ok) throw new Error('Falha ao carregar eventos')
       const data = await res.json()
       setEvents(data.events ?? [])
+    } catch {
+      setLoadError(true)
+    } finally {
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
     init()
   }, [router])
 
@@ -153,7 +162,14 @@ export default function EventosPage() {
               color: '#9A9A9A', fontSize: 14 }}>Carregando...</div>
           )}
 
-          {!loading && displayEvents.length === 0 && (
+          {loadError && (
+            <div style={{ textAlign: 'center', padding: '32px 16px' }}>
+              <p style={{ color: '#FF3B30', fontSize: 14, marginBottom: 12 }}>Nao foi possivel carregar seus eventos. Verifique sua conexao.</p>
+              <button onClick={() => { setLoading(true); init() }} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44 }}>Tentar de novo</button>
+            </div>
+          )}
+
+          {!loading && !loadError && displayEvents.length === 0 && (
             <div style={{
               marginTop: 48, display: 'flex', flexDirection: 'column',
               alignItems: 'center', gap: 14, textAlign: 'center',
