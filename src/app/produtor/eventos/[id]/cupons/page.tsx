@@ -63,10 +63,10 @@ export default function CuponsPage({ params }: { params: Promise<{ id: string }>
 
   const handleCreate = async () => {
     setError('')
-    if (!code.trim() || !discountValue) { setError('Preencha o codigo e o valor do desconto'); return }
+    if (!code.trim() || !discountValue) { setError('Preencha o código e o valor do desconto'); return }
     const dv = Number(discountValue)
-    if (isNaN(dv) || dv <= 0) { setError('Valor do desconto invalido'); return }
-    if (discountType === 'percent' && dv > 100) { setError('Desconto percentual nao pode ser maior que 100'); return }
+    if (isNaN(dv) || dv <= 0) { setError('Valor do desconto inválido'); return }
+    if (discountType === 'percent' && dv > 100) { setError('Desconto percentual não pode ser maior que 100'); return }
     setSubmitting(true)
     try {
       const res = await fetch('/api/produtor/coupons', {
@@ -123,7 +123,7 @@ export default function CuponsPage({ params }: { params: Promise<{ id: string }>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div>
-              <div style={LABEL}>Codigo</div>
+              <div style={LABEL}>Código</div>
               <input style={INPUT} placeholder="EX: PROMO20" value={code} onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} maxLength={20} />
               <div style={{ fontSize: 11, color: '#9A9A9A', marginTop: 4 }}>Apenas letras e numeros, 3 a 20 caracteres</div>
             </div>
@@ -148,13 +148,13 @@ export default function CuponsPage({ params }: { params: Promise<{ id: string }>
                 <input style={INPUT} type="number" min="1" placeholder="Ex: 100" value={maxUses} onChange={e => setMaxUses(e.target.value)} />
               </div>
               <div style={{ flex: 1 }}>
-                <div style={LABEL}>Limite por usuario</div>
+                <div style={LABEL}>Limite por usuário</div>
                 <input style={INPUT} type="number" min="1" placeholder="1" value={maxUsesPerUser} onChange={e => setMaxUsesPerUser(e.target.value)} />
               </div>
             </div>
 
             <div>
-              <div style={LABEL}>Valido ate (opcional)</div>
+              <div style={LABEL}>Válido até (opcional)</div>
               <input style={INPUT} type="datetime-local" value={expiresAt} onChange={e => setExpiresAt(e.target.value)} />
             </div>
 
@@ -204,11 +204,11 @@ export default function CuponsPage({ params }: { params: Promise<{ id: string }>
                       {c.uses_count}{c.max_uses ? `/${c.max_uses}` : ''} uso{c.uses_count !== 1 ? 's' : ''}
                     </span>
                     <span style={{ fontSize: 12, color: '#6E6E73' }}>
-                      Max {c.max_uses_per_user} por usuario
+                      Max {c.max_uses_per_user} por usuário
                     </span>
                     {c.expires_at && (
                       <span style={{ fontSize: 12, color: '#6E6E73' }}>
-                        Valido ate {new Date(c.expires_at).toLocaleDateString('pt-BR')}
+                        Válido até {new Date(c.expires_at).toLocaleDateString('pt-BR')}
                       </span>
                     )}
                   </div>

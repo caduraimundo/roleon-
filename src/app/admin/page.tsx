@@ -832,10 +832,18 @@ function CuponsSection({
               <div style={{ fontSize: 15, fontWeight: 700, color: TEXT, fontFamily: 'monospace' }}>{c.code}</div>
               <div style={{ fontSize: 13, fontWeight: 700, color: TEAL }}>{formatDesconto(c)}</div>
             </div>
-            <div style={{ fontSize: 12, color: DIM, marginBottom: 2 }}>{c.evento_titulo ?? 'Evento nao encontrado'}</div>
+            <div style={{ fontSize: 12, color: DIM, marginBottom: 2 }}>{c.evento_titulo ?? 'Evento não encontrado'}</div>
             <div style={{ fontSize: 12, color: DIM, marginBottom: 8 }}>Produtor: {c.produtor_nome ?? 'Desconhecido'}</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: 11, color: DIM }}>Usos: {formatUsos(c)} - Expira: {formatExpira(c)}</div>
+              <div style={{ fontSize: 11, color: DIM, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>Usos: {formatUsos(c)} - Expira: {formatExpira(c)}</span>
+                {c.expires_at && new Date(c.expires_at) < new Date() && (
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#FF3B30', background: '#FFF0F0', padding: '1px 6px', borderRadius: 6 }}>Expirado</span>
+                )}
+                {c.max_uses && c.uses_count >= c.max_uses && (
+                  <span style={{ fontSize: 10, fontWeight: 700, color: '#FF3B30', background: '#FFF0F0', padding: '1px 6px', borderRadius: 6 }}>Esgotado</span>
+                )}
+              </div>
               <button
                 onClick={() => onToggleRequest(c)}
                 style={{
