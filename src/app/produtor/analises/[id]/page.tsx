@@ -93,7 +93,7 @@ export default function EventoAnalisesPage() {
           flex: 1, textAlign: 'center' as const,
           fontSize: 17, fontWeight: 700, color: '#1A1A1A',
         }}>
-          Analises
+          Análises
         </span>
         <div style={{ width: 36 }} />
       </header>
@@ -138,7 +138,7 @@ export default function EventoAnalisesPage() {
               {loading ? '...' : fmt(data?.totals.revenue ?? 0)}
             </div>
             <div style={{ fontSize: 10.5, color: T.textMute, marginTop: 4, fontWeight: 500 }}>
-              liquido apos taxas
+              líquido após taxas
             </div>
           </div>
 

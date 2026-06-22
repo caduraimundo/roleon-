@@ -217,7 +217,7 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
 
       {loadError && (
         <div style={{ textAlign: 'center', padding: '32px 16px' }}>
-          <p style={{ color: '#FF3B30', fontSize: 14, marginBottom: 12 }}>Nao foi possivel carregar os dados da portaria. Verifique sua conexao.</p>
+          <p style={{ color: '#FF3B30', fontSize: 14, marginBottom: 12 }}>Não foi possível carregar os dados da portaria. Verifique sua conexão.</p>
           <button onClick={() => { setLoading(true); init() }} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44 }}>Tentar de novo</button>
         </div>
       )}

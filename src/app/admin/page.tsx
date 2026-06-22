@@ -260,8 +260,8 @@ function VendasSection({
       value: resumo.cron ? (resumo.cron.status === 'ok' ? 'OK' : 'Erro') : 'Nunca rodou',
       sub: resumo.cron ? (
         <>
-          Ultimo: {formatDateTime(resumo.cron.ultimo_run)}<br/>
-          Proximo: {formatDateTime(resumo.cron.proximo_run)}<br/>
+          Último: {formatDateTime(resumo.cron.ultimo_run)}<br/>
+          Próximo: {formatDateTime(resumo.cron.proximo_run)}<br/>
           {resumo.cron.events_processed} processado(s)
         </>
       ) : null as React.ReactNode,
@@ -317,17 +317,20 @@ function VendasSection({
 
       {/* Filtros */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-        {(['pendentes', 'repassados', 'todos'] as const).map((f) => (
-          <button key={f} onClick={() => onFiltroChange(f)} style={{
-            flex: 1, padding: '7px 4px', borderRadius: 8, border: 'none', cursor: 'pointer',
-            fontSize: 12, fontWeight: 600,
-            background: filtro === f ? '#0EA5A0' : '#FFFFFF',
-            color: filtro === f ? '#FFFFFF' : '#6E6E73',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-          }}>
-            {f === 'pendentes' ? 'Pendentes' : f === 'repassados' ? 'Repassados' : 'Todos'}
-          </button>
-        ))}
+        {(['pendentes', 'repassados', 'todos'] as const).map((f) => {
+          const on = filtro === f
+          return (
+            <button key={f} onClick={() => onFiltroChange(f)} style={{
+              padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600,
+              background: on ? '#0EA5A0' : '#FFFFFF',
+              color: on ? '#FFFFFF' : '#1A1A1A',
+              border: on ? 'none' : '1px solid #E8E8E8',
+              cursor: 'pointer',
+            }}>
+              {f === 'pendentes' ? 'Pendentes' : f === 'repassados' ? 'Repassados' : 'Todos'}
+            </button>
+          )
+        })}
       </div>
 
       {/* Busca */}

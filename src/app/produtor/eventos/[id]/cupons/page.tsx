@@ -129,7 +129,7 @@ export default function CuponsPage({ params }: { params: Promise<{ id: string }>
             <div>
               <div style={LABEL}>Código</div>
               <input style={INPUT} placeholder="EX: PROMO20" value={code} onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} maxLength={20} />
-              <div style={{ fontSize: 11, color: '#9A9A9A', marginTop: 4 }}>Apenas letras e numeros, 3 a 20 caracteres</div>
+              <div style={{ fontSize: 11, color: '#9A9A9A', marginTop: 4 }}>Apenas letras e números, 3 a 20 caracteres</div>
             </div>
 
             <div style={{ display: 'flex', gap: 10 }}>
