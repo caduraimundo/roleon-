@@ -514,10 +514,10 @@ function IngressosSection({
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
         {([{ id: 'busca' as const, label: 'Buscar ingresso' }, { id: 'checkins' as const, label: 'Check-ins por evento' }]).map(t => {
           const on = ticketsTab === t.id
-          return <button key={t.id} onClick={() => onTicketsTabChange(t.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t.label}</button>
+          return <button key={t.id} onClick={() => onTicketsTabChange(t.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : '1px solid #E8E8E8', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{t.label}</button>
         })}
       </div>
 
@@ -810,10 +810,10 @@ function CuponsSection({
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
         {([{ id: 'ativos' as const, label: 'Ativos' }, { id: 'inativos' as const, label: 'Inativos' }]).map(t => {
           const on = cuponsTab === t.id
-          return <button key={t.id} onClick={() => onCuponsTabChange(t.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t.label}</button>
+          return <button key={t.id} onClick={() => onCuponsTabChange(t.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : '1px solid #E8E8E8', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{t.label}</button>
         })}
       </div>
 
@@ -925,10 +925,10 @@ function LogsSection({
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
         {([{ id: 'webhooks' as const, label: 'Webhooks' }, { id: 'auditoria' as const, label: 'Auditoria' }]).map(t => {
           const on = logsTab === t.id
-          return <button key={t.id} onClick={() => onLogsTabChange(t.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t.label}</button>
+          return <button key={t.id} onClick={() => onLogsTabChange(t.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : '1px solid #E8E8E8', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{t.label}</button>
         })}
       </div>
 
@@ -1994,7 +1994,7 @@ export default function AdminPage() {
             </div>
 
             {/* Filtros */}
-            <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, marginBottom: 14 }} className="no-scrollbar">
+            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, marginBottom: 14 }} className="no-scrollbar">
               {([
                 { id: 'pending',   label: `Aguardando (${pendingEvents.length})` },
                 { id: 'active',    label: 'Ativos' },
@@ -2006,9 +2006,8 @@ export default function AdminPage() {
                   <button key={f.id} onClick={() => setModFilter(f.id)} style={{
                     flexShrink: 0, padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600,
                     background: on ? TEAL : WHITE, color: on ? WHITE : TEXT,
-                    border: on ? 'none' : `1px solid ${BORDER}`,
+                    border: on ? 'none' : '1px solid #E8E8E8',
                     cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
-                    minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   }}>{f.label}</button>
                 )
               })}
@@ -2277,10 +2276,10 @@ export default function AdminPage() {
           </div>
 
           {/* Filtros */}
-          <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
             {([{ id: 'verificados', label: 'Verificados' }, { id: 'ativos', label: 'Ativos' }, { id: 'desativados', label: 'Desativados' }] as const).map(f => {
               const on = prodFilter === f.id
-              return <button key={f.id} onClick={() => setProdFilter(f.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{f.label}</button>
+              return <button key={f.id} onClick={() => setProdFilter(f.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : '1px solid #E8E8E8', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{f.label}</button>
             })}
           </div>
 
