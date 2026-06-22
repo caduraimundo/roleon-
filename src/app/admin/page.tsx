@@ -517,7 +517,7 @@ function IngressosSection({
       <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
         {([{ id: 'busca' as const, label: 'Buscar ingresso' }, { id: 'checkins' as const, label: 'Check-ins por evento' }]).map(t => {
           const on = ticketsTab === t.id
-          return <button key={t.id} onClick={() => onTicketsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t.label}</button>
+          return <button key={t.id} onClick={() => onTicketsTabChange(t.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t.label}</button>
         })}
       </div>
 
@@ -813,7 +813,7 @@ function CuponsSection({
       <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
         {([{ id: 'ativos' as const, label: 'Ativos' }, { id: 'inativos' as const, label: 'Inativos' }]).map(t => {
           const on = cuponsTab === t.id
-          return <button key={t.id} onClick={() => onCuponsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t.label}</button>
+          return <button key={t.id} onClick={() => onCuponsTabChange(t.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t.label}</button>
         })}
       </div>
 
@@ -928,7 +928,7 @@ function LogsSection({
       <div style={{ display: 'flex', gap: 6, marginBottom: 14 }}>
         {([{ id: 'webhooks' as const, label: 'Webhooks' }, { id: 'auditoria' as const, label: 'Auditoria' }]).map(t => {
           const on = logsTab === t.id
-          return <button key={t.id} onClick={() => onLogsTabChange(t.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t.label}</button>
+          return <button key={t.id} onClick={() => onLogsTabChange(t.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{t.label}</button>
         })}
       </div>
 
@@ -1850,9 +1850,9 @@ export default function AdminPage() {
       // Tela de detalhe do evento
       if (detailEvent) {
         const ev = detailData
-        const badge: Record<string, { label: string; bg: string; color: string; border: string }> = {
+        const badge: Record<string, { label: string; bg: string; color: string; border?: string }> = {
           pending:   { label: 'Aguardando', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
-          active:    { label: 'Ativo',      bg: '#E6F7F6', color: '#0A7A76', border: '#A7E8E6' },
+          active:    { label: 'Ativo',      bg: '#E6F7F6', color: '#0A7A76' },
           cancelled: { label: 'Cancelado',  bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
           rejected:  { label: 'Recusado',   bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
         }
@@ -1878,7 +1878,7 @@ export default function AdminPage() {
               <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, padding: 20, display: 'flex', flexDirection: 'column', gap: 0 }}>
                 {/* Badge + título + produtor */}
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, background: b.bg, color: b.color, border: `1px solid ${b.border}`, borderRadius: 20, padding: '3px 8px' }}>{b.label}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, background: b.bg, color: b.color, ...(b.border ? { border: `1px solid ${b.border}` } : {}), borderRadius: 20, padding: '3px 8px' }}>{b.label}</span>
                 </div>
                 <div style={{ fontSize: 19, fontWeight: 700, color: TEXT, textAlign: 'center', lineHeight: 1.3, marginBottom: 4 }}>{detailEvent.title}</div>
                 <div style={{ fontSize: 13, color: DIM, textAlign: 'center', marginBottom: 16 }}>{detailEvent.producer_name}</div>
@@ -1968,9 +1968,9 @@ export default function AdminPage() {
 
       const formatPrice = (e: any) => e.is_free ? 'Gratuito' : `R$ ${Number(e.price ?? 0).toFixed(2).replace('.', ',')}`
 
-      const badgeMap: Record<string, { label: string; bg: string; color: string; border: string }> = {
+      const badgeMap: Record<string, { label: string; bg: string; color: string; border?: string }> = {
         pending:   { label: 'Aguardando', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
-        active:    { label: 'Ativo',      bg: '#E6F7F6', color: '#0A7A76', border: '#A7E8E6' },
+        active:    { label: 'Ativo',      bg: '#E6F7F6', color: '#0A7A76' },
         cancelled: { label: 'Cancelado',  bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
         rejected:  { label: 'Recusado',   bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
       }
@@ -2004,7 +2004,7 @@ export default function AdminPage() {
                 const on = modFilter === f.id
                 return (
                   <button key={f.id} onClick={() => setModFilter(f.id)} style={{
-                    flexShrink: 0, padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500,
+                    flexShrink: 0, padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600,
                     background: on ? TEAL : WHITE, color: on ? WHITE : TEXT,
                     border: on ? 'none' : `1px solid ${BORDER}`,
                     cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
@@ -2070,7 +2070,7 @@ export default function AdminPage() {
                     <span style={{
                       fontSize: 11, fontWeight: 600, flexShrink: 0,
                       background: badge.bg, color: badge.color,
-                      border: `1px solid ${badge.border}`,
+                      ...(badge.border ? { border: `1px solid ${badge.border}` } : {}),
                       borderRadius: 20, padding: '3px 8px', whiteSpace: 'nowrap',
                     }}>{badge.label}</span>
                   </div>
@@ -2280,7 +2280,7 @@ export default function AdminPage() {
           <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
             {([{ id: 'verificados', label: 'Verificados' }, { id: 'ativos', label: 'Ativos' }, { id: 'desativados', label: 'Desativados' }] as const).map(f => {
               const on = prodFilter === f.id
-              return <button key={f.id} onClick={() => setProdFilter(f.id)} style={{ padding: '6px 12px', borderRadius: 8, fontSize: 12, fontWeight: on ? 700 : 500, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{f.label}</button>
+              return <button key={f.id} onClick={() => setProdFilter(f.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : `1px solid ${BORDER}`, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{f.label}</button>
             })}
           </div>
 
