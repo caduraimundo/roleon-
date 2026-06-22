@@ -162,7 +162,12 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
     console.log('DEBUG OAuth:', { data, error, popup: !!popup, popupClosed: popup?.closed })
 
     if (data?.url && popup) {
-      popup.location.href = data.url
+      try {
+        popup.location.href = data.url
+        console.log('DEBUG OAuth: navegação do popup OK, popup.closed agora =', popup.closed)
+      } catch (e) {
+        console.error('DEBUG OAuth: ERRO ao navegar popup', e)
+      }
     } else if (data?.url) {
       // Fallback: se popup foi bloqueado, redireciona normalmente
       window.location.href = data.url
