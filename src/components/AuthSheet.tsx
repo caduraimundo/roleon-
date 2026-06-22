@@ -148,7 +148,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       'width=520,height=620,left=' + Math.round(window.screenX + (window.outerWidth - 520) / 2) + ',top=' + Math.round(window.screenY + (window.outerHeight - 620) / 2)
     )
 
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    const { data } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: callbackUrl,
@@ -159,63 +159,37 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       },
     })
 
-    console.log('DEBUG OAuth:', { data, error, popup: !!popup, popupClosed: popup?.closed })
-
     if (data?.url && popup) {
-      try {
-        popup.location.href = data.url
-        console.log('DEBUG OAuth: navegação do popup OK, popup.closed agora =', popup.closed)
-      } catch (e) {
-        console.error('DEBUG OAuth: ERRO ao navegar popup', e)
-      }
-
-      // Fallback: se em 2.5s o popup ainda estiver em about:blank (não navegou de verdade,
-      // provavelmente bloqueado por extensão/navegador), assume o controle e redireciona
-      // a aba principal direto, sem depender do popup.
-      setTimeout(() => {
-        try {
-          const aindaNoBlank = !popup.closed && (popup.location.href === 'about:blank' || popup.location.href === '')
-          if (aindaNoBlank) {
-            popup.close()
-            window.location.href = data.url
-          }
-        } catch {
-          // Acesso a popup.location pode lançar erro de cross-origin SE a navegação
-          // de fato aconteceu (sinal de sucesso) — nesse caso, não faz nada, está tudo certo.
-        }
-      }, 2500)
+      popup.location.href = data.url
     } else if (data?.url) {
       // Fallback: se popup foi bloqueado, redireciona normalmente
       window.location.href = data.url
     }
 
-    const finalizeLogin = () => {
-      window.removeEventListener('storage', handleStorageChange)
-      popup?.close()
-      supabase.auth.getSession().then(async ({ data: { session } }) => {
-        if (session) {
-          try {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('role')
-              .eq('id', session.user.id)
-              .maybeSingle()
-            onClose()
-            window.location.href = profile?.role === 'admin' ? '/admin' : next
-          } catch (_) {
-            onClose()
-            window.location.href = next
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return
+      if (event.data?.type === 'ROLEON_AUTH_SUCCESS') {
+        window.removeEventListener('message', handleMessage)
+        popup?.close()
+        supabase.auth.getSession().then(async ({ data: { session } }) => {
+          if (session) {
+            try {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', session.user.id)
+                .maybeSingle()
+              onClose()
+              window.location.href = profile?.role === 'admin' ? '/admin' : next
+            } catch (_) {
+              onClose()
+              window.location.href = next
+            }
           }
-        }
-      })
-    }
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'roleon_auth_success' && event.newValue) {
-        try { localStorage.removeItem('roleon_auth_success') } catch (e) {}
-        finalizeLogin()
+        })
       }
     }
-    window.addEventListener('storage', handleStorageChange)
+    window.addEventListener('message', handleMessage)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

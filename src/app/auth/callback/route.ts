@@ -73,13 +73,12 @@ export async function GET(request: Request) {
 <head><meta charset="utf-8"></head>
 <body>
 <script>
-try {
-  localStorage.setItem('roleon_auth_success', String(Date.now()));
-} catch (e) {}
-window.close();
-setTimeout(function () {
+if (window.opener) {
+  window.opener.postMessage({ type: 'ROLEON_AUTH_SUCCESS' }, ${JSON.stringify(origin)});
+  window.close();
+} else {
   window.location.replace(${JSON.stringify(destination)});
-}, 300);
+}
 </script>
 </body>
 </html>`,
