@@ -453,7 +453,7 @@ export default function EventoPage() {
                     <div style={{ textAlign: 'center' }}>
                       <div style={{ fontSize: 18, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.3 }}>{organizer.name}</div>
                       {organizer.verified && (
-                        <span style={{ display: 'inline-block', marginTop: 6, fontSize: 11, fontWeight: 700, background: '#ECFDF5', color: '#047857', border: '1px solid #A7F3D0', borderRadius: 999, padding: '3px 10px' }}>Verificado</span>
+                        <span style={{ display: 'inline-block', marginTop: 6, fontSize: 11, fontWeight: 700, background: '#E6F7F6', color: '#0A7A76', borderRadius: 999, padding: '3px 10px' }}>Verificado</span>
                       )}
                     </div>
                   </div>

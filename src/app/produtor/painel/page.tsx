@@ -6,7 +6,7 @@ import { supabase } from '../../../lib/supabase'
 
 function statusLabel(status: string) {
   if (status === 'pending') return { text: 'Aguardando aprovação', color: '#F59E0B', bg: '#FFFBEB' }
-  if (status === 'active') return { text: 'Publicado', color: '#10B981', bg: '#ECFDF5' }
+  if (status === 'active') return { text: 'Publicado', color: '#0A7A76', bg: '#E6F7F6' }
   if (status === 'rejected') return { text: 'Recusado', color: '#EF4444', bg: '#FEF2F2' }
   return { text: 'Encerrado', color: '#6E6E73', bg: '#F5F5F5' }
 }

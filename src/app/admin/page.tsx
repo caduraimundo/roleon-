@@ -2162,8 +2162,8 @@ export default function AdminPage() {
 
       const statusBadge = (p: any) => {
         if (p.producer_disabled) return { label: 'Desativado', bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' }
-        if (p.verified)          return { label: 'Verificado', bg: '#ECFDF5', color: '#047857', border: '#A7F3D0' }
-        return                          { label: 'Ativo',      bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE' }
+        if (p.verified)          return { label: 'Verificado', bg: '#E6F7F6', color: '#0A7A76' }
+        return                          { label: 'Ativo',      bg: '#E6F7F6', color: '#0A7A76' }
       }
 
       // Tela de detalhe do produtor
@@ -2191,7 +2191,7 @@ export default function AdminPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                   <div style={{ width: 56, height: 56, borderRadius: 16, background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 20, fontWeight: 700 }}>{initials}</div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: TEXT }}>{p.name}</div>
-                  <span style={{ fontSize: 11, fontWeight: 600, background: sb.bg, color: sb.color, border: `1px solid ${sb.border}`, borderRadius: 20, padding: '3px 8px' }}>{sb.label}</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, background: sb.bg, color: sb.color, ...('border' in sb ? { border: `1px solid ${sb.border}` } : {}), borderRadius: 20, padding: '3px 8px' }}>{sb.label}</span>
                 </div>
 
                 <div style={{ borderTop: `1px solid ${BORDER}`, marginBottom: 14 }} />
