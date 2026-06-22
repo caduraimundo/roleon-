@@ -157,7 +157,8 @@ export default function ResetPasswordPage() {
             style={{
               width: '100%', background: loading ? '#7DCFCD' : '#0EA5A0',
               color: '#fff', border: 0, cursor: loading ? 'default' : 'pointer',
-              padding: '14px 18px', borderRadius: 12,
+              height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '0 18px', borderRadius: 12,
               fontSize: 15, fontWeight: 700,
               fontFamily: "'Noto Sans', sans-serif",
               boxShadow: '0 6px 16px rgba(14,165,160,0.25)',

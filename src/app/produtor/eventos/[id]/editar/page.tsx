@@ -404,13 +404,13 @@ export default function EditarEventoPage() {
               <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  style={{ flex: 1, padding: '9px 0', borderRadius: 8, border: '1px solid #E8E8E8', background: '#fff', fontSize: 13, fontWeight: 500, color: '#1A1A1A', cursor: 'pointer' }}
+                  style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: '1px solid #E8E8E8', background: '#fff', fontSize: 13, fontWeight: 500, color: '#1A1A1A', cursor: 'pointer' }}
                 >
                   Trocar imagem
                 </button>
                 <button
                   onClick={() => { setCoverFile(null); setCoverPreview(null) }}
-                  style={{ flex: 1, padding: '9px 0', borderRadius: 8, border: '1px solid #FFD0D0', background: '#FFF5F5', fontSize: 13, fontWeight: 500, color: '#C0392B', cursor: 'pointer' }}
+                  style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: '1px solid #FFD0D0', background: '#FFF5F5', fontSize: 13, fontWeight: 500, color: '#C0392B', cursor: 'pointer' }}
                 >
                   Remover
                 </button>
@@ -426,13 +426,13 @@ export default function EditarEventoPage() {
               <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  style={{ flex: 1, padding: '9px 0', borderRadius: 8, border: '1px solid #E8E8E8', background: '#fff', fontSize: 13, fontWeight: 500, color: '#1A1A1A', cursor: 'pointer' }}
+                  style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: '1px solid #E8E8E8', background: '#fff', fontSize: 13, fontWeight: 500, color: '#1A1A1A', cursor: 'pointer' }}
                 >
                   Trocar imagem
                 </button>
                 <button
                   onClick={() => { setExistingCoverUrl(null); setCoverFile(null); setCoverPreview(null) }}
-                  style={{ flex: 1, padding: '9px 0', borderRadius: 8, border: '1px solid #FFD0D0', background: '#FFF5F5', fontSize: 13, fontWeight: 500, color: '#C0392B', cursor: 'pointer' }}
+                  style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: '1px solid #FFD0D0', background: '#FFF5F5', fontSize: 13, fontWeight: 500, color: '#C0392B', cursor: 'pointer' }}
                 >
                   Remover
                 </button>
@@ -649,7 +649,8 @@ export default function EditarEventoPage() {
             onClick={() => setPolicies(prev => [...prev, ''])}
             style={{
               width: '100%',
-              padding: 12,
+              height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '0 12px',
               borderRadius: 10,
               border: '1.5px dashed #0EA5A0',
               background: 'transparent',
@@ -755,7 +756,8 @@ export default function EditarEventoPage() {
                 onClick={() => setTicketTypes(prev => [...prev, { name: '', price: '', quantity: '' }])}
                 style={{
                   width: '100%',
-                  padding: 12,
+                  height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 12px',
                   borderRadius: 10,
                   border: '1.5px dashed #0EA5A0',
                   background: 'transparent',
@@ -846,7 +848,7 @@ export default function EditarEventoPage() {
               <button
                 onClick={() => setCancelConfirm(false)}
                 style={{
-                  flex: 1, padding: '13px 0', borderRadius: 10,
+                  flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 10,
                   border: '1px solid #E8E8E8', background: '#fff', color: '#1A1A1A',
                   fontFamily: "'Noto Sans', sans-serif", fontSize: 14, fontWeight: 600,
                   cursor: 'pointer',
@@ -858,7 +860,7 @@ export default function EditarEventoPage() {
                 onClick={handleCancelEvent}
                 disabled={cancelLoading}
                 style={{
-                  flex: 2, padding: '13px 0', borderRadius: 10,
+                  flex: 2, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 10,
                   border: 'none', background: '#DC2626', color: '#fff',
                   fontFamily: "'Noto Sans', sans-serif", fontSize: 14, fontWeight: 700,
                   cursor: cancelLoading ? 'not-allowed' : 'pointer',
@@ -896,7 +898,7 @@ export default function EditarEventoPage() {
           onClick={handleSubmit}
           disabled={loading || uploading}
           style={{
-            width: '100%', padding: '15px', borderRadius: 14,
+            width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px', borderRadius: 14,
             background: loading || uploading ? '#7DCFCC' : '#0EA5A0',
             color: '#fff', fontWeight: 700, fontSize: 15,
             fontFamily: "'Noto Sans', sans-serif",

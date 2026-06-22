@@ -395,7 +395,8 @@ export default function ConfiguracoesPage() {
                 onClick={handleDeleteAccount}
                 disabled={deleting}
                 style={{
-                  padding: '14px 0',
+                  height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 0',
                   borderRadius: 14,
                   background: '#FF3B30',
                   border: 'none',
@@ -415,7 +416,8 @@ export default function ConfiguracoesPage() {
                 onClick={() => setShowDeleteModal(false)}
                 disabled={deleting}
                 style={{
-                  padding: '14px 0',
+                  height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 0',
                   borderRadius: 14,
                   background: '#F4F4F4',
                   border: 'none',

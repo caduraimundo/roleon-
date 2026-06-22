@@ -399,7 +399,7 @@ export default function EventoPage() {
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
               background: 'transparent', border: '1.5px solid #0EA5A0',
-              borderRadius: 10, padding: '11px 18px',
+              borderRadius: 10, height: 44, padding: '0 18px',
               color: '#0EA5A0', fontSize: 14, fontWeight: 600,
               fontFamily: "'Noto Sans', sans-serif",
               cursor: 'pointer', width: '100%',

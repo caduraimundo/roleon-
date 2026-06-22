@@ -260,7 +260,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
             <button
               onClick={handleResendEmail}
               disabled={resendLoading || resendSent}
-              className="w-full py-3 rounded-xl text-sm font-semibold bg-[#0EA5A0] text-white mb-3 disabled:opacity-50"
+              className="w-full h-11 flex items-center justify-center rounded-xl text-sm font-semibold bg-[#0EA5A0] text-white mb-3 disabled:opacity-50"
             >
               {resendLoading ? 'Enviando...' : resendSent ? 'Link enviado' : 'Reenviar e-mail de confirmação'}
             </button>
@@ -323,7 +323,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
             <button
               onClick={() => { setShowConfirmSheet(false); router.push('/ingressos') }}
               style={{
-                width: '100%', padding: '15px',
+                width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px',
                 background: '#0EA5A0', color: '#fff',
                 border: 0, borderRadius: 14,
                 fontSize: 15, fontWeight: 700,
@@ -356,12 +356,12 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
 const BTN_TEAL: React.CSSProperties = {
   background: '#0EA5A0', color: '#fff',
   border: 0, cursor: 'pointer',
-  padding: '15px 22px', borderRadius: 12,
+  height: 44, padding: '0 22px', borderRadius: 12,
   fontSize: 16, fontWeight: 700,
   fontFamily: "'Noto Sans', sans-serif",
   boxShadow: '0 6px 18px rgba(14,165,160,0.28)',
   whiteSpace: 'nowrap',
-  display: 'flex', alignItems: 'center',
+  display: 'flex', alignItems: 'center', justifyContent: 'center',
 }
 
 const BTN_SOLD_OUT: React.CSSProperties = {

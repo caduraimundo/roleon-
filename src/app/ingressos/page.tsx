@@ -370,7 +370,8 @@ export default function IngressosPage() {
             <button
               onClick={() => router.push('/')}
               style={{
-                marginTop: 8, padding: '12px 28px', borderRadius: 12,
+                marginTop: 8, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '0 28px', borderRadius: 12,
                 background: TEAL, color: '#fff',
                 border: 0, cursor: 'pointer',
                 fontSize: 15, fontWeight: 600,

@@ -246,7 +246,8 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight, us
         <button
           onClick={onViewDetail}
           style={{
-            padding: '10px 14px',
+            height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '0 14px',
             background: T.primary, color: '#fff',
             border: 0, borderRadius: 10, cursor: 'pointer',
             fontSize: 13, fontWeight: 600,
@@ -361,7 +362,7 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
               </div>
             </div>
           </div>
-          <button onClick={() => { onEventSelect?.(current.id); handleClose() }} style={{ marginTop: 12, width: '100%', background: '#0EA5A0', color: '#fff', border: 0, borderRadius: 10, padding: '11px 0', fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
+          <button onClick={() => { onEventSelect?.(current.id); handleClose() }} style={{ marginTop: 12, width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0EA5A0', color: '#fff', border: 0, borderRadius: 10, padding: '0 0', fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
             Ver evento
           </button>
         </div>

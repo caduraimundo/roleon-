@@ -165,7 +165,7 @@ export default function EventosPage() {
           {loadError && (
             <div style={{ textAlign: 'center', padding: '32px 16px' }}>
               <p style={{ color: '#FF3B30', fontSize: 14, marginBottom: 12 }}>Não foi possível carregar seus eventos. Verifique sua conexão.</p>
-              <button onClick={() => { setLoading(true); init() }} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44 }}>Tentar de novo</button>
+              <button onClick={() => { setLoading(true); init() }} style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Tentar de novo</button>
             </div>
           )}
 
@@ -290,7 +290,7 @@ export default function EventosPage() {
                       <>
                         {/* Portaria — primário, largura total, teal sólido */}
                         <a href={`/produtor/eventos/${ev.id}/portaria`} style={{
-                          padding: '11px 12px', borderRadius: 10,
+                          height: 44, padding: '0 12px', borderRadius: 10,
                           border: 'none', background: '#0EA5A0', color: '#fff',
                           fontFamily: "'Noto Sans', sans-serif",
                           fontSize: 13, fontWeight: 700,
@@ -309,7 +309,7 @@ export default function EventosPage() {
                         {/* Editar + Participantes — secundário, 2 colunas */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8 }}>
                           <a href={`/produtor/eventos/${ev.id}/editar`} style={{
-                            padding: '9px 10px', borderRadius: 10,
+                            height: 44, padding: '0 10px', borderRadius: 10,
                             border: '1px solid #E8E8E8',
                             background: '#fff', color: '#1A1A1A',
                             fontFamily: "'Noto Sans', sans-serif",
@@ -326,7 +326,7 @@ export default function EventosPage() {
                             Editar
                           </a>
                           <a href={`/produtor/eventos/${ev.id}/participantes`} style={{
-                            padding: '9px 10px', borderRadius: 10,
+                            height: 44, padding: '0 10px', borderRadius: 10,
                             border: '1px solid #E8E8E8',
                             background: '#fff', color: '#1A1A1A',
                             fontFamily: "'Noto Sans', sans-serif",
@@ -345,7 +345,7 @@ export default function EventosPage() {
                             Participantes
                           </a>
                           <a href={`/produtor/eventos/${ev.id}/cupons`} style={{
-                            padding: '9px 10px', borderRadius: 10,
+                            height: 44, padding: '0 10px', borderRadius: 10,
                             border: '1px solid #E8E8E8',
                             background: '#fff', color: '#1A1A1A',
                             fontFamily: "'Noto Sans', sans-serif",
@@ -412,7 +412,7 @@ export default function EventosPage() {
                       </>
                     ) : (
                       <a href={`/produtor/eventos/${ev.id}/editar`} style={{
-                        padding: '9px 10px', borderRadius: 10,
+                        height: 44, padding: '0 10px', borderRadius: 10,
                         border: '1px solid #E8E8E8',
                         background: '#fff', color: '#1A1A1A',
                         fontFamily: "'Noto Sans', sans-serif",

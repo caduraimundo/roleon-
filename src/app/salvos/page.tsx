@@ -169,7 +169,8 @@ export default function SalvosPage() {
               marginTop: 8,
               background: '#0EA5A0', color: '#fff',
               border: 0, borderRadius: 12, cursor: 'pointer',
-              padding: '13px 36px', fontSize: 15, fontWeight: 700,
+              height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '0 36px', fontSize: 15, fontWeight: 700,
               fontFamily: "'Noto Sans', sans-serif",
               boxShadow: '0 6px 16px rgba(14,165,160,0.25)',
             }}
@@ -253,7 +254,8 @@ export default function SalvosPage() {
                     style={{
                       background: '#0EA5A0', color: '#fff',
                       border: 0, borderRadius: 8, cursor: 'pointer',
-                      padding: '8px 16px', fontSize: 13, fontWeight: 600,
+                      height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      padding: '0 16px', fontSize: 13, fontWeight: 600,
                       fontFamily: "'Noto Sans', sans-serif",
                     }}
                   >

@@ -262,7 +262,8 @@ export default function AlterarSenhaPage() {
           disabled={!isValid || saving || success}
           style={{
             width: '100%',
-            height: 52,
+            height: 44,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
             borderRadius: 14,
             background: !isValid || success ? '#7DCFCC' : '#0EA5A0',
             border: 'none',

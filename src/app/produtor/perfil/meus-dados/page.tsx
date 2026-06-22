@@ -246,7 +246,7 @@ export default function MeusDadosPage() {
           onClick={handleSave}
           disabled={saving || success}
           style={{
-            width: '100%', padding: '15px',
+            width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px',
             borderRadius: 14,
             background: saving || success ? '#7DCFCC' : '#0EA5A0',
             border: 'none', fontSize: 15, fontWeight: 700,

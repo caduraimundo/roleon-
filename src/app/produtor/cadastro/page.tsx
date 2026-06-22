@@ -194,7 +194,8 @@ export default function CadastroProdutorPage() {
           disabled={loading}
           style={{
             width: '100%',
-            padding: '15px',
+            height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '0 15px',
             borderRadius: 14,
             border: 'none',
             background: loading ? '#7DCFCC' : '#0EA5A0',

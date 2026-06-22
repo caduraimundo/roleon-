@@ -297,13 +297,13 @@ export default function NovoEventoPage() {
               <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  style={{ flex: 1, padding: '9px 0', borderRadius: 8, border: '1px solid #E8E8E8', background: '#fff', fontSize: 13, fontWeight: 500, color: '#1A1A1A', cursor: 'pointer' }}
+                  style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: '1px solid #E8E8E8', background: '#fff', fontSize: 13, fontWeight: 500, color: '#1A1A1A', cursor: 'pointer' }}
                 >
                   Trocar imagem
                 </button>
                 <button
                   onClick={() => { setCoverFile(null); setCoverPreview(null) }}
-                  style={{ flex: 1, padding: '9px 0', borderRadius: 8, border: '1px solid #FFD0D0', background: '#FFF5F5', fontSize: 13, fontWeight: 500, color: '#C0392B', cursor: 'pointer' }}
+                  style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: '1px solid #FFD0D0', background: '#FFF5F5', fontSize: 13, fontWeight: 500, color: '#C0392B', cursor: 'pointer' }}
                 >
                   Remover
                 </button>
@@ -520,7 +520,8 @@ export default function NovoEventoPage() {
             onClick={() => setPolicies(prev => [...prev, ''])}
             style={{
               width: '100%',
-              padding: 12,
+              height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '0 12px',
               borderRadius: 10,
               border: '1.5px dashed #0EA5A0',
               background: 'transparent',
@@ -626,7 +627,8 @@ export default function NovoEventoPage() {
                 onClick={() => setTicketTypes(prev => [...prev, { name: '', price: '', quantity: '' }])}
                 style={{
                   width: '100%',
-                  padding: 12,
+                  height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 12px',
                   borderRadius: 10,
                   border: '1.5px dashed #0EA5A0',
                   background: 'transparent',
@@ -721,7 +723,8 @@ export default function NovoEventoPage() {
           disabled={loading || uploading}
           style={{
             width: '100%',
-            padding: '15px',
+            height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '0 15px',
             borderRadius: 14,
             background: loading || uploading ? '#7DCFCC' : '#0EA5A0',
             color: '#fff',

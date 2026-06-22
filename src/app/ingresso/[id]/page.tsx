@@ -125,7 +125,8 @@ function ErrorScreen({ message, onBack }: { message: string; onBack: () => void 
         <button
           onClick={onBack}
           style={{
-            marginTop: 8, padding: '12px 28px', borderRadius: 12,
+            marginTop: 8, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '0 28px', borderRadius: 12,
             background: '#0EA5A0', color: '#fff',
             border: 0, cursor: 'pointer',
             fontSize: 15, fontWeight: 600,
@@ -397,7 +398,7 @@ export default function IngressoPage() {
                   style={{
                     width: '100%',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    padding: '14px 0',
+                    height: 44, padding: '0 0',
                     background: '#fff',
                     border: '1.5px solid #0EA5A0',
                     borderRadius: 12,
@@ -466,7 +467,8 @@ export default function IngressoPage() {
                 <button
                   onClick={() => router.push(`/evento/${ticket.event_id}`)}
                   style={{
-                    marginTop: 4, padding: '10px 24px', borderRadius: 12,
+                    marginTop: 4, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '0 24px', borderRadius: 12,
                     background: '#0EA5A0', color: '#fff',
                     border: 0, cursor: 'pointer',
                     fontSize: 14, fontWeight: 600,

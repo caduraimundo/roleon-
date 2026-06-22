@@ -218,7 +218,7 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
       {loadError && (
         <div style={{ textAlign: 'center', padding: '32px 16px' }}>
           <p style={{ color: '#FF3B30', fontSize: 14, marginBottom: 12 }}>Não foi possível carregar os dados da portaria. Verifique sua conexão.</p>
-          <button onClick={() => { setLoading(true); init() }} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44 }}>Tentar de novo</button>
+          <button onClick={() => { setLoading(true); init() }} style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Tentar de novo</button>
         </div>
       )}
 
@@ -315,7 +315,8 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
             onClick={handleManual}
             disabled={loadingManual || manualCode.trim().length === 0}
             style={{
-              padding: '12px 20px',
+              height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '0 20px',
               borderRadius: 10,
               background: '#0EA5A0',
               color: '#fff',
@@ -359,7 +360,8 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
                 onClick={handleCopyLink}
                 style={{
                   flex: 1,
-                  padding: '12px 0',
+                  height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 0',
                   borderRadius: 10,
                   background: copied ? '#16A34A' : '#0EA5A0',
                   color: '#fff',
@@ -377,7 +379,8 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
                 onClick={handleGenerateLink}
                 disabled={loadingLink}
                 style={{
-                  padding: '12px 16px',
+                  height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 16px',
                   borderRadius: 10,
                   background: '#F7F7F7',
                   color: '#6E6E73',
@@ -399,7 +402,8 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
             disabled={loadingLink}
             style={{
               width: '100%',
-              padding: '13px 0',
+              height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '0 0',
               borderRadius: 10,
               background: '#F7F7F7',
               color: '#1A1A1A',

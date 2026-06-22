@@ -92,7 +92,7 @@ export default function ContaDesativada() {
           <button
             onClick={handleSair}
             style={{
-              width: '100%', padding: '13px 0',
+              width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0',
               background: TEAL, color: WHITE,
               border: 'none', borderRadius: 12,
               fontSize: 15, fontWeight: 600,
@@ -105,7 +105,7 @@ export default function ContaDesativada() {
           <button
             onClick={() => router.push('/')}
             style={{
-              width: '100%', padding: '13px 0',
+              width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0',
               background: 'transparent', color: DIM,
               border: `1px solid ${BORDER}`, borderRadius: 12,
               fontSize: 15, fontWeight: 500,

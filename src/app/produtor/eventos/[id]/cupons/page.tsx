@@ -168,7 +168,7 @@ export default function CuponsPage({ params }: { params: Promise<{ id: string }>
             <button
               onClick={handleCreate}
               disabled={submitting}
-              style={{ width: '100%', height: 48, background: submitting ? '#8ACFCC' : '#0EA5A0', color: '#fff', border: 0, borderRadius: 10, fontSize: 15, fontWeight: 700, fontFamily: "'Noto Sans', sans-serif", cursor: submitting ? 'not-allowed' : 'pointer' }}
+              style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: submitting ? '#8ACFCC' : '#0EA5A0', color: '#fff', border: 0, borderRadius: 10, fontSize: 15, fontWeight: 700, fontFamily: "'Noto Sans', sans-serif", cursor: submitting ? 'not-allowed' : 'pointer' }}
             >
               {submitting ? 'Criando...' : 'Criar cupom'}
             </button>

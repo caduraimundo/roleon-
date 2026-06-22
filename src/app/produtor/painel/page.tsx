@@ -86,7 +86,8 @@ export default function PainelPage() {
     color: '#fff',
     border: 'none',
     borderRadius: 10,
-    padding: '10px 16px',
+    height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+    padding: '0 16px',
     fontSize: 14,
     fontWeight: 600,
     cursor: 'pointer',
@@ -386,7 +387,7 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
         <button
           onClick={() => router.push(`/produtor/eventos/${e.id}/portaria`)}
           style={{
-            padding: '11px 12px', borderRadius: 10,
+            height: 44, padding: '0 12px', borderRadius: 10,
             border: 'none', background: '#0EA5A0', color: '#fff',
             fontFamily: "'Noto Sans', sans-serif",
             fontSize: 13, fontWeight: 700, cursor: 'pointer',
@@ -405,7 +406,7 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
         <button
           onClick={() => router.push(`/produtor/eventos/${e.id}/editar`)}
           style={{
-            padding: '9px 12px', borderRadius: 10,
+            height: 44, padding: '0 12px', borderRadius: 10,
             border: '1px solid #E8E8E8',
             background: '#fff', color: '#1A1A1A',
             fontFamily: "'Noto Sans', sans-serif",

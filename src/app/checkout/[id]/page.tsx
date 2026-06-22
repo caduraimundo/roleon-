@@ -533,7 +533,8 @@ export default function CheckoutPage() {
                   onClick={applyCoupon}
                   disabled={!couponInput.trim() || couponLoading}
                   style={{
-                    padding: '12px 18px', borderRadius: 10,
+                    height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: '0 18px', borderRadius: 10,
                     background: couponLoading || !couponInput.trim() ? '#E8E8E8' : '#0EA5A0',
                     color: couponLoading || !couponInput.trim() ? '#9A9A9A' : '#fff',
                     border: 0, cursor: couponLoading || !couponInput.trim() ? 'not-allowed' : 'pointer',
@@ -670,7 +671,8 @@ export default function CheckoutPage() {
           onClick={handlePagar}
           disabled={btnDisabled}
           style={{
-            width: '100%', height: 52,
+            width: '100%', height: 44,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: btnDisabled ? '#8ACFCC' : '#0EA5A0',
             color: '#fff', border: 0, borderRadius: 14,
             fontSize: 16, fontWeight: 700,

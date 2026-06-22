@@ -239,7 +239,8 @@ export default function EditarPerfilPage() {
           disabled={saving || success}
           style={{
             width: '100%',
-            padding: '14px 0',
+            height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '0 0',
             borderRadius: 14,
             background: saving || success ? '#7DCFCC' : '#0EA5A0',
             border: 'none',

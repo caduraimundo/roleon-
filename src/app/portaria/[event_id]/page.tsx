@@ -273,7 +273,8 @@ export default function PortariaPublicaPage({
             onClick={handleManual}
             disabled={loadingManual || manualCode.trim().length === 0}
             style={{
-              padding: '12px 20px', borderRadius: 10,
+              height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '0 20px', borderRadius: 10,
               background: '#0EA5A0', color: '#fff',
               border: 'none', cursor: 'pointer',
               fontSize: 14, fontWeight: 700,

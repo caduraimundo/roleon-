@@ -216,7 +216,7 @@ export default function PagamentoPage() {
         <div style={{ fontSize: 22, fontWeight: 700, color: '#1A1A1A' }}>Pagamento confirmado!</div>
         <div style={{ fontSize: 14, color: '#6E6E73', lineHeight: 1.5 }}>Seu ingresso está garantido. Aproveite o rolê!</div>
       </div>
-      <button onClick={() => router.replace('/ingressos')} style={{ width: '100%', maxWidth: 320, height: 52, background: '#0EA5A0', color: '#fff', border: 0, borderRadius: 14, fontSize: 16, fontWeight: 700, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
+      <button onClick={() => router.replace('/ingressos')} style={{ width: '100%', maxWidth: 320, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0EA5A0', color: '#fff', border: 0, borderRadius: 14, fontSize: 16, fontWeight: 700, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
         Ver meu ingresso
       </button>
       <button onClick={() => router.replace('/')} style={{ background: 'none', border: 0, cursor: 'pointer', fontSize: 15, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif", fontWeight: 500 }}>
@@ -346,7 +346,8 @@ export default function PagamentoPage() {
                 onClick={handleCopy}
                 disabled={expired}
                 style={{
-                  flexShrink: 0, padding: '7px 14px', borderRadius: 8,
+                  flexShrink: 0, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 14px', borderRadius: 8,
                   background: copied ? '#0EA5A0' : '#1A1A1A', color: '#fff',
                   border: 0, cursor: expired ? 'not-allowed' : 'pointer',
                   fontSize: 13, fontWeight: 600,
@@ -368,7 +369,8 @@ export default function PagamentoPage() {
             onClick={handleRetry}
             disabled={retrying}
             style={{
-              padding: '14px 32px', borderRadius: 12,
+              height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '0 32px', borderRadius: 12,
               background: '#0EA5A0', color: '#fff',
               border: 0, cursor: retrying ? 'not-allowed' : 'pointer',
               fontSize: 15, fontWeight: 700,

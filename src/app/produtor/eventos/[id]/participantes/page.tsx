@@ -255,7 +255,7 @@ export default function ParticipantesPage({
         {loadError && (
           <div style={{ textAlign: 'center', padding: '32px 16px' }}>
             <p style={{ color: '#FF3B30', fontSize: 14, marginBottom: 12 }}>Não foi possível carregar os participantes. Verifique sua conexão.</p>
-            <button onClick={() => { setLoading(true); init() }} style={{ padding: '8px 16px', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", minHeight: 44 }}>Tentar de novo</button>
+            <button onClick={() => { setLoading(true); init() }} style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Tentar de novo</button>
           </div>
         )}
 
@@ -348,7 +348,7 @@ export default function ParticipantesPage({
                         <button
                           onClick={() => setConfirmingId(null)}
                           style={{
-                            flex: 1, padding: '9px 0', borderRadius: 10,
+                            flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 10,
                             border: '1px solid #E8E8E8', background: '#fff', color: '#1A1A1A',
                             fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 600,
                             cursor: 'pointer',
@@ -360,7 +360,7 @@ export default function ParticipantesPage({
                           onClick={() => { handleCancelTicket(ticket.id); setConfirmingId(null) }}
                           disabled={cancellingId === ticket.id}
                           style={{
-                            flex: 2, padding: '9px 0', borderRadius: 10,
+                            flex: 2, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 10,
                             border: 'none', background: '#DC2626', color: '#fff',
                             fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 700,
                             cursor: cancellingId === ticket.id ? 'not-allowed' : 'pointer',
@@ -375,7 +375,7 @@ export default function ParticipantesPage({
                     <button
                       onClick={() => setConfirmingId(ticket.id)}
                       style={{
-                        marginTop: 12, width: '100%', padding: '9px 0', borderRadius: 10,
+                        marginTop: 12, width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 10,
                         border: '1px solid #E8E8E8', background: '#fff', color: '#DC2626',
                         fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 600,
                         cursor: 'pointer',

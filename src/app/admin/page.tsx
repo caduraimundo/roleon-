@@ -426,7 +426,7 @@ function VendasSection({
 
                   {elegivel && (
                     <button onClick={() => onForceRepasseSelect(isOpen ? null : ev.id)} style={{
-                      marginTop: 10, width: '100%', padding: '8px 0',
+                      marginTop: 10, width: '100%', height: 44, padding: '0 0',
                       background: '#F7F7F7', border: 'none', borderRadius: 8,
                       fontSize: 13, fontWeight: 600, color: '#1A1A1A',
                       cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -448,11 +448,11 @@ function VendasSection({
                     </div>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button onClick={() => onForceRepasseSelect(null)} style={{
-                        flex: 1, padding: '8px 0', background: '#FFFFFF', border: '1px solid #E0E0E0',
+                        flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', background: '#FFFFFF', border: '1px solid #E0E0E0',
                         borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#6E6E73', cursor: 'pointer',
                       }}>Cancelar</button>
                       <button onClick={() => onForceRepasseConfirm(ev.id)} disabled={forceLoading} style={{
-                        flex: 1, padding: '8px 0', background: '#0EA5A0', border: 'none',
+                        flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', background: '#0EA5A0', border: 'none',
                         borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#FFFFFF',
                         cursor: forceLoading ? 'default' : 'pointer', opacity: forceLoading ? 0.7 : 1,
                       }}>{forceLoading ? 'Processando...' : 'Confirmar'}</button>
@@ -659,7 +659,7 @@ function IngressosSection({
             <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid #F7F7F7' }}>
               {!refundOpen ? (
                 <button onClick={() => onRefundToggle(true)} style={{
-                  width: '100%', padding: '10px 0', background: '#FFF0F0', border: 'none',
+                  width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', background: '#FFF0F0', border: 'none',
                   borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#FF3B30', cursor: 'pointer',
                 }}>Reembolsar ingresso</button>
               ) : (
@@ -680,11 +680,11 @@ function IngressosSection({
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button onClick={() => onRefundToggle(false)} style={{
-                      flex: 1, padding: '8px 0', background: '#FFFFFF', border: '1px solid #E0E0E0',
+                      flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', background: '#FFFFFF', border: '1px solid #E0E0E0',
                       borderRadius: 8, fontSize: 13, fontWeight: 600, color: DIM, cursor: 'pointer',
                     }}>Cancelar</button>
                     <button onClick={onRefundConfirm} disabled={refundLoading} style={{
-                      flex: 1, padding: '8px 0', background: '#FF3B30', border: 'none',
+                      flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', background: '#FF3B30', border: 'none',
                       borderRadius: 8, fontSize: 13, fontWeight: 600, color: '#FFFFFF',
                       cursor: refundLoading ? 'default' : 'pointer', opacity: refundLoading ? 0.7 : 1,
                     }}>{refundLoading ? 'Processando...' : 'Confirmar reembolso'}</button>
@@ -871,11 +871,11 @@ function CuponsSection({
               <button
                 onClick={() => onToggleRequest(c)}
                 style={{
-                  padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                  height: 44, padding: '0 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
                   border: c.active ? '1.5px solid #FF3B30' : `1.5px solid ${TEAL}`,
                   background: 'transparent', color: c.active ? '#FF3B30' : TEAL,
                   cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
-                  minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}
               >{c.active ? 'Desativar' : 'Reativar'}</button>
               {!c.active && c.locked_by_admin && (
@@ -1010,10 +1010,10 @@ function LogsSection({
                   <button
                     onClick={() => onViewPayload(w)}
                     style={{
-                      marginTop: 8, padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+                      marginTop: 8, height: 44, padding: '0 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
                       border: `1.5px solid ${BORDER}`, background: 'transparent', color: TEXT,
                       cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
-                      minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}
                   >Ver payload</button>
                 </div>
@@ -1106,10 +1106,10 @@ function PayloadSheet({ log, onClose }: { log: any; onClose: () => void }) {
           <button
             onClick={copiarPayload}
             style={{
-              padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
+              height: 44, padding: '0 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
               border: `1.5px solid ${BORDER}`, background: 'transparent', color: copiado ? TEAL : TEXT,
               cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif",
-              minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               marginLeft: 'auto', marginRight: 8,
             }}
           >{copiado ? 'Copiado!' : 'Copiar'}</button>
@@ -1833,12 +1833,12 @@ export default function AdminPage() {
                 <div style={{ display: 'flex', gap: 10 }}>
                   <button
                     onClick={() => setDeactivateSheet(null)}
-                    style={{ flex: 1, padding: 12, borderRadius: 10, border: `1px solid ${BORDER}`, background: WHITE, color: DIM, fontSize: 14, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                    style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', borderRadius: 10, border: `1px solid ${BORDER}`, background: WHITE, color: DIM, fontSize: 14, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
                   >Cancelar</button>
                   <button
                     onClick={handleToggleConfirm}
                     disabled={deactivateLoading}
-                    style={{ flex: 1, padding: 12, borderRadius: 10, border: 'none', background: deactivateSheet.active ? '#FF3B30' : TEAL, color: WHITE, fontSize: 14, fontWeight: 600, cursor: 'pointer', opacity: deactivateLoading ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
+                    style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', borderRadius: 10, border: 'none', background: deactivateSheet.active ? '#FF3B30' : TEAL, color: WHITE, fontSize: 14, fontWeight: 600, cursor: 'pointer', opacity: deactivateLoading ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
                   >{deactivateLoading ? 'Aguarde...' : 'Confirmar'}</button>
                 </div>
               </div>
@@ -1938,12 +1938,12 @@ export default function AdminPage() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 20, marginBottom: 10 }}>Ações</div>
                 {detailEvent.status === 'pending' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <button onClick={() => { aprovar(detailEvent.id); setDetailEvent(null); setDetailData(null) }} style={{ width: '100%', padding: '15px', background: TEAL, color: WHITE, border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Aprovar evento</button>
-                    <button onClick={() => { setDetailEvent(null); setDetailData(null); setMotivoSheet({ id: detailEvent.id, tipo: 'rejeitar' }); setMotivo('') }} style={{ width: '100%', padding: 13, background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Rejeitar evento</button>
+                    <button onClick={() => { aprovar(detailEvent.id); setDetailEvent(null); setDetailData(null) }} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px', background: TEAL, color: WHITE, border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Aprovar evento</button>
+                    <button onClick={() => { setDetailEvent(null); setDetailData(null); setMotivoSheet({ id: detailEvent.id, tipo: 'rejeitar' }); setMotivo('') }} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Rejeitar evento</button>
                   </div>
                 )}
                 {detailEvent.status === 'active' && (
-                  <button onClick={() => { setDetailEvent(null); setDetailData(null); setMotivoSheet({ id: detailEvent.id, tipo: 'cancelar' }); setMotivo('') }} style={{ width: '100%', padding: 13, background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Cancelar evento</button>
+                  <button onClick={() => { setDetailEvent(null); setDetailData(null); setMotivoSheet({ id: detailEvent.id, tipo: 'cancelar' }); setMotivo('') }} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Cancelar evento</button>
                 )}
               </div>
             )}
@@ -2091,26 +2091,26 @@ export default function AdminPage() {
                   <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
                     <button
                       onClick={() => openDetail(ev)}
-                      style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: `1.5px solid ${TEAL}`, background: WHITE, color: TEAL, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                      style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: `1.5px solid ${TEAL}`, background: WHITE, color: TEAL, fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
                     >Ver</button>
                     {ev.status === 'pending' && (
                       <>
                         <button
                           onClick={() => aprovar(ev.id)}
                           disabled={actionId === ev.id}
-                          style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', background: TEAL, color: WHITE, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: actionId === ev.id ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
+                          style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: 'none', background: TEAL, color: WHITE, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: actionId === ev.id ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
                         >{actionId === ev.id ? '...' : 'Aprovar'}</button>
                         <button
                           onClick={() => { setMotivoSheet({ id: ev.id, tipo: 'rejeitar' }); setMotivo('') }}
                           disabled={actionId === ev.id}
-                          style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                          style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
                         >Rejeitar</button>
                       </>
                     )}
                     {ev.status === 'active' && (
                       <button
                         onClick={() => { setMotivoSheet({ id: ev.id, tipo: 'cancelar' }); setMotivo('') }}
-                        style={{ flex: 1, padding: '8px 0', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                        style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
                       >Cancelar evento</button>
                     )}
                   </div>
@@ -2145,12 +2145,12 @@ export default function AdminPage() {
                 <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
                   <button
                     onClick={() => { setMotivoSheet(null); setMotivo('') }}
-                    style={{ flex: 1, padding: 12, borderRadius: 10, border: `1px solid ${BORDER}`, background: WHITE, color: DIM, fontSize: 14, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                    style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', borderRadius: 10, border: `1px solid ${BORDER}`, background: WHITE, color: DIM, fontSize: 14, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
                   >Cancelar</button>
                   <button
                     onClick={confirmarMotivo}
                     disabled={!motivo.trim() || actionId !== null}
-                    style={{ flex: 1, padding: 12, borderRadius: 10, border: 'none', background: '#FF3B30', color: WHITE, fontSize: 14, fontWeight: 600, cursor: motivo.trim() ? 'pointer' : 'not-allowed', opacity: !motivo.trim() || actionId !== null ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
+                    style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', borderRadius: 10, border: 'none', background: '#FF3B30', color: WHITE, fontSize: 14, fontWeight: 600, cursor: motivo.trim() ? 'pointer' : 'not-allowed', opacity: !motivo.trim() || actionId !== null ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
                   >{actionId !== null ? 'Enviando...' : 'Confirmar'}</button>
                 </div>
               </div>
@@ -2241,15 +2241,15 @@ export default function AdminPage() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 20, marginBottom: 10 }}>Ações</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {!p.producer_disabled && !p.verified && (
-                    <button onClick={() => prodAction(p.id, 'verified', true)} disabled={prodActionLoading} style={{ width: '100%', padding: '15px', background: TEAL, color: WHITE, border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Conceder selo Verificado</button>
+                    <button onClick={() => prodAction(p.id, 'verified', true)} disabled={prodActionLoading} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px', background: TEAL, color: WHITE, border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Conceder selo Verificado</button>
                   )}
                   {p.verified && !p.producer_disabled && (
-                    <button onClick={() => prodAction(p.id, 'verified', false)} disabled={prodActionLoading} style={{ width: '100%', padding: '15px', background: 'transparent', border: `1.5px solid ${BORDER}`, color: TEXT, borderRadius: 14, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Remover verificação</button>
+                    <button onClick={() => prodAction(p.id, 'verified', false)} disabled={prodActionLoading} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px', background: 'transparent', border: `1.5px solid ${BORDER}`, color: TEXT, borderRadius: 14, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Remover verificação</button>
                   )}
                   {!p.producer_disabled ? (
-                    <button onClick={() => prodAction(p.id, 'producer_disabled', true)} disabled={prodActionLoading} style={{ width: '100%', padding: '15px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Desativar produtor</button>
+                    <button onClick={() => prodAction(p.id, 'producer_disabled', true)} disabled={prodActionLoading} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Desativar produtor</button>
                   ) : (
-                    <button onClick={() => prodAction(p.id, 'producer_disabled', false)} disabled={prodActionLoading} style={{ width: '100%', padding: '15px', background: TEAL, color: WHITE, border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Reativar produtor</button>
+                    <button onClick={() => prodAction(p.id, 'producer_disabled', false)} disabled={prodActionLoading} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px', background: TEAL, color: WHITE, border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Reativar produtor</button>
                   )}
                 </div>
               </div>

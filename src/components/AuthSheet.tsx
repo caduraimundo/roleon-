@@ -388,9 +388,10 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                   onClick={handleGoogle}
                   style={{
                     width: '100%', marginTop: 20,
+                    height: 44,
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
                     background: '#fff', border: '1.5px solid #E8E8E8',
-                    borderRadius: 12, padding: '13px 18px',
+                    borderRadius: 12, padding: '0 18px',
                     fontSize: 14.5, fontWeight: 600, color: '#1A1A1A',
                     fontFamily: "'Noto Sans', sans-serif",
                     cursor: 'pointer',
@@ -498,7 +499,8 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                     ? (isProducerContext ? '#065e5a' : '#7DCFCD')
                     : (isProducerContext ? '#087A76' : '#0EA5A0'),
                   color: '#fff', border: 0, cursor: loading ? 'default' : 'pointer',
-                  padding: '14px 18px', borderRadius: 12,
+                  height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: '0 18px', borderRadius: 12,
                   fontSize: 15, fontWeight: 700,
                   fontFamily: "'Noto Sans', sans-serif",
                   boxShadow: isProducerContext
