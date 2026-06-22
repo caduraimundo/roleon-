@@ -721,11 +721,11 @@ export default function NovoEventoPage() {
           disabled={loading || uploading}
           style={{
             width: '100%',
-            padding: 14,
-            borderRadius: 10,
+            padding: '15px',
+            borderRadius: 14,
             background: loading || uploading ? '#7DCFCC' : '#0EA5A0',
             color: '#fff',
-            fontWeight: 600,
+            fontWeight: 700,
             fontSize: 15,
             border: 'none',
             cursor: loading || uploading ? 'default' : 'pointer',

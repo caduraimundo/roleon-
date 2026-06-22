@@ -290,10 +290,10 @@ export default function EventosPage() {
                       <>
                         {/* Portaria — primário, largura total, teal sólido */}
                         <a href={`/produtor/eventos/${ev.id}/portaria`} style={{
-                          padding: '11px 10px', borderRadius: 10,
+                          padding: '15px', borderRadius: 14,
                           border: 'none', background: '#0EA5A0', color: '#fff',
                           fontFamily: "'Noto Sans', sans-serif",
-                          fontSize: 13, fontWeight: 700,
+                          fontSize: 15, fontWeight: 700,
                           display: 'flex', alignItems: 'center',
                           justifyContent: 'center', gap: 6,
                           textDecoration: 'none',

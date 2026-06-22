@@ -896,9 +896,9 @@ export default function EditarEventoPage() {
           onClick={handleSubmit}
           disabled={loading || uploading}
           style={{
-            width: '100%', padding: 14, borderRadius: 10,
+            width: '100%', padding: '15px', borderRadius: 14,
             background: loading || uploading ? '#7DCFCC' : '#0EA5A0',
-            color: '#fff', fontWeight: 600, fontSize: 15,
+            color: '#fff', fontWeight: 700, fontSize: 15,
             fontFamily: "'Noto Sans', sans-serif",
             border: 'none', cursor: loading || uploading ? 'default' : 'pointer',
             opacity: !termsAccepted ? 0.6 : 1,

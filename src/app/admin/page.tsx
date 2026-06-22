@@ -1938,7 +1938,7 @@ export default function AdminPage() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 20, marginBottom: 10 }}>Ações</div>
                 {detailEvent.status === 'pending' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <button onClick={() => { aprovar(detailEvent.id); setDetailEvent(null); setDetailData(null) }} style={{ width: '100%', padding: 13, background: TEAL, color: WHITE, border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Aprovar evento</button>
+                    <button onClick={() => { aprovar(detailEvent.id); setDetailEvent(null); setDetailData(null) }} style={{ width: '100%', padding: '15px', background: TEAL, color: WHITE, border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Aprovar evento</button>
                     <button onClick={() => { setDetailEvent(null); setDetailData(null); setMotivoSheet({ id: detailEvent.id, tipo: 'rejeitar' }); setMotivo('') }} style={{ width: '100%', padding: 13, background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Rejeitar evento</button>
                   </div>
                 )}
@@ -2241,15 +2241,15 @@ export default function AdminPage() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 20, marginBottom: 10 }}>Ações</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {!p.producer_disabled && !p.verified && (
-                    <button onClick={() => prodAction(p.id, 'verified', true)} disabled={prodActionLoading} style={{ width: '100%', padding: 12, background: TEAL, color: WHITE, border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Conceder selo Verificado</button>
+                    <button onClick={() => prodAction(p.id, 'verified', true)} disabled={prodActionLoading} style={{ width: '100%', padding: '15px', background: TEAL, color: WHITE, border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Conceder selo Verificado</button>
                   )}
                   {p.verified && !p.producer_disabled && (
-                    <button onClick={() => prodAction(p.id, 'verified', false)} disabled={prodActionLoading} style={{ width: '100%', padding: 12, background: 'transparent', border: `1.5px solid ${BORDER}`, color: TEXT, borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Remover verificação</button>
+                    <button onClick={() => prodAction(p.id, 'verified', false)} disabled={prodActionLoading} style={{ width: '100%', padding: '15px', background: 'transparent', border: `1.5px solid ${BORDER}`, color: TEXT, borderRadius: 14, fontSize: 15, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Remover verificação</button>
                   )}
                   {!p.producer_disabled ? (
-                    <button onClick={() => prodAction(p.id, 'producer_disabled', true)} disabled={prodActionLoading} style={{ width: '100%', padding: 12, background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Desativar produtor</button>
+                    <button onClick={() => prodAction(p.id, 'producer_disabled', true)} disabled={prodActionLoading} style={{ width: '100%', padding: '15px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Desativar produtor</button>
                   ) : (
-                    <button onClick={() => prodAction(p.id, 'producer_disabled', false)} disabled={prodActionLoading} style={{ width: '100%', padding: 12, background: TEAL, color: WHITE, border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Reativar produtor</button>
+                    <button onClick={() => prodAction(p.id, 'producer_disabled', false)} disabled={prodActionLoading} style={{ width: '100%', padding: '15px', background: TEAL, color: WHITE, border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: prodActionLoading ? 0.6 : 1 }}>Reativar produtor</button>
                   )}
                 </div>
               </div>

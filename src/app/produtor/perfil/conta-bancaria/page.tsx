@@ -458,9 +458,9 @@ export default function ContaBancariaPage() {
       {/* Footer fixo */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 20px', background: '#fff', borderTop: '1px solid #E8E8E8', zIndex: 100 }}>
         <button onClick={handleNext} disabled={saving} style={{
-          width: '100%', padding: 14, borderRadius: 10,
+          width: '100%', padding: '15px', borderRadius: 14,
           background: saving ? '#7DCFCC' : '#0EA5A0',
-          color: '#fff', fontWeight: 600, fontSize: 15,
+          color: '#fff', fontWeight: 700, fontSize: 15,
           fontFamily: "'Noto Sans', sans-serif", border: 'none', cursor: saving ? 'default' : 'pointer',
         }}>
           {saving ? 'Salvando...' : step < 3 ? 'Próximo' : 'Salvar dados bancários'}

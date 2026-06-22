@@ -194,12 +194,12 @@ export default function CadastroProdutorPage() {
           disabled={loading}
           style={{
             width: '100%',
-            padding: 14,
-            borderRadius: 10,
+            padding: '15px',
+            borderRadius: 14,
             border: 'none',
             background: loading ? '#7DCFCC' : '#0EA5A0',
             color: '#fff',
-            fontWeight: 600,
+            fontWeight: 700,
             fontSize: 15,
             cursor: loading ? 'default' : 'pointer',
           }}

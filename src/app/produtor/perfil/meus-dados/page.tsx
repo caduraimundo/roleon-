@@ -246,10 +246,10 @@ export default function MeusDadosPage() {
           onClick={handleSave}
           disabled={saving || success}
           style={{
-            width: '100%', padding: '14px 0',
+            width: '100%', padding: '15px',
             borderRadius: 14,
             background: saving || success ? '#7DCFCC' : '#0EA5A0',
-            border: 'none', fontSize: 16, fontWeight: 700,
+            border: 'none', fontSize: 15, fontWeight: 700,
             color: '#fff', fontFamily: "'Noto Sans', sans-serif",
             cursor: saving || success ? 'default' : 'pointer',
             transition: 'background 0.2s',
