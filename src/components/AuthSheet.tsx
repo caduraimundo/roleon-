@@ -189,30 +189,33 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       window.location.href = data.url
     }
 
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return
-      if (event.data?.type === 'ROLEON_AUTH_SUCCESS') {
-        window.removeEventListener('message', handleMessage)
-        popup?.close()
-        supabase.auth.getSession().then(async ({ data: { session } }) => {
-          if (session) {
-            try {
-              const { data: profile } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', session.user.id)
-                .maybeSingle()
-              onClose()
-              window.location.href = profile?.role === 'admin' ? '/admin' : next
-            } catch (_) {
-              onClose()
-              window.location.href = next
-            }
+    const finalizeLogin = () => {
+      window.removeEventListener('storage', handleStorageChange)
+      popup?.close()
+      supabase.auth.getSession().then(async ({ data: { session } }) => {
+        if (session) {
+          try {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('role')
+              .eq('id', session.user.id)
+              .maybeSingle()
+            onClose()
+            window.location.href = profile?.role === 'admin' ? '/admin' : next
+          } catch (_) {
+            onClose()
+            window.location.href = next
           }
-        })
+        }
+      })
+    }
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'roleon_auth_success' && event.newValue) {
+        try { localStorage.removeItem('roleon_auth_success') } catch (e) {}
+        finalizeLogin()
       }
     }
-    window.addEventListener('message', handleMessage)
+    window.addEventListener('storage', handleStorageChange)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
