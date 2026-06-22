@@ -168,6 +168,22 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       } catch (e) {
         console.error('DEBUG OAuth: ERRO ao navegar popup', e)
       }
+
+      // Fallback: se em 2.5s o popup ainda estiver em about:blank (não navegou de verdade,
+      // provavelmente bloqueado por extensão/navegador), assume o controle e redireciona
+      // a aba principal direto, sem depender do popup.
+      setTimeout(() => {
+        try {
+          const aindaNoBlank = !popup.closed && (popup.location.href === 'about:blank' || popup.location.href === '')
+          if (aindaNoBlank) {
+            popup.close()
+            window.location.href = data.url
+          }
+        } catch {
+          // Acesso a popup.location pode lançar erro de cross-origin SE a navegação
+          // de fato aconteceu (sinal de sucesso) — nesse caso, não faz nada, está tudo certo.
+        }
+      }, 2500)
     } else if (data?.url) {
       // Fallback: se popup foi bloqueado, redireciona normalmente
       window.location.href = data.url
