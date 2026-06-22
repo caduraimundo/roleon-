@@ -538,10 +538,10 @@ function IngressosSection({
           placeholder="EX: A5ADDF"
           autoComplete="off"
           maxLength={20}
-          style={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const, textTransform: 'uppercase' }}
+          style={{ flex: 1, height: 44, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const, textTransform: 'uppercase' }}
         />
         <button onClick={onSearch} disabled={searchLoading} style={{
-          padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
+          height: 44, padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
           fontSize: 14, fontWeight: 600, color: WHITE, cursor: searchLoading ? 'default' : 'pointer',
           opacity: searchLoading ? 0.7 : 1,
         }}>{searchLoading ? '...' : 'Buscar'}</button>
@@ -829,10 +829,10 @@ function CuponsSection({
           onKeyDown={e => { if (e.key === 'Enter') onCuponsSearchSubmit() }}
           placeholder="Buscar por código, evento ou produtor"
           autoComplete="off"
-          style={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }}
+          style={{ flex: 1, height: 44, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }}
         />
         <button onClick={onCuponsSearchSubmit} style={{
-          padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
+          height: 44, padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
           fontSize: 14, fontWeight: 600, color: WHITE, cursor: 'pointer',
         }}>Buscar</button>
       </div>
@@ -969,10 +969,10 @@ function LogsSection({
               onKeyDown={e => { if (e.key === 'Enter') onWebhooksSearchSubmit() }}
               placeholder="Buscar por nome do evento"
               autoComplete="off"
-              style={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }}
+              style={{ flex: 1, height: 44, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }}
             />
             <button onClick={onWebhooksSearchSubmit} style={{
-              padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
+              height: 44, padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
               fontSize: 14, fontWeight: 600, color: WHITE, cursor: 'pointer',
             }}>Buscar</button>
           </div>
@@ -1034,10 +1034,10 @@ function LogsSection({
               onKeyDown={e => { if (e.key === 'Enter') onAuditSearchSubmit() }}
               placeholder="Buscar por nome do evento"
               autoComplete="off"
-              style={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }}
+              style={{ flex: 1, height: 44, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }}
             />
             <button onClick={onAuditSearchSubmit} style={{
-              padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
+              height: 44, padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
               fontSize: 14, fontWeight: 600, color: WHITE, cursor: 'pointer',
             }}>Buscar</button>
           </div>
