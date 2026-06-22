@@ -711,10 +711,10 @@ function IngressosSection({
               onKeyDown={e => { if (e.key === 'Enter') onEventoSearch() }}
               placeholder="Nome do evento"
               autoComplete="off"
-              style={{ flex: 1, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }}
+              style={{ flex: 1, height: 44, border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }}
             />
             <button onClick={onEventoSearch} disabled={eventoSearchLoading} style={{
-              padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
+              height: 44, padding: '0 18px', background: TEAL, border: 'none', borderRadius: 10,
               fontSize: 14, fontWeight: 600, color: WHITE, cursor: eventoSearchLoading ? 'default' : 'pointer',
               opacity: eventoSearchLoading ? 0.7 : 1,
             }}>{eventoSearchLoading ? '...' : 'Buscar'}</button>

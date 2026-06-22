@@ -388,7 +388,7 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, initial }: {
             onClick={() => { setGenres(new Set()); setSelectedDate(null); setPreco(null); setLocalDistance(10) }}
             style={{
               flex: 1, background: '#F5F5F5', color: TEXT,
-              border: 0, cursor: 'pointer', padding: '14px 18px', borderRadius: 12,
+              border: 0, cursor: 'pointer', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 18px', borderRadius: 12,
               fontSize: 15, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
             }}
           >
@@ -398,7 +398,7 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, initial }: {
             onClick={() => { onApply(Array.from(genres), selectedDate, preco, localDistance); onClose() }}
             style={{
               flex: 2, background: PRIMARY, color: '#fff',
-              border: 0, cursor: 'pointer', padding: '14px 18px', borderRadius: 12,
+              border: 0, cursor: 'pointer', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 18px', borderRadius: 12,
               fontSize: 15, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
               boxShadow: '0 6px 16px rgba(14,165,160,0.25)',
             }}

@@ -200,7 +200,7 @@ export default function CuponsPage({ params }: { params: Promise<{ id: string }>
                       onClick={() => { if (!c.locked_by_admin) toggleActive(c.id, c.active) }}
                       disabled={c.locked_by_admin}
                       style={{
-                        flexShrink: 0, padding: '5px 12px', borderRadius: 8,
+                        flexShrink: 0, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', borderRadius: 8,
                         border: c.locked_by_admin ? '1px solid #FF3B30' : `1px solid ${c.active ? '#0EA5A0' : '#E8E8E8'}`,
                         background: c.locked_by_admin ? '#FFF0F0' : (c.active ? '#E6F7F6' : '#F5F5F5'),
                         color: c.locked_by_admin ? '#FF3B30' : (c.active ? '#0EA5A0' : '#6E6E73'),
