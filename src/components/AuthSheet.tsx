@@ -148,7 +148,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       'width=520,height=620,left=' + Math.round(window.screenX + (window.outerWidth - 520) / 2) + ',top=' + Math.round(window.screenY + (window.outerHeight - 620) / 2)
     )
 
-    const { data } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: callbackUrl,
@@ -158,6 +158,8 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
         },
       },
     })
+
+    console.log('DEBUG OAuth:', { data, error, popup: !!popup, popupClosed: popup?.closed })
 
     if (data?.url && popup) {
       popup.location.href = data.url
