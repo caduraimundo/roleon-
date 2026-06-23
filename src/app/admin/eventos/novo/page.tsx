@@ -34,6 +34,7 @@ export default function NovoEventoAdminPage() {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [showSuccessToast, setShowSuccessToast] = useState(false)
+  const [draftLoaded, setDraftLoaded] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -46,16 +47,52 @@ export default function NovoEventoAdminPage() {
     }
   }
 
+  const DRAFT_KEY = 'roleon_admin_novo_evento_draft'
+
   useEffect(() => {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.replace('/admin'); return }
       const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
       if (profile?.role !== 'admin') { router.replace('/admin'); return }
+
+      const saved = localStorage.getItem(DRAFT_KEY)
+      if (saved) {
+        try {
+          const d = JSON.parse(saved)
+          if (d.title) setTitle(d.title)
+          if (d.organizerName) setOrganizerName(d.organizerName)
+          if (d.description) setDescription(d.description)
+          if (d.genres?.length) setGenres(d.genres)
+          if (d.cep) setCep(d.cep)
+          if (d.rua) setRua(d.rua)
+          if (d.numero) setNumero(d.numero)
+          if (d.bairro) setBairro(d.bairro)
+          if (d.cidade) setCidade(d.cidade)
+          if (d.estado) setEstado(d.estado)
+          if (d.eventDate) setEventDate(d.eventDate)
+          if (d.eventTime) setEventTime(d.eventTime)
+          if (d.isUnlimited !== undefined) setIsUnlimited(d.isUnlimited)
+          if (d.ageRating) setAgeRating(d.ageRating)
+          if (d.policies?.length) setPolicies(d.policies)
+        } catch {}
+      }
+      setDraftLoaded(true)
     }
     init()
     return () => { if (errorTimerRef.current) clearTimeout(errorTimerRef.current) }
   }, [router])
+
+  useEffect(() => {
+    if (!draftLoaded) return
+    const draft = {
+      title, organizerName, description, genres,
+      cep, rua, numero, bairro, cidade, estado,
+      eventDate, eventTime, isUnlimited, ageRating,
+      policies,
+    }
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
+  }, [draftLoaded, title, organizerName, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, isUnlimited, ageRating, policies])
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -151,6 +188,7 @@ export default function NovoEventoAdminPage() {
 
       const data = await res.json()
       if (res.ok) {
+        localStorage.removeItem(DRAFT_KEY)
         setShowSuccessToast(true)
         setTimeout(() => router.replace('/admin?tab=moderacao'), 1400)
       } else {

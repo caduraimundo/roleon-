@@ -75,6 +75,7 @@ export default function NovoEventoPage() {
           if (d.eventTime) setEventTime(d.eventTime)
           if (d.isFree !== undefined) setIsFree(d.isFree)
           if (d.isUnlimited !== undefined) setIsUnlimited(d.isUnlimited)
+          if (d.ageRating) setAgeRating(d.ageRating)
           if (d.ticketTypes?.length) setTicketTypes(d.ticketTypes)
           if (d.policies?.length) setPolicies(d.policies)
         } catch {}
@@ -90,11 +91,11 @@ export default function NovoEventoPage() {
     const draft = {
       title, description, genres,
       cep, rua, numero, bairro, cidade, estado,
-      eventDate, eventTime, isFree, isUnlimited,
+      eventDate, eventTime, isFree, isUnlimited, ageRating,
       ticketTypes, policies,
     }
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
-  }, [draftLoaded, title, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, isFree, isUnlimited, ticketTypes, policies])
+  }, [draftLoaded, title, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, isFree, isUnlimited, ageRating, ticketTypes, policies])
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
