@@ -1325,7 +1325,7 @@ export default function AdminPage() {
     setDetailLoading(true)
     const { data } = await supabase
       .from('events')
-      .select('id, title, description, genre, event_date, location_name, price, is_free, cover_image, producer_id, profiles!producer_id(name, email, avatar_initials), ticket_types(id, name, price, quantity, quantity_sold)')
+      .select('id, title, description, genre, event_date, location_name, price, is_free, cover_image, producer_id, display_organizer_name, profiles!producer_id(name, email, avatar_initials), ticket_types(id, name, price, quantity, quantity_sold)')
       .eq('id', ev.id)
       .maybeSingle()
     setDetailData(data)
@@ -1923,16 +1923,27 @@ export default function AdminPage() {
                 )}
 
                 {/* Produtor */}
-                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 8 }}>Produtor</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: TEAL, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 13, fontWeight: 700 }}>
-                    {producer?.avatar_initials || (producer?.name?.slice(0,1) ?? 'P')}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: TEXT }}>{producer?.name || detailEvent.producer_name}</div>
-                    <div style={{ fontSize: 12, color: DIM, marginTop: 2 }}>{producer?.email || detailEvent.producer_email}</div>
-                  </div>
-                </div>
+                {ev?.producer_id ? (
+                  <>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 8 }}>Produtor</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 10, background: TEAL, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 13, fontWeight: 700 }}>
+                        {producer?.avatar_initials || (producer?.name?.slice(0,1) ?? 'P')}
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: TEXT }}>{producer?.name || detailEvent.producer_name}</div>
+                        <div style={{ fontSize: 12, color: DIM, marginTop: 2 }}>{producer?.email || detailEvent.producer_email}</div>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 8 }}>Organizador</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: TEXT }}>
+                      {ev?.display_organizer_name || 'Criado pelo Roleon (admin)'}
+                    </div>
+                  </>
+                )}
 
                 {/* Ações */}
                 <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 20, marginBottom: 10 }}>Ações</div>
@@ -1943,7 +1954,12 @@ export default function AdminPage() {
                   </div>
                 )}
                 {detailEvent.status === 'active' && (
-                  <button onClick={() => { setDetailEvent(null); setDetailData(null); setMotivoSheet({ id: detailEvent.id, tipo: 'cancelar' }); setMotivo('') }} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Cancelar evento</button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {!ev?.producer_id && (
+                      <a href={`/admin/eventos/${detailEvent.id}/editar`} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px', background: '#F0F0F0', color: TEXT, borderRadius: 10, fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", textDecoration: 'none', boxSizing: 'border-box' }}>Editar evento</a>
+                    )}
+                    <button onClick={() => { setDetailEvent(null); setDetailData(null); setMotivoSheet({ id: detailEvent.id, tipo: 'cancelar' }); setMotivo('') }} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Cancelar evento</button>
+                  </div>
                 )}
               </div>
             )}

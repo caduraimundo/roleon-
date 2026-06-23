@@ -135,6 +135,23 @@ export async function POST(req: NextRequest) {
       ? Math.min(...(ticket_types as { price: number }[]).map(t => Number(t.price) || 0).filter(p => p > 0))
       : 0
 
+  let geoLat: number | null = location_lat ?? null
+  let geoLng: number | null = location_lng ?? null
+  try {
+    const geoRes = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location_name)}&key=${process.env.GOOGLE_MAPS_SERVER_KEY}`
+    )
+    const geoData = await geoRes.json()
+    if (geoData.status === 'OK' && geoData.results?.[0]) {
+      geoLat = geoData.results[0].geometry.location.lat
+      geoLng = geoData.results[0].geometry.location.lng
+    } else {
+      console.warn('[produtor/events] geocoding sem resultado para:', location_name, geoData.status)
+    }
+  } catch (geoErr) {
+    console.error('[produtor/events] geocoding falhou:', geoErr)
+  }
+
   const { data: evento, error: eventError } = await supabaseAdmin
     .from('events')
     .insert({
@@ -142,8 +159,8 @@ export async function POST(req: NextRequest) {
       description,
       event_date,
       location_name,
-      location_lat,
-      location_lng,
+      location_lat: geoLat,
+      location_lng: geoLng,
       genre: genres,
       age_rating: age_rating ?? 'Livre',
       policies: Array.isArray(policies) ? policies : [],
