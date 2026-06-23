@@ -156,7 +156,7 @@ export default function ParticipantesPage({
         <div style={{
           position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)',
           zIndex: 9999, padding: '10px 20px', borderRadius: 10,
-          background: toast.ok ? '#10B981' : '#EF4444', color: '#fff',
+          background: toast.ok ? '#0EA5A0' : '#EF4444', color: '#fff',
           fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap',
           boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
         }}>
