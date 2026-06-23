@@ -1212,7 +1212,7 @@ export default function AdminPage() {
   const [pendingEvents, setPendingEvents] = useState<any[]>([])
   const [activeEvents, setActiveEvents] = useState<any[]>([])
   const [modLoading, setModLoading] = useState(false)
-  const [modFilter, setModFilter] = useState<'pending' | 'active' | 'cancelled' | 'rejected' | 'todos' | 'mine'>('pending')
+  const [modFilter, setModFilter] = useState<'pending' | 'active' | 'cancelled' | 'rejected' | 'todos' | 'mine'>('active')
   const [actionId, setActionId] = useState<string | null>(null)
   const [motivoSheet, setMotivoSheet] = useState<{ id: string; tipo: 'rejeitar' | 'cancelar' } | null>(null)
   const [motivo, setMotivo] = useState('')
@@ -2023,9 +2023,9 @@ export default function AdminPage() {
             {/* Filtros */}
             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, marginBottom: 14 }} className="no-scrollbar">
               {([
-                { id: 'pending',   label: 'Aguardando' },
                 { id: 'active',    label: 'Ativos' },
                 { id: 'mine',      label: 'Meus eventos' },
+                { id: 'pending',   label: 'Aguardando' },
                 { id: 'cancelled', label: 'Cancelados' },
                 { id: 'rejected',  label: 'Recusados' },
               ] as const).map(f => {
