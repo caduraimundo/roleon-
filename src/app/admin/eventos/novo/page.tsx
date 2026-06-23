@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
 
 const GENRES = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Axé', 'República']
-const AGE_RATINGS = ['Livre', '+16', '+18']
+const AGE_RATINGS = ['Livre', '+18 anos']
 
 export default function NovoEventoAdminPage() {
   const router = useRouter()
@@ -455,7 +455,7 @@ export default function NovoEventoAdminPage() {
                   color: '#1A1A1A',
                 }}
               >
-                {opt}
+                {opt === '+18 anos' ? '+18' : opt}
               </button>
             ))}
           </div>
