@@ -435,9 +435,9 @@ export default function ContaBancariaPage() {
         )}
         {saved && (
           <div style={{
-            background: '#ECFDF5', border: '1px solid #6EE7B7',
+            background: '#E6F7F6', border: '1px solid #0EA5A0',
             borderRadius: 10, padding: '12px 14px',
-            color: '#065F46', fontSize: 14, fontWeight: 600,
+            color: '#0A7A76', fontSize: 14, fontWeight: 600,
             display: 'flex', alignItems: 'center', gap: 8,
           }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

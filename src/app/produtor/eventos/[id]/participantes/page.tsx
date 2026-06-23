@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 function statusBadge(status: string) {
-  if (status === 'paid')      return { text: 'Pago',      color: '#10B981', bg: '#ECFDF5' }
-  if (status === 'valid')     return { text: 'Confirmado',color: '#10B981', bg: '#ECFDF5' }
+  if (status === 'paid')      return { text: 'Pago',      color: '#0A7A76', bg: '#E6F7F6' }
+  if (status === 'valid')     return { text: 'Confirmado',color: '#0A7A76', bg: '#E6F7F6' }
   if (status === 'used')      return { text: 'Utilizado', color: '#6E6E73', bg: '#F5F5F5' }
   if (status === 'refunded')  return { text: 'Estornado', color: '#3B82F6', bg: '#EFF6FF' }
   if (status === 'cancelled') return { text: 'Cancelado', color: '#EF4444', bg: '#FEF2F2' }
