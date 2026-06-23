@@ -465,7 +465,7 @@ export default function NovoEventoAdminPage() {
         <div style={sectionStyle}>
           <label style={labelStyle}>POLÍTICAS DO EVENTO</label>
           <span style={{ fontSize: 12, color: '#6E6E73', marginBottom: 8 }}>
-            Ex: +18 anos, Lotação controlada, Proibido reentrada
+            Ex: Lotação controlada, Proibido reentrada
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {policies.map((policy, i) => (

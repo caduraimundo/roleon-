@@ -18,6 +18,7 @@ export default function NovoEventoPage() {
   const [eventTime, setEventTime] = useState('')
   const [isFree, setIsFree] = useState(false)
   const [isUnlimited, setIsUnlimited] = useState(false)
+  const [ageRating, setAgeRating] = useState('Livre')
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([{ name: 'Pista', price: '', quantity: '' }])
@@ -183,6 +184,7 @@ export default function NovoEventoPage() {
           location_lng: null,
           is_free: isFree,
           is_unlimited: isUnlimited,
+          age_rating: ageRating,
           cover_image: coverImageUrl ?? null,
           policies: policies.filter(p => p.trim() !== ''),
           ticket_types: isFree
@@ -476,11 +478,38 @@ export default function NovoEventoPage() {
           />
         </div>
 
+        {/* Classificação etária */}
+        <div style={sectionStyle}>
+          <label style={labelStyle}>CLASSIFICAÇÃO ETÁRIA</label>
+          <div style={{ display: 'flex', background: '#F0F0F0', borderRadius: 10, padding: 3 }}>
+            {['Livre', '+18 anos'].map(opt => (
+              <button
+                key={opt}
+                onClick={() => setAgeRating(opt)}
+                style={{
+                  flex: 1,
+                  padding: '8px 0',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  border: 'none',
+                  cursor: 'pointer',
+                  borderRadius: 8,
+                  background: ageRating === opt ? '#fff' : 'transparent',
+                  boxShadow: ageRating === opt ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                  color: '#1A1A1A',
+                }}
+              >
+                {opt === '+18 anos' ? '+18' : opt}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Políticas */}
         <div style={sectionStyle}>
           <label style={labelStyle}>POLÍTICAS DO EVENTO</label>
           <span style={{ fontSize: 12, color: '#6E6E73', marginBottom: 8 }}>
-            Ex: +18 anos, Lotação controlada, Proibido reentrada
+            Ex: Lotação controlada, Proibido reentrada
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {policies.map((policy, i) => (
