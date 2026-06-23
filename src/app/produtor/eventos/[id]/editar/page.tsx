@@ -728,7 +728,7 @@ export default function EditarEventoPage() {
                       <div style={{ position: 'relative', flex: 1 }}>
                         <span style={{
                           position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
-                          fontSize: 14, fontWeight: 600, color: '#1A1A1A',
+                          fontSize: 14, fontWeight: 400, color: '#1A1A1A',
                           fontFamily: "'Noto Sans', sans-serif", pointerEvents: 'none',
                         }}>R$</span>
                         <input

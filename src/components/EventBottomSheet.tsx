@@ -239,7 +239,7 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight, us
         <div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
             <span style={{ fontSize: 17, fontWeight: 700, color: T.text }}>
-              R$ {ev.price.toFixed(2).replace('.', ',')}
+              {ev.is_free ? 'Gratuito' : `R$ ${ev.price.toFixed(2).replace('.', ',')}`}
             </span>
           </div>
         </div>
@@ -357,7 +357,7 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
                 )}
                 {dateLabel && <span style={{ fontSize: 11.5, color: '#6E6E73' }}>{dateLabel}</span>}
                 <span style={{ fontSize: 12, fontWeight: 700, color: '#0EA5A0', marginLeft: 'auto' }}>
-                  {current.is_free ? 'Grátis' : `R$ ${Number(current.price ?? 0).toFixed(2).replace('.', ',')}`}
+                  {current.is_free ? 'Gratuito' : `R$ ${Number(current.price ?? 0).toFixed(2).replace('.', ',')}`}
                 </span>
               </div>
             </div>

@@ -365,11 +365,6 @@ export default function EventoPage() {
               <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1A1A1A' }}>{ev.displayOrganizerName}</span>
             </div>
           )}
-          {ev.ageRating && (
-            <div style={{ display: 'inline-flex', alignItems: 'center', marginTop: 8, background: '#F0F0F0', borderRadius: 999, padding: '3px 10px' }}>
-              <span style={{ fontSize: 11.5, fontWeight: 700, color: '#1A1A1A' }}>{ev.ageRating}</span>
-            </div>
-          )}
         </div>
 
         {/* Card data + local */}
@@ -430,6 +425,18 @@ export default function EventoPage() {
               />
             </svg>
           </button>
+        )}
+
+        {/* Classificação */}
+        {ev.ageRating && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+              Classificação
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>
+              {ev.ageRating}
+            </div>
+          </div>
         )}
 
         {/* Descricao */}
