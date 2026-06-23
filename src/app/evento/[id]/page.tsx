@@ -433,7 +433,7 @@ export default function EventoPage() {
             <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>
               Classificação
             </div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>
+            <div style={{ fontSize: 14.5, color: '#3A3A3A' }}>
               {ev.ageRating}
             </div>
           </div>

@@ -443,14 +443,23 @@ export default function NovoEventoPage() {
             onChange={e => setRua(e.target.value)}
             style={{ ...inputStyle, marginBottom: 8, background: rua ? '#FAFAFA' : '#fff' }}
           />
-          <div style={{ display: 'flex', gap: 12, marginBottom: 8 }}>
-            <input
-              type="text"
-              placeholder="Nº"
-              value={numero}
-              onChange={e => setNumero(e.target.value)}
-              style={{ ...inputStyle, flex: 1 }}
-            />
+          <div style={{ display: 'flex', gap: 12, marginBottom: 8, alignItems: 'flex-start' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <input
+                type="text"
+                placeholder="Nº"
+                value={numero}
+                onChange={e => setNumero(e.target.value)}
+                style={{ ...inputStyle }}
+              />
+              <button
+                type="button"
+                onClick={() => setNumero('S/N')}
+                style={{ background: 'none', border: 'none', padding: 0, alignSelf: 'flex-start', fontSize: 12, fontWeight: 600, color: '#0EA5A0', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+              >
+                Sem número
+              </button>
+            </div>
             <input
               type="text"
               placeholder="Bairro"
@@ -459,13 +468,6 @@ export default function NovoEventoPage() {
               style={{ ...inputStyle, flex: 2 }}
             />
           </div>
-          <button
-            type="button"
-            onClick={() => setNumero('S/N')}
-            style={{ background: 'none', border: 'none', padding: 0, marginBottom: 8, fontSize: 12.5, fontWeight: 600, color: '#0EA5A0', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
-          >
-            Endereço sem número
-          </button>
           <div style={{ display: 'flex', gap: 12 }}>
             <input
               type="text"
@@ -729,8 +731,20 @@ export default function NovoEventoPage() {
             type="checkbox"
             checked={termsAccepted}
             onChange={e => setTermsAccepted(e.target.checked)}
-            style={{ marginTop: 2, accentColor: '#0EA5A0', width: 16, height: 16, flexShrink: 0 }}
+            style={{ position: 'absolute', width: 1, height: 1, opacity: 0, margin: -1, overflow: 'hidden' }}
           />
+          <span style={{
+            marginTop: 2, width: 16, height: 16, flexShrink: 0, borderRadius: 4,
+            border: termsAccepted ? 'none' : '1.5px solid #C8C8C8',
+            background: termsAccepted ? '#0EA5A0' : '#fff',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            {termsAccepted && (
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
+                <path d="M1 4L3.5 6.5L9 1" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </span>
           <span style={{ fontSize: 12, color: '#6E6E73', lineHeight: 1.5 }}>
             Declaro que as informações estão corretas e estou de acordo com os{' '}
             <a href="/termos" onClick={e => { e.preventDefault(); router.push('/termos') }} style={{ color: '#0EA5A0', textDecoration: 'none', cursor: 'pointer' }}>Termos de Uso</a>

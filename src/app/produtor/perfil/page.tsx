@@ -93,7 +93,7 @@ export default function PerfilProdutorPage() {
     },
     {
       label: 'Conta bancária',
-      badge: profile.bank_account ? 'Configurado' : null,
+      badge: profile.bank_account ? 'Configurado' : 'Configurar',
       onClick: () => router.push('/produtor/perfil/conta-bancaria'),
       icon: (
         <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
@@ -187,7 +187,8 @@ export default function PerfilProdutorPage() {
                 {item.badge && (
                   <span style={{
                     fontSize: 10.5, fontWeight: 700,
-                    color: '#059669', background: '#ECFDF5',
+                    color: item.badge === 'Configurado' ? '#0A7A76' : '#6E6E73',
+                    background: item.badge === 'Configurado' ? '#E6F7F6' : '#F0F0F0',
                     padding: '2px 7px', borderRadius: 999,
                     letterSpacing: 0.2,
                   }}>{item.badge}</span>
