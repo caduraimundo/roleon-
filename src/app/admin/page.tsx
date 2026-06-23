@@ -1325,7 +1325,7 @@ export default function AdminPage() {
     setDetailLoading(true)
     const { data } = await supabase
       .from('events')
-      .select('id, title, description, genre, event_date, location_name, price, is_free, cover_image, producer_id, display_organizer_name, profiles!producer_id(name, email, avatar_initials), ticket_types(id, name, price, quantity, quantity_sold)')
+      .select('id, title, description, genre, event_date, location_name, price, is_free, cover_image, producer_id, display_organizer_name, age_rating, profiles!producer_id(name, email, avatar_initials), ticket_types(id, name, price, quantity, quantity_sold)')
       .eq('id', ev.id)
       .maybeSingle()
     setDetailData(data)
@@ -1894,6 +1894,7 @@ export default function AdminPage() {
                   { label: 'Data',      value: formatDate(detailEvent.event_date) },
                   { label: 'Local',     value: detailEvent.location_name || '—' },
                   { label: 'Gênero',    value: Array.isArray(detailEvent.genre) ? detailEvent.genre.join(', ') : (detailEvent.genre || '—') },
+                  { label: 'Classificação', value: ev?.age_rating || 'Livre' },
                   { label: 'Descrição', value: ev?.description || '—' },
                 ].map((f, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '9px 0', borderBottom: `1px solid #F7F7F7`, gap: 12 }}>

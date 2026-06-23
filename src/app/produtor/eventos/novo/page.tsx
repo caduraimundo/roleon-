@@ -178,7 +178,7 @@ export default function NovoEventoPage() {
         coverImageUrl = uploadData.publicUrl ?? null
       }
 
-      const event_date = `${eventDate}T${eventTime}:00`
+      const event_date = `${eventDate}T${eventTime}:00-03:00`
       const res = await fetch('/api/produtor/events', {
         method: 'POST',
         headers: {

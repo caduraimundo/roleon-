@@ -191,7 +191,7 @@ export default function EditarEventoAdminPage() {
         coverImageUrl = uploadData.publicUrl ?? null
       }
 
-      const event_date = `${eventDate}T${eventTime}:00`
+      const event_date = `${eventDate}T${eventTime}:00-03:00`
       const res = await fetch(`/api/admin/events/${eventId}`, {
         method: 'PUT',
         headers: {

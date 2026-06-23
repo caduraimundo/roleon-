@@ -222,7 +222,7 @@ export default function EditarEventoPage() {
         coverImageUrl = uploadData.url
       }
 
-      const event_date = `${eventDate}T${eventTime}:00`
+      const event_date = `${eventDate}T${eventTime}:00-03:00`
       const res = await fetch(`/api/produtor/events/${eventId}`, {
         method: 'PUT',
         headers: {

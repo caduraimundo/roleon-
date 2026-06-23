@@ -37,6 +37,7 @@ interface FullEvent {
   location_lat?: number | null
   location_lng?: number | null
   displayOrganizerName?: string | null
+  ageRating?: string | null
 }
 
 function fromCache(cached: RoleonEvent): FullEvent {
@@ -68,9 +69,10 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
     price, isFree,
     fee: isFree ? 0 : (() => { const f = calcFees(price, 1, 'pix'); return f.roleonFee + f.pagarmeFee })(),
     venue: ((row.location_name as string) ?? '').replace(/, CEP \d{5}-\d{3}$/, ''),
-    dateStr: d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }).replace(/^./, c => c.toUpperCase()) : null,
-    timeStr: d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : null,
-    yearStr: d ? d.toLocaleDateString('pt-BR', { year: 'numeric' }) : null,
+    dateStr: d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', timeZone: 'America/Sao_Paulo' }).replace(/^./, c => c.toUpperCase()) : null,
+    timeStr: d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }) : null,
+    yearStr: d ? d.toLocaleDateString('pt-BR', { year: 'numeric', timeZone: 'America/Sao_Paulo' }) : null,
+    ageRating: (row.age_rating as string | null) ?? null,
     heroColor: GENRE_COLORS[Array.isArray(row.genre)
       ? (row.genre as string[])[0] ?? ''
       : (row.genre as string) ?? ''] ?? DEFAULT_COLOR,
@@ -187,7 +189,7 @@ export default function EventoPage() {
 
     supabase
       .from('events')
-      .select('id, title, genre, price, location_name, event_date, is_free, description, policies, cover_image, location_lat, location_lng, producer_id, display_organizer_name')
+      .select('id, title, genre, price, location_name, event_date, is_free, description, policies, cover_image, location_lat, location_lng, producer_id, display_organizer_name, age_rating')
       .eq('id', id)
       .single()
       .then(({ data }) => {
@@ -363,6 +365,11 @@ export default function EventoPage() {
               <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1A1A1A' }}>{ev.displayOrganizerName}</span>
             </div>
           )}
+          {ev.ageRating && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', marginTop: 8, background: '#F0F0F0', borderRadius: 999, padding: '3px 10px' }}>
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: '#1A1A1A' }}>{ev.ageRating}</span>
+            </div>
+          )}
         </div>
 
         {/* Card data + local */}
@@ -500,8 +507,8 @@ export default function EventoPage() {
               {ev.policies.map((policy, i) => (
                 <div key={i}>
                   {i > 0 && <div style={{ height: '0.5px', background: '#EFEFEF', margin: '0 14px' }} />}
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px' }}>
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0, marginTop: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
                       <circle cx="7" cy="7" r="6.2" stroke="#0EA5A0" strokeWidth="1.3"/>
                       <path d="M7 6.2v4" stroke="#0EA5A0" strokeWidth="1.4" strokeLinecap="round"/>
                       <circle cx="7" cy="4.2" r="0.7" fill="#0EA5A0"/>
