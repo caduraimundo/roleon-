@@ -2035,7 +2035,7 @@ export default function AdminPage() {
                 { id: 'active',    label: 'Ativos' },
                 { id: 'completed', label: 'Encerrados' },
                 { id: 'mine',      label: 'Meus eventos' },
-                { id: 'pending',   label: 'Aguardando' },
+                { id: 'pending',   label: 'Pendentes' },
                 { id: 'cancelled', label: 'Cancelados' },
                 { id: 'rejected',  label: 'Recusados' },
               ] as const).map(f => {
