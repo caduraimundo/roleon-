@@ -36,6 +36,7 @@ function cardColor(id: string) {
 
 const FILTERS = [
   { id: 'active',    label: 'Ativos'     },
+  { id: 'completed', label: 'Encerrados' },
   { id: 'pending',   label: 'Pendentes'  },
   { id: 'rejected',  label: 'Recusados'  },
   { id: 'cancelled', label: 'Cancelados' },
@@ -82,7 +83,11 @@ export default function EventosPage() {
 
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
-  const filtered = events.filter((e: any) => e.status === filter)
+  const filtered = filter === 'active'
+    ? events.filter((e: any) => e.status === 'active' && isFuturo(e.event_date))
+    : filter === 'completed'
+      ? events.filter((e: any) => e.status === 'active' && !isFuturo(e.event_date))
+      : events.filter((e: any) => e.status === filter)
 
   const sortedFuture = filtered
     .filter((e: any) => isFuturo(e.event_date))
@@ -202,19 +207,10 @@ export default function EventosPage() {
           )}
 
           {!loading && displayEvents.map((ev: any, idx: number) => {
-            const badge = statusLabel(ev.status)
             const isPast = !isFuturo(ev.event_date)
-            const prevIsFuture = idx > 0 && isFuturo(displayEvents[idx - 1].event_date)
-            const showSeparator = filter === 'active' && isPast && (idx === 0 || prevIsFuture)
+            const badge = (ev.status === 'active' && isPast) ? { text: 'Encerrado', color: '#6E6E73', bg: '#F5F5F5' } : statusLabel(ev.status)
             return (
               <Fragment key={ev.id}>
-                {showSeparator && (
-                  <div style={{
-                    fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
-                    textTransform: 'uppercase' as const, color: '#9A9A9A',
-                    marginTop: sortedFuture.length > 0 ? 8 : 0, marginBottom: 4,
-                  }}>Encerrados</div>
-                )}
                 <div style={{
                   background: '#fff', border: '0.5px solid #E8E8E8',
                 borderRadius: 14, padding: 14,

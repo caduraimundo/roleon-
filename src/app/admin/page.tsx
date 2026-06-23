@@ -1212,7 +1212,7 @@ export default function AdminPage() {
   const [pendingEvents, setPendingEvents] = useState<any[]>([])
   const [activeEvents, setActiveEvents] = useState<any[]>([])
   const [modLoading, setModLoading] = useState(false)
-  const [modFilter, setModFilter] = useState<'pending' | 'active' | 'cancelled' | 'rejected' | 'todos' | 'mine'>('active')
+  const [modFilter, setModFilter] = useState<'pending' | 'active' | 'completed' | 'cancelled' | 'rejected' | 'todos' | 'mine'>('active')
   const [actionId, setActionId] = useState<string | null>(null)
   const [motivoSheet, setMotivoSheet] = useState<{ id: string; tipo: 'rejeitar' | 'cancelar' } | null>(null)
   const [motivo, setMotivo] = useState('')
@@ -1856,10 +1856,12 @@ export default function AdminPage() {
         const badge: Record<string, { label: string; bg: string; color: string; border?: string }> = {
           pending:   { label: 'Aguardando', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
           active:    { label: 'Ativo',      bg: '#E6F7F6', color: '#0A7A76' },
+          completed: { label: 'Encerrado',  bg: '#F5F5F5', color: '#6E6E73' },
           cancelled: { label: 'Cancelado',  bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
           rejected:  { label: 'Recusado',   bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
         }
-        const b = badge[detailEvent.status] ?? badge.pending
+        const isDetailPast = detailEvent.event_date && new Date(detailEvent.event_date.replace(' ', 'T')) < new Date()
+        const b = (detailEvent.status === 'active' && isDetailPast) ? badge.completed : (badge[detailEvent.status] ?? badge.pending)
         const producer = ev?.profiles as any
         const tickets = (ev?.ticket_types ?? []) as any[]
         const formatDate = (d: string) => d ? new Date(d.replace(' ', 'T')).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'
@@ -1970,11 +1972,16 @@ export default function AdminPage() {
       }
 
       const allEvents = [...pendingEvents.map(e => ({ ...e, status: 'pending' })), ...activeEvents]
+      const isPastEvent = (e: any) => e.event_date && new Date(e.event_date.replace(' ', 'T')) < new Date()
       const byStatus = modFilter === 'pending'
         ? pendingEvents.map(e => ({ ...e, status: 'pending' }))
         : modFilter === 'mine'
           ? activeEvents.filter(e => !e.producer_id)
-          : activeEvents.filter(e => e.status === modFilter)
+          : modFilter === 'completed'
+            ? activeEvents.filter(e => e.status === 'active' && isPastEvent(e))
+            : modFilter === 'active'
+              ? activeEvents.filter(e => e.status === 'active' && !isPastEvent(e))
+              : activeEvents.filter(e => e.status === modFilter)
 
       const filtered = modSearch.trim()
         ? byStatus.filter(e =>
@@ -1993,6 +2000,7 @@ export default function AdminPage() {
       const badgeMap: Record<string, { label: string; bg: string; color: string; border?: string }> = {
         pending:   { label: 'Aguardando', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
         active:    { label: 'Ativo',      bg: '#E6F7F6', color: '#0A7A76' },
+        completed: { label: 'Encerrado',  bg: '#F5F5F5', color: '#6E6E73' },
         cancelled: { label: 'Cancelado',  bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
         rejected:  { label: 'Recusado',   bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' },
       }
@@ -2025,6 +2033,7 @@ export default function AdminPage() {
             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, marginBottom: 14 }} className="no-scrollbar">
               {([
                 { id: 'active',    label: 'Ativos' },
+                { id: 'completed', label: 'Encerrados' },
                 { id: 'mine',      label: 'Meus eventos' },
                 { id: 'pending',   label: 'Aguardando' },
                 { id: 'cancelled', label: 'Cancelados' },
@@ -2087,7 +2096,8 @@ export default function AdminPage() {
 
             {/* Cards de evento */}
             {!modLoading && filtered.map((ev: any) => {
-              const badge = badgeMap[ev.status] ?? badgeMap.pending
+              const isPastEv = ev.event_date && new Date(ev.event_date.replace(' ', 'T')) < new Date()
+              const badge = (ev.status === 'active' && isPastEv) ? badgeMap.completed : (badgeMap[ev.status] ?? badgeMap.pending)
               return (
                 <div key={ev.id} style={{
                   background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`,
