@@ -28,43 +28,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Apenas produtores ou admin podem fazer upload de capas' }, { status: 403 })
   }
 
-  const formData = await req.formData()
-  const file = formData.get('file') as File
-
-  if (!file) {
-    return NextResponse.json({ error: 'Arquivo obrigatório' }, { status: 400 })
-  }
+  const { fileType } = await req.json()
 
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
-  if (!allowedTypes.includes(file.type)) {
+  if (!allowedTypes.includes(fileType)) {
     return NextResponse.json({ error: 'Formato inválido. Use JPEG, PNG ou WebP' }, { status: 400 })
   }
 
-  if (file.size > 5 * 1024 * 1024) {
-    return NextResponse.json({ error: 'Imagem muito grande. Máximo 5MB' }, { status: 400 })
-  }
-
-  const ext = file.type.split('/')[1]
+  const ext = fileType.split('/')[1]
   const fileName = `${user.id}/${Date.now()}.${ext}`
 
-  const bytes = await file.arrayBuffer()
-  const buffer = Buffer.from(bytes)
-
-  const { error: uploadError } = await supabaseAdmin.storage
+  const { data, error } = await supabaseAdmin.storage
     .from('event-covers')
-    .upload(fileName, buffer, {
-      contentType: file.type,
-      upsert: false,
-    })
+    .createSignedUploadUrl(fileName)
 
-  if (uploadError) {
-    console.error('[upload-cover] erro no upload:', JSON.stringify(uploadError))
-    return NextResponse.json({ error: 'Erro ao fazer upload: ' + uploadError.message }, { status: 500 })
+  if (error || !data) {
+    console.error('[upload-cover] erro ao gerar signed url:', JSON.stringify(error))
+    return NextResponse.json({ error: 'Erro ao preparar upload: ' + (error?.message ?? 'sem dados') }, { status: 500 })
   }
 
   const { data: { publicUrl } } = supabaseAdmin.storage
     .from('event-covers')
     .getPublicUrl(fileName)
 
-  return NextResponse.json({ ok: true, url: publicUrl })
+  return NextResponse.json({ ok: true, path: fileName, token: data.token, publicUrl })
 }

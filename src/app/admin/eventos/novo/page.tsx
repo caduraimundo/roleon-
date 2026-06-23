@@ -103,17 +103,27 @@ export default function NovoEventoAdminPage() {
 
       if (coverFile) {
         setUploading(true)
-        const fd = new FormData()
-        fd.append('file', coverFile)
         const uploadRes = await fetch('/api/produtor/upload-cover', {
           method: 'POST',
-          headers: { Authorization: `Bearer ${session?.access_token}` },
-          body: fd,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ fileType: coverFile.type }),
         })
-        const uploadData = await uploadRes.json()
+        let uploadData: { error?: string; path?: string; token?: string; publicUrl?: string } = {}
+        try { uploadData = await uploadRes.json() } catch { uploadData = { error: 'Resposta inválida do servidor ao preparar upload' } }
+        if (!uploadRes.ok || !uploadData.path || !uploadData.token) {
+          setUploading(false)
+          showError(uploadData.error || 'Erro ao preparar upload da capa')
+          return
+        }
+        const { error: putError } = await supabase.storage
+          .from('event-covers')
+          .uploadToSignedUrl(uploadData.path, uploadData.token, coverFile)
         setUploading(false)
-        if (!uploadRes.ok) { showError(uploadData.error || 'Erro ao fazer upload da capa'); return }
-        coverImageUrl = uploadData.url
+        if (putError) { showError('Erro ao enviar imagem: ' + putError.message); return }
+        coverImageUrl = uploadData.publicUrl ?? null
       }
 
       const event_date = `${eventDate}T${eventTime}:00`
@@ -472,7 +482,7 @@ export default function NovoEventoAdminPage() {
               <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input
                   type="text"
-                  placeholder="Ex: +18 anos"
+                  placeholder="Ex: Proibido reentrada"
                   value={policy}
                   onChange={e => setPolicies(prev => prev.map((p, j) => j === i ? e.target.value : p))}
                   style={{ ...inputStyle, flex: 1, padding: '10px 12px' }}
