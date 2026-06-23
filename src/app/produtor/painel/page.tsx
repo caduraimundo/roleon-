@@ -323,7 +323,7 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
 
         {/* Thumb colorido */}
         <div style={{
-          width: 52, height: 52, borderRadius: 10,
+          width: 104, height: 52, borderRadius: 10,
           background: cardColor(e.id),
           flexShrink: 0, overflow: 'hidden',
           display: 'flex', alignItems: 'center',
@@ -334,6 +334,7 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
               position: 'absolute',
               top: 0, right: 0, bottom: 0, left: 0,
               width: '100%', height: '100%', objectFit: 'cover',
+              objectPosition: 'center top',
             }}/>
           ) : (
             <span style={{ color: '#fff', fontSize: 22,

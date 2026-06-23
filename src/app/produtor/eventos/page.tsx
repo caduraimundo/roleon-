@@ -223,7 +223,7 @@ export default function EventosPage() {
                 {/* Linha: thumb + info + status */}
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <div style={{
-                    width: 52, height: 52, borderRadius: 10,
+                    width: 104, height: 52, borderRadius: 10,
                     background: cardColor(ev.id), flexShrink: 0,
                     overflow: 'hidden', position: 'relative',
                     display: 'flex', alignItems: 'center',
@@ -234,6 +234,7 @@ export default function EventosPage() {
                         position: 'absolute',
                         top: 0, right: 0, bottom: 0, left: 0,
                         width: '100%', height: '100%', objectFit: 'cover',
+                        objectPosition: 'center top',
                       }}/>
                     ) : (
                       <span style={{ color: '#fff', fontSize: 22,
