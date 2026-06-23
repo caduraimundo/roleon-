@@ -442,7 +442,7 @@ export default function NovoEventoAdminPage() {
                 type="text"
                 placeholder="Nº"
                 value={numero}
-                onChange={e => setNumero(e.target.value)}
+                onChange={e => setNumero(e.target.value.replace(/\D/g, ''))}
                 style={{ ...inputStyle }}
               />
               <button
