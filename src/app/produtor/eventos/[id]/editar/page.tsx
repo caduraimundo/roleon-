@@ -575,6 +575,13 @@ export default function EditarEventoPage() {
               style={{ ...inputStyle, flex: 2 }}
             />
           </div>
+          <button
+            type="button"
+            onClick={() => setNumero('S/N')}
+            style={{ background: 'none', border: 'none', padding: 0, marginBottom: 8, fontSize: 12.5, fontWeight: 600, color: '#0EA5A0', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+          >
+            Endereço sem número
+          </button>
           <div style={{ display: 'flex', gap: 12 }}>
             <input
               type="text"
