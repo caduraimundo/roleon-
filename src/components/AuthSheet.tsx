@@ -141,12 +141,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       : sessionStorage.getItem('redirectAfterLogin') || '/'
     const callbackUrl = `${window.location.origin}/auth/callback?popup=1&next=${encodeURIComponent(next)}`
 
-    // Abre o popup ANTES do await para nao ser bloqueado pelo mobile
-    const popup = window.open(
-      '',
-      'google-login',
-      'width=520,height=620,left=' + Math.round(window.screenX + (window.outerWidth - 520) / 2) + ',top=' + Math.round(window.screenY + (window.outerHeight - 620) / 2)
-    )
+    let popup: Window | null = null
 
     const { data } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -159,24 +154,29 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
       },
     })
 
-    if (data?.url && popup) {
-      popup.location.href = data.url
+    if (data?.url) {
+      popup = window.open(
+        data.url,
+        'google-login',
+        'width=520,height=620,left=' + Math.round(window.screenX + (window.outerWidth - 520) / 2) + ',top=' + Math.round(window.screenY + (window.outerHeight - 620) / 2)
+      )
 
-      setTimeout(() => {
-        try {
-          const aindaNoBlank = !popup.closed && (popup.location.href === 'about:blank' || popup.location.href === '')
-          if (aindaNoBlank) {
-            popup.close()
-            window.location.href = data.url
+      if (!popup) {
+        // Fallback: se popup foi bloqueado, redireciona normalmente
+        window.location.href = data.url
+      } else {
+        setTimeout(() => {
+          try {
+            if (!popup!.closed && popup!.location.href === 'about:blank') {
+              popup!.close()
+              window.location.href = data.url
+            }
+          } catch {
+            // Acesso a popup.location pode lançar erro de cross-origin se a navegação
+            // de fato aconteceu (sinal de sucesso) — nesse caso, não faz nada.
           }
-        } catch {
-          // Acesso a popup.location pode lançar erro de cross-origin se a navegação
-          // de fato aconteceu (sinal de sucesso) — nesse caso, não faz nada.
-        }
-      }, 2500)
-    } else if (data?.url) {
-      // Fallback: se popup foi bloqueado, redireciona normalmente
-      window.location.href = data.url
+        }, 2500)
+      }
     }
 
     const finalizeLogin = () => {
