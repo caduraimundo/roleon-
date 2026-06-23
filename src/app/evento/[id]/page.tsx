@@ -36,6 +36,7 @@ interface FullEvent {
   cover_image?: string | null
   location_lat?: number | null
   location_lng?: number | null
+  displayOrganizerName?: string | null
 }
 
 function fromCache(cached: RoleonEvent): FullEvent {
@@ -78,6 +79,7 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
     cover_image: (row.cover_image as string | null) ?? null,
     location_lat: (row.location_lat as number | null) ?? null,
     location_lng: (row.location_lng as number | null) ?? null,
+    displayOrganizerName: (row.display_organizer_name as string | null) ?? null,
   }
 }
 
@@ -185,7 +187,7 @@ export default function EventoPage() {
 
     supabase
       .from('events')
-      .select('id, title, genre, price, location_name, event_date, is_free, description, policies, cover_image, location_lat, location_lng, producer_id')
+      .select('id, title, genre, price, location_name, event_date, is_free, description, policies, cover_image, location_lat, location_lng, producer_id, display_organizer_name')
       .eq('id', id)
       .single()
       .then(({ data }) => {
@@ -354,6 +356,12 @@ export default function EventoPage() {
                 <path d="M4.5 3l3 3-3 3" stroke="#C8C8C8" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
+          )}
+          {!organizer && ev.displayOrganizerName && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 2 }}>
+              <span style={{ fontSize: 12.5, color: '#6E6E73' }}>Organizado por</span>
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1A1A1A' }}>{ev.displayOrganizerName}</span>
+            </div>
           )}
         </div>
 

@@ -24,8 +24,8 @@ export async function POST(req: NextRequest) {
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'producer') {
-    return NextResponse.json({ error: 'Apenas produtores podem fazer upload de capas' }, { status: 403 })
+  if (profile?.role !== 'producer' && profile?.role !== 'admin') {
+    return NextResponse.json({ error: 'Apenas produtores ou admin podem fazer upload de capas' }, { status: 403 })
   }
 
   const formData = await req.formData()

@@ -1994,6 +1994,14 @@ export default function AdminPage() {
                   {pendingEvents.length} aguardando aprovação
                 </div>
               )}
+              <a href="/admin/eventos/novo" style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                height: 44, borderRadius: 14, marginTop: 12,
+                background: TEAL, color: '#fff', fontSize: 15, fontWeight: 700,
+                fontFamily: "'Noto Sans', sans-serif", textDecoration: 'none',
+              }}>
+                + Novo evento
+              </a>
             </div>
 
             {/* Filtros */}
