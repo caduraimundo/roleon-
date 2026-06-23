@@ -318,69 +318,63 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
       display: 'flex', flexDirection: 'column', gap: 10,
       fontFamily: "'Noto Sans', sans-serif",
     }}>
-      {/* Linha: thumb + info + status */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-
-        {/* Thumb colorido */}
-        <div style={{
-          width: 56, height: 70, borderRadius: 10,
-          background: cardColor(e.id),
-          flexShrink: 0, overflow: 'hidden',
-          display: 'flex', alignItems: 'center',
-          justifyContent: 'center', position: 'relative',
-        }}>
-          {e.cover_image ? (
-            <img src={e.cover_image} alt={e.title} style={{
-              position: 'absolute',
-              top: 0, right: 0, bottom: 0, left: 0,
-              width: '100%', height: '100%', objectFit: 'cover',
-              objectPosition: 'center',
-            }}/>
-          ) : (
-            <span style={{ color: '#fff', fontSize: 22,
-              fontWeight: 700, opacity: 0.9 }}>♪</span>
-          )}
-        </div>
-
-        {/* Título + data */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{
-            fontSize: 15, fontWeight: 700, color: '#1A1A1A',
-            letterSpacing: -0.2, lineHeight: 1.25,
-            overflow: 'hidden', textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>{e.title}</div>
-          <div style={{
-            marginTop: 3, fontSize: 12.5,
-            color: '#6E6E73', fontWeight: 500,
-          }}>
-            {formatDate(e.event_date)}
-          </div>
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 3 }}>
-            <span style={{ fontSize: 12.5, color: '#6E6E73' }}>
-              {e.sold} {e.sold === 1 ? 'ingresso vendido' : 'ingressos vendidos'}
-            </span>
-            {e.revenue > 0 && (
-              <span style={{ fontSize: 12.5, color: '#0EA5A0', fontWeight: 500 }}>
-                {formatCurrency(e.revenue)}
-              </span>
-            )}
-            {e.is_free && e.sold === 0 && (
-              <span style={{ fontSize: 12.5, color: '#6E6E73' }}>Gratuito</span>
-            )}
-          </div>
-        </div>
-
-        {/* Badge de status */}
+      {/* Banner da capa, com badge de status sobreposto */}
+      <div style={{
+        width: '100%', height: 130, borderRadius: 10,
+        background: cardColor(e.id),
+        overflow: 'hidden', position: 'relative',
+        display: 'flex', alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        {e.cover_image ? (
+          <img src={e.cover_image} alt={e.title} style={{
+            position: 'absolute',
+            top: 0, right: 0, bottom: 0, left: 0,
+            width: '100%', height: '100%', objectFit: 'cover',
+            objectPosition: 'center',
+          }}/>
+        ) : (
+          <span style={{ color: '#fff', fontSize: 22,
+            fontWeight: 700, opacity: 0.9 }}>♪</span>
+        )}
         <span style={{
+          position: 'absolute', top: 10, right: 10,
           fontSize: 11, fontWeight: 600,
           padding: '3px 8px', borderRadius: 20,
           color: badge.color, background: badge.bg,
-          whiteSpace: 'nowrap', flexShrink: 0,
+          whiteSpace: 'nowrap',
         }}>
           {badge.text}
         </span>
+      </div>
 
+      {/* Título + data + vendidos */}
+      <div>
+        <div style={{
+          fontSize: 15, fontWeight: 700, color: '#1A1A1A',
+          letterSpacing: -0.2, lineHeight: 1.25,
+          overflow: 'hidden', textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}>{e.title}</div>
+        <div style={{
+          marginTop: 3, fontSize: 12.5,
+          color: '#6E6E73', fontWeight: 500,
+        }}>
+          {formatDate(e.event_date)}
+        </div>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 3 }}>
+          <span style={{ fontSize: 12.5, color: '#6E6E73' }}>
+            {e.sold} {e.sold === 1 ? 'ingresso vendido' : 'ingressos vendidos'}
+          </span>
+          {e.revenue > 0 && (
+            <span style={{ fontSize: 12.5, color: '#0EA5A0', fontWeight: 500 }}>
+              {formatCurrency(e.revenue)}
+            </span>
+          )}
+          {e.is_free && e.sold === 0 && (
+            <span style={{ fontSize: 12.5, color: '#6E6E73' }}>Gratuito</span>
+          )}
+        </div>
       </div>
 
       {/* Botões — Portaria primário | Editar secundário */}

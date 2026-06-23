@@ -220,52 +220,51 @@ export default function EventosPage() {
                 borderRadius: 14, padding: 14,
                 display: 'flex', flexDirection: 'column', gap: 12,
               }}>
-                {/* Linha: thumb + info + status */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div style={{
-                    width: 56, height: 70, borderRadius: 10,
-                    background: cardColor(ev.id), flexShrink: 0,
-                    overflow: 'hidden', position: 'relative',
-                    display: 'flex', alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                    {ev.cover_image ? (
-                      <img src={ev.cover_image} alt={ev.title} style={{
-                        position: 'absolute',
-                        top: 0, right: 0, bottom: 0, left: 0,
-                        width: '100%', height: '100%', objectFit: 'cover',
-                        objectPosition: 'center',
-                      }}/>
-                    ) : (
-                      <span style={{ color: '#fff', fontSize: 22,
-                        fontWeight: 700, opacity: 0.9 }}>♪</span>
-                    )}
-                  </div>
-
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{
-                      fontSize: 15, fontWeight: 700, color: '#1A1A1A',
-                      letterSpacing: -0.2, lineHeight: 1.25,
-                      overflow: 'hidden', textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}>{ev.title}</div>
-                    <div style={{
-                      marginTop: 3, fontSize: 12.5,
-                      color: '#6E6E73', fontWeight: 500,
-                      display: 'flex', alignItems: 'center', gap: 6,
-                    }}>
-                      {formatDate(ev.event_date)}
-                    </div>
-                  </div>
-
+                {/* Banner da capa, com badge de status sobreposto */}
+                <div style={{
+                  width: '100%', height: 130, borderRadius: 10,
+                  background: cardColor(ev.id),
+                  overflow: 'hidden', position: 'relative',
+                  display: 'flex', alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  {ev.cover_image ? (
+                    <img src={ev.cover_image} alt={ev.title} style={{
+                      position: 'absolute',
+                      top: 0, right: 0, bottom: 0, left: 0,
+                      width: '100%', height: '100%', objectFit: 'cover',
+                      objectPosition: 'center',
+                    }}/>
+                  ) : (
+                    <span style={{ color: '#fff', fontSize: 22,
+                      fontWeight: 700, opacity: 0.9 }}>♪</span>
+                  )}
                   <span style={{
+                    position: 'absolute', top: 10, right: 10,
                     fontSize: 11, fontWeight: 600,
                     padding: '3px 8px', borderRadius: 20,
                     color: badge.color, background: badge.bg,
-                    whiteSpace: 'nowrap', flexShrink: 0,
+                    whiteSpace: 'nowrap',
                   }}>
                     {badge.text}
                   </span>
+                </div>
+
+                {/* Título + data */}
+                <div>
+                  <div style={{
+                    fontSize: 15, fontWeight: 700, color: '#1A1A1A',
+                    letterSpacing: -0.2, lineHeight: 1.25,
+                    overflow: 'hidden', textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}>{ev.title}</div>
+                  <div style={{
+                    marginTop: 3, fontSize: 12.5,
+                    color: '#6E6E73', fontWeight: 500,
+                    display: 'flex', alignItems: 'center', gap: 6,
+                  }}>
+                    {formatDate(ev.event_date)}
+                  </div>
                 </div>
 
                 {/* Contagem de ingressos */}
