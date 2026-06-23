@@ -1212,7 +1212,7 @@ export default function AdminPage() {
   const [pendingEvents, setPendingEvents] = useState<any[]>([])
   const [activeEvents, setActiveEvents] = useState<any[]>([])
   const [modLoading, setModLoading] = useState(false)
-  const [modFilter, setModFilter] = useState<'pending' | 'active' | 'cancelled' | 'rejected' | 'todos'>('pending')
+  const [modFilter, setModFilter] = useState<'pending' | 'active' | 'cancelled' | 'rejected' | 'todos' | 'mine'>('pending')
   const [actionId, setActionId] = useState<string | null>(null)
   const [motivoSheet, setMotivoSheet] = useState<{ id: string; tipo: 'rejeitar' | 'cancelar' } | null>(null)
   const [motivo, setMotivo] = useState('')
@@ -1971,7 +1971,9 @@ export default function AdminPage() {
       const allEvents = [...pendingEvents.map(e => ({ ...e, status: 'pending' })), ...activeEvents]
       const byStatus = modFilter === 'pending'
         ? pendingEvents.map(e => ({ ...e, status: 'pending' }))
-        : activeEvents.filter(e => e.status === modFilter)
+        : modFilter === 'mine'
+          ? activeEvents.filter(e => !e.producer_id)
+          : activeEvents.filter(e => e.status === modFilter)
 
       const filtered = modSearch.trim()
         ? byStatus.filter(e =>
@@ -2005,11 +2007,9 @@ export default function AdminPage() {
                   Atualizar
                 </button>
               </div>
-              {pendingEvents.length > 0 && (
-                <div style={{ fontSize: 12, color: '#92400E', fontWeight: 600, marginTop: 4 }}>
-                  {pendingEvents.length} aguardando aprovação
-                </div>
-              )}
+              <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 4 }}>
+                Eventos aguardando aprovação ({pendingEvents.length})
+              </div>
               <a href="/admin/eventos/novo" style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 height: 44, borderRadius: 14, marginTop: 12,
@@ -2023,8 +2023,9 @@ export default function AdminPage() {
             {/* Filtros */}
             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, marginBottom: 14 }} className="no-scrollbar">
               {([
-                { id: 'pending',   label: `Aguardando (${pendingEvents.length})` },
+                { id: 'pending',   label: 'Aguardando' },
                 { id: 'active',    label: 'Ativos' },
+                { id: 'mine',      label: 'Meus eventos' },
                 { id: 'cancelled', label: 'Cancelados' },
                 { id: 'rejected',  label: 'Recusados' },
               ] as const).map(f => {
