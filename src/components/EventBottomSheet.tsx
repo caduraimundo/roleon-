@@ -331,11 +331,11 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
           </button>
         </div>
         <div style={{ padding: '12px 14px' }}>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'stretch' }}>
-            <div style={{ width: 64, minHeight: 64, borderRadius: 10, flexShrink: 0, background: '#E6F7F6', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <div style={{ width: 96, height: 48, borderRadius: 10, flexShrink: 0, background: '#E6F7F6', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {current.cover_image
                 ? <img src={current.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : <span style={{ fontSize: 10, fontWeight: 700, color: '#0EA5A0' }}>{current.genre?.toUpperCase() ?? 'EVENTO'}</span>}
+                : <span style={{ fontSize: 9, fontWeight: 700, color: '#0EA5A0', textAlign: 'center', padding: '0 4px' }}>{current.genre?.toUpperCase() ?? 'EVENTO'}</span>}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               {current.genre && (
