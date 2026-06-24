@@ -23,6 +23,7 @@ export interface RoleonEvent {
   fee: number
   likes: number
   genre: string
+  genres?: string[]
   color: string           // cor do placeholder da thumb (hex)
   lat: number
   lng: number
@@ -269,17 +270,7 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight, us
 interface MapHintProps {
   count: number
   bottomNavHeight: number
-  events: Array<{
-    id: string
-    title: string
-    genre?: string
-    lat?: number
-    lng?: number
-    price?: number
-    is_free?: boolean
-    cover_image?: string
-    event_date?: string
-  }>
+  events: RoleonEvent[]
   userLocation?: { lat: number; lng: number } | null
   onEventSelect?: (id: string) => void
   onExpandChange?: (expanded: boolean) => void
@@ -312,9 +303,9 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
     const distLabel = (current as any)._dist != null
       ? ((current as any)._dist < 1 ? ((current as any)._dist * 1000).toFixed(0) + ' m' : (current as any)._dist.toFixed(1) + ' km')
       : null
-    const dateLabel = current.event_date
-      ? new Date(current.event_date.replace(' ', 'T')).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
-      : null
+    const genreList = (current.genres && current.genres.length > 0) ? current.genres : (current.genre ? [current.genre] : [])
+    const visibleGenres = genreList.slice(0, 2)
+    const extraCount = genreList.length - visibleGenres.length
 
     return (
       <div style={{
@@ -331,40 +322,73 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
           </button>
         </div>
         <div style={{ padding: '12px 14px' }}>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <div style={{ width: 96, height: 48, borderRadius: 10, flexShrink: 0, background: '#E6F7F6', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {current.cover_image
-                ? <img src={current.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : <span style={{ fontSize: 9, fontWeight: 700, color: '#0EA5A0', textAlign: 'center', padding: '0 4px' }}>{current.genre?.toUpperCase() ?? 'EVENTO'}</span>}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              {current.genre && (
-                <div style={{ display: 'inline-flex', marginBottom: 6 }}>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: '#0EA5A0', letterSpacing: 0.5, background: '#E6F7F6', borderRadius: 999, padding: '2px 8px' }}>
-                    {String(current.genre).toUpperCase()}
-                  </span>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'stretch' }}>
+            <EventThumb ev={current} size={76} width={152} />
+            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {visibleGenres.length > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                  {visibleGenres.map((g) => (
+                    <span key={g} style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: '#0EA5A0', background: '#E6F7F6', padding: '3px 7px', borderRadius: 999 }}>
+                      {g}
+                    </span>
+                  ))}
+                  {extraCount > 0 && (
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#6E6E73', background: '#F0F0F0', padding: '3px 7px', borderRadius: 999 }}>
+                      +{extraCount}
+                    </span>
+                  )}
                 </div>
               )}
-              <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', lineHeight: 1.3, marginBottom: 4 }}>{current.title}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                {dateLabel && <span style={{ fontSize: 11.5, color: '#6E6E73' }}>{dateLabel}</span>}
+              <div style={{
+                fontSize: 14.5, fontWeight: 700, color: '#1A1A1A',
+                lineHeight: 1.25, letterSpacing: -0.1,
+                overflow: 'hidden', textOverflow: 'ellipsis',
+                display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' as const,
+              }}>
+                {current.title}
+              </div>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', rowGap: 2,
+                fontSize: 11.5, color: '#6E6E73', fontWeight: 500, marginTop: 1,
+              }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <IconCalendar /> {current.date}
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <IconClock /> {current.time}
+                </span>
                 {distLabel && (
-                  <span style={{ fontSize: 11.5, color: '#6E6E73', display: 'flex', alignItems: 'center', gap: 3 }}>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                     </svg>
                     {distLabel}
                   </span>
                 )}
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#0EA5A0', marginLeft: 'auto' }}>
-                  {current.is_free ? 'Gratuito' : `R$ ${Number(current.price ?? 0).toFixed(2).replace('.', ',')}`}
-                </span>
               </div>
             </div>
           </div>
-          <button onClick={() => { onEventSelect?.(current.id); handleClose() }} style={{ marginTop: 12, width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0EA5A0', color: '#fff', border: 0, borderRadius: 10, padding: '0 0', fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
-            Ver evento
-          </button>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            marginTop: 10, paddingTop: 10,
+            borderTop: '0.5px solid #EFEFEF',
+          }}>
+            <span style={{ fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>
+              {current.is_free ? 'Gratuito' : `R$ ${Number(current.price ?? 0).toFixed(2).replace('.', ',')}`}
+            </span>
+            <button onClick={() => { onEventSelect?.(current.id); handleClose() }} style={{
+              height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '0 14px',
+              background: '#0EA5A0', color: '#fff',
+              border: 0, borderRadius: 10, cursor: 'pointer',
+              fontSize: 13, fontWeight: 600,
+              fontFamily: "'Noto Sans', sans-serif",
+              boxShadow: '0 6px 14px rgba(14,165,160,0.28)',
+              whiteSpace: 'nowrap', flexShrink: 0,
+            }}>
+              Ver evento
+            </button>
+          </div>
         </div>
         {sorted.length > 1 && (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 14px 12px', borderTop: '0.5px solid rgba(0,0,0,0.07)' }}>

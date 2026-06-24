@@ -542,6 +542,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
               genre:        Array.isArray(row.genre)
                 ? (row.genre as string[])[0] ?? ''
                 : (row.genre as string) ?? '',
+              genres:       Array.isArray(row.genre)
+                ? (row.genre as string[]).filter(Boolean)
+                : ((row.genre as string) ? [row.genre as string] : []),
               price:        row.is_free ? 0 : ((row.price as number) ?? 0),
               fee:          0,
               likes:        0,
