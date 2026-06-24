@@ -73,6 +73,9 @@ export default function EditarEventoPage() {
 
       if (!ev) { router.replace('/produtor/painel'); return }
       if (ev.producer_id !== user.id) { router.replace('/produtor/painel'); return }
+      if (ev.status === 'active' && ev.event_date && new Date(ev.event_date.replace(' ', 'T')) < new Date()) {
+        router.replace('/produtor/painel'); return
+      }
 
       setTitle(ev.title || '')
       setDescription(ev.description || '')

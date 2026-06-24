@@ -86,12 +86,15 @@ export default function EditarEventoAdminPage() {
 
       const { data: ev } = await supabase
         .from('events')
-        .select('id, title, description, genre, event_date, location_name, age_rating, is_unlimited, cover_image, policies, display_organizer_name, producer_id')
+        .select('id, title, description, genre, event_date, location_name, age_rating, is_unlimited, cover_image, policies, display_organizer_name, producer_id, status')
         .eq('id', eventId)
         .single()
 
       if (!ev) { router.replace('/admin?tab=moderacao'); return }
       if (ev.producer_id !== null) { router.replace('/admin?tab=moderacao'); return }
+      if (ev.status === 'active' && ev.event_date && new Date(ev.event_date.replace(' ', 'T')) < new Date()) {
+        router.replace('/admin?tab=moderacao'); return
+      }
 
       setTitle(ev.title || '')
       setOrganizerName(ev.display_organizer_name || '')
