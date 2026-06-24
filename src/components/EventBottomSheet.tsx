@@ -331,7 +331,7 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
           </button>
         </div>
         <div style={{ padding: '12px 14px' }}>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
             <div style={{ width: 96, height: 48, borderRadius: 10, flexShrink: 0, background: '#E6F7F6', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               {current.cover_image
                 ? <img src={current.cover_image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -347,6 +347,7 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
               )}
               <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', lineHeight: 1.3, marginBottom: 4 }}>{current.title}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                {dateLabel && <span style={{ fontSize: 11.5, color: '#6E6E73' }}>{dateLabel}</span>}
                 {distLabel && (
                   <span style={{ fontSize: 11.5, color: '#6E6E73', display: 'flex', alignItems: 'center', gap: 3 }}>
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
@@ -355,7 +356,6 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
                     {distLabel}
                   </span>
                 )}
-                {dateLabel && <span style={{ fontSize: 11.5, color: '#6E6E73' }}>{dateLabel}</span>}
                 <span style={{ fontSize: 12, fontWeight: 700, color: '#0EA5A0', marginLeft: 'auto' }}>
                   {current.is_free ? 'Gratuito' : `R$ ${Number(current.price ?? 0).toFixed(2).replace('.', ',')}`}
                 </span>
