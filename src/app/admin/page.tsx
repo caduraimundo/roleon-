@@ -2143,7 +2143,7 @@ export default function AdminPage() {
                         >Rejeitar</button>
                       </>
                     )}
-                    {ev.status === 'active' && (
+                    {ev.status === 'active' && !isPastEv && (
                       <button
                         onClick={() => { setMotivoSheet({ id: ev.id, tipo: 'cancelar' }); setMotivo('') }}
                         style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}

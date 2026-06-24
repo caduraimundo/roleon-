@@ -307,7 +307,8 @@ export default function PainelPage() {
 }
 
 function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter> }) {
-  const badge = statusLabel(e.status)
+  const isPast = e.status === 'active' && !isFuturo(e.event_date)
+  const badge = isPast ? { text: 'Encerrado', color: '#6E6E73', bg: '#F5F5F5' } : statusLabel(e.status)
 
   return (
     <div style={{
@@ -377,46 +378,72 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
         </div>
       </div>
 
-      {/* Botões — Portaria primário | Editar secundário */}
+      {/* Botões — Portaria primário | Editar secundário | Participantes (evento encerrado) */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <button
-          onClick={() => router.push(`/produtor/eventos/${e.id}/portaria`)}
-          style={{
-            height: 44, padding: '0 12px', borderRadius: 10,
-            border: 'none', background: '#0EA5A0', color: '#fff',
-            fontFamily: "'Noto Sans', sans-serif",
-            fontSize: 13, fontWeight: 700, cursor: 'pointer',
-            display: 'flex', alignItems: 'center',
-            justifyContent: 'center', gap: 6,
-          }}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-            <path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2"
-              stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-            <line x1="4" y1="12" x2="20" y2="12"
-              stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
-          </svg>
-          Portaria
-        </button>
-        <button
-          onClick={() => router.push(`/produtor/eventos/${e.id}/editar`)}
-          style={{
-            height: 44, padding: '0 12px', borderRadius: 10,
-            border: '1px solid #E8E8E8',
-            background: '#fff', color: '#1A1A1A',
-            fontFamily: "'Noto Sans', sans-serif",
-            fontSize: 13, fontWeight: 600, cursor: 'pointer',
-            display: 'flex', alignItems: 'center',
-            justifyContent: 'center', gap: 6,
-          }}
-        >
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <path d="M2.5 12.5l1-3 7-7 2 2-7 7-3 1zM10 3l2 2"
-              stroke="currentColor" strokeWidth="1.5"
-              strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-          Editar
-        </button>
+        {isPast ? (
+          <button
+            onClick={() => router.push(`/produtor/eventos/${e.id}/participantes`)}
+            style={{
+              height: 44, padding: '0 12px', borderRadius: 10,
+              border: '1px solid #E8E8E8',
+              background: '#fff', color: '#1A1A1A',
+              fontFamily: "'Noto Sans', sans-serif",
+              fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              display: 'flex', alignItems: 'center',
+              justifyContent: 'center', gap: 6,
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
+              <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+            Participantes
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={() => router.push(`/produtor/eventos/${e.id}/portaria`)}
+              style={{
+                height: 44, padding: '0 12px', borderRadius: 10,
+                border: 'none', background: '#0EA5A0', color: '#fff',
+                fontFamily: "'Noto Sans', sans-serif",
+                fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                display: 'flex', alignItems: 'center',
+                justifyContent: 'center', gap: 6,
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M4 7V5a1 1 0 011-1h2M17 4h2a1 1 0 011 1v2M20 17v2a1 1 0 01-1 1h-2M7 20H5a1 1 0 01-1-1v-2"
+                  stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+                <line x1="4" y1="12" x2="20" y2="12"
+                  stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+              </svg>
+              Portaria
+            </button>
+            <button
+              onClick={() => router.push(`/produtor/eventos/${e.id}/editar`)}
+              style={{
+                height: 44, padding: '0 12px', borderRadius: 10,
+                border: '1px solid #E8E8E8',
+                background: '#fff', color: '#1A1A1A',
+                fontFamily: "'Noto Sans', sans-serif",
+                fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                display: 'flex', alignItems: 'center',
+                justifyContent: 'center', gap: 6,
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M2.5 12.5l1-3 7-7 2 2-7 7-3 1zM10 3l2 2"
+                  stroke="currentColor" strokeWidth="1.5"
+                  strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Editar
+            </button>
+          </>
+        )}
       </div>
     </div>
   )
