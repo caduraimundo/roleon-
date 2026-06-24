@@ -674,6 +674,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
 
     let cancelled = false
     let retryTimer: ReturnType<typeof setTimeout> | null = null
+    let cleanupGeo: (() => void) | null = null
 
     const initMap = () => {
       if (cancelled || !mapRef.current) return
@@ -739,7 +740,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           { enableHighAccuracy: true },
         )
 
-        return () => {
+        cleanupGeo = () => {
           navigator.geolocation.clearWatch(watchId)
           dotOverlay.setMap(null)
         }
@@ -760,11 +761,28 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         return null
       })()
       if (savedMap) {
-        createMap({ lat: savedMap.lat, lng: savedMap.lng })
-        setTimeout(() => { mapInstanceRef.current?.setZoom(savedMap.zoom) }, 100)
         mapCenteredRef.current = true
         if (savedMap.searchCenterLat != null && savedMap.searchCenterLng != null) {
           setSearchCenter({ lat: savedMap.searchCenterLat, lng: savedMap.searchCenterLng })
+        }
+        const finishRestore = (knownPos?: { lat: number; lng: number }) => {
+          if (cancelled) return
+          createMap({ lat: savedMap.lat, lng: savedMap.lng }, knownPos)
+          setTimeout(() => { mapInstanceRef.current?.setZoom(savedMap.zoom) }, 100)
+        }
+        if (navigator.geolocation) {
+          const timeout = setTimeout(() => finishRestore(), 2000)
+          navigator.geolocation.getCurrentPosition(
+            ({ coords }) => {
+              clearTimeout(timeout)
+              userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
+              finishRestore({ lat: coords.latitude, lng: coords.longitude })
+            },
+            () => { clearTimeout(timeout); finishRestore() },
+            { enableHighAccuracy: true, timeout: 2000 }
+          )
+        } else {
+          finishRestore()
         }
         return
       }
@@ -792,6 +810,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     return () => {
       cancelled = true
       if (retryTimer !== null) clearTimeout(retryTimer)
+      if (cleanupGeo) cleanupGeo()
     }
   }, [])
 
