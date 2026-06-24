@@ -31,6 +31,18 @@ export async function POST(
     const user = await getAuthProducer(req, event_id)
     if (!user) return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
 
+    const { data: eventCheck } = await supabaseAdmin
+      .from('events')
+      .select('status, event_date')
+      .eq('id', event_id)
+      .single()
+
+    if (!eventCheck) return NextResponse.json({ error: 'Evento não encontrado' }, { status: 404 })
+    if (eventCheck.status !== 'active') return NextResponse.json({ error: 'Evento não está ativo' }, { status: 400 })
+    if (eventCheck.event_date && new Date((eventCheck.event_date as string).replace(' ', 'T')) < new Date()) {
+      return NextResponse.json({ error: 'Evento já encerrado, não pode ser cancelado' }, { status: 400 })
+    }
+
     const { data: tickets, error } = await supabaseAdmin
       .from('tickets')
       .select('id, order_id, status')

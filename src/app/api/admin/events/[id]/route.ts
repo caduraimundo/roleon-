@@ -35,7 +35,7 @@ export async function PUT(
 
   const { data: event } = await supabaseAdmin
     .from('events')
-    .select('id, producer_id, location_name, location_lat, location_lng')
+    .select('id, producer_id, event_date, location_name, location_lat, location_lng')
     .eq('id', id)
     .single()
 
@@ -45,6 +45,10 @@ export async function PUT(
 
   if (event.producer_id !== null) {
     return NextResponse.json({ error: 'Este evento pertence a um produtor e não pode ser editado por aqui' }, { status: 403 })
+  }
+
+  if (event.event_date && new Date((event.event_date as string).replace(' ', 'T')) < new Date()) {
+    return NextResponse.json({ error: 'Evento já encerrado, não pode ser editado' }, { status: 400 })
   }
 
   const body = await req.json()

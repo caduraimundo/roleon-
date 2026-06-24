@@ -39,6 +39,10 @@ export async function PUT(
     return NextResponse.json({ error: 'Você não tem permissão para editar este evento' }, { status: 403 })
   }
 
+  if (event.event_date && new Date((event.event_date as string).replace(' ', 'T')) < new Date()) {
+    return NextResponse.json({ error: 'Evento já encerrado, não pode ser editado' }, { status: 400 })
+  }
+
   const body = await req.json()
   const {
     title,

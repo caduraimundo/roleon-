@@ -33,12 +33,15 @@ export async function POST(
 
     const { data: event } = await supabaseAdmin
       .from('events')
-      .select('id, title, status, producer_id, profiles!producer_id(name, email)')
+      .select('id, title, status, event_date, producer_id, profiles!producer_id(name, email)')
       .eq('id', eventId)
       .single()
 
     if (!event) return NextResponse.json({ error: 'Evento não encontrado' }, { status: 404 })
     if (event.status !== 'active') return NextResponse.json({ error: 'Evento não está ativo' }, { status: 400 })
+    if (event.event_date && new Date((event.event_date as string).replace(' ', 'T')) < new Date()) {
+      return NextResponse.json({ error: 'Evento já encerrado, não pode ser cancelado' }, { status: 400 })
+    }
 
     await supabaseAdmin.from('events').update({ status: 'cancelled' }).eq('id', eventId)
 

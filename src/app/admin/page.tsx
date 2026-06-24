@@ -1956,7 +1956,7 @@ export default function AdminPage() {
                     <button onClick={() => { setDetailEvent(null); setDetailData(null); setMotivoSheet({ id: detailEvent.id, tipo: 'rejeitar' }); setMotivo('') }} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Rejeitar evento</button>
                   </div>
                 )}
-                {detailEvent.status === 'active' && (
+                {detailEvent.status === 'active' && !(detailEvent.event_date && new Date(detailEvent.event_date.replace(' ', 'T')) < new Date()) && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {!ev?.producer_id && (
                       <a href={`/admin/eventos/${detailEvent.id}/editar`} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px', background: '#F0F0F0', color: TEXT, borderRadius: 10, fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", textDecoration: 'none', boxSizing: 'border-box' }}>Editar evento</a>
