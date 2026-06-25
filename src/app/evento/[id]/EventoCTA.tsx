@@ -47,13 +47,24 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
     supabase.auth.getSession().then(({ data }) => {
       setAuthed(!!data.session)
       if (data.session && isFree) {
-        supabase
-          .from('saved_events')
-          .select('id')
-          .eq('user_id', data.session.user.id)
-          .eq('event_id', id)
-          .maybeSingle()
-          .then(({ data: saved }) => setIsParticipating(!!saved))
+        if (ticketTypeId) {
+          supabase
+            .from('tickets')
+            .select('id')
+            .eq('user_id', data.session.user.id)
+            .eq('event_id', id)
+            .eq('status', 'confirmed')
+            .maybeSingle()
+            .then(({ data: confirmed }) => setIsParticipating(!!confirmed))
+        } else {
+          supabase
+            .from('saved_events')
+            .select('id')
+            .eq('user_id', data.session.user.id)
+            .eq('event_id', id)
+            .maybeSingle()
+            .then(({ data: saved }) => setIsParticipating(!!saved))
+        }
       }
       if (data.session && isSoldOut) {
         fetch(`/api/waitlist?event_id=${id}`, {
@@ -69,7 +80,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
       if (session) setShowAuth(false)
     })
     return () => subscription.unsubscribe()
-  }, [id, isSoldOut])
+  }, [id, isSoldOut, ticketTypeId])
 
   const handleWaitlist = async () => {
     if (waitlistLoading) return
@@ -120,19 +131,49 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { setParticipatingLoading(false); return }
       try {
-        if (isParticipating) {
-          await supabase
-            .from('saved_events')
-            .delete()
-            .eq('user_id', session.user.id)
-            .eq('event_id', id)
-          setIsParticipating(false)
+        if (ticketTypeId) {
+          if (isParticipating) {
+            const res = await fetch('/api/confirmar-presenca', {
+              method: 'DELETE',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ event_id: id }),
+            })
+            if (res.ok) setIsParticipating(false)
+          } else {
+            const res = await fetch('/api/confirmar-presenca', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ event_id: id, ticket_type_id: ticketTypeId }),
+            })
+            if (res.ok) {
+              setIsParticipating(true)
+              setShowConfirmSheet(true)
+            } else {
+              const errData = await res.json().catch(() => ({}))
+              alert(errData.error || 'Não foi possível confirmar presença')
+            }
+          }
         } else {
-          await supabase
-            .from('saved_events')
-            .insert({ user_id: session.user.id, event_id: id })
-          setIsParticipating(true)
-          setShowConfirmSheet(true)
+          if (isParticipating) {
+            await supabase
+              .from('saved_events')
+              .delete()
+              .eq('user_id', session.user.id)
+              .eq('event_id', id)
+            setIsParticipating(false)
+          } else {
+            await supabase
+              .from('saved_events')
+              .insert({ user_id: session.user.id, event_id: id })
+            setIsParticipating(true)
+            setShowConfirmSheet(true)
+          }
         }
       } finally {
         setParticipatingLoading(false)
