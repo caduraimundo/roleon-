@@ -8,6 +8,14 @@ const supabaseAdmin = createClient(
 )
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLng = (lng2 - lng1) * Math.PI / 180
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
 async function getAuthUser(req: NextRequest) {
   const token = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
   const { data: { user } } = await supabaseAdmin.auth.getUser(token)
@@ -92,12 +100,21 @@ export async function PUT(
     // Geocodifica o novo endereço para atualizar o pin no mapa
     try {
       const geoRes = await fetch(
-        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location_name)}&key=${process.env.GOOGLE_MAPS_SERVER_KEY}`
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location_name)}&region=br&bounds=-20.55,-43.65|-20.25,-43.35&key=${process.env.GOOGLE_MAPS_SERVER_KEY}`
       )
       const geoData = await geoRes.json()
       if (geoData.status === 'OK' && geoData.results?.[0]) {
-        update.location_lat = geoData.results[0].geometry.location.lat
-        update.location_lng = geoData.results[0].geometry.location.lng
+        const newLat = geoData.results[0].geometry.location.lat
+        const newLng = geoData.results[0].geometry.location.lng
+        const oldLat = (event as any).location_lat
+        const oldLng = (event as any).location_lng
+        const distKm = (oldLat != null && oldLng != null) ? haversineKm(oldLat, oldLng, newLat, newLng) : null
+        if (distKm != null && distKm > 20) {
+          console.warn('[event-edit] geocoding implausivel (', distKm.toFixed(1), 'km do endereco anterior), mantendo coordenadas antigas. Endereco:', location_name)
+        } else {
+          update.location_lat = newLat
+          update.location_lng = newLng
+        }
       } else {
         console.warn('[event-edit] geocoding sem resultado para:', location_name, geoData.status)
       }

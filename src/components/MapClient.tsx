@@ -493,6 +493,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   const userLocationRef = useRef<{ lat: number; lng: number } | null>(null)
   const locationSavedRef = useRef(false)
   const mapCenteredRef = useRef(false)
+  const [mapReady, setMapReady] = useState(false)
 
   const [events,          setEvents]          = useState<RoleonEvent[]>([])
   const [loading,         setLoading]         = useState(true)
@@ -695,6 +696,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
         })
         mapInstanceRef.current = map
+        setMapReady(true)
 
         if (!navigator.geolocation) return
 
@@ -710,19 +712,31 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         }
         const dotOverlay = new UserDot()
 
-        if (knownPos) {
-          userPos = new google.maps.LatLng(knownPos.lat, knownPos.lng)
-          dotOverlay.setMap(map)
+        const placeDot = (lat: number, lng: number) => {
+          userPos = new google.maps.LatLng(lat, lng)
+          if (!dotOverlay.getMap()) dotOverlay.setMap(map)
           dotOverlay.draw()
         }
+
+        if (knownPos) placeDot(knownPos.lat, knownPos.lng)
+
+        // Busca ativa: garante que o pontinho apareça rápido mesmo sem knownPos,
+        // sem atrasar a criação do mapa em si.
+        navigator.geolocation.getCurrentPosition(
+          ({ coords }) => {
+            userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
+            placeDot(coords.latitude, coords.longitude)
+          },
+          () => {},
+          { enableHighAccuracy: true, timeout: 2000 }
+        )
 
         const watchId = navigator.geolocation.watchPosition(
           ({ coords }) => {
             try {
-              userPos = new google.maps.LatLng(coords.latitude, coords.longitude)
               userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
               if (!mapCenteredRef.current && mapInstanceRef.current) {
-                mapInstanceRef.current.panTo(userPos)
+                mapInstanceRef.current.panTo(new google.maps.LatLng(coords.latitude, coords.longitude))
                 mapCenteredRef.current = true
               }
               if (!locationSavedRef.current) {
@@ -733,8 +747,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
                   body: JSON.stringify({ lat: coords.latitude, lng: coords.longitude }),
                 }).catch(() => {})
               }
-              if (!dotOverlay.getMap()) dotOverlay.setMap(map)
-              dotOverlay.draw()
+              placeDot(coords.latitude, coords.longitude)
             } catch (e) {
               console.warn('Geolocation error:', e)
             }
@@ -768,25 +781,8 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         if (savedMap.searchCenterLat != null && savedMap.searchCenterLng != null) {
           setSearchCenter({ lat: savedMap.searchCenterLat, lng: savedMap.searchCenterLng })
         }
-        const finishRestore = (knownPos?: { lat: number; lng: number }) => {
-          if (cancelled) return
-          createMap({ lat: savedMap.lat, lng: savedMap.lng }, knownPos)
-          setTimeout(() => { mapInstanceRef.current?.setZoom(savedMap.zoom) }, 100)
-        }
-        if (navigator.geolocation) {
-          const timeout = setTimeout(() => finishRestore(), 2000)
-          navigator.geolocation.getCurrentPosition(
-            ({ coords }) => {
-              clearTimeout(timeout)
-              userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
-              finishRestore({ lat: coords.latitude, lng: coords.longitude })
-            },
-            () => { clearTimeout(timeout); finishRestore() },
-            { enableHighAccuracy: true, timeout: 2000 }
-          )
-        } else {
-          finishRestore()
-        }
+        createMap({ lat: savedMap.lat, lng: savedMap.lng })
+        setTimeout(() => { mapInstanceRef.current?.setZoom(savedMap.zoom) }, 100)
         return
       }
 
@@ -926,7 +922,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       clustererRef.current?.clearMarkers()
       clustererRef.current = null
     }
-  }, [filteredEvents, activePin])
+  }, [filteredEvents, activePin, mapReady])
 
   useEffect(() => {
     if (activePin && !filteredEvents.find((e) => e.id === activePin)) setActivePin(null)
