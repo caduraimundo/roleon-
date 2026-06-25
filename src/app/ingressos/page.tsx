@@ -179,9 +179,11 @@ function TicketCard({ ticket, onClick }: { ticket: TicketWithEvent; onClick: () 
                 {ticket.ticket_type_name}
               </span>
             )}
-            <div style={{ fontSize: 13, fontWeight: 600, color: TEAL }}>
-              {formatPrice(ticket.price_paid)}
-            </div>
+            {!(ticket.price_paid === 0 && ticket.ticket_type_name) && (
+              <div style={{ fontSize: 13, fontWeight: 600, color: TEAL }}>
+                {formatPrice(ticket.price_paid)}
+              </div>
+            )}
           </div>
           {ticket.payment_method && ticket.payment_method !== 'free' && (
             <span style={{ fontSize: 12, fontWeight: 500, color: '#6E6E73', display: 'inline-flex', alignItems: 'center', gap: 4 }}>

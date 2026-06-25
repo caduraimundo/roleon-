@@ -192,6 +192,7 @@ export default function IngressoPage() {
 
   const statusMap: Record<string, { label: string; bg: string; color: string; dot: string }> = {
     paid:         { label: 'Válido',     bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
+    confirmed:    { label: 'Confirmado', bg: '#E6F7F6', color: '#0EA5A0', dot: '#0EA5A0' },
     used:         { label: 'Utilizado',  bg: '#F7F7F7', color: '#6E6E73', dot: '#6E6E73' },
     pending:      { label: 'Pendente',   bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
     expired:      { label: 'Expirado',   bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
@@ -324,7 +325,7 @@ export default function IngressoPage() {
             padding: '24px 24px 20px',
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
           }}>
-            {ticket?.status === 'paid' || ticket?.status === 'valid' ? (
+            {ticket?.status === 'paid' || ticket?.status === 'valid' || ticket?.status === 'confirmed' ? (
               <>
                 <img
                   src={qrUrl}
