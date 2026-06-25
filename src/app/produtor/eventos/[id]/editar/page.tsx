@@ -20,6 +20,8 @@ export default function EditarEventoPage() {
   const [eventTime, setEventTime] = useState('')
   const [isFree, setIsFree] = useState(false)
   const [isUnlimited, setIsUnlimited] = useState(false)
+  const [freeCapacity, setFreeCapacity] = useState('')
+  const [freeTicketTypeId, setFreeTicketTypeId] = useState<string | null>(null)
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
   const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null)
@@ -128,12 +130,17 @@ export default function EditarEventoPage() {
         .eq('event_id', eventId)
 
       if (tipos?.length) {
-        setTicketTypes(tipos.map(t => ({
-          id: t.id,
-          name: t.name,
-          price: t.price?.toString() || '',
-          quantity: t.quantity?.toString() || '',
-        })))
+        if (ev.is_free) {
+          setFreeTicketTypeId(tipos[0].id)
+          setFreeCapacity(tipos[0].quantity?.toString() || '')
+        } else {
+          setTicketTypes(tipos.map(t => ({
+            id: t.id,
+            name: t.name,
+            price: t.price?.toString() || '',
+            quantity: t.quantity?.toString() || '',
+          })))
+        }
       }
     }
     init()
@@ -210,6 +217,9 @@ export default function EditarEventoPage() {
       const valid = ticketTypes.some(t => t.name && parseFloat(t.price) > 0)
       if (!valid) { showError('Adicione ao menos um tipo de ingresso com nome e preço'); return }
     }
+    if (isFree && !isUnlimited && (!freeCapacity || parseInt(freeCapacity) <= 0)) {
+      showError('Informe a quantidade de vagas'); return
+    }
 
     setLoading(true)
     let coverImageUrl: string | null = null
@@ -252,7 +262,7 @@ export default function EditarEventoPage() {
           cover_image: coverImageUrl ?? existingCoverUrl ?? null,
           policies: policies.filter(p => p.trim() !== ''),
           ticket_types: isFree
-            ? []
+            ? (isUnlimited ? [] : [{ id: freeTicketTypeId ?? undefined, name: 'Entrada gratuita', price: 0, quantity: parseInt(freeCapacity) }])
             : ticketTypes.map(t => ({
                 id: t.id,
                 name: t.name,
@@ -817,7 +827,10 @@ export default function EditarEventoPage() {
               {!isUnlimited && (
                 <input
                   type="number"
+                  min="1"
                   placeholder="Quantidade de vagas"
+                  value={freeCapacity}
+                  onChange={e => setFreeCapacity(e.target.value)}
                   style={inputStyle}
                 />
               )}
