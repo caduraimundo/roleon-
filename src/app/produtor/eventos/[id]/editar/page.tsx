@@ -6,7 +6,7 @@ import { supabase } from '../../../../../lib/supabase'
 
 const GENRES = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Axé', 'República']
 
-type TicketType = { name: string; price: string; quantity: string }
+type TicketType = { id?: string; name: string; price: string; quantity: string }
 
 export default function EditarEventoPage() {
   const router = useRouter()
@@ -124,11 +124,12 @@ export default function EditarEventoPage() {
 
       const { data: tipos } = await supabase
         .from('ticket_types')
-        .select('name, price, quantity')
+        .select('id, name, price, quantity')
         .eq('event_id', eventId)
 
       if (tipos?.length) {
         setTicketTypes(tipos.map(t => ({
+          id: t.id,
           name: t.name,
           price: t.price?.toString() || '',
           quantity: t.quantity?.toString() || '',
@@ -253,6 +254,7 @@ export default function EditarEventoPage() {
           ticket_types: isFree
             ? []
             : ticketTypes.map(t => ({
+                id: t.id,
                 name: t.name,
                 price: parseFloat(t.price),
                 quantity: t.quantity ? parseInt(t.quantity) : null,

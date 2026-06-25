@@ -149,7 +149,7 @@ export async function PUT(
     }
   }
 
-  if (Array.isArray(ticket_types) && ticket_types.length > 0) {
+  if (Array.isArray(ticket_types)) {
     const soldTypeIds = [
       ...new Set(
         (soldTickets ?? [])
@@ -157,27 +157,51 @@ export async function PUT(
           .filter(Boolean) as string[]
       ),
     ]
-    const deleteBuilder = supabaseAdmin.from('ticket_types').delete().eq('event_id', id)
-    const { error: deleteError } = await (
-      soldTypeIds.length > 0
-        ? deleteBuilder.not('id', 'in', `(${soldTypeIds.join(',')})`)
-        : deleteBuilder
-    )
+    const incoming = ticket_types as { id?: string; name: string; price: number; quantity: number | null }[]
+    const incomingIds = new Set(incoming.filter(t => t.id).map(t => t.id as string))
 
-    if (deleteError) {
-      return NextResponse.json({ error: 'Erro ao atualizar tipos de ingresso' }, { status: 500 })
+    // Atualiza tipos que ja existem (vieram com id) em vez de recriar
+    for (const t of incoming) {
+      if (t.id) {
+        const { error: updateError } = await supabaseAdmin
+          .from('ticket_types')
+          .update({ name: t.name, price: t.price, quantity: t.quantity ?? null })
+          .eq('id', t.id)
+          .eq('event_id', id)
+        if (updateError) {
+          return NextResponse.json({ error: 'Erro ao atualizar tipo de ingresso' }, { status: 500 })
+        }
+      }
     }
 
-    const rows = (ticket_types as { name: string; price: number; quantity: number | null }[]).map(t => ({
-      event_id: id,
-      name: t.name,
-      price: t.price,
-      quantity: t.quantity ?? null,
-    }))
+    // Insere apenas os que sao genuinamente novos (sem id)
+    const newRows = incoming
+      .filter(t => !t.id)
+      .map(t => ({ event_id: id, name: t.name, price: t.price, quantity: t.quantity ?? null }))
+    if (newRows.length > 0) {
+      const { error: insertError } = await supabaseAdmin.from('ticket_types').insert(newRows)
+      if (insertError) {
+        return NextResponse.json({ error: 'Erro ao salvar tipos de ingresso' }, { status: 500 })
+      }
+    }
 
-    const { error: insertError } = await supabaseAdmin.from('ticket_types').insert(rows)
-    if (insertError) {
-      return NextResponse.json({ error: 'Erro ao salvar tipos de ingresso' }, { status: 500 })
+    // Remove do banco os tipos que nao vieram mais no payload (removidos pelo produtor),
+    // exceto os que ja tem ingresso vendido vinculado
+    const { data: existingTypes } = await supabaseAdmin
+      .from('ticket_types')
+      .select('id')
+      .eq('event_id', id)
+    const toDelete = (existingTypes ?? [])
+      .map(t => t.id as string)
+      .filter(tid => !incomingIds.has(tid) && !soldTypeIds.includes(tid))
+    if (toDelete.length > 0) {
+      const { error: deleteError } = await supabaseAdmin
+        .from('ticket_types')
+        .delete()
+        .in('id', toDelete)
+      if (deleteError) {
+        return NextResponse.json({ error: 'Erro ao atualizar tipos de ingresso' }, { status: 500 })
+      }
     }
   }
 
