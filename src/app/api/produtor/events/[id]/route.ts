@@ -35,7 +35,7 @@ export async function PUT(
 
   const { data: event } = await supabaseAdmin
     .from('events')
-    .select('id, producer_id, status, event_date, location_name, is_free, title')
+    .select('id, producer_id, status, event_date, location_name, location_lat, location_lng, is_free, title')
     .eq('id', id)
     .single()
 
