@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erro ao criar evento: ' + (eventError?.message ?? 'sem dados') }, { status: 500 })
   }
 
-  if (Array.isArray(ticket_types) && ticket_types.length > 0 && !is_free) {
+  if (Array.isArray(ticket_types) && ticket_types.length > 0) {
     const rows = (ticket_types as { name: string; price: number; quantity: number | null }[]).map(t => ({
       event_id: evento.id,
       name: t.name,

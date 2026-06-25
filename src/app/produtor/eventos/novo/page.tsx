@@ -18,6 +18,7 @@ export default function NovoEventoPage() {
   const [eventTime, setEventTime] = useState('')
   const [isFree, setIsFree] = useState(false)
   const [isUnlimited, setIsUnlimited] = useState(false)
+  const [freeCapacity, setFreeCapacity] = useState('')
   const [ageRating, setAgeRating] = useState('Livre')
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
@@ -75,6 +76,7 @@ export default function NovoEventoPage() {
           if (d.eventTime) setEventTime(d.eventTime)
           if (d.isFree !== undefined) setIsFree(d.isFree)
           if (d.isUnlimited !== undefined) setIsUnlimited(d.isUnlimited)
+          if (d.freeCapacity) setFreeCapacity(d.freeCapacity)
           if (d.ageRating) setAgeRating(d.ageRating)
           if (d.ticketTypes?.length) setTicketTypes(d.ticketTypes)
           if (d.policies?.length) setPolicies(d.policies)
@@ -91,11 +93,11 @@ export default function NovoEventoPage() {
     const draft = {
       title, description, genres,
       cep, rua, numero, bairro, cidade, estado,
-      eventDate, eventTime, isFree, isUnlimited, ageRating,
+      eventDate, eventTime, isFree, isUnlimited, freeCapacity, ageRating,
       ticketTypes, policies,
     }
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
-  }, [draftLoaded, title, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, isFree, isUnlimited, ageRating, ticketTypes, policies])
+  }, [draftLoaded, title, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, isFree, isUnlimited, freeCapacity, ageRating, ticketTypes, policies])
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -145,6 +147,9 @@ export default function NovoEventoPage() {
     if (!isFree) {
       const valid = ticketTypes.some(t => t.name && parseFloat(t.price) > 0)
       if (!valid) { showError('Adicione ao menos um tipo de ingresso com nome e preço'); return }
+    }
+    if (isFree && !isUnlimited && (!freeCapacity || parseInt(freeCapacity) <= 0)) {
+      showError('Informe a quantidade de vagas'); return
     }
 
     setLoading(true)
@@ -199,7 +204,7 @@ export default function NovoEventoPage() {
           cover_image: coverImageUrl ?? null,
           policies: policies.filter(p => p.trim() !== ''),
           ticket_types: isFree
-            ? []
+            ? (isUnlimited ? [] : [{ name: 'Entrada gratuita', price: 0, quantity: parseInt(freeCapacity) }])
             : ticketTypes.map(t => ({
                 name: t.name,
                 price: parseFloat(t.price),
@@ -717,7 +722,10 @@ export default function NovoEventoPage() {
               {!isUnlimited && (
                 <input
                   type="number"
+                  min="1"
                   placeholder="Quantidade de vagas"
+                  value={freeCapacity}
+                  onChange={e => setFreeCapacity(e.target.value)}
                   style={inputStyle}
                 />
               )}
