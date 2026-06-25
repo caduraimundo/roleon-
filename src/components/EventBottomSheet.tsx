@@ -143,6 +143,9 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight, us
   const distLabel = distKm != null
     ? (distKm < 1 ? (distKm * 1000).toFixed(0) + ' m' : distKm.toFixed(1) + ' km')
     : null
+  const genreList = (ev.genres && ev.genres.length > 0) ? ev.genres : (ev.genre ? [ev.genre] : [])
+  const visibleGenres = genreList.slice(0, 1)
+  const extraCount = genreList.length - visibleGenres.length
 
   return (
     <div
@@ -173,14 +176,26 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight, us
 
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
           {/* Gênero */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-            <div style={{
-              fontSize: 10, fontWeight: 700, letterSpacing: 0.5,
-              textTransform: 'uppercase', color: T.primary,
-              background: '#E6F7F6', padding: '3px 7px', borderRadius: 999,
-            }}>
-              {ev.genre}
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'nowrap', overflow: 'hidden' }}>
+            {visibleGenres.map((g) => (
+              <span key={g} style={{
+                fontSize: 10, fontWeight: 700, letterSpacing: 0.5,
+                textTransform: 'uppercase', color: T.primary,
+                background: '#E6F7F6', padding: '3px 7px', borderRadius: 999,
+                whiteSpace: 'nowrap', flexShrink: 0,
+              }}>
+                {g}
+              </span>
+            ))}
+            {extraCount > 0 && (
+              <span style={{
+                fontSize: 10, fontWeight: 700, color: T.textDim,
+                background: '#F0F0F0', padding: '3px 7px', borderRadius: 999,
+                whiteSpace: 'nowrap', flexShrink: 0,
+              }}>
+                +{extraCount}
+              </span>
+            )}
           </div>
 
           {/* Título */}
@@ -304,7 +319,7 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
       ? ((current as any)._dist < 1 ? ((current as any)._dist * 1000).toFixed(0) + ' m' : (current as any)._dist.toFixed(1) + ' km')
       : null
     const genreList = (current.genres && current.genres.length > 0) ? current.genres : (current.genre ? [current.genre] : [])
-    const visibleGenres = genreList.slice(0, 2)
+    const visibleGenres = genreList.slice(0, 1)
     const extraCount = genreList.length - visibleGenres.length
 
     return (
@@ -326,14 +341,14 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
             <EventThumb ev={current} size={76} width={152} />
             <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
               {visibleGenres.length > 0 && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'nowrap', overflow: 'hidden' }}>
                   {visibleGenres.map((g) => (
-                    <span key={g} style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: '#0EA5A0', background: '#E6F7F6', padding: '3px 7px', borderRadius: 999 }}>
+                    <span key={g} style={{ fontSize: 10, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: '#0EA5A0', background: '#E6F7F6', padding: '3px 7px', borderRadius: 999, whiteSpace: 'nowrap', flexShrink: 0 }}>
                       {g}
                     </span>
                   ))}
                   {extraCount > 0 && (
-                    <span style={{ fontSize: 10, fontWeight: 700, color: '#6E6E73', background: '#F0F0F0', padding: '3px 7px', borderRadius: 999 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: '#6E6E73', background: '#F0F0F0', padding: '3px 7px', borderRadius: 999, whiteSpace: 'nowrap', flexShrink: 0 }}>
                       +{extraCount}
                     </span>
                   )}
