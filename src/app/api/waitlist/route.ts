@@ -19,16 +19,20 @@ export async function GET(req: NextRequest) {
   }
 
   const event_id = req.nextUrl.searchParams.get('event_id')
+  const ticket_type_id = req.nextUrl.searchParams.get('ticket_type_id')
   if (!event_id) {
     return NextResponse.json({ error: 'event_id obrigatório' }, { status: 400 })
   }
 
-  const { data } = await supabaseAdmin
+  let query = supabaseAdmin
     .from('waitlist')
     .select('id')
     .eq('user_id', user.id)
     .eq('event_id', event_id)
-    .maybeSingle()
+
+  query = ticket_type_id ? query.eq('ticket_type_id', ticket_type_id) : query.is('ticket_type_id', null)
+
+  const { data } = await query.maybeSingle()
 
   return NextResponse.json({ inWaitlist: !!data })
 }

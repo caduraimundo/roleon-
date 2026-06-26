@@ -67,7 +67,8 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
         }
       }
       if (data.session && isSoldOut) {
-        fetch(`/api/waitlist?event_id=${id}`, {
+        const qs = ticketTypeId ? `&ticket_type_id=${ticketTypeId}` : ''
+        fetch(`/api/waitlist?event_id=${id}${qs}`, {
           headers: { Authorization: `Bearer ${data.session.access_token}` },
         })
           .then(r => r.json())
@@ -95,7 +96,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({ event_id: id }),
+          body: JSON.stringify({ event_id: id, ticket_type_id: ticketTypeId ?? null }),
         })
         setInWaitlist(false)
       } else {
@@ -107,7 +108,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
           },
           body: JSON.stringify({
             event_id: id,
-            ticket_type_id: null,
+            ticket_type_id: ticketTypeId ?? null,
             email: session.user.email ?? '',
           }),
         })
