@@ -38,7 +38,7 @@ export async function notifyWaitlist({ eventId, ticketTypeId }: { eventId: strin
   for (const entry of entries) {
     if (!entry.email) continue
     try {
-      await resend.emails.send({
+      const { error: resendError } = await resend.emails.send({
         from: 'Roleon <noreply@roleon.com.br>',
         to: entry.email,
         subject: `Abriu uma vaga! - ${(event as any).title}`,
@@ -75,7 +75,11 @@ export async function notifyWaitlist({ eventId, ticketTypeId }: { eventId: strin
 </html>
         `,
       })
-      notifiedIds.push(entry.id)
+      if (resendError) {
+        console.error('[notifyWaitlist] Resend retornou erro para', entry.email, resendError)
+      } else {
+        notifiedIds.push(entry.id)
+      }
     } catch (err) {
       console.error('[notifyWaitlist] erro ao enviar e-mail para', entry.email, err)
     }
