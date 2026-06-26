@@ -49,7 +49,7 @@ export async function GET(req: Request) {
       const event = ticket.events as any
 
       try {
-        await resend.emails.send({
+        const { error: resendError } = await resend.emails.send({
           from: 'Roleon <noreply@roleon.com.br>',
           to: ticket.recipient_email,
           subject: `Lembrete: ${event.title} é amanhã`,
@@ -78,7 +78,11 @@ export async function GET(req: Request) {
             </div>
           `,
         })
-        emailsSent++
+        if (resendError) {
+          console.error('[cron/reminder] Resend retornou erro (ingresso pago):', resendError)
+        } else {
+          emailsSent++
+        }
       } catch (emailErr) {
         console.error('Erro ao enviar email de lembrete:', emailErr)
       }
@@ -147,7 +151,7 @@ export async function GET(req: Request) {
       if (!profile) continue
 
       try {
-        await resend.emails.send({
+        const { error: resendError } = await resend.emails.send({
           from: 'Roleon <noreply@roleon.com.br>',
           to: profile.email,
           subject: `Lembrete: ${event.title} é amanhã`,
@@ -176,7 +180,11 @@ export async function GET(req: Request) {
             </div>
           `,
         })
-        emailsSent++
+        if (resendError) {
+          console.error('[cron/reminder] Resend retornou erro (evento gratuito):', resendError)
+        } else {
+          emailsSent++
+        }
       } catch (emailErr) {
         console.error('Erro ao enviar email lembrete gratuito:', emailErr)
       }
