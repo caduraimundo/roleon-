@@ -243,24 +243,24 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
               <div style={{ fontSize: 12, color: '#8A8A8A', fontWeight: 500 }}>Ingresso</div>
               <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A1A' }}>Entrada gratuita</div>
             </div>
-            {isSoldOut && authed ? (
+            {isSoldOut && authed && !isParticipating ? (
               <button onClick={handleWaitlist} disabled={waitlistLoading} style={inWaitlist ? BTN_IN_WAITLIST : BTN_NOTIFY}>
                 {waitlistLoading ? 'Aguarde...' : inWaitlist ? 'Na fila - Cancelar aviso' : <><IconBell />Me avise se abrir vagas</>}
               </button>
             ) : (
               <button
                 onClick={handleCTA}
-                disabled={participatingLoading || isSoldOut}
-                style={isSoldOut ? BTN_SOLD_OUT : isParticipating ? BTN_PARTICIPATING : BTN_TEAL}
+                disabled={participatingLoading || (isSoldOut && !isParticipating)}
+                style={isParticipating ? BTN_PARTICIPATING : isSoldOut ? BTN_SOLD_OUT : BTN_TEAL}
               >
-                {isSoldOut ? 'Esgotado' : participatingLoading ? 'Aguarde...' : isParticipating ? (
+                {participatingLoading ? 'Aguarde...' : isParticipating ? (
                   <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <path d="M3 8l3.5 3.5L13 5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                     Participando
                   </span>
-                ) : 'Participar'}
+                ) : isSoldOut ? 'Esgotado' : 'Participar'}
               </button>
             )}
           </div>

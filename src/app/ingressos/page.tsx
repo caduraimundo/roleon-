@@ -70,6 +70,7 @@ function StatusBadge({ status }: { status: string }) {
     used:         { label: 'Utilizado',  bg: '#F7F7F7', color: '#6E6E73', dot: '#6E6E73' },
     pending:      { label: 'Pendente',   bg: '#FEF9C3', color: '#92400E', dot: '#F59E0B' },
     expired:      { label: 'Expirado',   bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
+    cancelled:    { label: 'Cancelado',  bg: '#F5F5F5', color: '#6E6E73', dot: '#6E6E73' },
     refunded:     { label: 'Estornado',  bg: '#EFF6FF', color: '#1D4ED8', dot: '#3B82F6' },
     chargebacked: { label: 'Contestado', bg: '#FFF7ED', color: '#92400E', dot: '#F97316' },
   }
