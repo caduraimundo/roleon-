@@ -233,7 +233,7 @@ export async function PUT(
       const changesHtml = changes
         .map(c => `<p style="margin:0 0 8px;color:#1A1A1A;font-size:14px;font-family:'Noto Sans',Arial,sans-serif;">• ${c}</p>`)
         .join('')
-      await Promise.allSettled(
+      const emailResults = await Promise.allSettled(
         uniqueEmails.map(email =>
           resend.emails.send({
             from: 'Roleon <noreply@roleon.com.br>',
@@ -259,6 +259,13 @@ export async function PUT(
           })
         )
       )
+      emailResults.forEach((result, idx) => {
+        if (result.status === 'rejected') {
+          console.error('[produtor/events PUT] erro ao enviar e-mail de atualização para', uniqueEmails[idx], result.reason)
+        } else if (result.value.error) {
+          console.error('[produtor/events PUT] Resend retornou erro para', uniqueEmails[idx], result.value.error)
+        }
+      })
     }
   }
 
