@@ -73,7 +73,7 @@ export async function POST(
       .single()
 
     if (producer?.email) {
-      await resend.emails.send({
+      const { error: resendError } = await resend.emails.send({
         from: 'Roleon <noreply@roleon.com.br>',
         to: producer.email,
         subject: 'Seu evento foi aprovado!',
@@ -94,7 +94,10 @@ export async function POST(
             </a>
           </div>
         `
-      }).catch(err => console.error('[approve] erro e-mail:', err))
+      })
+      if (resendError) {
+        console.error('[approve] Resend retornou erro:', resendError)
+      }
     }
 
     return NextResponse.json({ ok: true, geocoded: lat !== null })
