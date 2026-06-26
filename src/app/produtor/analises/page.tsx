@@ -262,7 +262,7 @@ export default function AnalisesPage() {
                           fontWeight: 500, marginTop: 2,
                           display: 'flex', alignItems: 'center', gap: 6,
                         }}>
-                          <span style={{ fontWeight: 700, color: ev.is_free ? '#0EA5A0' : T.text }}>
+                          <span style={{ fontWeight: 700, color: T.text }}>
                             {ev.is_free ? 'Gratuito' : fmt(ev.revenue)}
                           </span>
                           <span style={{ width: 3, height: 3, borderRadius: 999, background: '#D0D0D0' }} />
