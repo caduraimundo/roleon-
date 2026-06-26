@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
       })
 
       const resend = new Resend(process.env.RESEND_API_KEY)
-      await resend.emails.send({
+      const { error: resendError } = await resend.emails.send({
         from: 'Roleon <noreply@roleon.com.br>',
         to: user.email,
         subject: `Sua presença em ${evento.title} está confirmada`,
@@ -156,6 +156,9 @@ export async function POST(req: NextRequest) {
         `,
         attachments: [{ filename: 'ingresso.pdf', content: pdfBuffer }],
       })
+      if (resendError) {
+        console.error('[confirmar-presenca] Resend retornou erro:', resendError)
+      }
     }
   } catch (emailError) {
     console.error('[confirmar-presenca] erro ao enviar e-mail:', emailError instanceof Error ? emailError.message : String(emailError))
