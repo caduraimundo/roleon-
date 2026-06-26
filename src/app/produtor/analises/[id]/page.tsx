@@ -12,7 +12,7 @@ const T = {
 type ByType = { name: string; tickets: number; revenue: number; pct: number }
 type ChartBar = { label: string; tickets: number; revenue: number }
 type Detail = {
-  event: { title: string; event_date: string; location_name: string; status: string }
+  event: { title: string; event_date: string; location_name: string; status: string; is_free: boolean }
   totals: { revenue: number; tickets: number; checked_in: number }
   byType: ByType[]
   chart: ChartBar[]
@@ -130,15 +130,15 @@ export default function EventoAnalisesPage() {
             <div style={{
               fontSize: 9.5, fontWeight: 700, letterSpacing: 0.6,
               textTransform: 'uppercase' as const, color: T.textMute, marginBottom: 6,
-            }}>Faturamento</div>
+            }}>{data?.event.is_free ? 'Inscritos' : 'Faturamento'}</div>
             <div style={{
-              fontSize: loading ? 13 : 19, fontWeight: 800,
+              fontSize: loading ? 13 : (data?.event.is_free ? 28 : 19), fontWeight: 800,
               color: T.text, letterSpacing: -0.5, lineHeight: 1.1,
             }}>
-              {loading ? '...' : fmt(data?.totals.revenue ?? 0)}
+              {loading ? '...' : (data?.event.is_free ? (data?.totals.tickets ?? 0) : fmt(data?.totals.revenue ?? 0))}
             </div>
             <div style={{ fontSize: 10.5, color: T.textMute, marginTop: 4, fontWeight: 500 }}>
-              líquido após taxas
+              {data?.event.is_free ? 'confirmados' : 'líquido após taxas'}
             </div>
           </div>
 
@@ -149,15 +149,15 @@ export default function EventoAnalisesPage() {
             <div style={{
               fontSize: 9.5, fontWeight: 700, letterSpacing: 0.6,
               textTransform: 'uppercase' as const, color: T.textMute, marginBottom: 6,
-            }}>Ingressos</div>
+            }}>{data?.event.is_free ? 'Compareceram' : 'Ingressos'}</div>
             <div style={{
               fontSize: loading ? 13 : 28, fontWeight: 800,
               color: T.text, letterSpacing: -0.5, lineHeight: 1.1,
             }}>
-              {loading ? '...' : (data?.totals.tickets ?? 0)}
+              {loading ? '...' : (data?.event.is_free ? (data?.totals.checked_in ?? 0) : (data?.totals.tickets ?? 0))}
             </div>
             <div style={{ fontSize: 10.5, color: T.textMute, marginTop: 4, fontWeight: 500 }}>
-              vendidos
+              {data?.event.is_free ? 'check-in feito' : 'vendidos'}
             </div>
           </div>
 
@@ -191,13 +191,17 @@ export default function EventoAnalisesPage() {
                         fontWeight: 500, marginTop: 2,
                         display: 'flex', alignItems: 'center', gap: 6,
                       }}>
-                        <span style={{ fontWeight: 700, color: T.text }}>
-                          {fmt(tipo.revenue)}
-                        </span>
-                        <span style={{
-                          width: 3, height: 3, borderRadius: 999,
-                          background: '#D0D0D0', display: 'inline-block',
-                        }} />
+                        {!data?.event.is_free && (
+                          <>
+                            <span style={{ fontWeight: 700, color: T.text }}>
+                              {fmt(tipo.revenue)}
+                            </span>
+                            <span style={{
+                              width: 3, height: 3, borderRadius: 999,
+                              background: '#D0D0D0', display: 'inline-block',
+                            }} />
+                          </>
+                        )}
                         <span>{tipo.tickets} {tipo.tickets === 1 ? 'ingresso' : 'ingressos'}</span>
                       </div>
                     </div>
@@ -228,7 +232,7 @@ export default function EventoAnalisesPage() {
               fontSize: 10, fontWeight: 700, letterSpacing: 0.6,
               textTransform: 'uppercase' as const, color: T.textMute,
               marginBottom: 10,
-            }}>Vendas ao longo do tempo</div>
+            }}>{data?.event.is_free ? 'Inscrições ao longo do tempo' : 'Vendas ao longo do tempo'}</div>
             <div style={{
               background: '#fff', border: `0.5px solid ${T.border}`,
               borderRadius: 14, padding: '18px 14px 14px',
@@ -275,7 +279,7 @@ export default function EventoAnalisesPage() {
             textAlign: 'center' as const, padding: '40px 20px',
             color: T.textMute, fontSize: 14, fontWeight: 500,
           }}>
-            Nenhuma venda para este evento ainda.
+            {data?.event.is_free ? 'Nenhuma inscrição neste evento ainda.' : 'Nenhuma venda para este evento ainda.'}
           </div>
         )}
 

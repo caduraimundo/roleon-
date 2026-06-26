@@ -36,7 +36,7 @@ export async function GET(
 
     const { data: evento } = await supabaseAdmin
       .from('events')
-      .select('id, title, event_date, location_name, status, producer_id')
+      .select('id, title, event_date, location_name, status, producer_id, is_free')
       .eq('id', eventId)
       .single()
 
@@ -50,7 +50,7 @@ export async function GET(
       .eq('event_id', eventId)
 
     const all = tickets || []
-    const sold = all.filter(t => t.status === 'paid' || t.status === 'used')
+    const sold = all.filter(t => t.status === 'paid' || t.status === 'used' || t.status === 'confirmed')
     const checkedIn = all.filter(t => t.status === 'used').length
 
     const totalRevenueBruto = sold.reduce((s, t) => s + Number(t.price_paid), 0)
@@ -101,6 +101,7 @@ export async function GET(
         event_date: evento.event_date,
         location_name: evento.location_name,
         status: evento.status,
+        is_free: evento.is_free,
       },
       totals: {
         revenue: totalRevenue,
