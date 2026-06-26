@@ -369,14 +369,10 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
               ? `${e.sold} ${e.sold === 1 ? 'inscrito' : 'inscritos'}`
               : `${e.sold} ${e.sold === 1 ? 'ingresso vendido' : 'ingressos vendidos'}`}
           </span>
-          {e.is_free ? (
-            <span style={{ fontSize: 12.5, color: '#0EA5A0', fontWeight: 500 }}>Gratuito</span>
-          ) : (
-            e.revenue > 0 && (
-              <span style={{ fontSize: 12.5, color: '#0EA5A0', fontWeight: 500 }}>
-                {formatCurrency(e.revenue)}
-              </span>
-            )
+          {!e.is_free && e.revenue > 0 && (
+            <span style={{ fontSize: 12.5, color: '#0EA5A0', fontWeight: 500 }}>
+              {formatCurrency(e.revenue)}
+            </span>
           )}
         </div>
       </div>
