@@ -16,7 +16,7 @@ const PERIODS = [
 ]
 
 type ChartBar  = { label: string; tickets: number; revenue: number }
-type EventItem = { id: string; title: string; event_date: string; tickets: number; revenue: number }
+type EventItem = { id: string; title: string; event_date: string; tickets: number; revenue: number; is_free: boolean }
 type Analytics = {
   totals: { revenue: number; tickets: number; avgTicket: number }
   chart:  ChartBar[]
@@ -262,9 +262,11 @@ export default function AnalisesPage() {
                           fontWeight: 500, marginTop: 2,
                           display: 'flex', alignItems: 'center', gap: 6,
                         }}>
-                          <span style={{ fontWeight: 700, color: T.text }}>{fmt(ev.revenue)}</span>
+                          <span style={{ fontWeight: 700, color: ev.is_free ? '#0EA5A0' : T.text }}>
+                            {ev.is_free ? 'Gratuito' : fmt(ev.revenue)}
+                          </span>
                           <span style={{ width: 3, height: 3, borderRadius: 999, background: '#D0D0D0' }} />
-                          <span>{ev.tickets} {ev.tickets === 1 ? 'ingresso' : 'ingressos'}</span>
+                          <span>{ev.tickets} {ev.is_free ? (ev.tickets === 1 ? 'inscrito' : 'inscritos') : (ev.tickets === 1 ? 'ingresso' : 'ingressos')}</span>
                         </div>
                       </div>
                       {past ? (

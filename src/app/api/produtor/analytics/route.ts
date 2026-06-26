@@ -43,10 +43,11 @@ export async function GET(req: NextRequest) {
 
     const { data: events } = await supabaseAdmin
       .from('events')
-      .select('id, title, event_date, status')
+      .select('id, title, event_date, status, is_free')
       .eq('producer_id', user.id)
 
     const eventIds = (events || []).map((e: { id: string }) => e.id)
+    const paidEventIds = (events || []).filter((e: { is_free: boolean }) => !e.is_free).map((e: { id: string }) => e.id)
 
     if (eventIds.length === 0) {
       return NextResponse.json({
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
     const { data: filteredTickets } = await supabaseAdmin
       .from('tickets')
       .select('price_paid, event_id, created_at')
-      .in('event_id', eventIds)
+      .in('event_id', paidEventIds)
       .in('status', ['paid', 'used'])
       .gte('created_at', startDate.toISOString())
 
@@ -71,7 +72,7 @@ export async function GET(req: NextRequest) {
       .from('tickets')
       .select('price_paid, event_id')
       .in('event_id', eventIds)
-      .in('status', ['paid', 'used'])
+      .in('status', ['paid', 'used', 'confirmed'])
 
     const at = (allTickets || []) as { price_paid: string; event_id: string }[]
 
@@ -144,12 +145,12 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    type EventRow = { id: string; title: string; event_date: string; status: string }
+    type EventRow = { id: string; title: string; event_date: string; status: string; is_free: boolean }
     const eventsRanking = (events as EventRow[] || [])
       .filter(e => e.status === 'active')
       .map(e => {
         const eventTickets = at.filter(t => t.event_id === e.id)
-        const eventRevenue = Math.round(
+        const eventRevenue = e.is_free ? 0 : Math.round(
           eventTickets.reduce((s, t) => s + Number(t.price_paid) * 0.96, 0) * 100
         ) / 100
         return {
@@ -158,6 +159,7 @@ export async function GET(req: NextRequest) {
           event_date: e.event_date,
           tickets: eventTickets.length,
           revenue: eventRevenue,
+          is_free: e.is_free,
         }
       })
       .sort((a, b) => b.revenue - a.revenue)
