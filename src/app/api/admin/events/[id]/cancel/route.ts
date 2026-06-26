@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import { cancelEventAndProcessTickets } from '@/lib/cancelEvent'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -31,21 +32,21 @@ export async function POST(
     const { motivo } = body
     if (!motivo?.trim()) return NextResponse.json({ error: 'Motivo é obrigatório' }, { status: 400 })
 
-    const { data: event } = await supabaseAdmin
+    const { data: eventInfo } = await supabaseAdmin
       .from('events')
-      .select('id, title, status, event_date, producer_id, profiles!producer_id(name, email)')
+      .select('id, title, producer_id, profiles!producer_id(name, email)')
       .eq('id', eventId)
       .single()
 
-    if (!event) return NextResponse.json({ error: 'Evento não encontrado' }, { status: 404 })
-    if (event.status !== 'active') return NextResponse.json({ error: 'Evento não está ativo' }, { status: 400 })
-    if (event.event_date && new Date((event.event_date as string).replace(' ', 'T')) < new Date()) {
-      return NextResponse.json({ error: 'Evento já encerrado, não pode ser cancelado' }, { status: 400 })
+    if (!eventInfo) return NextResponse.json({ error: 'Evento não encontrado' }, { status: 404 })
+
+    const result = await cancelEventAndProcessTickets({ event_id: eventId, triggered_by: 'admin' })
+
+    if (!result.success) {
+      return NextResponse.json({ error: result.error }, { status: result.status })
     }
 
-    await supabaseAdmin.from('events').update({ status: 'cancelled' }).eq('id', eventId)
-
-    const producer = (event as any).profiles
+    const producer = (eventInfo as any).profiles
     if (producer?.email) {
       await resend.emails.send({
         from: 'Roleon <noreply@roleon.com.br>',
@@ -58,7 +59,7 @@ export async function POST(
             </div>
             <h2 style="font-size:20px;font-weight:700;color:#1A1A1A;margin:0 0 8px">Evento cancelado</h2>
             <p style="font-size:14px;color:#6E6E73;margin:0 0 20px">Olá, ${producer.name ?? 'produtor'}.</p>
-            <p style="font-size:14px;color:#1A1A1A;margin:0 0 8px">Seu evento <strong>${event.title}</strong> foi cancelado pelo time Roleon.</p>
+            <p style="font-size:14px;color:#1A1A1A;margin:0 0 8px">Seu evento <strong>${result.event.title}</strong> foi cancelado pelo time Roleon.</p>
             <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:14px 16px;margin:16px 0">
               <p style="font-size:12px;font-weight:600;color:#991B1B;margin:0 0 4px;text-transform:uppercase;letter-spacing:0.5px">Motivo</p>
               <p style="font-size:14px;color:#1A1A1A;margin:0">${motivo}</p>
@@ -68,7 +69,13 @@ export async function POST(
       })
     }
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({
+      ok: true,
+      refunded: result.refunded,
+      cancelled: result.cancelled,
+      failed: result.failed,
+      errors: result.errors,
+    })
   } catch (err) {
     console.error('[cancel] erro:', err)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
