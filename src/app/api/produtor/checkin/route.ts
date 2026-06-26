@@ -17,7 +17,7 @@ async function getTicketCounts(event_id: string) {
     .from('tickets')
     .select('status')
     .eq('event_id', event_id)
-    .in('status', ['paid', 'used'])
+    .in('status', ['paid', 'used', 'confirmed'])
 
   const total_sold = tickets?.length ?? 0
   const total_checkins = tickets?.filter(t => t.status === 'used').length ?? 0
@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Ingresso já utilizado' }, { status: 409 })
     }
 
-    if (ticket.status !== 'paid') {
+    if (ticket.status !== 'paid' && ticket.status !== 'confirmed') {
       return NextResponse.json({ error: 'Ingresso inválido' }, { status: 400 })
     }
 

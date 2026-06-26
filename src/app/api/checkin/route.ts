@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Ingresso já utilizado' }, { status: 409 });
   }
 
-  if (ticket.status !== 'paid' && ticket.status !== 'valid') {
+  if (ticket.status !== 'paid' && ticket.status !== 'valid' && ticket.status !== 'confirmed') {
     return NextResponse.json({ error: 'Ingresso inválido' }, { status: 400 });
   }
 
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     .from('tickets')
     .update({ status: 'used' })
     .eq('checkin_token', token)
-    .in('status', ['paid', 'valid'])
+    .in('status', ['paid', 'valid', 'confirmed'])
     .select()
     .maybeSingle();
 
