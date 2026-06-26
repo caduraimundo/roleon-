@@ -267,15 +267,18 @@ export default function EventosPage() {
                 <div style={{ fontSize: 12.5, color: '#6E6E73', fontWeight: 500,
                   display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                   <span>
-                    {ev.sold} {ev.sold === 1 ? 'ingresso vendido' : 'ingressos vendidos'}
+                    {ev.is_free
+                      ? `${ev.sold} ${ev.sold === 1 ? 'inscrito' : 'inscritos'}`
+                      : `${ev.sold} ${ev.sold === 1 ? 'ingresso vendido' : 'ingressos vendidos'}`}
                   </span>
-                  {ev.revenue > 0 && (
-                    <span style={{ color: '#0EA5A0', fontWeight: 500 }}>
-                      {formatCurrency(ev.revenue)}
-                    </span>
-                  )}
-                  {ev.is_free && ev.sold === 0 && (
+                  {ev.is_free ? (
                     <span>Gratuito</span>
+                  ) : (
+                    ev.revenue > 0 && (
+                      <span style={{ color: '#0EA5A0', fontWeight: 500 }}>
+                        {formatCurrency(ev.revenue)}
+                      </span>
+                    )
                   )}
                 </div>
 

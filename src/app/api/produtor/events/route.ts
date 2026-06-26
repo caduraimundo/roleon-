@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
       .from('tickets')
       .select('event_id, price_paid')
       .in('event_id', ids)
-      .in('status', ['paid', 'confirmed'])
+      .in('status', ['paid', 'confirmed', 'used'])
 
     const salesMap: Record<string, { sold: number; revenue: number }> = {}
     for (const id of ids) salesMap[id] = { sold: 0, revenue: 0 }
