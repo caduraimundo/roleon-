@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     const verifyUrl = `https://www.roleon.com.br/api/verify-email?token=${token}`
 
-    await resend.emails.send({
+    const { error: resendError } = await resend.emails.send({
       from: 'Roleon <noreply@roleon.com.br>',
       to: email,
       subject: 'Confirme seu cadastro no Roleon',
@@ -51,6 +51,11 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     })
+
+    if (resendError) {
+      console.error('[send-verification-email] Resend retornou erro:', resendError)
+      return NextResponse.json({ error: 'Falha ao enviar e-mail de verificação' }, { status: 502 })
+    }
 
     return NextResponse.json({ ok: true })
   } catch (err) {
