@@ -126,7 +126,11 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
 
       if (res.ok) {
         setFeedback('success')
-        setFeedbackMsg(`${json.ticket_type} - Entrada confirmada`)
+        setFeedbackMsg(
+          json.ticket_type?.toLowerCase().includes('entrada')
+            ? 'Entrada confirmada'
+            : `${json.ticket_type} - Entrada confirmada`
+        )
         setTicketType(json.ticket_type)
         setTotalCheckins(json.total_checkins)
         setTotalSold(json.total_sold)
