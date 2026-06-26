@@ -53,18 +53,16 @@ export async function POST(
         to: producer.email,
         subject: 'Seu evento foi cancelado',
         html: `
-          <div style="font-family:'Noto Sans',sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#fff">
-            <div style="background:#0EA5A0;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:20px">
-              <span style="color:#fff;font-size:20px;font-weight:800">R</span>
-            </div>
-            <h2 style="font-size:20px;font-weight:700;color:#1A1A1A;margin:0 0 8px">Evento cancelado</h2>
-            <p style="font-size:14px;color:#6E6E73;margin:0 0 20px">Olá, ${producer.name ?? 'produtor'}.</p>
-            <p style="font-size:14px;color:#1A1A1A;margin:0 0 8px">Seu evento <strong>${result.event.title}</strong> foi cancelado pelo time Roleon.</p>
-            <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:14px 16px;margin:16px 0">
+          <div style="font-family:'Noto Sans',Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#fff;color:#1A1A1A;">
+            <div style="font-size:22px;font-weight:700;color:#0EA5A0;margin-bottom:24px;">Roleon</div>
+            <h2 style="font-size:18px;font-weight:700;margin:0 0 12px;">Evento cancelado</h2>
+            <p style="font-size:14px;color:#6E6E73;margin:0 0 16px;line-height:1.6;">Olá, ${producer.name ?? 'produtor'}.</p>
+            <p style="font-size:14px;color:#6E6E73;margin:0 0 16px;line-height:1.6;">Seu evento <strong style="color:#1A1A1A;">${result.event.title}</strong> foi cancelado pelo time Roleon.</p>
+            <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:14px 16px;margin:0 0 16px;">
               <p style="font-size:12px;font-weight:600;color:#991B1B;margin:0 0 4px;text-transform:uppercase;letter-spacing:0.5px">Motivo</p>
               <p style="font-size:14px;color:#1A1A1A;margin:0">${motivo}</p>
             </div>
-            <p style="font-size:13px;color:#6E6E73;margin:16px 0 0">Em caso de dúvidas, entre em contato com o suporte.</p>
+            <p style="font-size:12px;color:#9A9A9A;margin:24px 0 0;line-height:1.5;">Dúvidas? Fale com a gente em <a href="mailto:contato@roleon.com.br" style="color:#0EA5A0;">contato@roleon.com.br</a></p>
           </div>`,
       })
     }
