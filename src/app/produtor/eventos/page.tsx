@@ -272,7 +272,7 @@ export default function EventosPage() {
                       : `${ev.sold} ${ev.sold === 1 ? 'ingresso vendido' : 'ingressos vendidos'}`}
                   </span>
                   {ev.is_free ? (
-                    <span>Gratuito</span>
+                    <span style={{ color: '#0EA5A0', fontWeight: 500 }}>Gratuito</span>
                   ) : (
                     ev.revenue > 0 && (
                       <span style={{ color: '#0EA5A0', fontWeight: 500 }}>
