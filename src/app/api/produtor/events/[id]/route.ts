@@ -72,7 +72,7 @@ export async function PUT(
     .from('tickets')
     .select('id, recipient_email, ticket_type_id')
     .eq('event_id', id)
-    .in('status', ['paid', 'valid'])
+    .in('status', ['paid', 'valid', 'confirmed', 'used'])
   const hasSoldTickets = (soldTickets?.length ?? 0) > 0
 
   // Bloquear conversão pago → gratuito se já há ingressos vendidos
