@@ -44,6 +44,20 @@ export async function POST(
       return NextResponse.json({ error: 'Evento já encerrado, não pode ser cancelado' }, { status: 400 })
     }
 
+    const { data: claimed, error: claimError } = await supabaseAdmin
+      .from('events')
+      .update({ status: 'cancelled' })
+      .eq('id', event_id)
+      .eq('status', 'active')
+      .select('id')
+
+    if (claimError) {
+      return NextResponse.json({ error: 'Erro ao cancelar evento' }, { status: 500 })
+    }
+    if (!claimed || claimed.length === 0) {
+      return NextResponse.json({ error: 'Evento já foi cancelado ou não está mais ativo.' }, { status: 409 })
+    }
+
     const { data: tickets, error } = await supabaseAdmin
       .from('tickets')
       .select('id, order_id, status, recipient_email')
@@ -64,7 +78,7 @@ export async function POST(
           .eq('id', ticket.id)
 
         if (!updateErr) {
-          void supabaseAdmin.from('ticket_audit_log').insert({
+          await supabaseAdmin.from('ticket_audit_log').insert({
             ticket_id: ticket.id,
             old_status: ticket.status,
             new_status: 'cancelled',
@@ -102,7 +116,7 @@ export async function POST(
           .eq('id', ticket.id)
 
         if (!updateErr) {
-          void supabaseAdmin.from('ticket_audit_log').insert({
+          await supabaseAdmin.from('ticket_audit_log').insert({
             ticket_id: ticket.id,
             old_status: ticket.status,
             new_status: 'cancelled',
@@ -131,13 +145,6 @@ export async function POST(
         results.errors.push(ticket.id)
         console.error(`[cancel-event] falhou ticket ${ticket.id}:`, result.error)
       }
-    }
-
-    if (results.failed === 0) {
-      await supabaseAdmin
-        .from('events')
-        .update({ status: 'cancelled' })
-        .eq('id', event_id)
     }
 
     return NextResponse.json({
