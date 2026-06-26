@@ -153,14 +153,14 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
   })
   cursorY -= 24
   const numText = ticketNumber.toUpperCase()
-  const numW = fontBold.widthOfTextAtSize(numText, 16)
-  page.drawText(numText, {
-    x: cardX + (cardW - numW) / 2,
-    y: cursorY,
-    size: 16,
-    font: fontBold,
-    color: dark,
-  })
+  const numLetterSpacing = 4
+  const charWidths = numText.split('').map(c => fontBold.widthOfTextAtSize(c, 16))
+  const numW = charWidths.reduce((sum, w) => sum + w, 0) + numLetterSpacing * (numText.length - 1)
+  let numCharX = cardX + (cardW - numW) / 2
+  for (let i = 0; i < numText.length; i++) {
+    page.drawText(numText[i], { x: numCharX, y: cursorY, size: 16, font: fontBold, color: dark })
+    numCharX += charWidths[i] + numLetterSpacing
+  }
   cursorY -= 22
 
   // Divisor rodapé
