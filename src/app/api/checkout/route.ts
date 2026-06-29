@@ -693,11 +693,12 @@ export async function POST(req: NextRequest) {
         ? 'Seu ingresso está em anexo neste e-mail em formato PDF.<br>Salve o arquivo para acessar offline no dia do evento.'
         : `Seus ${quantity} ingressos estão em anexo neste e-mail em formato PDF.<br>Salve os arquivos para acessar offline no dia do evento.`;
 
-      await resend.emails.send({
-        from: 'Roleon <noreply@roleon.com.br>',
-        to: emailDestinoFinal,
-        subject,
-        html: `
+      try {
+        const { error: resendError } = await resend.emails.send({
+          from: 'Roleon <noreply@roleon.com.br>',
+          to: emailDestinoFinal,
+          subject,
+          html: `
 <!DOCTYPE html>
 <html>
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
@@ -730,10 +731,17 @@ export async function POST(req: NextRequest) {
   </table>
 </body>
 </html>
-        `,
-        attachments: pdfAttachments,
-      });
-      console.log('[Checkout Cartao] E-mail unificado enviado para:', emailDestinoFinal, '| ingressos:', pdfAttachments.length);
+          `,
+          attachments: pdfAttachments,
+        });
+        if (resendError) {
+          console.error('[checkout] Resend retornou erro:', resendError)
+        } else {
+          console.log('[Checkout Cartao] E-mail unificado enviado para:', emailDestinoFinal, '| ingressos:', pdfAttachments.length);
+        }
+      } catch (emailErr) {
+        console.error('[checkout] erro ao enviar e-mail de confirmacao (pagamento ja processado com sucesso):', emailErr)
+      }
     }
 
     return NextResponse.json({
