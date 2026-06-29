@@ -81,19 +81,20 @@ export async function cancelEventAndProcessTickets({
         results.cancelled++
 
         if (ticket.recipient_email) {
-          ;(async () => {
-            try {
-              const resend = new Resend(process.env.RESEND_API_KEY)
-              await resend.emails.send({
-                from: 'Roleon <noreply@roleon.com.br>',
-                to: [ticket.recipient_email],
-                subject: `Evento cancelado - ${eventCheck.title}`,
-                html: `<div style="font-family:'Noto Sans',Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#fff;color:#1A1A1A;"><div style="font-size:22px;font-weight:700;color:#0EA5A0;margin-bottom:24px;">Roleon</div><h2 style="font-size:18px;font-weight:700;margin:0 0 12px;">O evento foi cancelado</h2><p style="font-size:14px;color:#6E6E73;margin:0 0 16px;line-height:1.6;">O evento <strong style="color:#1A1A1A;">${eventCheck.title}</strong>, no qual você havia confirmado presença, foi cancelado pelo organizador.</p><p style="font-size:14px;color:#6E6E73;margin:0 0 16px;line-height:1.6;">Como era um evento gratuito, não há nada pendente da sua parte.</p><p style="font-size:12px;color:#9A9A9A;margin:24px 0 0;line-height:1.5;">Dúvidas? Fale com a gente em <a href="mailto:contato@roleon.com.br" style="color:#0EA5A0;">contato@roleon.com.br</a></p></div>`,
-              })
-            } catch (err) {
-              console.error('[cancelEvent] erro ao enviar e-mail de cancelamento gratuito:', err)
+          try {
+            const resend = new Resend(process.env.RESEND_API_KEY)
+            const { error: resendError } = await resend.emails.send({
+              from: 'Roleon <noreply@roleon.com.br>',
+              to: [ticket.recipient_email],
+              subject: `Evento cancelado - ${eventCheck.title}`,
+              html: `<div style="font-family:'Noto Sans',Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#fff;color:#1A1A1A;"><div style="font-size:22px;font-weight:700;color:#0EA5A0;margin-bottom:24px;">Roleon</div><h2 style="font-size:18px;font-weight:700;margin:0 0 12px;">O evento foi cancelado</h2><p style="font-size:14px;color:#6E6E73;margin:0 0 16px;line-height:1.6;">O evento <strong style="color:#1A1A1A;">${eventCheck.title}</strong>, no qual você havia confirmado presença, foi cancelado pelo organizador.</p><p style="font-size:14px;color:#6E6E73;margin:0 0 16px;line-height:1.6;">Como era um evento gratuito, não há nada pendente da sua parte.</p><p style="font-size:12px;color:#9A9A9A;margin:24px 0 0;line-height:1.5;">Dúvidas? Fale com a gente em <a href="mailto:contato@roleon.com.br" style="color:#0EA5A0;">contato@roleon.com.br</a></p></div>`,
+            })
+            if (resendError) {
+              console.error('[cancelEvent] Resend retornou erro (cancelamento gratuito):', resendError)
             }
-          })()
+          } catch (err) {
+            console.error('[cancelEvent] erro ao enviar e-mail de cancelamento gratuito:', err)
+          }
         }
       } else {
         results.failed++
