@@ -94,23 +94,23 @@ export async function performRefund({
     .update({ status: 'refunded' })
     .eq('id', ticket_id)
 
-  ;(async () => {
-    await supabaseAdmin.from('ticket_audit_log').insert({
-      ticket_id,
-      old_status: ticket.status,
-      new_status: 'refunded',
-      triggered_by,
-      metadata: {
-        reason,
-        price_paid: ticket.price_paid,
-        refund_amount: refundAmount,
-        roleon_fee_retained: Number(ticket.price_paid) - refundAmount,
-        payment_method: ticket.payment_method,
-        order_id: orderId,
-        charge_id: chargeId,
-      },
-    })
-  })().catch(() => {})
+  await supabaseAdmin.from('ticket_audit_log').insert({
+    ticket_id,
+    old_status: ticket.status,
+    new_status: 'refunded',
+    triggered_by,
+    metadata: {
+      reason,
+      price_paid: ticket.price_paid,
+      refund_amount: refundAmount,
+      roleon_fee_retained: Number(ticket.price_paid) - refundAmount,
+      payment_method: ticket.payment_method,
+      order_id: orderId,
+      charge_id: chargeId,
+    },
+  }).then(({ error }) => {
+    if (error) console.error('[performRefund] erro ao gravar audit log:', error)
+  })
 
   notifyWaitlist({
     eventId: String(ticket.event_id),
@@ -118,20 +118,21 @@ export async function performRefund({
   }).catch(err => console.error('[performRefund] notifyWaitlist erro:', err))
 
   if (send_email && ticket.recipient_email) {
-    ;(async () => {
-      try {
-        const resend = new Resend(process.env.RESEND_API_KEY)
-        const valorFormatado = refundAmount.toFixed(2).replace('.', ',')
-        await resend.emails.send({
-          from: 'Roleon <noreply@roleon.com.br>',
-          to: [ticket.recipient_email],
-          subject: `Ingresso cancelado - ${event.title}`,
-          html: `<div style="font-family:'Noto Sans',Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#fff;color:#1A1A1A;"><div style="font-size:22px;font-weight:700;color:#0EA5A0;margin-bottom:24px;">Roleon</div><h2 style="font-size:18px;font-weight:700;margin:0 0 12px;">Seu ingresso foi cancelado</h2><p style="font-size:14px;color:#6E6E73;margin:0 0 16px;line-height:1.6;">Seu ingresso para <strong style="color:#1A1A1A;">${event.title}</strong> foi cancelado.</p><p style="font-size:14px;color:#6E6E73;margin:0 0 16px;line-height:1.6;">O valor de <strong style="color:#1A1A1A;">R$&nbsp;${valorFormatado}</strong> será estornado em até 7 dias úteis, dependendo da sua instituição financeira.</p><p style="font-size:12px;color:#9A9A9A;margin:24px 0 0;line-height:1.5;">Dúvidas? Fale com a gente em <a href="mailto:contato@roleon.com.br" style="color:#0EA5A0;">contato@roleon.com.br</a></p></div>`,
-        })
-      } catch (err) {
-        console.error('[performRefund] erro ao enviar e-mail de estorno:', err)
+    try {
+      const resend = new Resend(process.env.RESEND_API_KEY)
+      const valorFormatado = refundAmount.toFixed(2).replace('.', ',')
+      const { error: resendError } = await resend.emails.send({
+        from: 'Roleon <noreply@roleon.com.br>',
+        to: [ticket.recipient_email],
+        subject: `Ingresso cancelado - ${event.title}`,
+        html: `<div style="font-family:'Noto Sans',Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#fff;color:#1A1A1A;"><div style="font-size:22px;font-weight:700;color:#0EA5A0;margin-bottom:24px;">Roleon</div><h2 style="font-size:18px;font-weight:700;margin:0 0 12px;">Seu ingresso foi cancelado</h2><p style="font-size:14px;color:#6E6E73;margin:0 0 16px;line-height:1.6;">Seu ingresso para <strong style="color:#1A1A1A;">${event.title}</strong> foi cancelado.</p><p style="font-size:14px;color:#6E6E73;margin:0 0 16px;line-height:1.6;">O valor de <strong style="color:#1A1A1A;">R$&nbsp;${valorFormatado}</strong> será estornado em até 7 dias úteis, dependendo da sua instituição financeira.</p><p style="font-size:12px;color:#9A9A9A;margin:24px 0 0;line-height:1.5;">Dúvidas? Fale com a gente em <a href="mailto:contato@roleon.com.br" style="color:#0EA5A0;">contato@roleon.com.br</a></p></div>`,
+      })
+      if (resendError) {
+        console.error('[performRefund] Resend retornou erro:', resendError)
       }
-    })()
+    } catch (err) {
+      console.error('[performRefund] erro ao enviar e-mail de estorno:', err)
+    }
   }
 
   return {
