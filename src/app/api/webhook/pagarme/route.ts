@@ -222,7 +222,7 @@ export async function POST(req: NextRequest) {
 
           try {
             console.log('[Webhook] Enviando e-mail unificado para:', emailDestino, '| ingressos:', pdfAttachments.length);
-            await resend.emails.send({
+            const { error: resendError } = await resend.emails.send({
               from: 'Roleon <noreply@roleon.com.br>',
               to: emailDestino,
               subject,
@@ -262,7 +262,11 @@ export async function POST(req: NextRequest) {
               `,
               ...(pdfAttachments.length > 0 ? { attachments: pdfAttachments } : {}),
             });
-            console.log('[Webhook] E-mail unificado enviado para:', emailDestino);
+            if (resendError) {
+              console.error('[Webhook] Resend retornou erro:', resendError);
+            } else {
+              console.log('[Webhook] E-mail unificado enviado para:', emailDestino);
+            }
           } catch (emailError) {
             console.error('[Webhook] Erro ao enviar e-mail:',
               emailError instanceof Error ? emailError.message : String(emailError));
