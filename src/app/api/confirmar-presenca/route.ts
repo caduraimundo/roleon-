@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
     ticket_id: ticket.id,
     old_status: null,
     new_status: 'confirmed',
-    triggered_by: 'checkout',
+    triggered_by: 'system',
     metadata: { source: 'confirmar_presenca' },
   }).then(() => {}, () => {})
 

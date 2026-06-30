@@ -268,7 +268,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 12, color: '#8A8A8A', fontWeight: 500 }}>Ingresso</div>
-              <div style={{ fontSize: 19, fontWeight: 800, color: '#1A1A1A', letterSpacing: -0.5 }}>
+              <div style={{ fontSize: 19, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.5 }}>
                 {priceLabel}
               </div>
             </div>
@@ -347,7 +347,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
               </div>
             </div>
             <div style={{ textAlign: 'center', marginBottom: 6 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: '#1A1A1A' }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#1A1A1A' }}>
                 Presença confirmada
               </div>
             </div>
