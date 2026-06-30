@@ -190,14 +190,22 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: 'Confirmação de presença não encontrada' }, { status: 404 })
   }
 
-  const { error: deleteError } = await supabaseAdmin
+  const { error: updateError } = await supabaseAdmin
     .from('tickets')
-    .delete()
+    .update({ status: 'cancelled' })
     .eq('id', ticket.id)
 
-  if (deleteError) {
+  if (updateError) {
     return NextResponse.json({ error: 'Falha ao cancelar presença' }, { status: 500 })
   }
+
+  await supabaseAdmin.from('ticket_audit_log').insert({
+    ticket_id: ticket.id,
+    old_status: 'confirmed',
+    new_status: 'cancelled',
+    triggered_by: 'system',
+    metadata: { source: 'cancelar_presenca' },
+  })
 
   if (ticket.ticket_type_id) {
     await supabaseAdmin.rpc('release_ticket_stock', { p_ticket_type_id: ticket.ticket_type_id })
