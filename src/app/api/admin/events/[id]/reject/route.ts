@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import * as Sentry from '@sentry/nextjs'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -100,6 +101,10 @@ export async function POST(
       })
       if (resendError) {
         console.error('[reject] Resend retornou erro:', resendError)
+        Sentry.captureException(new Error(`Resend falhou ao notificar rejeição de evento: ${resendError.message}`), {
+          extra: { resendError, eventId, producerId: event.producer_id, motivo },
+          tags: { fluxo: 'admin-reject-event' },
+        })
       }
     }
 
