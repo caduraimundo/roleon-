@@ -130,15 +130,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Ingresso já utilizado' }, { status: 409 })
     }
 
-    ;(async () => {
-      await supabaseAdmin.from('ticket_audit_log').insert({
-        ticket_id: updated.id,
-        old_status: ticket.status,
-        new_status: 'used',
-        triggered_by: 'checkin',
-        metadata: { source: 'produtor_camera', event_id, ticket_type_name: ticket.ticket_type_name },
-      })
-    })().catch(() => {})
+    await supabaseAdmin.from('ticket_audit_log').insert({
+      ticket_id: ticket.id,
+      old_status: ticket.status,
+      new_status: 'used',
+      triggered_by: 'checkin',
+      metadata: { source: 'produtor_checkin' },
+    })
 
     const { total_sold, total_checkins } = await getTicketCounts(event_id)
     return NextResponse.json({
