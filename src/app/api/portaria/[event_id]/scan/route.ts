@@ -51,7 +51,7 @@ export async function POST(
         checked_in_at: (ticket as any).checked_in_at ?? null,
       }, { status: 409 })
     }
-    if (ticket.status !== 'paid' && ticket.status !== 'valid') {
+    if (ticket.status !== 'paid' && ticket.status !== 'valid' && ticket.status !== 'confirmed') {
       return NextResponse.json({ error: 'Ingresso inválido' }, { status: 400 })
     }
 
@@ -81,7 +81,7 @@ export async function POST(
       .from('tickets')
       .select('status')
       .eq('event_id', event_id)
-      .in('status', ['paid', 'used'])
+      .in('status', ['paid', 'used', 'confirmed'])
 
     const total_sold = allTickets?.length ?? 0
     const total_checkins = allTickets?.filter(t => t.status === 'used').length ?? 0

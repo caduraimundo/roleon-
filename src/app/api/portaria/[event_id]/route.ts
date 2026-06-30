@@ -33,7 +33,7 @@ export async function GET(
       .from('tickets')
       .select('status')
       .eq('event_id', event_id)
-      .in('status', ['paid', 'used'])
+      .in('status', ['paid', 'used', 'confirmed'])
 
     const total_sold = tickets?.length ?? 0
     const total_checkins = tickets?.filter(t => t.status === 'used').length ?? 0

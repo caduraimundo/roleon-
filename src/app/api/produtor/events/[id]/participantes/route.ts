@@ -34,7 +34,7 @@ export async function GET(
       .from('tickets')
       .select('id, user_id, status, price_paid, payment_method, ticket_type_name, recipient_email, created_at, checkin_token')
       .eq('event_id', event_id)
-      .in('status', ['paid', 'used', 'refunded', 'valid', 'cancelled'])
+      .in('status', ['paid', 'used', 'refunded', 'valid', 'cancelled', 'confirmed'])
       .order('created_at', { ascending: false })
 
     if (error) {
