@@ -241,7 +241,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 12, color: '#8A8A8A', fontWeight: 500 }}>Ingresso</div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1A1A' }}>Entrada gratuita</div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#1A1A1A' }}>Entrada gratuita</div>
             </div>
             {isSoldOut && authed && !isParticipating ? (
               <button onClick={handleWaitlist} disabled={waitlistLoading} style={inWaitlist ? BTN_IN_WAITLIST : BTN_NOTIFY}>
