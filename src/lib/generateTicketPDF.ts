@@ -137,7 +137,8 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
     cursorY -= 8
     page.drawImage(qrImage, { x: qrX, y: cursorY - qrSize, width: qrSize, height: qrSize })
     cursorY -= qrSize + 28
-  } catch {
+  } catch (qrError) {
+    console.error('[generateTicketPDF] falha ao buscar QR code de', qrCodeUrl, qrError instanceof Error ? qrError.message : String(qrError))
     cursorY -= 20
   }
 
