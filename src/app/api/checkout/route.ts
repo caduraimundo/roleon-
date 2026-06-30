@@ -43,8 +43,6 @@ export async function POST(req: NextRequest) {
   const isMock = !process.env.PAGARME_API_KEY || process.env.PAGARME_API_KEY === 'ak_test_placeholder'
 
   const body = await req.json()
-  console.log('CHECKOUT BODY:', JSON.stringify(body, null, 2))
-  console.log('ticket_type_name recebido:', body.ticket_type_name)
 
   const token = req.headers.get('Authorization')?.replace('Bearer ', '') || ''
   const { data: { user } } = await supabaseAdmin.auth.getUser(token)
@@ -124,7 +122,6 @@ export async function POST(req: NextRequest) {
         .eq('id', event.producer_id)
         .single()
       producerRecipientId = producerProfile?.pagar_me_recipient_id ?? null
-      console.log('[checkout] producerRecipientId:', producerRecipientId)
     }
 
     if (!event.is_free && !producerRecipientId) {
@@ -243,8 +240,6 @@ export async function POST(req: NextRequest) {
         if (body.ticket_type_id) insertPayload.ticket_type_id = body.ticket_type_id
         if (couponCode) { insertPayload.coupon_code = couponCode; insertPayload.discount_applied = serverDiscount }
 
-        console.log(`[checkout pix] inserindo ticket ${i + 1}/${quantity}:`, JSON.stringify(insertPayload))
-        console.log('[PIX INSERT] ticket_type_name:', resolvedTypeName, 'ticket_type_id:', body.ticket_type_id, 'body.ticket_type_name:', body.ticket_type_name)
         const { data: ticket, error: ticketError } = await supabaseAdmin
           .from('tickets')
           .insert(insertPayload)
@@ -285,8 +280,6 @@ export async function POST(req: NextRequest) {
         } : {}),
       }
       console.log('[checkout pix] enviando pedido para Pagar.me | producerRecipientId:', producerRecipientId, '| payAmountCents:', payAmountCents)
-      console.log('[DEBUG SPLIT]', JSON.stringify({ producerRecipientId, split: (pixPayload as any).split }))
-      await supabaseAdmin.from('debug_split_log').insert({ payload: { producerRecipientId, split: (pixPayload as any).split } })
 
       let pagarmeRes: Response
       try {
@@ -338,7 +331,6 @@ export async function POST(req: NextRequest) {
       }
 
       const order = await pagarmeRes.json()
-      await supabaseAdmin.from('debug_split_log').insert({ payload: { tipo: 'response_criacao_order', status: pagarmeRes.status, body: order } })
       const isRealOrderId = order.id?.startsWith('or_')
       console.log('[checkout pix] order recebido:', JSON.stringify({ id: order.id, status: order.status, isRealOrderId }))
 
@@ -453,8 +445,6 @@ export async function POST(req: NextRequest) {
     const payAmountCents = Math.round(calcFees(price, quantity, 'card', installments).total * 100)
 
     const cardSplit = producerRecipientId && price > 0 ? [{ amount: Math.round(price * quantity * 100), recipient_id: producerRecipientId, type: 'flat', options: { charge_processing_fee: false, charge_remainder_fee: false, liable: false } }] : undefined
-    console.log('[DEBUG SPLIT]', JSON.stringify({ producerRecipientId, split: cardSplit }))
-    await supabaseAdmin.from('debug_split_log').insert({ payload: { producerRecipientId, split: cardSplit } })
     const pagarmeRes = await fetch('https://api.pagar.me/core/v5/orders', {
       method: 'POST',
       headers: {
@@ -508,7 +498,6 @@ export async function POST(req: NextRequest) {
     }
 
     const order = await pagarmeRes.json()
-    await supabaseAdmin.from('debug_split_log').insert({ payload: { tipo: 'response_criacao_order', status: pagarmeRes.status, body: order } })
 
     if (order.status === 'failed') {
       console.log('[checkout cartão] pedido recusado:', JSON.stringify(order, null, 2))
@@ -568,7 +557,6 @@ export async function POST(req: NextRequest) {
       if (ticketStatus === 'paid') insertPayload.checkin_token = randomBytes(32).toString('hex')
       if (couponCode) { insertPayload.coupon_code = couponCode; insertPayload.discount_applied = serverDiscount }
 
-      console.log(`[checkout] inserindo ticket ${i + 1}/${quantity}:`, JSON.stringify(insertPayload))
       const { data: ticket, error: ticketError } = await supabaseAdmin
         .from('tickets')
         .insert(insertPayload)
@@ -597,7 +585,6 @@ export async function POST(req: NextRequest) {
           hint: ticketError.hint,
         }, { status: 500 })
       }
-      console.log(`[checkout] ticket ${i + 1} criado:`, ticket?.id)
       if (ticket?.id) ticketIds.push(ticket.id)
 
       if (ticket?.id) {
