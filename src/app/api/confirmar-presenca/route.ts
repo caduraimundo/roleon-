@@ -43,6 +43,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Este tipo de ingresso não é gratuito' }, { status: 400 })
   }
 
+  const { data: existingTicket } = await supabaseAdmin
+    .from('tickets')
+    .select('id')
+    .eq('event_id', event_id)
+    .eq('user_id', user.id)
+    .eq('status', 'confirmed')
+    .maybeSingle()
+
+  if (existingTicket) {
+    return NextResponse.json({ error: 'Você já confirmou presença neste evento' }, { status: 409 })
+  }
+
   const { data: reserved, error: reserveError } = await supabaseAdmin
     .rpc('reserve_ticket_stock', { p_ticket_type_id: ticket_type_id })
 
