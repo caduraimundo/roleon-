@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { performRefund } from '@/lib/refund'
+import * as Sentry from '@sentry/nextjs'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -91,9 +92,17 @@ export async function cancelEventAndProcessTickets({
             })
             if (resendError) {
               console.error('[cancelEvent] Resend retornou erro (cancelamento gratuito):', resendError)
+              Sentry.captureException(new Error(`Resend falhou ao notificar cancelamento gratuito: ${resendError.message}`), {
+                extra: { eventId: event_id, ticketId: ticket.id, recipientEmail: ticket.recipient_email },
+                tags: { fluxo: 'cancel-event-gratuito' },
+              })
             }
           } catch (err) {
             console.error('[cancelEvent] erro ao enviar e-mail de cancelamento gratuito:', err)
+            Sentry.captureException(err instanceof Error ? err : new Error(String(err)), {
+              extra: { eventId: event_id, ticketId: ticket.id, recipientEmail: ticket.recipient_email },
+              tags: { fluxo: 'cancel-event-gratuito' },
+            })
           }
         }
       } else {
