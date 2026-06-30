@@ -512,8 +512,8 @@ function IngressosSection({
     const d = new Date(iso.includes('T') ? iso : iso.replace(' ', 'T'))
     return `${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' })} ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
   }
-  const statusLabel = (s: string) => s === 'paid' ? 'Pago' : s === 'used' ? 'Usado' : s === 'refunded' ? 'Reembolsado' : s === 'cancelled' ? 'Cancelado' : s === 'pending' ? 'Pendente' : s === 'expired' ? 'Expirado' : s === 'chargebacked' ? 'Chargeback' : s
-  const statusColor = (s: string) => s === 'paid' ? { bg: TEAL_BG, fg: TEAL } : s === 'used' ? { bg: '#E8F0FE', fg: '#1A56DB' } : (s === 'refunded' || s === 'cancelled') ? { bg: '#F5F5F5', fg: DIM } : s === 'pending' ? { bg: '#FFF3E0', fg: '#E65100' } : { bg: '#FFF0F0', fg: '#FF3B30' }
+  const statusLabel = (s: string) => s === 'paid' ? 'Pago' : s === 'used' ? 'Usado' : s === 'refunded' ? 'Reembolsado' : s === 'cancelled' ? 'Cancelado' : s === 'confirmed' ? 'Confirmado' : s === 'pending' ? 'Pendente' : s === 'expired' ? 'Expirado' : s === 'chargebacked' ? 'Chargeback' : s
+  const statusColor = (s: string) => s === 'paid' ? { bg: TEAL_BG, fg: TEAL } : s === 'used' ? { bg: '#E8F0FE', fg: '#1A56DB' } : (s === 'refunded' || s === 'cancelled') ? { bg: '#F5F5F5', fg: DIM } : s === 'confirmed' ? { bg: TEAL_BG, fg: TEAL } : s === 'pending' ? { bg: '#FFF3E0', fg: '#E65100' } : { bg: '#FFF0F0', fg: '#FF3B30' }
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 100px' }}>
