@@ -8,6 +8,7 @@ import { randomBytes } from 'crypto'
 import { generateTicketPDF } from '../../../lib/generateTicketPDF'
 import { checkoutRatelimit } from '@/lib/ratelimit'
 import { mapPagarmeError } from '../../../lib/pagarmeErrors'
+import * as Sentry from '@sentry/nextjs'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -723,11 +724,19 @@ export async function POST(req: NextRequest) {
         });
         if (resendError) {
           console.error('[checkout] Resend retornou erro:', resendError)
+          Sentry.captureException(new Error(`Resend falhou ao enviar confirmação de compra: ${resendError.message}`), {
+            extra: { orderId: order.id, ticketIds, recipientEmail: emailDestinoFinal },
+            tags: { fluxo: 'checkout-confirmacao' },
+          })
         } else {
           console.log('[Checkout Cartao] E-mail unificado enviado para:', emailDestinoFinal, '| ingressos:', pdfAttachments.length);
         }
       } catch (emailErr) {
         console.error('[checkout] erro ao enviar e-mail de confirmacao (pagamento ja processado com sucesso):', emailErr)
+        Sentry.captureException(emailErr instanceof Error ? emailErr : new Error(String(emailErr)), {
+          extra: { orderId: order.id, ticketIds, recipientEmail: emailDestinoFinal },
+          tags: { fluxo: 'checkout-confirmacao' },
+        })
       }
     }
 
