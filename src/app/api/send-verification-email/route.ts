@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { randomBytes } from 'crypto'
+import * as Sentry from '@sentry/nextjs'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -54,6 +55,10 @@ export async function POST(req: NextRequest) {
 
     if (resendError) {
       console.error('[send-verification-email] Resend retornou erro:', resendError)
+      Sentry.captureException(new Error(`Resend falhou ao enviar e-mail de verificação: ${resendError.message}`), {
+        extra: { resendError, userId },
+        tags: { fluxo: 'send-verification-email' },
+      })
       return NextResponse.json({ error: 'Falha ao enviar e-mail de verificação' }, { status: 502 })
     }
 
