@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import webpush from 'web-push'
+import * as Sentry from '@sentry/nextjs'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -80,11 +81,19 @@ export async function GET(req: Request) {
         })
         if (resendError) {
           console.error('[cron/reminder] Resend retornou erro (ingresso pago):', resendError)
+          Sentry.captureException(new Error(`Resend falhou ao enviar lembrete de ingresso pago: ${resendError.message}`), {
+            extra: { resendError, ticketId: ticket.id, userId: ticket.user_id, eventId: event.id },
+            tags: { fluxo: 'cron-reminder-pago' },
+          })
         } else {
           emailsSent++
         }
       } catch (emailErr) {
         console.error('Erro ao enviar email de lembrete:', emailErr)
+        Sentry.captureException(emailErr instanceof Error ? emailErr : new Error(String(emailErr)), {
+          extra: { ticketId: ticket.id, userId: ticket.user_id, eventId: event.id },
+          tags: { fluxo: 'cron-reminder-pago' },
+        })
       }
 
       try {
@@ -182,11 +191,19 @@ export async function GET(req: Request) {
         })
         if (resendError) {
           console.error('[cron/reminder] Resend retornou erro (evento gratuito):', resendError)
+          Sentry.captureException(new Error(`Resend falhou ao enviar lembrete de evento gratuito: ${resendError.message}`), {
+            extra: { resendError, userId: saved.user_id, eventId: event.id },
+            tags: { fluxo: 'cron-reminder-gratuito' },
+          })
         } else {
           emailsSent++
         }
       } catch (emailErr) {
         console.error('Erro ao enviar email lembrete gratuito:', emailErr)
+        Sentry.captureException(emailErr instanceof Error ? emailErr : new Error(String(emailErr)), {
+          extra: { userId: saved.user_id, eventId: event.id },
+          tags: { fluxo: 'cron-reminder-gratuito' },
+        })
       }
 
       try {
