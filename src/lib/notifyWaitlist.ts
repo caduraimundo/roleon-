@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
+import * as Sentry from '@sentry/nextjs'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -77,11 +78,19 @@ export async function notifyWaitlist({ eventId, ticketTypeId }: { eventId: strin
       })
       if (resendError) {
         console.error('[notifyWaitlist] Resend retornou erro para', entry.email, resendError)
+        Sentry.captureException(new Error(`Resend falhou ao notificar fila de espera: ${resendError.message}`), {
+          extra: { eventId, ticketTypeId, recipientEmail: entry.email, waitlistEntryId: entry.id },
+          tags: { fluxo: 'notify-waitlist' },
+        })
       } else {
         notifiedIds.push(entry.id)
       }
     } catch (err) {
       console.error('[notifyWaitlist] erro ao enviar e-mail para', entry.email, err)
+      Sentry.captureException(err instanceof Error ? err : new Error(String(err)), {
+        extra: { eventId, ticketTypeId, recipientEmail: entry.email, waitlistEntryId: entry.id },
+        tags: { fluxo: 'notify-waitlist' },
+      })
     }
   }
 
