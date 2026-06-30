@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { notifyWaitlist } from './notifyWaitlist'
+import * as Sentry from '@sentry/nextjs'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -129,9 +130,17 @@ export async function performRefund({
       })
       if (resendError) {
         console.error('[performRefund] Resend retornou erro:', resendError)
+        Sentry.captureException(new Error(`Resend falhou ao enviar confirmação de estorno: ${resendError.message}`), {
+          extra: { ticketId: ticket_id, orderId, recipientEmail: ticket.recipient_email },
+          tags: { fluxo: 'refund-email' },
+        })
       }
     } catch (err) {
       console.error('[performRefund] erro ao enviar e-mail de estorno:', err)
+      Sentry.captureException(err instanceof Error ? err : new Error(String(err)), {
+        extra: { ticketId: ticket_id, orderId, recipientEmail: ticket.recipient_email },
+        tags: { fluxo: 'refund-email' },
+      })
     }
   }
 
