@@ -4,6 +4,7 @@ import { randomBytes } from 'crypto'
 import { Resend } from 'resend'
 import { notifyWaitlist } from '../../../lib/notifyWaitlist'
 import { generateTicketPDF } from '../../../lib/generateTicketPDF'
+import * as Sentry from '@sentry/nextjs'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -170,10 +171,18 @@ export async function POST(req: NextRequest) {
       })
       if (resendError) {
         console.error('[confirmar-presenca] Resend retornou erro:', resendError)
+        Sentry.captureException(new Error(`Resend falhou ao enviar confirmação de presença: ${resendError.message}`), {
+          extra: { resendError, event_id, ticketId: ticket.id, userId: user.id },
+          tags: { fluxo: 'confirmar-presenca' },
+        })
       }
     }
   } catch (emailError) {
     console.error('[confirmar-presenca] erro ao enviar e-mail:', emailError instanceof Error ? emailError.message : String(emailError))
+    Sentry.captureException(emailError instanceof Error ? emailError : new Error(String(emailError)), {
+      extra: { event_id, ticketId: ticket.id, userId: user.id },
+      tags: { fluxo: 'confirmar-presenca-email' },
+    })
   }
 
   return NextResponse.json({ ok: true, ticket_id: ticket.id })
