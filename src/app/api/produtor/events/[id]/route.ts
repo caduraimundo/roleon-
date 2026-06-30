@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import * as Sentry from '@sentry/nextjs'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -262,8 +263,16 @@ export async function PUT(
       emailResults.forEach((result, idx) => {
         if (result.status === 'rejected') {
           console.error('[produtor/events PUT] erro ao enviar e-mail de atualização para', uniqueEmails[idx], result.reason)
+          Sentry.captureException(result.reason instanceof Error ? result.reason : new Error(String(result.reason)), {
+            extra: { eventId: id, recipientEmail: uniqueEmails[idx] },
+            tags: { fluxo: 'produtor-event-update-notify' },
+          })
         } else if (result.value.error) {
           console.error('[produtor/events PUT] Resend retornou erro para', uniqueEmails[idx], result.value.error)
+          Sentry.captureException(new Error(`Resend falhou ao notificar atualização de evento: ${result.value.error.message}`), {
+            extra: { eventId: id, recipientEmail: uniqueEmails[idx], resendError: result.value.error },
+            tags: { fluxo: 'produtor-event-update-notify' },
+          })
         }
       })
     }
