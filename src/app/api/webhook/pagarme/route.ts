@@ -4,6 +4,7 @@ import { Resend } from 'resend';
 import { notifyWaitlist } from '../../../../lib/notifyWaitlist';
 import { randomBytes } from 'crypto';
 import { generateTicketPDF } from '../../../../lib/generateTicketPDF';
+import * as Sentry from '@sentry/nextjs'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -264,6 +265,10 @@ export async function POST(req: NextRequest) {
             });
             if (resendError) {
               console.error('[Webhook] Resend retornou erro:', resendError);
+              Sentry.captureException(new Error(`Resend falhou ao enviar confirmação de compra (webhook): ${resendError.message}`), {
+                extra: { orderId, ticketIds: updatedTicketIds, recipientEmail: emailDestino },
+                tags: { fluxo: 'webhook-pagarme-confirmacao' },
+              })
             } else {
               console.log('[Webhook] E-mail unificado enviado para:', emailDestino);
             }
@@ -272,6 +277,10 @@ export async function POST(req: NextRequest) {
               emailError instanceof Error ? emailError.message : String(emailError));
             console.error('[Webhook] Stack:',
               emailError instanceof Error ? emailError.stack : 'no stack');
+            Sentry.captureException(emailError instanceof Error ? emailError : new Error(String(emailError)), {
+              extra: { orderId, ticketIds: updatedTicketIds, recipientEmail: emailDestino },
+              tags: { fluxo: 'webhook-pagarme-confirmacao' },
+            })
           }
         }
       }
