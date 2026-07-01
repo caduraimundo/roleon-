@@ -260,7 +260,7 @@ export async function PUT(
           })
         )
       )
-      emailResults.forEach(async (result, idx) => {
+      for (const [idx, result] of emailResults.entries()) {
         if (result.status === 'rejected') {
           console.error('[produtor/events PUT] erro ao enviar e-mail de atualização para', uniqueEmails[idx], result.reason)
           Sentry.captureException(result.reason instanceof Error ? result.reason : new Error(String(result.reason)), {
@@ -276,7 +276,7 @@ export async function PUT(
           })
           await Sentry.flush(2000)
         }
-      })
+      }
     }
   }
 
