@@ -102,6 +102,7 @@ export async function POST(
           extra: { resendError, eventId, producerId: event.producer_id },
           tags: { fluxo: 'admin-approve-event' },
         })
+        await Sentry.flush(2000)
       }
     }
 
