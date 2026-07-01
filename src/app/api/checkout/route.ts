@@ -728,6 +728,7 @@ export async function POST(req: NextRequest) {
             extra: { orderId: order.id, ticketIds, recipientEmail: emailDestinoFinal },
             tags: { fluxo: 'checkout-confirmacao' },
           })
+          await Sentry.flush(2000)
         } else {
           console.log('[Checkout Cartao] E-mail unificado enviado para:', emailDestinoFinal, '| ingressos:', pdfAttachments.length);
         }
@@ -737,6 +738,7 @@ export async function POST(req: NextRequest) {
           extra: { orderId: order.id, ticketIds, recipientEmail: emailDestinoFinal },
           tags: { fluxo: 'checkout-confirmacao' },
         })
+        await Sentry.flush(2000)
       }
     }
 

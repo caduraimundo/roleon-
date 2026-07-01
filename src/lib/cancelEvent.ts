@@ -96,6 +96,7 @@ export async function cancelEventAndProcessTickets({
                 extra: { eventId: event_id, ticketId: ticket.id, recipientEmail: ticket.recipient_email },
                 tags: { fluxo: 'cancel-event-gratuito' },
               })
+              await Sentry.flush(2000)
             }
           } catch (err) {
             console.error('[cancelEvent] erro ao enviar e-mail de cancelamento gratuito:', err)
@@ -103,6 +104,7 @@ export async function cancelEventAndProcessTickets({
               extra: { eventId: event_id, ticketId: ticket.id, recipientEmail: ticket.recipient_email },
               tags: { fluxo: 'cancel-event-gratuito' },
             })
+            await Sentry.flush(2000)
           }
         }
       } else {

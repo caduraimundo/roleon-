@@ -134,6 +134,7 @@ export async function performRefund({
           extra: { ticketId: ticket_id, orderId, recipientEmail: ticket.recipient_email },
           tags: { fluxo: 'refund-email' },
         })
+        await Sentry.flush(2000)
       }
     } catch (err) {
       console.error('[performRefund] erro ao enviar e-mail de estorno:', err)
@@ -141,6 +142,7 @@ export async function performRefund({
         extra: { ticketId: ticket_id, orderId, recipientEmail: ticket.recipient_email },
         tags: { fluxo: 'refund-email' },
       })
+      await Sentry.flush(2000)
     }
   }
 

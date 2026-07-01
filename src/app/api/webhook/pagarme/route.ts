@@ -269,6 +269,7 @@ export async function POST(req: NextRequest) {
                 extra: { orderId, ticketIds: updatedTicketIds, recipientEmail: emailDestino },
                 tags: { fluxo: 'webhook-pagarme-confirmacao' },
               })
+              await Sentry.flush(2000)
             } else {
               console.log('[Webhook] E-mail unificado enviado para:', emailDestino);
             }
@@ -281,6 +282,7 @@ export async function POST(req: NextRequest) {
               extra: { orderId, ticketIds: updatedTicketIds, recipientEmail: emailDestino },
               tags: { fluxo: 'webhook-pagarme-confirmacao' },
             })
+            await Sentry.flush(2000)
           }
         }
       }

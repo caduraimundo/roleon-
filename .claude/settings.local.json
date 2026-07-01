@@ -100,7 +100,8 @@
       "Bash(grep -c \"NEXT_PUBLIC_SUPABASE_URL\" .env.local)",
       "Bash(ls -la .env*)",
       "Bash(cd \"C:\\\\Users\\\\Carlo\\\\roleon-\" && grep -rnE \"<button|<a \" src/app src/components | grep -v \"node_modules\" > /tmp/all_buttons.txt; wc -l /tmp/all_buttons.txt)",
-      "Bash(git reset *)"
+      "Bash(git reset *)",
+      "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" https://www.roleon.com.br/api/cron/reminder -H \"Authorization: Bearer roleon-cron-2026-x7k9p2m4\")"
     ]
   }
 }

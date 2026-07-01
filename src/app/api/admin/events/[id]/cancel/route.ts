@@ -73,6 +73,7 @@ export async function POST(
             extra: { eventId, recipientEmail: producer.email, motivo },
             tags: { fluxo: 'admin-cancel-event' },
           })
+          await Sentry.flush(2000)
         }
       } catch (emailErr) {
         console.error('[admin cancel] erro ao enviar e-mail de cancelamento:', emailErr)
@@ -80,6 +81,7 @@ export async function POST(
           extra: { eventId, recipientEmail: producer.email, motivo },
           tags: { fluxo: 'admin-cancel-event' },
         })
+        await Sentry.flush(2000)
       }
     }
 

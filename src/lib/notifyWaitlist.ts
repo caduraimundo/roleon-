@@ -82,6 +82,7 @@ export async function notifyWaitlist({ eventId, ticketTypeId }: { eventId: strin
           extra: { eventId, ticketTypeId, recipientEmail: entry.email, waitlistEntryId: entry.id },
           tags: { fluxo: 'notify-waitlist' },
         })
+        await Sentry.flush(2000)
       } else {
         notifiedIds.push(entry.id)
       }
@@ -91,6 +92,7 @@ export async function notifyWaitlist({ eventId, ticketTypeId }: { eventId: strin
         extra: { eventId, ticketTypeId, recipientEmail: entry.email, waitlistEntryId: entry.id },
         tags: { fluxo: 'notify-waitlist' },
       })
+      await Sentry.flush(2000)
     }
   }
 

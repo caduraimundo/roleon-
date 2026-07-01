@@ -175,6 +175,7 @@ export async function POST(req: NextRequest) {
           extra: { resendError, event_id, ticketId: ticket.id, userId: user.id },
           tags: { fluxo: 'confirmar-presenca' },
         })
+        await Sentry.flush(2000)
       }
     }
   } catch (emailError) {
@@ -183,6 +184,7 @@ export async function POST(req: NextRequest) {
       extra: { event_id, ticketId: ticket.id, userId: user.id },
       tags: { fluxo: 'confirmar-presenca-email' },
     })
+    await Sentry.flush(2000)
   }
 
   return NextResponse.json({ ok: true, ticket_id: ticket.id })
