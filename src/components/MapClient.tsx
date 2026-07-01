@@ -735,10 +735,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           ({ coords }) => {
             try {
               userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
-              if (!mapCenteredRef.current && mapInstanceRef.current) {
-                mapInstanceRef.current.panTo(new google.maps.LatLng(coords.latitude, coords.longitude))
-                mapCenteredRef.current = true
-              }
               if (!locationSavedRef.current) {
                 locationSavedRef.current = true
                 fetch('/api/profile/update-location', {
@@ -799,7 +795,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
             clearTimeout(timeout)
             createMap(OURO_PRETO_CENTER)
           },
-          { enableHighAccuracy: true, timeout: 3000 }
+          { enableHighAccuracy: false, timeout: 3000 }
         )
       } else {
         createMap(OURO_PRETO_CENTER)
