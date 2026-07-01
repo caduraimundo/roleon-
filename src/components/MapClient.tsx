@@ -735,6 +735,18 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           ({ coords }) => {
             try {
               userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
+              // Correção de última instância: se por algum motivo o mapa ainda não foi
+              // centralizado na posição real do usuário (ex: caiu no fallback de Ouro
+              // Preto e nenhuma resposta de geolocalização chegou a tempo antes),
+              // corrige aqui com panTo suave assim que uma posição real aparecer.
+              // Isso é intencional - garante que o mapa eventualmente sempre para no
+              // lugar certo, mesmo em conexões ruins ou demora grande do usuário para
+              // decidir a permissão. Não é o bug antigo do pulo abrupto (esse já foi
+              // corrigido separadamente).
+              if (!mapCenteredRef.current && mapInstanceRef.current) {
+                mapInstanceRef.current.panTo(new google.maps.LatLng(coords.latitude, coords.longitude))
+                mapCenteredRef.current = true
+              }
               if (!locationSavedRef.current) {
                 locationSavedRef.current = true
                 fetch('/api/profile/update-location', {
@@ -789,8 +801,18 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
             ({ coords }) => {
               clearTimeout(timeout)
               userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
-              mapCenteredRef.current = true
-              createMap({ lat: coords.latitude, lng: coords.longitude }, { lat: coords.latitude, lng: coords.longitude })
+              const latLng = { lat: coords.latitude, lng: coords.longitude }
+              // Se o mapa já foi criado (ex: caiu no fallback de Ouro Preto por timeout
+              // e essa resposta chegou depois), não recriar do zero - só corrigir a
+              // posição do mapa existente com panTo suave. Recriar duplicaria o
+              // watchPosition e o overlay do pontinho de localização.
+              if (mapInstanceRef.current) {
+                mapCenteredRef.current = true
+                mapInstanceRef.current.panTo(new google.maps.LatLng(coords.latitude, coords.longitude))
+              } else {
+                mapCenteredRef.current = true
+                createMap(latLng, latLng)
+              }
             },
             () => {
               clearTimeout(timeout)
