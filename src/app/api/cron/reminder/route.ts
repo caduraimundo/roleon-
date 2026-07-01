@@ -36,7 +36,7 @@ export async function GET(req: Request) {
           location_name
         )
       `)
-      .eq('status', 'active')
+      .in('status', ['paid', 'confirmed', 'used'])
       .gte('events.event_date', in23h.toISOString())
       .lte('events.event_date', in25h.toISOString())
 
@@ -134,7 +134,7 @@ export async function GET(req: Request) {
     }
 
     // --- Lembretes de eventos gratuitos (saved_events) ---
-    const { data: savedEvents } = await supabaseAdmin
+    const { data: savedEvents, error: savedEventsError } = await supabaseAdmin
       .from('saved_events')
       .select(`
         id,
@@ -148,6 +148,15 @@ export async function GET(req: Request) {
       `)
       .gte('events.event_date', in23h.toISOString())
       .lte('events.event_date', in25h.toISOString())
+
+    if (savedEventsError) {
+      console.error('[cron/reminder] Erro ao buscar saved_events:', savedEventsError)
+      Sentry.captureException(new Error(`Erro ao buscar saved_events no cron/reminder: ${savedEventsError.message}`), {
+        extra: { savedEventsError },
+        tags: { fluxo: 'cron-reminder-saved-events-query' },
+      })
+      await Sentry.flush(2000)
+    }
 
     for (const saved of (savedEvents ?? [])) {
       const event = saved.events as any
