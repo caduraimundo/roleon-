@@ -85,6 +85,7 @@ export async function GET(req: Request) {
             extra: { resendError, ticketId: ticket.id, userId: ticket.user_id, eventId: event.id },
             tags: { fluxo: 'cron-reminder-pago' },
           })
+          await Sentry.flush(2000)
         } else {
           emailsSent++
         }
@@ -195,6 +196,7 @@ export async function GET(req: Request) {
             extra: { resendError, userId: saved.user_id, eventId: event.id },
             tags: { fluxo: 'cron-reminder-gratuito' },
           })
+          await Sentry.flush(2000)
         } else {
           emailsSent++
         }
