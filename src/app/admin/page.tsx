@@ -2033,9 +2033,9 @@ export default function AdminPage() {
             <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 4, marginBottom: 14 }} className="no-scrollbar">
               {([
                 { id: 'active',    label: 'Ativos' },
-                { id: 'completed', label: 'Encerrados' },
                 { id: 'mine',      label: 'Meus eventos' },
                 { id: 'pending',   label: 'Pendentes' },
+                { id: 'completed', label: 'Encerrados' },
                 { id: 'cancelled', label: 'Cancelados' },
                 { id: 'rejected',  label: 'Recusados' },
               ] as const).map(f => {
