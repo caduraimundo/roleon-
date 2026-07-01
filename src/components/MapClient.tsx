@@ -783,20 +783,36 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       }
 
       if (navigator.geolocation) {
-        const timeout = setTimeout(() => createMap(OURO_PRETO_CENTER), 3000)
-        navigator.geolocation.getCurrentPosition(
-          ({ coords }) => {
-            clearTimeout(timeout)
-            userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
-            mapCenteredRef.current = true
-            createMap({ lat: coords.latitude, lng: coords.longitude }, { lat: coords.latitude, lng: coords.longitude })
-          },
-          () => {
-            clearTimeout(timeout)
-            createMap(OURO_PRETO_CENTER)
-          },
-          { enableHighAccuracy: false, timeout: 3000 }
-        )
+        const startGeolocation = (timeoutMs: number) => {
+          const timeout = setTimeout(() => createMap(OURO_PRETO_CENTER), timeoutMs)
+          navigator.geolocation.getCurrentPosition(
+            ({ coords }) => {
+              clearTimeout(timeout)
+              userLocationRef.current = { lat: coords.latitude, lng: coords.longitude }
+              mapCenteredRef.current = true
+              createMap({ lat: coords.latitude, lng: coords.longitude }, { lat: coords.latitude, lng: coords.longitude })
+            },
+            () => {
+              clearTimeout(timeout)
+              createMap(OURO_PRETO_CENTER)
+            },
+            { enableHighAccuracy: false, timeout: timeoutMs }
+          )
+        }
+
+        if (navigator.permissions?.query) {
+          navigator.permissions.query({ name: 'geolocation' as PermissionName })
+            .then((status) => {
+              if (cancelled) return
+              startGeolocation(status.state === 'granted' ? 3000 : 8000)
+            })
+            .catch(() => {
+              if (cancelled) return
+              startGeolocation(8000)
+            })
+        } else {
+          startGeolocation(8000)
+        }
       } else {
         createMap(OURO_PRETO_CENTER)
       }
@@ -1012,6 +1028,24 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
 
       {/* Mapa */}
       <div ref={mapRef} style={{ position: 'absolute', inset: 0 }} />
+
+      {!mapReady && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 10,
+          background: '#F7F7F7',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          gap: 12,
+        }}>
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
+            <circle cx="16" cy="16" r="13" stroke="#E0E0E0" strokeWidth="3"/>
+            <path d="M16 3a13 13 0 0113 13" stroke="#0EA5A0" strokeWidth="3" strokeLinecap="round"/>
+            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+          </svg>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif" }}>
+            Carregando mapa...
+          </span>
+        </div>
+      )}
 
       {/* Controles do topo: search bar + chips */}
       <div style={{
