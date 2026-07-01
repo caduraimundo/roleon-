@@ -102,7 +102,8 @@
       "Bash(cd \"C:\\\\Users\\\\Carlo\\\\roleon-\" && grep -rnE \"<button|<a \" src/app src/components | grep -v \"node_modules\" > /tmp/all_buttons.txt; wc -l /tmp/all_buttons.txt)",
       "Bash(git reset *)",
       "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" https://www.roleon.com.br/api/cron/reminder -H \"Authorization: Bearer roleon-cron-2026-x7k9p2m4\")",
-      "Bash(curl -s -X GET https://www.roleon.com.br/api/cron/reminder -H \"Authorization: Bearer roleon-cron-2026-x7k9p2m4\")"
+      "Bash(curl -s -X GET https://www.roleon.com.br/api/cron/reminder -H \"Authorization: Bearer roleon-cron-2026-x7k9p2m4\")",
+      "mcp__721c7c4c-f150-40b4-9fa2-f83b2c012bf3__list_tables"
     ]
   }
 }
