@@ -19,8 +19,12 @@ export async function GET(req: Request) {
 
   try {
     const now = new Date()
-    const in23h = new Date(now.getTime() + 23 * 60 * 60 * 1000)
-    const in25h = new Date(now.getTime() + 25 * 60 * 60 * 1000)
+    const BRAZIL_OFFSET_MS = 3 * 60 * 60 * 1000
+    const nowBrazil = new Date(now.getTime() - BRAZIL_OFFSET_MS)
+    const tomorrowBrazil = new Date(Date.UTC(nowBrazil.getUTCFullYear(), nowBrazil.getUTCMonth(), nowBrazil.getUTCDate() + 1))
+    const tomorrowDateStr = tomorrowBrazil.toISOString().slice(0, 10)
+    const in23h = new Date(`${tomorrowDateStr}T00:00:00-03:00`)
+    const in25h = new Date(`${tomorrowDateStr}T23:59:59.999-03:00`)
 
     const { data: tickets, error } = await supabaseAdmin
       .from('tickets')
