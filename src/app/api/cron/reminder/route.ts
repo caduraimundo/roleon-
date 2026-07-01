@@ -41,6 +41,7 @@ export async function GET(req: Request) {
         )
       `)
       .in('status', ['paid', 'confirmed', 'used'])
+      .is('reminder_sent_at', null)
       .gte('events.event_date', in23h.toISOString())
       .lte('events.event_date', in25h.toISOString())
 
@@ -92,6 +93,10 @@ export async function GET(req: Request) {
           await Sentry.flush(2000)
         } else {
           emailsSent++
+          await supabaseAdmin
+            .from('tickets')
+            .update({ reminder_sent_at: new Date().toISOString() })
+            .eq('id', ticket.id)
         }
       } catch (emailErr) {
         console.error('Erro ao enviar email de lembrete:', emailErr)
