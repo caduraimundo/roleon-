@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
         extra: { resendError, userId },
         tags: { fluxo: 'send-verification-email' },
       })
+      await Sentry.flush(2000)
       return NextResponse.json({ error: 'Falha ao enviar e-mail de verificação' }, { status: 502 })
     }
 
