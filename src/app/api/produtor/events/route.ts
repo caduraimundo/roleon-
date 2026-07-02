@@ -197,6 +197,12 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  const dataFormatada = new Intl.DateTimeFormat('pt-BR', {
+    dateStyle: 'long',
+    timeStyle: 'short',
+    timeZone: 'America/Sao_Paulo',
+  }).format(new Date(event_date))
+
   const { error: resendError } = await resend.emails.send({
     from: 'Roleon <noreply@roleon.com.br>',
     to: 'roleonbr@gmail.com',
@@ -209,7 +215,8 @@ export async function POST(req: NextRequest) {
         </p>
         <p style="color: #6E6E73; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
           Produtor: ${profile?.name || 'não informado'}<br/>
-          Data do evento: ${event_date}
+          Data: ${dataFormatada}<br/>
+          Local: ${location_name}
         </p>
         <a href="https://www.roleon.com.br/admin"
            style="display: inline-block; background: #0EA5A0; color: #fff;
