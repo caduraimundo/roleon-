@@ -688,6 +688,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       }
 
       const createMap = (initialCenter: { lat: number; lng: number }, knownPos?: { lat: number; lng: number }) => {
+        if (mapInstanceRef.current) return
         const mapDiv = mapRef.current
         if (!mapDiv || !(mapDiv instanceof HTMLElement)) return
         const map = new google.maps.Map(mapDiv, {
