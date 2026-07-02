@@ -697,7 +697,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           disableDefaultUI: true, gestureHandling: 'greedy', clickableIcons: false,
         })
         mapInstanceRef.current = map
-        setMapReady(true)
+        google.maps.event.addListenerOnce(map, 'tilesloaded', () => setMapReady(true))
 
         if (!navigator.geolocation) return
 
