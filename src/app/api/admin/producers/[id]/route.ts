@@ -27,7 +27,7 @@ export async function GET(
     const [profileRes, eventsRes] = await Promise.all([
       supabaseAdmin
         .from('profiles')
-        .select('id, name, email, avatar_initials, verified, producer_disabled, pagar_me_recipient_id, cpf, created_at, bank_code, bank_account, bank_holder_name')
+        .select('id, name, email, avatar_initials, verified, producer_disabled, pagar_me_recipient_id, cpf, created_at, bank_code, bank_account, bank_holder_name, phone_ddd, phone_number')
         .eq('id', id)
         .single(),
       supabaseAdmin

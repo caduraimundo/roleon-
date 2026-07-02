@@ -2243,6 +2243,7 @@ export default function AdminPage() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Informações</div>
                 {[
                   { label: 'Email',       value: p.email },
+                  { label: 'Telefone',    value: (p.phone_ddd && p.phone_number) ? `(${p.phone_ddd}) ${p.phone_number}` : '-' },
                   { label: 'CPF',         value: p.cpf || '-' },
                   { label: 'Cadastro',    value: formatDate(p.created_at) },
                   { label: 'Recipient ID', value: p.pagar_me_recipient_id || '-' },
