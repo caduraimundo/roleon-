@@ -25,7 +25,7 @@ export default function EditarEventoPage() {
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
   const [existingCoverUrl, setExistingCoverUrl] = useState<string | null>(null)
-  const [ticketTypes, setTicketTypes] = useState<TicketType[]>([{ name: 'Pista', price: '', quantity: '' }])
+  const [ticketTypes, setTicketTypes] = useState<TicketType[]>([{ name: '', price: '', quantity: '' }])
   const [policies, setPolicies] = useState<string[]>([''])
   const [cep, setCep] = useState('')
   const [rua, setRua] = useState('')

@@ -213,7 +213,7 @@ export default function PainelPage() {
                   Configure sua conta bancária
                 </div>
                 <div style={{ fontSize: 12, color: '#92400E', marginTop: 3, lineHeight: 1.45 }}>
-                  Ingressos pagos não podem ser vendidos até você configurar os dados para repasse.{' '}
+                  Ingressos pagos não podem ser vendidos até que você configure os dados para repasse.{' '}
                   <button
                     onClick={() => router.push('/produtor/perfil/conta-bancaria')}
                     style={{
