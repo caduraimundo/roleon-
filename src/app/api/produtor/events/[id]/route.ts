@@ -48,6 +48,12 @@ export async function PUT(
     return NextResponse.json({ error: 'Você não tem permissão para editar este evento' }, { status: 403 })
   }
 
+  const { data: producerProfile } = await supabaseAdmin
+    .from('profiles')
+    .select('pagar_me_recipient_id')
+    .eq('id', user.id)
+    .single()
+
   if (event.event_date && new Date((event.event_date as string).replace(' ', 'T')) < new Date()) {
     return NextResponse.json({ error: 'Evento já encerrado, não pode ser editado' }, { status: 400 })
   }
@@ -80,6 +86,13 @@ export async function PUT(
   if (is_free === true && (event as any).is_free === false && hasSoldTickets) {
     return NextResponse.json({
       error: 'Nao e possivel converter um evento pago em gratuito apos ingressos vendidos. Para isso, cancele o evento.',
+    }, { status: 400 })
+  }
+
+  const willBeFree = is_free !== undefined ? is_free : (event as any).is_free
+  if (!willBeFree && !producerProfile?.pagar_me_recipient_id) {
+    return NextResponse.json({
+      error: 'Configure sua conta bancária antes de publicar um evento pago',
     }, { status: 400 })
   }
 

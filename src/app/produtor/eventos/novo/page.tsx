@@ -38,6 +38,7 @@ export default function NovoEventoPage() {
   const [error, setError] = useState('')
   const [draftLoaded, setDraftLoaded] = useState(false)
   const [showSuccessToast, setShowSuccessToast] = useState(false)
+  const [hasRecipient, setHasRecipient] = useState(false)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const errorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -56,8 +57,9 @@ export default function NovoEventoPage() {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.replace('/produtor'); return }
-      const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+      const { data: profile } = await supabase.from('profiles').select('role, pagar_me_recipient_id').eq('id', user.id).single()
       if (profile?.role !== 'producer') { router.replace('/produtor/cadastro'); return }
+      setHasRecipient(!!profile?.pagar_me_recipient_id)
 
       const saved = localStorage.getItem(DRAFT_KEY)
       if (saved) {
@@ -147,6 +149,7 @@ export default function NovoEventoPage() {
     if (!isFree) {
       const valid = ticketTypes.some(t => t.name && parseFloat(t.price) > 0)
       if (!valid) { showError('Adicione ao menos um tipo de ingresso com nome e preço'); return }
+      if (!hasRecipient) { showError('Configure sua conta bancária antes de publicar um evento pago'); return }
     }
     if (isFree && !isUnlimited && (!freeCapacity || parseInt(freeCapacity) <= 0)) {
       showError('Informe a quantidade de vagas'); return

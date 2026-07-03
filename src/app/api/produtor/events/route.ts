@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
 
   const { data: profile } = await supabaseAdmin
     .from('profiles')
-    .select('role, producer_disabled, name')
+    .select('role, producer_disabled, name, pagar_me_recipient_id')
     .eq('id', user.id)
     .single()
 
@@ -128,6 +128,12 @@ export async function POST(req: NextRequest) {
     if (!hasValidTicket) {
       return NextResponse.json(
         { error: 'Eventos pagos precisam de ao menos um tipo de ingresso com preço maior que zero' },
+        { status: 400 }
+      )
+    }
+    if (!profile?.pagar_me_recipient_id) {
+      return NextResponse.json(
+        { error: 'Configure sua conta bancária antes de publicar um evento pago' },
         { status: 400 }
       )
     }
