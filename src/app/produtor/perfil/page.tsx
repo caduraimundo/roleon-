@@ -21,6 +21,7 @@ export default function PerfilProdutorPage() {
     name: string
     avatar_initials: string
     bank_account: string | null
+    pagar_me_recipient_id: string | null
     verified: boolean
     created_at: string
   } | null>(null)
@@ -36,7 +37,7 @@ export default function PerfilProdutorPage() {
       if (!user) { router.push('/produtor'); return }
       const { data } = await supabase
         .from('profiles')
-        .select('name, avatar_initials, bank_account, verified, created_at')
+        .select('name, avatar_initials, bank_account, pagar_me_recipient_id, verified, created_at')
         .eq('id', user.id)
         .single()
       if (data) setProfile(data)
@@ -93,7 +94,7 @@ export default function PerfilProdutorPage() {
     },
     {
       label: 'Conta bancária',
-      badge: profile.bank_account ? 'Configurado' : 'Configurar',
+      badge: profile.pagar_me_recipient_id ? 'Configurado' : 'Configurar',
       onClick: () => router.push('/produtor/perfil/conta-bancaria'),
       icon: (
         <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
