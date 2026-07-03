@@ -22,7 +22,7 @@ const BANKS = [
 ]
 
 type Form = {
-  mother_name: string; birthdate: string; monthly_income: string
+  mother_name: string; monthly_income: string
   professional_occupation: string; phone_ddd: string; phone_number: string
   address_cep: string; address_street: string; address_number: string
   address_complement: string; address_neighborhood: string
@@ -33,7 +33,7 @@ type Form = {
 }
 
 const EMPTY: Form = {
-  mother_name: '', birthdate: '', monthly_income: '',
+  mother_name: '', monthly_income: '',
   professional_occupation: '', phone_ddd: '', phone_number: '',
   address_cep: '', address_street: '', address_number: '',
   address_complement: '', address_neighborhood: '',
@@ -73,13 +73,12 @@ export default function ContaBancariaPage() {
       if (!user) { router.push('/produtor'); return }
       const { data } = await supabase
         .from('profiles')
-        .select('mother_name,birthdate,monthly_income,professional_occupation,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,address_reference,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type,bank_holder_name')
+        .select('mother_name,monthly_income,professional_occupation,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,address_reference,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type,bank_holder_name')
         .eq('id', user.id)
         .single()
       if (data) {
         setForm({
           mother_name: data.mother_name || '',
-          birthdate: data.birthdate || '',
           monthly_income: centsToDisplay(data.monthly_income),
           professional_occupation: data.professional_occupation || '',
           phone_ddd: data.phone_ddd || '',
@@ -131,7 +130,6 @@ export default function ContaBancariaPage() {
   function validateStep(): string {
     if (step === 1) {
       if (!form.mother_name.trim()) return 'Informe o nome da mãe.'
-      if (!form.birthdate) return 'Informe a data de nascimento.'
       if (!form.monthly_income) return 'Informe a renda mensal.'
       if (!form.professional_occupation.trim()) return 'Informe a ocupação profissional.'
       if (form.phone_ddd.length !== 2) return 'Informe o DDD (2 dígitos).'
@@ -268,10 +266,6 @@ export default function ContaBancariaPage() {
             <label style={lbl}>Nome da mãe</label>
             <input value={form.mother_name} onChange={e => set('mother_name', e.target.value)}
               placeholder="Nome completo da mãe" style={inp} />
-          </div>
-          <div style={fld}>
-            <label style={lbl}>Data de nascimento</label>
-            <input type="date" value={form.birthdate} onChange={e => set('birthdate', e.target.value)} style={inp} />
           </div>
           <div style={fld}>
             <label style={lbl}>Renda mensal</label>

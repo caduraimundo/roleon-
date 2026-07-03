@@ -22,18 +22,18 @@ export async function POST(req: NextRequest) {
   // Busca perfil para nome, email, cpf e recipient_id existente
   const { data: profile } = await supabaseAdmin
     .from('profiles')
-    .select('name, email, cpf, pagar_me_recipient_id, bank_code, bank_agency, bank_account, bank_account_digit, bank_account_type, bank_holder_name, pagar_me_bank_synced')
+    .select('name, email, cpf, birthdate, pagar_me_recipient_id, bank_code, bank_agency, bank_account, bank_account_digit, bank_account_type, bank_holder_name, pagar_me_bank_synced')
     .eq('id', user.id)
     .single()
 
   if (!profile) return NextResponse.json({ error: 'Perfil não encontrado.' }, { status: 404 })
+  if (!profile.birthdate) return NextResponse.json({ error: 'Data de nascimento não encontrada no cadastro. Refaça o cadastro de produtor.' }, { status: 400 })
 
   // Salva dados no Supabase
   const { error: updateError } = await supabaseAdmin
     .from('profiles')
     .update({
       mother_name: body.mother_name,
-      birthdate: body.birthdate,
       monthly_income: body.monthly_income,
       professional_occupation: body.professional_occupation,
       phone_ddd: body.phone_ddd,
@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
         document: profile.cpf,
         type: 'individual',
         mother_name: body.mother_name,
-        birthdate: (() => { const [y,m,d] = body.birthdate.split('-'); return `${d}/${m}/${y}` })(),
+        birthdate: (() => { const [y,m,d] = profile.birthdate.split('-'); return `${d}/${m}/${y}` })(),
         monthly_income: body.monthly_income,
         professional_occupation: body.professional_occupation,
         address: {
