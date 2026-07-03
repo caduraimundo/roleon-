@@ -124,7 +124,7 @@ export default function CadastroProdutorPage() {
     <div style={{
       display: 'flex',
       justifyContent: 'center',
-      paddingTop: 60,
+      paddingTop: 24,
       paddingBottom: 40,
       minHeight: 'calc(100vh - 56px)',
     }}>
