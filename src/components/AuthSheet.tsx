@@ -261,6 +261,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                 fontFamily: "'Noto Sans', sans-serif",
                 padding: 0, lineHeight: 1.4,
                 textDecoration: 'underline',
+                textDecorationColor: 'rgba(110, 110, 115, 0.35)',
                 textUnderlineOffset: '3px',
               }}
             >
