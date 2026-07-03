@@ -253,12 +253,18 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
               onClick={() => setIsProducerContext(true)}
               style={{
                 background: 'transparent', border: 0, cursor: 'pointer',
-                color: '#9CA3AF', fontSize: 12,
+                color: '#6E6E73', fontSize: 12,
                 fontFamily: "'Noto Sans', sans-serif",
                 padding: 0, lineHeight: 1.4,
+                display: 'inline-flex', alignItems: 'center', gap: 4,
               }}
             >
-              É produtor? Acesse o portal →
+              É produtor? Acesse o portal
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                <path d="M5 3l4 4-4 4" stroke="currentColor"
+                  strokeWidth="1.6" strokeLinecap="round"
+                  strokeLinejoin="round"/>
+              </svg>
             </button>
           </div>
         )}

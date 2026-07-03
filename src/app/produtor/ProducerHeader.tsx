@@ -1,9 +1,11 @@
 'use client'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { createBrowserClient } from '@supabase/ssr'
 
 export default function ProducerHeader() {
   const router = useRouter()
+  const pathname = usePathname()
+  const isCadastro = pathname === '/produtor/cadastro'
 
   async function handleSignOut() {
     const supabase = createBrowserClient(
@@ -14,17 +16,21 @@ export default function ProducerHeader() {
     router.push('/')
   }
 
+  function handleVoltar() {
+    router.push('/')
+  }
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-<button
-        onClick={handleSignOut}
+      <button
+        onClick={isCadastro ? handleVoltar : handleSignOut}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
           fontSize: 13, fontWeight: 500, color: '#6E6E73',
           padding: '4px 0', flexShrink: 0,
         }}
       >
-        Sair
+        {isCadastro ? 'Voltar' : 'Sair'}
       </button>
     </div>
   )
