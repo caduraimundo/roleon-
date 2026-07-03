@@ -19,14 +19,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
   }
 
-  const { cpf, pix_key } = await req.json()
+  const { cpf, birthdate } = await req.json()
 
   if (!validateCPF(cpf)) {
     return NextResponse.json({ error: 'CPF inválido' }, { status: 400 })
   }
 
-  if (!pix_key?.trim()) {
-    return NextResponse.json({ error: 'Chave PIX obrigatória' }, { status: 400 })
+  if (!birthdate) {
+    return NextResponse.json({ error: 'Data de nascimento obrigatória' }, { status: 400 })
+  }
+
+  const birth = new Date(birthdate)
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  if (age < 18) {
+    return NextResponse.json({ error: 'Você precisa ter 18 anos ou mais para se cadastrar como produtor.' }, { status: 400 })
   }
 
   const { data: profile } = await supabaseAdmin
@@ -44,7 +55,7 @@ export async function POST(req: NextRequest) {
 
   const { error } = await supabaseAdmin
     .from('profiles')
-    .update({ role: 'producer', cpf: cpf.replace(/\D/g, ''), pix_key })
+    .update({ role: 'producer', cpf: cpf.replace(/\D/g, ''), birthdate })
     .eq('id', user.id)
 
   if (error) {

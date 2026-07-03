@@ -13,11 +13,24 @@ function maskCpf(v: string): string {
   return d.slice(0, 3) + '.' + d.slice(3, 6) + '.' + d.slice(6, 9) + '-' + d.slice(9)
 }
 
+function isAtLeast18(dateStr: string): boolean {
+  if (!dateStr) return false
+  const birth = new Date(dateStr)
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  return age >= 18
+}
+
 export default function CadastroProdutorPage() {
   const router = useRouter()
   const [cpf, setCpf] = useState('')
-  const [pixKey, setPixKey] = useState('')
+  const [birthdate, setBirthdate] = useState('')
   const [cpfError, setCpfError] = useState('')
+  const [birthdateError, setBirthdateError] = useState('')
   const [apiError, setApiError] = useState('')
   const [loading, setLoading] = useState(false)
   const [userName, setUserName] = useState('')
@@ -44,7 +57,8 @@ export default function CadastroProdutorPage() {
 
   const handleSubmit = async () => {
     if (!validateCPF(cpf)) { setCpfError('CPF inválido'); return }
-    if (!pixKey.trim()) { setApiError('Chave PIX obrigatória'); return }
+    if (!birthdate) { setBirthdateError('Data de nascimento obrigatória'); return }
+    if (!isAtLeast18(birthdate)) { setBirthdateError('Você precisa ter 18 anos ou mais para se cadastrar como produtor.'); return }
 
     setLoading(true)
     setApiError('')
@@ -56,7 +70,7 @@ export default function CadastroProdutorPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify({ cpf, pix_key: pixKey }),
+        body: JSON.stringify({ cpf, birthdate }),
       })
       if (res.ok) {
         router.replace('/produtor/painel')
@@ -152,17 +166,22 @@ export default function CadastroProdutorPage() {
         </div>
 
         <div style={{ marginBottom: 0 }}>
-          <label style={fieldLabel}>Chave PIX</label>
+          <label style={fieldLabel}>Data de nascimento</label>
           <input
-            type="text"
-            placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória"
-            value={pixKey}
-            onChange={e => setPixKey(e.target.value)}
-            style={editableInput()}
+            type="date"
+            value={birthdate}
+            onChange={e => { setBirthdate(e.target.value); setBirthdateError('') }}
+            style={editableInput(!!birthdateError)}
           />
-          <p style={{ fontSize: 12, color: '#6E6E73', marginTop: 4, marginBottom: 0 }}>
-            Essa chave será usada para receber seus repasses
-          </p>
+          {birthdateError ? (
+            <p style={{ fontSize: 12, color: '#FF3B30', marginTop: 4, marginBottom: 0 }}>
+              {birthdateError}
+            </p>
+          ) : (
+            <p style={{ fontSize: 12, color: '#6E6E73', marginTop: 4, marginBottom: 0 }}>
+              Usaremos para confirmar que você é maior de idade
+            </p>
+          )}
         </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 20, marginBottom: 20 }}>
