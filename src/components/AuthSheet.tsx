@@ -261,6 +261,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
                 fontFamily: "'Noto Sans', sans-serif",
                 padding: 0, lineHeight: 1.4,
                 textDecoration: 'underline',
+                textUnderlineOffset: '3px',
               }}
             >
               É produtor? Acesse o portal
