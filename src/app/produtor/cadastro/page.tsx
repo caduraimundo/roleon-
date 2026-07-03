@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { validateCPF } from '../../../lib/cpf'
+import { validateName } from '../../../lib/validateName'
 
 function maskCpf(v: string): string {
   const d = v.replace(/\D/g, '').slice(0, 11)
@@ -29,8 +30,10 @@ export default function CadastroProdutorPage() {
   const router = useRouter()
   const [cpf, setCpf] = useState('')
   const [birthdate, setBirthdate] = useState('')
+  const [name, setName] = useState('')
   const [cpfError, setCpfError] = useState('')
   const [birthdateError, setBirthdateError] = useState('')
+  const [nameError, setNameError] = useState('')
   const [apiError, setApiError] = useState('')
   const [loading, setLoading] = useState(false)
   const [userName, setUserName] = useState('')
@@ -50,12 +53,15 @@ export default function CadastroProdutorPage() {
       if (profile?.role === 'producer') { router.replace('/produtor/painel'); return }
 
       setUserName(profile?.name ?? '')
+      setName(profile?.name ?? '')
       setUserEmail(profile?.email ?? user.email ?? '')
     }
     init()
   }, [router])
 
   const handleSubmit = async () => {
+    const nameValidationError = validateName(name)
+    if (nameValidationError) { setNameError(nameValidationError); return }
     if (!validateCPF(cpf)) { setCpfError('CPF inválido'); return }
     if (!birthdate) { setBirthdateError('Data de nascimento obrigatória'); return }
     if (!isAtLeast18(birthdate)) { setBirthdateError('Você precisa ter 18 anos ou mais para se cadastrar como produtor.'); return }
@@ -70,7 +76,7 @@ export default function CadastroProdutorPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify({ cpf, birthdate }),
+        body: JSON.stringify({ cpf, birthdate, name }),
       })
       if (res.ok) {
         router.replace('/produtor/painel')
@@ -139,7 +145,17 @@ export default function CadastroProdutorPage() {
 
         <div style={{ marginBottom: 16 }}>
           <label style={fieldLabel}>Nome</label>
-          <input value={userName} readOnly style={readonlyInput} />
+          <input
+            type="text"
+            value={name}
+            onChange={e => { setName(e.target.value); setNameError('') }}
+            style={editableInput(!!nameError)}
+          />
+          {nameError && (
+            <p style={{ fontSize: 12, color: '#FF3B30', marginTop: 4, marginBottom: 0 }}>
+              {nameError}
+            </p>
+          )}
         </div>
 
         <div style={{ marginBottom: 16 }}>

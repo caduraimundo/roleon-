@@ -1,6 +1,8 @@
 import { validateCPF } from '../../../../lib/cpf'
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { validateName } from '../../../../lib/validateName'
+import { getInitials } from '../../../../lib/getInitials'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,7 +21,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
   }
 
-  const { cpf, birthdate } = await req.json()
+  const { cpf, birthdate, name } = await req.json()
+
+  const nameError = validateName(name)
+  if (nameError) {
+    return NextResponse.json({ error: nameError }, { status: 400 })
+  }
 
   if (!validateCPF(cpf)) {
     return NextResponse.json({ error: 'CPF inválido' }, { status: 400 })
@@ -55,7 +62,7 @@ export async function POST(req: NextRequest) {
 
   const { error } = await supabaseAdmin
     .from('profiles')
-    .update({ role: 'producer', cpf: cpf.replace(/\D/g, ''), birthdate })
+    .update({ role: 'producer', cpf: cpf.replace(/\D/g, ''), birthdate, name: name.trim(), avatar_initials: getInitials(name.trim()) })
     .eq('id', user.id)
 
   if (error) {

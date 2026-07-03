@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { getInitials } from '../../../../lib/getInitials'
+import { validateName } from '../../../../lib/validateName'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,11 +23,9 @@ export async function POST(req: NextRequest) {
   const body = await req.json()
   const { name } = body as { name: string }
 
-  if (typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 50) {
-    return NextResponse.json(
-      { error: 'Nome deve ter entre 2 e 50 caracteres' },
-      { status: 400 }
-    )
+  const nameError = validateName(name)
+  if (nameError) {
+    return NextResponse.json({ error: nameError }, { status: 400 })
   }
 
   const trimmedName = name.trim()
