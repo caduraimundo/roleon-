@@ -36,7 +36,6 @@ export default function CadastroProdutorPage() {
   const [nameError, setNameError] = useState('')
   const [apiError, setApiError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [userName, setUserName] = useState('')
   const [userEmail, setUserEmail] = useState('')
 
   useEffect(() => {
@@ -52,7 +51,6 @@ export default function CadastroProdutorPage() {
 
       if (profile?.role === 'producer') { router.replace('/produtor/painel'); return }
 
-      setUserName(profile?.name ?? '')
       setName(profile?.name ?? '')
       setUserEmail(profile?.email ?? user.email ?? '')
     }
