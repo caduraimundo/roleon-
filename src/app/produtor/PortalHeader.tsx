@@ -5,7 +5,7 @@ import ProducerHeader from './ProducerHeader'
 export default function PortalHeader() {
   const pathname = usePathname()
   const router = useRouter()
-  const isCadastro = pathname === '/produtor/cadastro'
+  const isCadastro = pathname === '/produtor/cadastro' || pathname === '/produtor' || pathname === '/produtor/pos-login'
 
   if (isCadastro) {
     return (
