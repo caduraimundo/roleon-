@@ -40,6 +40,7 @@ const REDIRECT_ROUTES: Record<string, string> = {
 export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
   const router = useRouter()
   const [isProducerContext, setIsProducerContext] = useState(false)
+  const [allowBackFromProducer, setAllowBackFromProducer] = useState(false)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -59,11 +60,14 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
   useEffect(() => {
     if (!isOpen) {
       setIsProducerContext(false)
+      setAllowBackFromProducer(false)
     } else {
       const flag = sessionStorage.getItem('openAuthAsProducer')
       if (flag) {
         sessionStorage.removeItem('openAuthAsProducer')
         setIsProducerContext(true)
+        // Acesso direto via redirect (ex: link direto pro portal) - nao tem
+        // tela anterior pra voltar, entao o botao de voltar fica escondido.
       }
     }
   }, [isOpen])
@@ -196,9 +200,9 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
           <IconClose />
         </button>
 
-        {isProducerContext && (
+        {isProducerContext && allowBackFromProducer && (
           <button
-            onClick={() => setIsProducerContext(false)}
+            onClick={() => { setIsProducerContext(false); setAllowBackFromProducer(false) }}
             aria-label="Voltar"
             style={{
               position: 'absolute', top: 14, left: 20,
@@ -250,21 +254,16 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
           <div style={{ marginTop: 16, textAlign: 'center' }}>
             <button
               type="button"
-              onClick={() => setIsProducerContext(true)}
+              onClick={() => { setIsProducerContext(true); setAllowBackFromProducer(true) }}
               style={{
                 background: 'transparent', border: 0, cursor: 'pointer',
                 color: '#6E6E73', fontSize: 12,
                 fontFamily: "'Noto Sans', sans-serif",
                 padding: 0, lineHeight: 1.4,
-                display: 'inline-flex', alignItems: 'center', gap: 4,
+                textDecoration: 'underline',
               }}
             >
               É produtor? Acesse o portal
-              <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                <path d="M5 3l4 4-4 4" stroke="currentColor"
-                  strokeWidth="1.6" strokeLinecap="round"
-                  strokeLinejoin="round"/>
-              </svg>
             </button>
           </div>
         )}
