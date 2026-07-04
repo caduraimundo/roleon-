@@ -73,7 +73,7 @@ export default function PortalHeader() {
           lineHeight: 1,
         }}>Produtor</span>
       </div>
-      <ProducerHeader />
+      {pathname === '/produtor/perfil' && <ProducerHeader />}
     </header>
   )
 }
