@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
   }
 
-  const { cpf, birthdate, name } = await req.json()
+  const { cpf, birthdate, name, phone_ddd, phone_number } = await req.json()
 
   const nameError = validateName(name)
   if (nameError) {
@@ -47,6 +47,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Você precisa ter 18 anos ou mais para se cadastrar como produtor.' }, { status: 400 })
   }
 
+  if (!phone_ddd || phone_ddd.length !== 2) {
+    return NextResponse.json({ error: 'DDD inválido' }, { status: 400 })
+  }
+
+  if (!phone_number || !phone_number.trim()) {
+    return NextResponse.json({ error: 'Número de telefone obrigatório' }, { status: 400 })
+  }
+
   const { data: profile } = await supabaseAdmin
     .from('profiles')
     .select('cpf, role')
@@ -62,7 +70,7 @@ export async function POST(req: NextRequest) {
 
   const { error } = await supabaseAdmin
     .from('profiles')
-    .update({ role: 'producer', cpf: cpf.replace(/\D/g, ''), birthdate, name: name.trim(), avatar_initials: getInitials(name.trim()) })
+    .update({ role: 'producer', cpf: cpf.replace(/\D/g, ''), birthdate, name: name.trim(), avatar_initials: getInitials(name.trim()), phone_ddd, phone_number })
     .eq('id', user.id)
 
   if (error) {

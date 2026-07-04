@@ -31,6 +31,9 @@ export default function CadastroProdutorPage() {
   const [cpf, setCpf] = useState('')
   const [birthdate, setBirthdate] = useState('')
   const [name, setName] = useState('')
+  const [phoneDdd, setPhoneDdd] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [phoneError, setPhoneError] = useState('')
   const [cpfError, setCpfError] = useState('')
   const [birthdateError, setBirthdateError] = useState('')
   const [nameError, setNameError] = useState('')
@@ -63,6 +66,8 @@ export default function CadastroProdutorPage() {
     if (!validateCPF(cpf)) { setCpfError('CPF inválido'); return }
     if (!birthdate) { setBirthdateError('Data de nascimento obrigatória'); return }
     if (!isAtLeast18(birthdate)) { setBirthdateError('Você precisa ter 18 anos ou mais para se cadastrar como produtor.'); return }
+    if (phoneDdd.length !== 2) { setPhoneError('Informe o DDD (2 dígitos).'); return }
+    if (!phoneNumber.trim()) { setPhoneError('Informe o número de telefone.'); return }
 
     setLoading(true)
     setApiError('')
@@ -74,7 +79,7 @@ export default function CadastroProdutorPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify({ cpf, birthdate, name }),
+        body: JSON.stringify({ cpf, birthdate, name, phone_ddd: phoneDdd, phone_number: phoneNumber }),
       })
       if (res.ok) {
         router.replace('/produtor/painel')
@@ -201,6 +206,38 @@ export default function CadastroProdutorPage() {
             <span style={{ fontSize: 13, color: '#FF3B30' }}>{birthdateError}</span>
           ) : (
             <span style={{ fontSize: 12, color: '#6E6E73' }}>Usaremos para confirmar que você é maior de idade</span>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ ...fieldBase(!!phoneError), width: 90, flexShrink: 0 }}>
+              <label style={labelStyle}>DDD</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="31"
+                maxLength={2}
+                value={phoneDdd}
+                onChange={e => { setPhoneDdd(e.target.value.replace(/\D/g, '').slice(0, 2)); setPhoneError('') }}
+                style={inputStyle}
+              />
+            </div>
+            <div style={{ ...fieldBase(!!phoneError), flex: 1 }}>
+              <label style={labelStyle}>Telefone</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="999999999"
+                maxLength={9}
+                value={phoneNumber}
+                onChange={e => { setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0, 9)); setPhoneError('') }}
+                style={inputStyle}
+              />
+            </div>
+          </div>
+          {phoneError && (
+            <span style={{ fontSize: 13, color: '#FF3B30' }}>{phoneError}</span>
           )}
         </div>
 
