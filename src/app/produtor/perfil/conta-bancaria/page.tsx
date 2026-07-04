@@ -234,7 +234,7 @@ export default function ContaBancariaPage() {
         {[1, 2, 3].map(s => (
           <div key={s} style={{ display: 'flex', alignItems: 'center', flex: s < 3 ? 1 : 0 }}>
             <div style={{
-              width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
+              width: 28, height: 28, borderRadius: 8, flexShrink: 0,
               background: step >= s ? '#0EA5A0' : '#E8E8E8',
               color: step >= s ? '#fff' : '#9A9A9A',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -246,7 +246,7 @@ export default function ContaBancariaPage() {
                 </svg>
               ) : s}
             </div>
-            {s < 3 && <div style={{ flex: 1, height: 2, marginLeft: 8, background: step > s ? '#0EA5A0' : '#E8E8E8' }} />}
+            {s < 3 && <div style={{ flex: 1, height: 2, margin: '0 8px', background: step > s ? '#0EA5A0' : '#E8E8E8' }} />}
           </div>
         ))}
       </div>
