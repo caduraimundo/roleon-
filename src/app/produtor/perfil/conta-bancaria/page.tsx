@@ -62,6 +62,7 @@ export default function ContaBancariaPage() {
   const [form, setForm] = useState<Form>(EMPTY)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [checking, setChecking] = useState(false)
   const [error, setError] = useState('')
   const [cepLoading, setCepLoading] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -177,6 +178,37 @@ export default function ContaBancariaPage() {
   async function handleNext() {
     const err = validateStep()
     if (err) { setError(err); return }
+
+    if (step === 1) {
+      setChecking(true)
+      try {
+        const supabase = createBrowserClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        )
+        const { data: { session } } = await supabase.auth.getSession()
+        const res = await fetch('/api/produtor/check-phone', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ phone_ddd: form.phone_ddd, phone_number: form.phone_number }),
+        })
+        const json = await res.json()
+        if (!res.ok) {
+          setError(json.error || 'Erro ao verificar telefone.')
+          setChecking(false)
+          return
+        }
+      } catch {
+        setError('Erro ao verificar telefone. Tente novamente.')
+        setChecking(false)
+        return
+      }
+      setChecking(false)
+    }
+
     if (step < 3) { setStep(s => s + 1); setError(''); return }
     setSaving(true)
     try {
@@ -472,13 +504,13 @@ export default function ContaBancariaPage() {
 
       {/* Footer fixo */}
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '16px 20px', background: '#fff', borderTop: '1px solid #E8E8E8', zIndex: 100 }}>
-        <button onClick={handleNext} disabled={saving} style={{
+        <button onClick={handleNext} disabled={saving || checking} style={{
           width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px', borderRadius: 14,
-          background: saving ? '#7DCFCC' : '#0EA5A0',
+          background: (saving || checking) ? '#7DCFCC' : '#0EA5A0',
           color: '#fff', fontWeight: 700, fontSize: 15,
-          fontFamily: "'Noto Sans', sans-serif", border: 'none', cursor: saving ? 'default' : 'pointer',
+          fontFamily: "'Noto Sans', sans-serif", border: 'none', cursor: (saving || checking) ? 'default' : 'pointer',
         }}>
-          {saving ? 'Salvando...' : step < 3 ? 'Próximo' : 'Salvar dados bancários'}
+          {checking ? 'Verificando...' : saving ? 'Salvando...' : step < 3 ? 'Próximo' : 'Salvar dados bancários'}
         </button>
       </div>
 
