@@ -291,7 +291,7 @@ export default function PainelPage() {
             border: 0, cursor: 'pointer',
             display: 'flex', alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 10px 24px rgba(14,165,160,0.4)',
+            boxShadow: '0 6px 16px rgba(14,165,160,0.25)',
             zIndex: 40,
           }}
         >
