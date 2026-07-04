@@ -52,7 +52,9 @@ function displayToCents(display: string): number {
   return Math.round(parseFloat(display.replace(/\./g, '').replace(',', '.')) * 100) || 0
 }
 
-const DRAFT_KEY = 'roleon_conta_bancaria_draft'
+function getDraftKey(userId: string): string {
+  return `roleon_conta_bancaria_draft_${userId}`
+}
 
 export default function ContaBancariaPage() {
   const router = useRouter()
@@ -64,6 +66,7 @@ export default function ContaBancariaPage() {
   const [cepLoading, setCepLoading] = useState(false)
   const [saved, setSaved] = useState(false)
   const [saveWarning, setSaveWarning] = useState('')
+  const [userId, setUserId] = useState('')
 
   useEffect(() => {
     (async () => {
@@ -73,6 +76,7 @@ export default function ContaBancariaPage() {
       )
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/produtor'); return }
+      setUserId(user.id)
       const { data } = await supabase
         .from('profiles')
         .select('mother_name,monthly_income,professional_occupation,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,address_reference,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type,bank_holder_name')
@@ -103,7 +107,7 @@ export default function ContaBancariaPage() {
         })
       }
       try {
-        const draft = sessionStorage.getItem(DRAFT_KEY)
+        const draft = sessionStorage.getItem(getDraftKey(user.id))
         if (draft) {
           const parsed = JSON.parse(draft)
           if (parsed.form) setForm(parsed.form)
@@ -115,11 +119,11 @@ export default function ContaBancariaPage() {
   }, [router])
 
   useEffect(() => {
-    if (loading) return
+    if (loading || !userId) return
     try {
-      sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ form, step }))
+      sessionStorage.setItem(getDraftKey(userId), JSON.stringify({ form, step }))
     } catch {}
-  }, [form, step, loading])
+  }, [form, step, loading, userId])
 
   function set(field: keyof Form, value: string) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -191,7 +195,7 @@ export default function ContaBancariaPage() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Erro ao salvar dados.')
-      try { sessionStorage.removeItem(DRAFT_KEY) } catch {}
+      try { sessionStorage.removeItem(getDraftKey(userId)) } catch {}
       if (json.warning) {
         setSaveWarning(json.warning)
       } else {
