@@ -359,7 +359,7 @@ export default function ContaBancariaPage() {
             </div>
             <input value={form.bank_holder_name}
               onChange={e => set('bank_holder_name', e.target.value)}
-              placeholder="Ex: Maria Da Silva Souza"
+              placeholder="Ex: Maria Silva Souza"
               maxLength={30}
               style={inp} />
             <span style={{ fontSize: 11, color: '#9A9A9A', marginTop: 4, lineHeight: 1.4 }}>
