@@ -68,6 +68,37 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  const cpfDigits = cpf.replace(/\D/g, '')
+
+  const { data: cpfOwner } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('cpf', cpfDigits)
+    .neq('id', user.id)
+    .maybeSingle()
+
+  if (cpfOwner) {
+    return NextResponse.json(
+      { error: 'Este CPF já está associado a outra conta. Se você acredita que isso é um engano, entre em contato com contato@roleon.com.br.' },
+      { status: 409 }
+    )
+  }
+
+  const { data: phoneOwner } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('phone_ddd', phone_ddd)
+    .eq('phone_number', phone_number)
+    .neq('id', user.id)
+    .maybeSingle()
+
+  if (phoneOwner) {
+    return NextResponse.json(
+      { error: 'Este número de telefone já está associado a outra conta. Se você acredita que isso é um engano, entre em contato com contato@roleon.com.br.' },
+      { status: 409 }
+    )
+  }
+
   const { error } = await supabaseAdmin
     .from('profiles')
     .update({ role: 'producer', cpf: cpf.replace(/\D/g, ''), birthdate, name: name.trim(), avatar_initials: getInitials(name.trim()), phone_ddd, phone_number })
