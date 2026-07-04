@@ -52,6 +52,8 @@ function displayToCents(display: string): number {
   return Math.round(parseFloat(display.replace(/\./g, '').replace(',', '.')) * 100) || 0
 }
 
+const DRAFT_KEY = 'roleon_conta_bancaria_draft'
+
 export default function ContaBancariaPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
@@ -100,9 +102,24 @@ export default function ContaBancariaPage() {
           bank_holder_name: data.bank_holder_name || '',
         })
       }
+      try {
+        const draft = sessionStorage.getItem(DRAFT_KEY)
+        if (draft) {
+          const parsed = JSON.parse(draft)
+          if (parsed.form) setForm(parsed.form)
+          if (parsed.step) setStep(parsed.step)
+        }
+      } catch {}
       setLoading(false)
     })()
   }, [router])
+
+  useEffect(() => {
+    if (loading) return
+    try {
+      sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ form, step }))
+    } catch {}
+  }, [form, step, loading])
 
   function set(field: keyof Form, value: string) {
     setForm(prev => ({ ...prev, [field]: value }))
@@ -174,6 +191,7 @@ export default function ContaBancariaPage() {
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Erro ao salvar dados.')
+      try { sessionStorage.removeItem(DRAFT_KEY) } catch {}
       if (json.warning) {
         setSaveWarning(json.warning)
       } else {
