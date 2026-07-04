@@ -195,7 +195,7 @@ export default function PainelPage() {
         <div style={{ padding: '0 20px 80px' }}>
           {!hasBank && (
             <div style={{
-              margin: '0 0 4px',
+              margin: '0 0 10px',
               background: '#FFFBEB',
               border: '1px solid #FCD34D',
               borderRadius: 12,
@@ -285,7 +285,7 @@ export default function PainelPage() {
         <button
           onClick={() => router.push('/produtor/eventos/novo')}
           style={{
-            position: 'fixed', right: 20, bottom: 88,
+            position: 'fixed', right: 20, bottom: 98,
             width: 56, height: 56, borderRadius: 18,
             background: '#0EA5A0', color: '#fff',
             border: 0, cursor: 'pointer',
