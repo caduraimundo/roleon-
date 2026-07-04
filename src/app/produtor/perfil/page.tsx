@@ -174,7 +174,7 @@ export default function PerfilProdutorPage() {
         </div>
 
         {/* Todos os cards — gap uniforme */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 32 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 32 }}>
 
           {/* Menu principal */}
           {menuItems.map((item, i) => (

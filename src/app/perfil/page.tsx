@@ -196,7 +196,7 @@ export default function PerfilPage() {
         </div>
 
         {/* Cards de menu + Seja um produtor (gap uniforme 8px) */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
 
           {menuItems.map((item) => (
             <button

@@ -118,7 +118,7 @@ export default function PainelPage() {
         {/* Cards de resumo — 2x2 */}
         <div style={{
           padding: '8px 20px 4px',
-          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
+          display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8,
         }}>
           {[
             { label: 'Total vendido',      value: 'R$ 0',  sub: 'Este mês' },
@@ -167,7 +167,7 @@ export default function PainelPage() {
 
         {/* Cabeçalho "Seus eventos" + Ver todos */}
         <div style={{
-          padding: '20px 20px 10px',
+          padding: '20px 20px 16px',
           display: 'flex', alignItems: 'center',
           justifyContent: 'space-between',
         }}>
