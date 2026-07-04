@@ -103,7 +103,11 @@
       "Bash(git reset *)",
       "Bash(curl -s -w \"\\\\nHTTP_STATUS:%{http_code}\\\\n\" https://www.roleon.com.br/api/cron/reminder -H \"Authorization: Bearer roleon-cron-2026-x7k9p2m4\")",
       "Bash(curl -s -X GET https://www.roleon.com.br/api/cron/reminder -H \"Authorization: Bearer roleon-cron-2026-x7k9p2m4\")",
-      "mcp__721c7c4c-f150-40b4-9fa2-f83b2c012bf3__list_tables"
+      "mcp__721c7c4c-f150-40b4-9fa2-f83b2c012bf3__list_tables",
+      "Bash(cat /tmp/pagarme_recipients.json)",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget",
+      "Bash(git check-ignore *)"
     ]
   }
 }

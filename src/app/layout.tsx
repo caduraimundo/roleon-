@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Noto_Sans } from "next/font/google"
 import "./globals.css";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
+import ChunkErrorReloader from "@/components/ChunkErrorReloader";
 import Script from "next/script";
 
 const notoSans = Noto_Sans({
@@ -58,6 +59,7 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
         <ServiceWorkerRegistrar />
+        <ChunkErrorReloader />
         {children}
       </body>
     </html>
