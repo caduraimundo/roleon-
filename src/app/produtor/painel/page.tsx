@@ -239,7 +239,7 @@ export default function PainelPage() {
             <div style={{
               background: '#fff',
               borderRadius: 16,
-              padding: 40,
+              padding: 24,
               textAlign: 'center',
               boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
             }}>
@@ -247,7 +247,7 @@ export default function PainelPage() {
                 Você ainda não criou nenhum evento.
               </p>
               <button
-                style={{ ...btnPrimary, marginTop: 16 }}
+                style={{ ...btnPrimary, marginTop: 16, width: '100%' }}
                 onClick={() => router.push('/produtor/eventos/novo')}
               >
                 Criar primeiro evento
