@@ -209,7 +209,6 @@ export default function ContaBancariaPage() {
 
       {/* Header */}
       <header style={{
-        position: 'sticky', top: 0, zIndex: 50,
         background: '#fff', borderBottom: '1px solid #E8E8E8',
         height: 56, display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', padding: '0 16px',
