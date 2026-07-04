@@ -29,6 +29,21 @@ export async function POST(req: NextRequest) {
   if (!profile) return NextResponse.json({ error: 'Perfil não encontrado.' }, { status: 404 })
   if (!profile.birthdate) return NextResponse.json({ error: 'Data de nascimento não encontrada no cadastro. Refaça o cadastro de produtor.' }, { status: 400 })
 
+  const { data: phoneOwner } = await supabaseAdmin
+    .from('profiles')
+    .select('id')
+    .eq('phone_ddd', body.phone_ddd)
+    .eq('phone_number', body.phone_number)
+    .neq('id', user.id)
+    .maybeSingle()
+
+  if (phoneOwner) {
+    return NextResponse.json(
+      { error: 'Este número de telefone já está associado a outra conta. Se você acredita que isso é um engano, entre em contato com contato@roleon.com.br.' },
+      { status: 409 }
+    )
+  }
+
   // Salva dados no Supabase
   const { error: updateError } = await supabaseAdmin
     .from('profiles')
