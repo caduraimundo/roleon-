@@ -386,7 +386,7 @@ export default function ContaBancariaPage() {
           <div style={fld}>
             <label style={lbl}>Data de nascimento</label>
             <input type="date" value={form.birthdate} onChange={e => set('birthdate', e.target.value)}
-              style={{ ...inp, minWidth: 0 }} />
+              style={{ ...inp, minWidth: 0, display: 'block' }} />
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <div style={{ ...fld, width: 80, flexShrink: 0 }}>

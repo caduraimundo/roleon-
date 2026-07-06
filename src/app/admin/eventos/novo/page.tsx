@@ -399,7 +399,7 @@ export default function NovoEventoAdminPage() {
               type="date"
               value={eventDate}
               onChange={e => setEventDate(e.target.value)}
-              style={{ ...inputStyle, flex: 1, minWidth: 0 }}
+              style={{ ...inputStyle, flex: 1, minWidth: 0, display: 'block' }}
             />
             <input
               type="time"
