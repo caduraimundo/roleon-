@@ -92,44 +92,26 @@ export default function CadastroProdutorPage() {
     }
   }
 
-  const fieldBase = (hasError?: boolean): React.CSSProperties => ({
+  const lbl: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: '#6E6E73', marginBottom: 6, display: 'block' }
+
+  const inp = (hasError?: boolean): React.CSSProperties => ({
+    width: '100%', boxSizing: 'border-box',
+    padding: '12px 14px', borderRadius: 10,
+    border: hasError ? '1px solid #FF3B30' : '1px solid #E8E8E8',
     background: '#fff',
-    border: hasError ? '1.5px solid #FF3B30' : '1.5px solid #E5E5EA',
-    borderRadius: 12,
-    padding: '10px 14px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-  })
-
-  const labelStyle: React.CSSProperties = {
-    fontSize: 10.5,
-    fontWeight: 600,
-    color: '#6E6E73',
-    letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  }
-
-  const inputStyle: React.CSSProperties = {
-    border: 'none',
-    background: 'none',
-    fontSize: 16,
+    fontSize: 14, color: '#1A1A1A', outline: 'none',
     fontFamily: "'Noto Sans', sans-serif",
-    color: '#1A1A1A',
-    outline: 'none',
-    width: '100%',
-    padding: 0,
-  }
+  })
 
   function LockIcon() {
     return (
       <div style={{
-        width: 32, height: 32, borderRadius: 8,
+        width: 28, height: 28, borderRadius: 7,
         background: '#EEE',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         color: '#6E6E73', flexShrink: 0,
       }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <rect x="3" y="11" width="18" height="11" rx="2"/>
           <path d="M7 11V7a5 5 0 0110 0v4"/>
@@ -152,56 +134,58 @@ export default function CadastroProdutorPage() {
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={fieldBase(!!nameError)}>
-            <label style={labelStyle}>Nome</label>
-            <input
-              type="text"
-              value={name}
-              onChange={e => { setName(e.target.value); setNameError('') }}
-              style={inputStyle}
-            />
-          </div>
+          <label style={lbl}>Nome</label>
+          <input
+            type="text"
+            value={name}
+            onChange={e => { setName(e.target.value); setNameError('') }}
+            style={inp(!!nameError)}
+          />
           {nameError && (
             <span style={{ fontSize: 13, color: '#FF3B30' }}>{nameError}</span>
           )}
         </div>
 
-        <div style={{ ...fieldBase(), background: '#F4F4F4' }}>
-          <label style={labelStyle}>E-mail</label>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <input value={userEmail} readOnly style={{ ...inputStyle, color: '#6E6E73' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label style={lbl}>E-mail</label>
+          <div style={{ ...inp(), padding: '8px 14px', minHeight: 46.14, display: 'flex', alignItems: 'center', gap: 8, background: '#F4F4F4' }}>
+            <input
+              value={userEmail}
+              readOnly
+              style={{
+                flex: 1, minWidth: 0, padding: 0,
+                border: 'none', background: 'transparent', outline: 'none',
+                fontSize: 14, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif",
+              }}
+            />
             <LockIcon />
           </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={fieldBase(!!cpfError)}>
-            <label style={labelStyle}>CPF</label>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="000.000.000-00"
-              value={cpf}
-              onChange={e => { setCpf(maskCpf(e.target.value)); setCpfError('') }}
-              onBlur={() => { if (cpf && !validateCPF(cpf)) setCpfError('CPF inválido') }}
-              style={inputStyle}
-            />
-          </div>
+          <label style={lbl}>CPF</label>
+          <input
+            type="text"
+            inputMode="numeric"
+            placeholder="000.000.000-00"
+            value={cpf}
+            onChange={e => { setCpf(maskCpf(e.target.value)); setCpfError('') }}
+            onBlur={() => { if (cpf && !validateCPF(cpf)) setCpfError('CPF inválido') }}
+            style={inp(!!cpfError)}
+          />
           {cpfError && (
             <span style={{ fontSize: 13, color: '#FF3B30' }}>{cpfError}</span>
           )}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={fieldBase(!!birthdateError)}>
-            <label style={labelStyle}>Data de nascimento</label>
-            <input
-              type="date"
-              value={birthdate}
-              onChange={e => { setBirthdate(e.target.value); setBirthdateError('') }}
-              style={inputStyle}
-            />
-          </div>
+          <label style={lbl}>Data de nascimento</label>
+          <input
+            type="date"
+            value={birthdate}
+            onChange={e => { setBirthdate(e.target.value); setBirthdateError('') }}
+            style={inp(!!birthdateError)}
+          />
           {birthdateError ? (
             <span style={{ fontSize: 13, color: '#FF3B30' }}>{birthdateError}</span>
           ) : (
@@ -211,8 +195,8 @@ export default function CadastroProdutorPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <div style={{ display: 'flex', gap: 10 }}>
-            <div style={{ ...fieldBase(!!phoneError), width: 90, flexShrink: 0 }}>
-              <label style={labelStyle}>DDD</label>
+            <div style={{ width: 90, flexShrink: 0 }}>
+              <label style={lbl}>DDD</label>
               <input
                 type="text"
                 inputMode="numeric"
@@ -220,11 +204,11 @@ export default function CadastroProdutorPage() {
                 maxLength={2}
                 value={phoneDdd}
                 onChange={e => { setPhoneDdd(e.target.value.replace(/\D/g, '').slice(0, 2)); setPhoneError('') }}
-                style={inputStyle}
+                style={inp(!!phoneError)}
               />
             </div>
-            <div style={{ ...fieldBase(!!phoneError), flex: 1 }}>
-              <label style={labelStyle}>Telefone</label>
+            <div style={{ flex: 1 }}>
+              <label style={lbl}>Telefone</label>
               <input
                 type="text"
                 inputMode="numeric"
@@ -232,7 +216,7 @@ export default function CadastroProdutorPage() {
                 maxLength={9}
                 value={phoneNumber}
                 onChange={e => { setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0, 9)); setPhoneError('') }}
-                style={inputStyle}
+                style={inp(!!phoneError)}
               />
             </div>
           </div>
