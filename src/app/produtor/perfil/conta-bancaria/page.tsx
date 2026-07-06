@@ -340,20 +340,24 @@ export default function ContaBancariaPage() {
         {step === 1 && <>
           <div style={fld}>
             <label style={lbl}>CPF</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ ...inp, display: 'flex', alignItems: 'center', gap: 8, background: '#F4F4F4' }}>
               <input
                 type="text"
                 value={cpf ? formatCPF(cpf) : '—'}
                 readOnly
-                style={{ ...inp, background: '#F4F4F4', color: '#6E6E73' }}
+                style={{
+                  border: 'none', background: 'transparent', outline: 'none',
+                  flex: 1, minWidth: 0, padding: 0,
+                  fontSize: 14, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif",
+                }}
               />
               <div style={{
-                width: 32, height: 32, borderRadius: 8,
-                background: '#EEE',
+                width: 28, height: 28, borderRadius: 7,
+                background: '#E3E3E3',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: '#6E6E73', flexShrink: 0,
               }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <rect x="3" y="11" width="18" height="11" rx="2"/>
                   <path d="M7 11V7a5 5 0 0110 0v4"/>
