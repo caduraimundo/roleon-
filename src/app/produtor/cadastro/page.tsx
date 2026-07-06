@@ -184,7 +184,7 @@ export default function CadastroProdutorPage() {
             type="date"
             value={birthdate}
             onChange={e => { setBirthdate(e.target.value); setBirthdateError('') }}
-            style={inp(!!birthdateError)}
+            style={{ ...inp(!!birthdateError), minWidth: 0 }}
           />
           {birthdateError && (
             <span style={{ fontSize: 13, color: '#FF3B30' }}>{birthdateError}</span>

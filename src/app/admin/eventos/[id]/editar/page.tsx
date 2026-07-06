@@ -427,7 +427,7 @@ export default function EditarEventoAdminPage() {
               type="date"
               value={eventDate}
               onChange={e => setEventDate(e.target.value)}
-              style={{ ...inputStyle, flex: 1 }}
+              style={{ ...inputStyle, flex: 1, minWidth: 0 }}
             />
             <input
               type="time"
