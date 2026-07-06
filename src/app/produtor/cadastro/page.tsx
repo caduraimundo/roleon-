@@ -186,10 +186,8 @@ export default function CadastroProdutorPage() {
             onChange={e => { setBirthdate(e.target.value); setBirthdateError('') }}
             style={inp(!!birthdateError)}
           />
-          {birthdateError ? (
+          {birthdateError && (
             <span style={{ fontSize: 13, color: '#FF3B30' }}>{birthdateError}</span>
-          ) : (
-            <span style={{ fontSize: 12, color: '#6E6E73' }}>Usaremos para confirmar que você é maior de idade</span>
           )}
         </div>
 
