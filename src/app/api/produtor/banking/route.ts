@@ -103,13 +103,13 @@ export async function POST(req: NextRequest) {
         professional_occupation: body.professional_occupation,
         address: {
           street: body.address_street,
-          complementary: body.address_complement || '',
+          complementary: body.address_complement || 'SN',
           street_number: body.address_number,
           neighborhood: body.address_neighborhood,
           city: body.address_city,
           state: body.address_state,
           zip_code: body.address_cep,
-          reference_point: body.address_reference || '',
+          reference_point: body.address_reference || 'Não informado',
         },
         phone_numbers: [{
           ddd: body.phone_ddd,

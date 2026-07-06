@@ -107,7 +107,8 @@
       "Bash(cat /tmp/pagarme_recipients.json)",
       "mcp__visualize__read_me",
       "mcp__visualize__show_widget",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
