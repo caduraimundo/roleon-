@@ -340,7 +340,7 @@ export default function ContaBancariaPage() {
         {step === 1 && <>
           <div style={fld}>
             <label style={lbl}>CPF</label>
-            <div style={{ ...inp, padding: '8px 14px', display: 'flex', alignItems: 'center', gap: 8, background: '#F4F4F4' }}>
+            <div style={{ ...inp, padding: '8px 14px', minHeight: 46.14, boxSizing: 'border-box', display: 'flex', alignItems: 'center', gap: 8, background: '#F4F4F4' }}>
               <input
                 type="text"
                 value={cpf ? formatCPF(cpf) : '—'}
