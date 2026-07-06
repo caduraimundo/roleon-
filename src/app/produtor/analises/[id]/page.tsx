@@ -58,7 +58,7 @@ export default function EventoAnalisesPage() {
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#F7F7F7',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       paddingBottom: 100,
     }}>

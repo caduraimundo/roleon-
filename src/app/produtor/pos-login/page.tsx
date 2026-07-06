@@ -31,7 +31,7 @@ export default function PosLogin() {
   return (
     <div style={{
       display: 'flex', justifyContent: 'center', alignItems: 'center',
-      minHeight: 'calc(100vh - 56px)',
+      minHeight: 'calc(100dvh - 56px)',
     }}>
       <p style={{ color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif", fontSize: 14 }}>
         Carregando...

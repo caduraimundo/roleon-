@@ -150,7 +150,7 @@ export default function ParticipantesPage({
   const totalRefunded = tickets.filter(t => t.status === 'refunded' || t.status === 'cancelled').length
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F7F7F7', fontFamily: "'Noto Sans', sans-serif" }}>
+    <div style={{ minHeight: '100dvh', background: '#F7F7F7', fontFamily: "'Noto Sans', sans-serif" }}>
 
       {toast && (
         <div style={{

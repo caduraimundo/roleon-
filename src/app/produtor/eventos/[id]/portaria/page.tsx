@@ -190,7 +190,7 @@ export default function PortariaPage({ params }: { params: Promise<{ id: string 
 
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: '100dvh',
       background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
       paddingBottom: 80,

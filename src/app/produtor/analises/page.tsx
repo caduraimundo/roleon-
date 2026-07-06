@@ -66,7 +66,7 @@ export default function AnalisesPage() {
   const useScroll = period === 'year' && bars.length > 7
 
   return (
-    <div style={{ background: '#F7F7F7', minHeight: '100vh', display: 'flex', justifyContent: 'center' }}>
+    <div style={{ background: '#F7F7F7', minHeight: '100dvh', display: 'flex', justifyContent: 'center' }}>
     <div style={{
       width: '100%', maxWidth: 480,
       fontFamily: "'Noto Sans', sans-serif",

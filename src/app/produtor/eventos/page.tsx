@@ -105,7 +105,7 @@ export default function EventosPage() {
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#F7F7F7',
+      minHeight: '100dvh', background: '#F7F7F7',
       fontFamily: "'Noto Sans', sans-serif",
     }}>
       <div style={{ maxWidth: 480, margin: '0 auto' }}>

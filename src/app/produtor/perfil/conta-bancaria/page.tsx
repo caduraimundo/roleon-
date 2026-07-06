@@ -282,7 +282,7 @@ export default function ContaBancariaPage() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F7F7F7', fontFamily: "'Noto Sans', sans-serif", paddingBottom: 110 }}>
+    <div style={{ minHeight: '100dvh', background: '#F7F7F7', fontFamily: "'Noto Sans', sans-serif", paddingBottom: 110 }}>
 
       {/* Header */}
       <header style={{
