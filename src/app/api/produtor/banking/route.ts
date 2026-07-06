@@ -27,7 +27,21 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (!profile) return NextResponse.json({ error: 'Perfil não encontrado.' }, { status: 404 })
-  if (!profile.birthdate) return NextResponse.json({ error: 'Data de nascimento não encontrada no cadastro. Refaça o cadastro de produtor.' }, { status: 400 })
+
+  if (!body.birthdate) {
+    return NextResponse.json({ error: 'Data de nascimento obrigatória.' }, { status: 400 })
+  }
+
+  const birth = new Date(body.birthdate)
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  if (age < 18) {
+    return NextResponse.json({ error: 'Você precisa ter 18 anos ou mais.' }, { status: 400 })
+  }
 
   const { data: phoneOwner } = await supabaseAdmin
     .from('profiles')
@@ -51,6 +65,7 @@ export async function POST(req: NextRequest) {
       mother_name: body.mother_name,
       monthly_income: body.monthly_income,
       professional_occupation: body.professional_occupation,
+      birthdate: body.birthdate,
       phone_ddd: body.phone_ddd,
       phone_number: body.phone_number,
       address_cep: body.address_cep,
@@ -83,7 +98,7 @@ export async function POST(req: NextRequest) {
         document: profile.cpf,
         type: 'individual',
         mother_name: body.mother_name,
-        birthdate: (() => { const [y,m,d] = profile.birthdate.split('-'); return `${d}/${m}/${y}` })(),
+        birthdate: (() => { const [y,m,d] = body.birthdate.split('-'); return `${d}/${m}/${y}` })(),
         monthly_income: body.monthly_income,
         professional_occupation: body.professional_occupation,
         address: {

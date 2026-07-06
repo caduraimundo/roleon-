@@ -23,7 +23,7 @@ const BANKS = [
 
 type Form = {
   mother_name: string; monthly_income: string
-  professional_occupation: string; phone_ddd: string; phone_number: string
+  professional_occupation: string; birthdate: string; phone_ddd: string; phone_number: string
   address_cep: string; address_street: string; address_number: string
   address_complement: string; address_neighborhood: string
   address_city: string; address_state: string; address_reference: string
@@ -34,13 +34,25 @@ type Form = {
 
 const EMPTY: Form = {
   mother_name: '', monthly_income: '',
-  professional_occupation: '', phone_ddd: '', phone_number: '',
+  professional_occupation: '', birthdate: '', phone_ddd: '', phone_number: '',
   address_cep: '', address_street: '', address_number: '',
   address_complement: '', address_neighborhood: '',
   address_city: '', address_state: '', address_reference: '',
   bank_code: '', bank_agency: '', bank_agency_digit: '',
   bank_account: '', bank_account_digit: '', bank_account_type: 'checking',
   bank_holder_name: '',
+}
+
+function isAtLeast18(dateStr: string): boolean {
+  if (!dateStr) return false
+  const birth = new Date(dateStr)
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const monthDiff = today.getMonth() - birth.getMonth()
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+    age--
+  }
+  return age >= 18
 }
 
 function centsToDisplay(cents: number | null): string {
@@ -80,7 +92,7 @@ export default function ContaBancariaPage() {
       setUserId(user.id)
       const { data } = await supabase
         .from('profiles')
-        .select('mother_name,monthly_income,professional_occupation,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,address_reference,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type,bank_holder_name')
+        .select('mother_name,monthly_income,professional_occupation,birthdate,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,address_reference,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type,bank_holder_name')
         .eq('id', user.id)
         .single()
       if (data) {
@@ -88,6 +100,7 @@ export default function ContaBancariaPage() {
           mother_name: data.mother_name || '',
           monthly_income: centsToDisplay(data.monthly_income),
           professional_occupation: data.professional_occupation || '',
+          birthdate: data.birthdate || '',
           phone_ddd: data.phone_ddd || '',
           phone_number: data.phone_number || '',
           address_cep: data.address_cep || '',
@@ -154,6 +167,8 @@ export default function ContaBancariaPage() {
       if (!form.mother_name.trim()) return 'Informe o nome da mãe.'
       if (!form.monthly_income) return 'Informe a renda mensal.'
       if (!form.professional_occupation.trim()) return 'Informe a ocupação profissional.'
+      if (!form.birthdate) return 'Informe a data de nascimento.'
+      if (!isAtLeast18(form.birthdate)) return 'Você precisa ter 18 anos ou mais.'
       if (form.phone_ddd.length !== 2) return 'Informe o DDD (2 dígitos).'
       if (!form.phone_number.trim()) return 'Informe o número de telefone.'
     }
@@ -332,6 +347,11 @@ export default function ContaBancariaPage() {
             <label style={lbl}>Ocupação profissional</label>
             <input value={form.professional_occupation} onChange={e => set('professional_occupation', e.target.value)}
               placeholder="Ex: Produtor de eventos" style={inp} />
+          </div>
+          <div style={fld}>
+            <label style={lbl}>Data de nascimento</label>
+            <input type="date" value={form.birthdate} onChange={e => set('birthdate', e.target.value)}
+              style={inp} />
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <div style={{ ...fld, width: 80, flexShrink: 0 }}>
