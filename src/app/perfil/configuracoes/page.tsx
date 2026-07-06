@@ -156,7 +156,6 @@ export default function ConfiguracoesPage() {
   const [loading, setLoading] = useState(true)
   const [nearby, setNearby] = useState(false)
   const [reminders, setReminders] = useState(false)
-  const [isGoogle, setIsGoogle] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
@@ -165,8 +164,6 @@ export default function ConfiguracoesPage() {
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) { router.replace('/perfil'); return }
-
-      setIsGoogle(session.user.app_metadata?.provider === 'google')
 
       const { data: profile } = await supabase
         .from('profiles')
@@ -324,15 +321,6 @@ export default function ConfiguracoesPage() {
           <div style={sectionLabelStyle}>CONTA</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
 
-            {!isGoogle && (
-              <button
-                onClick={() => router.push('/perfil/alterar-senha')}
-                style={{ ...cardStyle, cursor: 'pointer', border: '0.5px solid #E5E5EA' }}
-              >
-                <span style={{ fontSize: 15, color: '#1A1A1A' }}>Alterar senha</span>
-                <IconChevronRight />
-              </button>
-            )}
 
             <button
               onClick={() => setShowDeleteModal(true)}
