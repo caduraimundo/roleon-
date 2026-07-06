@@ -171,7 +171,7 @@ export default function EditarPerfilPage() {
           </label>
           <div style={{
             width: '100%', boxSizing: 'border-box',
-            padding: '8px 14px', borderRadius: 10,
+            padding: '8px 14px', minHeight: 46.14, borderRadius: 10,
             border: '1px solid #E8E8E8', background: '#F4F4F4',
             display: 'flex', alignItems: 'center', gap: 8,
           }}>
