@@ -180,12 +180,14 @@ export default function CadastroProdutorPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <label style={lbl}>Data de nascimento</label>
-          <input
-            type="date"
-            value={birthdate}
-            onChange={e => { setBirthdate(e.target.value); setBirthdateError('') }}
-            style={{ ...inp(!!birthdateError), minWidth: 0, display: 'block' }}
-          />
+          <div style={{ width: '100%', maxWidth: '100%', overflow: 'hidden', borderRadius: 10 }}>
+            <input
+              type="date"
+              value={birthdate}
+              onChange={e => { setBirthdate(e.target.value); setBirthdateError('') }}
+              style={{ ...inp(!!birthdateError), width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0, display: 'block' }}
+            />
+          </div>
           {birthdateError && (
             <span style={{ fontSize: 13, color: '#FF3B30' }}>{birthdateError}</span>
           )}
