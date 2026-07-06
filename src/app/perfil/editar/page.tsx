@@ -136,38 +136,27 @@ export default function EditarPerfilPage() {
 
         {/* Campo Nome */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <div style={{
-            background: '#fff',
-            border: error ? '1.5px solid #FF3B30' : '1.5px solid #E5E5EA',
-            borderRadius: 12,
-            padding: '10px 14px',
-            display: 'flex', flexDirection: 'column', gap: 8,
-            transition: 'border-color 0.15s',
-          }}>
-            <label style={{ fontSize: 10.5, fontWeight: 600, color: '#6E6E73', letterSpacing: 0.5, textTransform: 'uppercase' }}>
-              Nome Completo
-            </label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value)
-                setError('')
-                setInitials(getInitials(e.target.value))
-              }}
-              maxLength={50}
-              style={{
-                border: 'none',
-                background: 'none',
-                fontSize: 16,
-                fontFamily: "'Noto Sans', sans-serif",
-                color: '#1A1A1A',
-                outline: 'none',
-                width: '100%',
-                padding: 0,
-              }}
-            />
-          </div>
+          <label style={{ fontSize: 12, fontWeight: 600, color: '#6E6E73', marginBottom: 6, display: 'block' }}>
+            Nome completo
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => {
+              setName(e.target.value)
+              setError('')
+              setInitials(getInitials(e.target.value))
+            }}
+            maxLength={50}
+            style={{
+              width: '100%', boxSizing: 'border-box',
+              padding: '12px 14px', borderRadius: 10,
+              border: error ? '1px solid #FF3B30' : '1px solid #E8E8E8',
+              background: '#fff',
+              fontSize: 14, color: '#1A1A1A', outline: 'none',
+              fontFamily: "'Noto Sans', sans-serif",
+            }}
+          />
           {error && (
             <span style={{ fontSize: 13, color: '#FF3B30', marginTop: 2 }}>
               {error}
@@ -177,45 +166,36 @@ export default function EditarPerfilPage() {
 
         {/* Campo Email */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <label style={{ fontSize: 12, fontWeight: 600, color: '#6E6E73', marginBottom: 6, display: 'block' }}>
+            E-mail
+          </label>
           <div style={{
-            background: '#F4F4F4',
-            border: '1.5px solid #E5E5EA',
-            borderRadius: 12,
-            padding: '10px 14px',
-            display: 'flex', flexDirection: 'column', gap: 8,
+            width: '100%', boxSizing: 'border-box',
+            padding: '8px 14px', borderRadius: 10,
+            border: '1px solid #E8E8E8', background: '#F4F4F4',
+            display: 'flex', alignItems: 'center', gap: 8,
           }}>
-            <label style={{ fontSize: 10.5, fontWeight: 600, color: '#6E6E73', letterSpacing: 0.5, textTransform: 'uppercase' }}>
-              E-mail
-            </label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <input
-                type="email"
-                value={email}
-                readOnly
-                style={{
-                  flex: 1,
-                  border: 'none',
-                  background: 'none',
-                  fontSize: 16,
-                  fontFamily: "'Noto Sans', sans-serif",
-                  color: '#6E6E73',
-                  outline: 'none',
-                  padding: 0,
-                  minWidth: 0,
-                }}
-              />
-              <div style={{
-                width: 32, height: 32, borderRadius: 8,
-                background: '#EEE',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#6E6E73', flexShrink: 0,
-              }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2"/>
-                  <path d="M7 11V7a5 5 0 0110 0v4"/>
-                </svg>
-              </div>
+            <input
+              type="email"
+              value={email}
+              readOnly
+              style={{
+                flex: 1, minWidth: 0, padding: 0,
+                border: 'none', background: 'transparent', outline: 'none',
+                fontSize: 14, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif",
+              }}
+            />
+            <div style={{
+              width: 28, height: 28, borderRadius: 7,
+              background: '#EEE',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#6E6E73', flexShrink: 0,
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0110 0v4"/>
+              </svg>
             </div>
           </div>
           {isGoogle && (
