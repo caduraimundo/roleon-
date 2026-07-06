@@ -339,27 +339,27 @@ export default function ContaBancariaPage() {
 
         {step === 1 && <>
           <div style={fld}>
-            <label style={{ ...lbl, display: 'flex', alignItems: 'center', gap: 4 }}>
-              CPF
-              <span style={{
-                width: 16, height: 16, borderRadius: 4,
+            <label style={lbl}>CPF</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                type="text"
+                value={cpf ? formatCPF(cpf) : '—'}
+                readOnly
+                style={{ ...inp, background: '#F4F4F4', color: '#6E6E73' }}
+              />
+              <div style={{
+                width: 32, height: 32, borderRadius: 8,
                 background: '#EEE',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0,
+                color: '#6E6E73', flexShrink: 0,
               }}>
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none"
-                  stroke="#6E6E73" strokeWidth="2.5" strokeLinecap="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                   <rect x="3" y="11" width="18" height="11" rx="2"/>
                   <path d="M7 11V7a5 5 0 0110 0v4"/>
                 </svg>
-              </span>
-            </label>
-            <input
-              type="text"
-              value={cpf ? formatCPF(cpf) : '—'}
-              readOnly
-              style={{ ...inp, background: '#F4F4F4', color: '#6E6E73' }}
-            />
+              </div>
+            </div>
           </div>
           <div style={fld}>
             <label style={lbl}>Nome da mãe</label>
