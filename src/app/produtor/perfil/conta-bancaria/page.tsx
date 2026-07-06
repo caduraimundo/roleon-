@@ -55,6 +55,33 @@ function isAtLeast18(dateStr: string): boolean {
   return age >= 18
 }
 
+function maskBirthdate(v: string): string {
+  const d = v.replace(/\D/g, '').slice(0, 8)
+  if (d.length <= 2) return d
+  if (d.length <= 4) return d.slice(0, 2) + '/' + d.slice(2)
+  return d.slice(0, 2) + '/' + d.slice(2, 4) + '/' + d.slice(4)
+}
+
+function isoToDisplay(iso: string): string {
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (!m) return iso
+  return `${m[3]}/${m[2]}/${m[1]}`
+}
+
+function displayToISO(v: string): string | null {
+  const match = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+  if (!match) return null
+  const [, dd, mm, yyyy] = match
+  const day = parseInt(dd, 10)
+  const month = parseInt(mm, 10)
+  const year = parseInt(yyyy, 10)
+  if (month < 1 || month > 12) return null
+  const daysInMonth = new Date(year, month, 0).getDate()
+  if (day < 1 || day > daysInMonth) return null
+  if (year < 1900 || year > new Date().getFullYear()) return null
+  return `${yyyy}-${mm}-${dd}`
+}
+
 function centsToDisplay(cents: number | null): string {
   if (!cents) return ''
   return (cents / 100).toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.')
@@ -108,7 +135,7 @@ export default function ContaBancariaPage() {
           mother_name: data.mother_name || '',
           monthly_income: centsToDisplay(data.monthly_income),
           professional_occupation: data.professional_occupation || '',
-          birthdate: data.birthdate || '',
+          birthdate: data.birthdate ? isoToDisplay(data.birthdate) : '',
           phone_ddd: data.phone_ddd || '',
           phone_number: data.phone_number || '',
           address_cep: data.address_cep || '',
@@ -132,7 +159,11 @@ export default function ContaBancariaPage() {
         const draft = sessionStorage.getItem(getDraftKey(user.id))
         if (draft) {
           const parsed = JSON.parse(draft)
-          if (parsed.form) setForm(parsed.form)
+          if (parsed.form) {
+            const draftForm = { ...parsed.form }
+            if (draftForm.birthdate) draftForm.birthdate = isoToDisplay(draftForm.birthdate)
+            setForm(draftForm)
+          }
           if (parsed.step) setStep(parsed.step)
         }
       } catch {}
@@ -176,7 +207,9 @@ export default function ContaBancariaPage() {
       if (!form.monthly_income) return 'Informe a renda mensal.'
       if (!form.professional_occupation.trim()) return 'Informe a ocupação profissional.'
       if (!form.birthdate) return 'Informe a data de nascimento.'
-      if (!isAtLeast18(form.birthdate)) return 'Você precisa ter 18 anos ou mais.'
+      const isoBirthdate = displayToISO(form.birthdate)
+      if (!isoBirthdate) return 'Data de nascimento inválida. Use o formato DD/MM/AAAA.'
+      if (!isAtLeast18(isoBirthdate)) return 'Você precisa ter 18 anos ou mais.'
       if (form.phone_ddd.length !== 2) return 'Informe o DDD (2 dígitos).'
       if (!form.phone_number.trim()) return 'Informe o número de telefone.'
     }
@@ -246,7 +279,7 @@ export default function ContaBancariaPage() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify({ ...form, monthly_income: displayToCents(form.monthly_income) }),
+        body: JSON.stringify({ ...form, monthly_income: displayToCents(form.monthly_income), birthdate: displayToISO(form.birthdate) || form.birthdate }),
       })
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'Erro ao salvar dados.')
@@ -385,8 +418,9 @@ export default function ContaBancariaPage() {
           </div>
           <div style={fld}>
             <label style={lbl}>Data de nascimento</label>
-            <input type="date" value={form.birthdate} onChange={e => set('birthdate', e.target.value)}
-              style={{ ...inp, minWidth: 0, display: 'block' }} />
+            <input type="text" inputMode="numeric" placeholder="DD/MM/AAAA" maxLength={10}
+              value={form.birthdate} onChange={e => set('birthdate', maskBirthdate(e.target.value))}
+              style={inp} />
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <div style={{ ...fld, width: 80, flexShrink: 0 }}>
