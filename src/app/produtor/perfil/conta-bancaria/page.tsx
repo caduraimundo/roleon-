@@ -68,6 +68,12 @@ function getDraftKey(userId: string): string {
   return `roleon_conta_bancaria_draft_${userId}`
 }
 
+function formatCPF(cpf: string): string {
+  const digits = cpf.replace(/\D/g, '')
+  if (digits.length !== 11) return cpf
+  return `${digits.slice(0,3)}.${digits.slice(3,6)}.${digits.slice(6,9)}-${digits.slice(9)}`
+}
+
 export default function ContaBancariaPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
@@ -80,6 +86,7 @@ export default function ContaBancariaPage() {
   const [saved, setSaved] = useState(false)
   const [saveWarning, setSaveWarning] = useState('')
   const [userId, setUserId] = useState('')
+  const [cpf, setCpf] = useState('')
 
   useEffect(() => {
     (async () => {
@@ -92,10 +99,11 @@ export default function ContaBancariaPage() {
       setUserId(user.id)
       const { data } = await supabase
         .from('profiles')
-        .select('mother_name,monthly_income,professional_occupation,birthdate,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,address_reference,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type,bank_holder_name')
+        .select('cpf,mother_name,monthly_income,professional_occupation,birthdate,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,address_reference,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type,bank_holder_name')
         .eq('id', user.id)
         .single()
       if (data) {
+        setCpf(data.cpf || '')
         setForm({
           mother_name: data.mother_name || '',
           monthly_income: centsToDisplay(data.monthly_income),
@@ -330,6 +338,29 @@ export default function ContaBancariaPage() {
       <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {step === 1 && <>
+          <div style={fld}>
+            <label style={lbl}>CPF</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input
+                type="text"
+                value={cpf ? formatCPF(cpf) : '—'}
+                readOnly
+                style={{ ...inp, background: '#F4F4F4', color: '#6E6E73' }}
+              />
+              <div style={{
+                width: 32, height: 32, borderRadius: 8,
+                background: '#EEE',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#6E6E73', flexShrink: 0,
+              }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/>
+                  <path d="M7 11V7a5 5 0 0110 0v4"/>
+                </svg>
+              </div>
+            </div>
+          </div>
           <div style={fld}>
             <label style={lbl}>Nome da mãe</label>
             <input value={form.mother_name} onChange={e => set('mother_name', e.target.value)}
