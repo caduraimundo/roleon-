@@ -95,36 +95,25 @@ export default function MeusDadosPage() {
     )
   }
 
-  const fieldBase: React.CSSProperties = {
-    background: '#fff',
-    border: '1.5px solid #E5E5EA',
-    borderRadius: 12,
-    padding: '10px 14px',
-    display: 'flex', flexDirection: 'column', gap: 8,
-  }
+  const lbl: React.CSSProperties = { fontSize: 12, fontWeight: 600, color: '#6E6E73', marginBottom: 6, display: 'block' }
 
-  const labelStyle: React.CSSProperties = {
-    fontSize: 10.5, fontWeight: 600,
-    color: '#6E6E73', letterSpacing: 0.5,
-    textTransform: 'uppercase',
-  }
-
-  const inputStyle: React.CSSProperties = {
-    border: 'none', background: 'none',
-    fontSize: 16, fontFamily: "'Noto Sans', sans-serif",
-    color: '#1A1A1A', outline: 'none',
-    width: '100%', padding: 0,
+  const inp: React.CSSProperties = {
+    width: '100%', boxSizing: 'border-box',
+    padding: '12px 14px', borderRadius: 10,
+    border: '1px solid #E8E8E8', background: '#fff',
+    fontSize: 14, color: '#1A1A1A', outline: 'none',
+    fontFamily: "'Noto Sans', sans-serif",
   }
 
   function LockIcon() {
     return (
       <div style={{
-        width: 32, height: 32, borderRadius: 8,
+        width: 28, height: 28, borderRadius: 7,
         background: '#EEE',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         color: '#6E6E73', flexShrink: 0,
       }}>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
           stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <rect x="3" y="11" width="18" height="11" rx="2"/>
           <path d="M7 11V7a5 5 0 0110 0v4"/>
@@ -192,48 +181,54 @@ export default function MeusDadosPage() {
 
           {/* Nome — editável */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <div style={{ ...fieldBase, border: error ? '1.5px solid #FF3B30' : '1.5px solid #E5E5EA' }}>
-              <label style={labelStyle}>Nome completo</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value)
-                  setError('')
-                  setInitials(getInitials(e.target.value))
-                }}
-                maxLength={50}
-                style={inputStyle}
-              />
-            </div>
+            <label style={lbl}>Nome completo</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value)
+                setError('')
+                setInitials(getInitials(e.target.value))
+              }}
+              maxLength={50}
+              style={{ ...inp, border: error ? '1px solid #FF3B30' : '1px solid #E8E8E8' }}
+            />
             {error && (
               <span style={{ fontSize: 13, color: '#FF3B30', marginTop: 2 }}>{error}</span>
             )}
           </div>
 
           {/* CPF — somente leitura */}
-          <div style={{ ...fieldBase, background: '#F4F4F4' }}>
-            <label style={labelStyle}>CPF</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={lbl}>CPF</label>
+            <div style={{ ...inp, padding: '8px 14px', minHeight: 46.14, display: 'flex', alignItems: 'center', gap: 8, background: '#F4F4F4' }}>
               <input
                 type="text"
                 value={cpf ? formatCPF(cpf) : '—'}
                 readOnly
-                style={{ ...inputStyle, color: '#6E6E73' }}
+                style={{
+                  flex: 1, minWidth: 0, padding: 0,
+                  border: 'none', background: 'transparent', outline: 'none',
+                  fontSize: 14, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif",
+                }}
               />
               <LockIcon />
             </div>
           </div>
 
           {/* E-mail — somente leitura */}
-          <div style={{ ...fieldBase, background: '#F4F4F4' }}>
-            <label style={labelStyle}>E-mail</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <label style={lbl}>E-mail</label>
+            <div style={{ ...inp, padding: '8px 14px', minHeight: 46.14, display: 'flex', alignItems: 'center', gap: 8, background: '#F4F4F4' }}>
               <input
                 type="email"
                 value={email}
                 readOnly
-                style={{ ...inputStyle, color: '#6E6E73', minWidth: 0 }}
+                style={{
+                  flex: 1, minWidth: 0, padding: 0,
+                  border: 'none', background: 'transparent', outline: 'none',
+                  fontSize: 14, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif",
+                }}
               />
               <LockIcon />
             </div>
