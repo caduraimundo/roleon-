@@ -26,6 +26,27 @@ function isAtLeast18(dateStr: string): boolean {
   return age >= 18
 }
 
+function maskBirthdate(v: string): string {
+  const d = v.replace(/\D/g, '').slice(0, 8)
+  if (d.length <= 2) return d
+  if (d.length <= 4) return d.slice(0, 2) + '/' + d.slice(2)
+  return d.slice(0, 2) + '/' + d.slice(2, 4) + '/' + d.slice(4)
+}
+
+function parseBirthdateToISO(v: string): string | null {
+  const match = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+  if (!match) return null
+  const [, dd, mm, yyyy] = match
+  const day = parseInt(dd, 10)
+  const month = parseInt(mm, 10)
+  const year = parseInt(yyyy, 10)
+  if (month < 1 || month > 12) return null
+  const daysInMonth = new Date(year, month, 0).getDate()
+  if (day < 1 || day > daysInMonth) return null
+  if (year < 1900 || year > new Date().getFullYear()) return null
+  return `${yyyy}-${mm}-${dd}`
+}
+
 export default function CadastroProdutorPage() {
   const router = useRouter()
   const [cpf, setCpf] = useState('')
@@ -65,7 +86,9 @@ export default function CadastroProdutorPage() {
     if (nameValidationError) { setNameError(nameValidationError); return }
     if (!validateCPF(cpf)) { setCpfError('CPF inválido'); return }
     if (!birthdate) { setBirthdateError('Data de nascimento obrigatória'); return }
-    if (!isAtLeast18(birthdate)) { setBirthdateError('Você precisa ter 18 anos ou mais para se cadastrar como produtor.'); return }
+    const isoBirthdate = parseBirthdateToISO(birthdate)
+    if (!isoBirthdate) { setBirthdateError('Data inválida. Use o formato DD/MM/AAAA.'); return }
+    if (!isAtLeast18(isoBirthdate)) { setBirthdateError('Você precisa ter 18 anos ou mais para se cadastrar como produtor.'); return }
     if (phoneDdd.length !== 2) { setPhoneError('Informe o DDD (2 dígitos).'); return }
     if (!phoneNumber.trim()) { setPhoneError('Informe o número de telefone.'); return }
 
@@ -79,7 +102,7 @@ export default function CadastroProdutorPage() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session?.access_token}`,
         },
-        body: JSON.stringify({ cpf, birthdate, name, phone_ddd: phoneDdd, phone_number: phoneNumber }),
+        body: JSON.stringify({ cpf, birthdate: parseBirthdateToISO(birthdate), name, phone_ddd: phoneDdd, phone_number: phoneNumber }),
       })
       if (res.ok) {
         router.replace('/produtor/painel')
@@ -180,14 +203,15 @@ export default function CadastroProdutorPage() {
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <label style={lbl}>Data de nascimento</label>
-          <div style={{ width: '100%', maxWidth: '100%', overflow: 'hidden', borderRadius: 10 }}>
-            <input
-              type="date"
-              value={birthdate}
-              onChange={e => { setBirthdate(e.target.value); setBirthdateError('') }}
-              style={{ ...inp(!!birthdateError), width: '100%', maxWidth: '100%', boxSizing: 'border-box', minWidth: 0, display: 'block' }}
-            />
-          </div>
+          <input
+            type="text"
+            inputMode="numeric"
+            placeholder="DD/MM/AAAA"
+            maxLength={10}
+            value={birthdate}
+            onChange={e => { setBirthdate(maskBirthdate(e.target.value)); setBirthdateError('') }}
+            style={inp(!!birthdateError)}
+          />
           {birthdateError && (
             <span style={{ fontSize: 13, color: '#FF3B30' }}>{birthdateError}</span>
           )}
