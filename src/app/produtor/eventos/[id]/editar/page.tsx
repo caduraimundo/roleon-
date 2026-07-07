@@ -422,7 +422,7 @@ export default function EditarEventoPage() {
 
         {/* Capa */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>CAPA DO EVENTO</label>
+          <label style={labelStyle}>Capa do evento</label>
           <input
             ref={fileInputRef}
             type="file"
@@ -505,7 +505,7 @@ export default function EditarEventoPage() {
 
         {/* Título */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>TÍTULO</label>
+          <label style={labelStyle}>Título</label>
           <input
             type="text"
             placeholder="Nome do evento"
@@ -517,7 +517,7 @@ export default function EditarEventoPage() {
 
         {/* Gênero */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>GÊNERO</label>
+          <label style={labelStyle}>Gênero</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
             {GENRES.map(g => {
               const selected = genres.includes(g)
@@ -552,7 +552,7 @@ export default function EditarEventoPage() {
 
         {/* Data e Hora */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>DATA E HORA</label>
+          <label style={labelStyle}>Data e hora</label>
           <div style={{ display: 'flex', gap: 12 }}>
             <input
               type="date"
@@ -571,7 +571,7 @@ export default function EditarEventoPage() {
 
         {/* Local */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>LOCAL</label>
+          <label style={labelStyle}>Local</label>
           <input
             type="text"
             inputMode="numeric"
@@ -641,7 +641,7 @@ export default function EditarEventoPage() {
 
         {/* Descrição */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>DESCRIÇÃO</label>
+          <label style={labelStyle}>Descrição</label>
           <textarea
             placeholder="Descreva o evento, atrações, informações importantes..."
             value={description}
@@ -652,7 +652,7 @@ export default function EditarEventoPage() {
 
         {/* Políticas */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>POLÍTICAS DO EVENTO</label>
+          <label style={labelStyle}>Políticas do evento</label>
           <span style={{ fontSize: 12, color: '#6E6E73', marginBottom: 8 }}>
             Ex: +18 anos, Lotação controlada, Proibido reentrada
           </span>
@@ -712,7 +712,7 @@ export default function EditarEventoPage() {
 
         {/* Ingressos */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>INGRESSOS</label>
+          <label style={labelStyle}>Ingressos</label>
 
           {/* Toggle Pago / Gratuito */}
           <div style={{ display: 'flex', background: '#F0F0F0', borderRadius: 10, padding: 3, marginBottom: 16 }}>

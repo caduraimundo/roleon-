@@ -270,7 +270,7 @@ export default function NovoEventoAdminPage() {
 
         {/* Capa */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>CAPA DO EVENTO</label>
+          <label style={labelStyle}>Capa do evento</label>
           <input
             ref={fileInputRef}
             type="file"
@@ -331,7 +331,7 @@ export default function NovoEventoAdminPage() {
 
         {/* Título */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>TÍTULO</label>
+          <label style={labelStyle}>Título</label>
           <input
             type="text"
             placeholder="Nome do evento"
@@ -343,7 +343,7 @@ export default function NovoEventoAdminPage() {
 
         {/* Organizador */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>ORGANIZADOR (OPCIONAL)</label>
+          <label style={labelStyle}>Organizador (opcional)</label>
           <input
             type="text"
             placeholder="Ex: Prefeitura de Ouro Preto"
@@ -358,7 +358,7 @@ export default function NovoEventoAdminPage() {
 
         {/* Gênero */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>GÊNERO</label>
+          <label style={labelStyle}>Gênero</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
             {GENRES.map(g => {
               const selected = genres.includes(g)
@@ -393,7 +393,7 @@ export default function NovoEventoAdminPage() {
 
         {/* Data e Hora */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>DATA E HORA</label>
+          <label style={labelStyle}>Data e hora</label>
           <div style={{ display: 'flex', gap: 12 }}>
             <input
               type="date"
@@ -412,7 +412,7 @@ export default function NovoEventoAdminPage() {
 
         {/* Local */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>LOCAL</label>
+          <label style={labelStyle}>Local</label>
           <input
             type="text"
             inputMode="numeric"
@@ -482,7 +482,7 @@ export default function NovoEventoAdminPage() {
 
         {/* Descrição */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>DESCRIÇÃO</label>
+          <label style={labelStyle}>Descrição</label>
           <textarea
             placeholder="Descreva o evento, atrações, informações importantes..."
             value={description}
@@ -493,7 +493,7 @@ export default function NovoEventoAdminPage() {
 
         {/* Classificação etária */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>CLASSIFICAÇÃO ETÁRIA</label>
+          <label style={labelStyle}>Classificação etária</label>
           <div style={{ display: 'flex', background: '#F0F0F0', borderRadius: 10, padding: 3 }}>
             {AGE_RATINGS.map(opt => (
               <button
@@ -520,7 +520,7 @@ export default function NovoEventoAdminPage() {
 
         {/* Políticas */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>POLÍTICAS DO EVENTO</label>
+          <label style={labelStyle}>Políticas do evento</label>
           <span style={{ fontSize: 12, color: '#6E6E73', marginBottom: 8 }}>
             Ex: Lotação controlada, Proibido reentrada
           </span>
@@ -580,7 +580,7 @@ export default function NovoEventoAdminPage() {
 
         {/* Vagas */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>VAGAS</label>
+          <label style={labelStyle}>Vagas</label>
           <div style={{ display: 'flex', background: '#F0F0F0', borderRadius: 10, padding: 3 }}>
             {[{ label: 'Com limite de vagas', value: false }, { label: 'Ilimitado', value: true }].map(opt => (
               <button
