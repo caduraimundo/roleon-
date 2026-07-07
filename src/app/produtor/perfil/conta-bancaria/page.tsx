@@ -398,25 +398,13 @@ export default function ContaBancariaPage() {
           </div>
           <div style={fld}>
             <label style={lbl}>Renda mensal</label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              {[
-                { value: '2000,00', label: 'Até R$ 2.000' },
-                { value: '3500,00', label: 'R$ 2.000 a R$ 5.000' },
-                { value: '7500,00', label: 'R$ 5.000 a R$ 10.000' },
-                { value: '10000,00', label: 'Acima de R$ 10.000' },
-              ].map(opt => (
-                <button key={opt.value} type="button" onClick={() => set('monthly_income', opt.value)} style={{
-                  padding: '12px 8px', borderRadius: 10,
-                  border: `1px solid ${form.monthly_income === opt.value ? '#0EA5A0' : '#E8E8E8'}`,
-                  background: form.monthly_income === opt.value ? '#E6F7F6' : '#fff',
-                  color: form.monthly_income === opt.value ? '#0EA5A0' : '#6E6E73',
-                  fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 600, cursor: 'pointer',
-                }}>{opt.label}</button>
-              ))}
-            </div>
-            <p style={{ fontSize: 12, color: '#6E6E73', marginTop: 6, fontFamily: "'Noto Sans', sans-serif" }}>
-              Exigido pelo Banco Central para prevenção a fraudes financeiras.
-            </p>
+            <select value={form.monthly_income} onChange={e => set('monthly_income', e.target.value)} style={inp}>
+              <option value="">Selecione uma faixa</option>
+              <option value="2000,00">Até R$ 2.000</option>
+              <option value="3500,00">R$ 2.000 a R$ 5.000</option>
+              <option value="7500,00">R$ 5.000 a R$ 10.000</option>
+              <option value="10000,00">Acima de R$ 10.000</option>
+            </select>
           </div>
           <div style={fld}>
             <label style={lbl}>Ocupação profissional</label>
