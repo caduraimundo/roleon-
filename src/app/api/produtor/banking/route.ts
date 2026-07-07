@@ -75,7 +75,6 @@ export async function POST(req: NextRequest) {
       address_neighborhood: body.address_neighborhood,
       address_city: body.address_city,
       address_state: body.address_state,
-      address_reference: body.address_reference || null,
       bank_code: body.bank_code,
       bank_agency: body.bank_agency,
       bank_agency_digit: body.bank_agency_digit || null,
@@ -108,7 +107,7 @@ export async function POST(req: NextRequest) {
           city: body.address_city,
           state: body.address_state,
           zip_code: body.address_cep,
-          reference_point: body.address_reference || 'Não informado',
+          reference_point: 'Não informado',
         },
         phone_numbers: [{
           ddd: body.phone_ddd,

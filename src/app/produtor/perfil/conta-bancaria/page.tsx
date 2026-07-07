@@ -26,7 +26,7 @@ type Form = {
   professional_occupation: string; birthdate: string; phone_ddd: string; phone_number: string
   address_cep: string; address_street: string; address_number: string
   address_complement: string; address_neighborhood: string
-  address_city: string; address_state: string; address_reference: string
+  address_city: string; address_state: string
   bank_code: string; bank_agency: string; bank_agency_digit: string
   bank_account: string; bank_account_digit: string; bank_account_type: string
   bank_holder_name: string
@@ -37,7 +37,7 @@ const EMPTY: Form = {
   professional_occupation: '', birthdate: '', phone_ddd: '', phone_number: '',
   address_cep: '', address_street: '', address_number: '',
   address_complement: '', address_neighborhood: '',
-  address_city: '', address_state: '', address_reference: '',
+  address_city: '', address_state: '',
   bank_code: '', bank_agency: '', bank_agency_digit: '',
   bank_account: '', bank_account_digit: '', bank_account_type: 'checking',
   bank_holder_name: '',
@@ -126,7 +126,7 @@ export default function ContaBancariaPage() {
       setUserId(user.id)
       const { data } = await supabase
         .from('profiles')
-        .select('cpf,monthly_income,professional_occupation,birthdate,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,address_reference,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type,bank_holder_name')
+        .select('cpf,monthly_income,professional_occupation,birthdate,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type,bank_holder_name')
         .eq('id', user.id)
         .single()
       if (data) {
@@ -144,7 +144,6 @@ export default function ContaBancariaPage() {
           address_neighborhood: data.address_neighborhood || '',
           address_city: data.address_city || '',
           address_state: data.address_state || '',
-          address_reference: data.address_reference || '',
           bank_code: data.bank_code || '',
           bank_agency: data.bank_agency || '',
           bank_agency_digit: data.bank_agency_digit || '',
@@ -468,11 +467,6 @@ export default function ContaBancariaPage() {
               <input value={form.address_complement} onChange={e => set('address_complement', e.target.value)}
                 placeholder="Apto, sala... (opcional)" style={inp} />
             </div>
-          </div>
-          <div style={fld}>
-            <label style={lbl}>Ponto de referência</label>
-            <input value={form.address_reference} onChange={e => set('address_reference', e.target.value)}
-              placeholder="Próximo a..." style={inp} />
           </div>
           <div style={fld}>
             <label style={lbl}>Bairro</label>
