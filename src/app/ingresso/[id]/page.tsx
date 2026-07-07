@@ -98,7 +98,6 @@ function ErrorScreen({ message, onBack }: { message: string; onBack: () => void 
       display: 'flex', flexDirection: 'column',
     }}>
       <div style={{
-        position: 'sticky', top: 0, zIndex: 50,
         background: '#fff',
         boxShadow: '0 1px 0 rgba(0,0,0,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -216,7 +215,6 @@ export default function IngressoPage() {
 
       {/* Header fixo */}
       <div style={{
-        position: 'sticky', top: 0, zIndex: 50,
         background: '#fff',
         boxShadow: '0 1px 0 rgba(0,0,0,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',

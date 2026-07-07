@@ -233,7 +233,6 @@ export default function PagamentoPage() {
     }}>
       {/* Header */}
       <div style={{
-        position: 'sticky', top: 0, zIndex: 50,
         background: 'rgba(249,249,249,0.95)', backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         borderBottom: '0.5px solid rgba(0,0,0,0.08)',

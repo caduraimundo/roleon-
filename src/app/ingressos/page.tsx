@@ -303,7 +303,6 @@ export default function IngressosPage() {
     <div style={{ background: '#F7F7F7', minHeight: '100dvh', display: 'flex', flexDirection: 'column' }}>
     {/* Header - full width */}
     <div style={{
-      position: 'sticky', top: 0, zIndex: 50,
         background: '#fff',
         boxShadow: '0 1px 0 rgba(0,0,0,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
