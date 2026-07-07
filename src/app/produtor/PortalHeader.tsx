@@ -10,7 +10,6 @@ export default function PortalHeader() {
   if (isCadastro) {
     return (
       <div style={{
-        position: 'sticky', top: 0, zIndex: 50,
         background: '#fff',
         boxShadow: '0 1px 0 rgba(0,0,0,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -49,9 +48,6 @@ export default function PortalHeader() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      position: 'sticky' as const,
-      top: 0,
-      zIndex: 40,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{

@@ -165,7 +165,7 @@ export default function ParticipantesPage({
       )}
 
       <div style={{
-        position: 'sticky', top: 0, zIndex: 100, height: 56,
+        height: 56,
         background: '#fff', borderBottom: '1px solid #E8E8E8',
         display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', padding: '0 16px',
