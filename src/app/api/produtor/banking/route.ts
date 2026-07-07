@@ -96,6 +96,7 @@ export async function POST(req: NextRequest) {
         email: profile.email,
         document: profile.cpf,
         type: 'individual',
+        site_url: 'https://www.roleon.com.br',
         birthdate: (() => { const [y,m,d] = body.birthdate.split('-'); return `${d}/${m}/${y}` })(),
         monthly_income: body.monthly_income,
         professional_occupation: body.professional_occupation,
