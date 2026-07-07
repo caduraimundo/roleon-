@@ -236,9 +236,6 @@ export default function NovoEventoAdminPage() {
         display: 'flex',
         alignItems: 'center',
         gap: 12,
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
       }}>
         <button
           onClick={() => router.back()}
