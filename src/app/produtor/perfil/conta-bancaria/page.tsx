@@ -398,13 +398,20 @@ export default function ContaBancariaPage() {
           </div>
           <div style={fld}>
             <label style={lbl}>Renda mensal</label>
-            <select value={form.monthly_income} onChange={e => set('monthly_income', e.target.value)} style={inp}>
-              <option value="">Selecione uma faixa</option>
-              <option value="2000,00">Até R$ 2.000</option>
-              <option value="3500,00">R$ 2.000 a R$ 5.000</option>
-              <option value="7500,00">R$ 5.000 a R$ 10.000</option>
-              <option value="10000,00">Acima de R$ 10.000</option>
-            </select>
+            <div style={{ position: 'relative' }}>
+              <select value={form.monthly_income} onChange={e => set('monthly_income', e.target.value)}
+                style={{ ...inp, appearance: 'none' as const, WebkitAppearance: 'none' as const, MozAppearance: 'none' as const, paddingRight: 36 }}>
+                <option value="">Selecione uma faixa</option>
+                <option value="2000,00">Até R$ 2.000</option>
+                <option value="3500,00">R$ 2.000 a R$ 5.000</option>
+                <option value="7500,00">R$ 5.000 a R$ 10.000</option>
+                <option value="10000,00">Acima de R$ 10.000</option>
+              </select>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
           </div>
           <div style={fld}>
             <label style={lbl}>Ocupação profissional</label>
@@ -505,10 +512,17 @@ export default function ContaBancariaPage() {
           </div>
           <div style={fld}>
             <label style={lbl}>Banco</label>
-            <select value={form.bank_code} onChange={e => set('bank_code', e.target.value)} style={inp}>
-              <option value="">Selecione o banco</option>
-              {BANKS.map(b => <option key={b.code} value={b.code}>{b.code} - {b.name}</option>)}
-            </select>
+            <div style={{ position: 'relative' }}>
+              <select value={form.bank_code} onChange={e => set('bank_code', e.target.value)}
+                style={{ ...inp, appearance: 'none' as const, WebkitAppearance: 'none' as const, MozAppearance: 'none' as const, paddingRight: 36 }}>
+                <option value="">Selecione o banco</option>
+                {BANKS.map(b => <option key={b.code} value={b.code}>{b.code} - {b.name}</option>)}
+              </select>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6E6E73" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
             <div style={{ ...fld, flex: 1 }}>
