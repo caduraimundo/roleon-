@@ -112,7 +112,7 @@ function IconClock() {
 }
 
 // ── HEADER ───────────────────────────────────────────────────────────────────
-function AdminHeader({ onSignOut }: { onSignOut: () => void }) {
+function AdminHeader({ onSignOut, showSignOut }: { onSignOut: () => void; showSignOut: boolean }) {
   return (
     <div style={{
       width: '100%',
@@ -141,15 +141,17 @@ function AdminHeader({ onSignOut }: { onSignOut: () => void }) {
           lineHeight: 1,
         }}>ADMIN</span>
       </div>
-      <button
-        onClick={onSignOut}
-        style={{
-          background: 'none', border: 'none', cursor: 'pointer',
-          color: DIM, fontSize: 13, fontWeight: 500,
-          fontFamily: "'Noto Sans', sans-serif",
-          padding: '4px 0',
-        }}
-      >Sair</button>
+      {showSignOut && (
+        <button
+          onClick={onSignOut}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: DIM, fontSize: 13, fontWeight: 500,
+            fontFamily: "'Noto Sans', sans-serif",
+            padding: '4px 0',
+          }}
+        >Sair</button>
+      )}
     </div>
   )
 }
@@ -2386,7 +2388,7 @@ export default function AdminPage() {
       fontFamily: "'Noto Sans', sans-serif",
     }}>
       {/* Header full-width */}
-      <AdminHeader onSignOut={handleSignOut} />
+      <AdminHeader onSignOut={handleSignOut} showSignOut={tab === 'mais'} />
 
       {/* Conteudo full-width igual ao portal do produtor */}
       <div style={{
