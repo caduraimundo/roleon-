@@ -2388,7 +2388,7 @@ export default function AdminPage() {
       fontFamily: "'Noto Sans', sans-serif",
     }}>
       {/* Header full-width */}
-      <AdminHeader onSignOut={handleSignOut} showSignOut={tab === 'mais'} />
+      <AdminHeader onSignOut={handleSignOut} showSignOut={tab === 'mais' && !maisSection} />
 
       {/* Conteudo full-width igual ao portal do produtor */}
       <div style={{
