@@ -97,7 +97,6 @@ export async function POST(req: NextRequest) {
         email: profile.email,
         document: profile.cpf,
         type: 'individual',
-        mother_name: body.mother_name,
         birthdate: (() => { const [y,m,d] = body.birthdate.split('-'); return `${d}/${m}/${y}` })(),
         monthly_income: body.monthly_income,
         professional_occupation: body.professional_occupation,

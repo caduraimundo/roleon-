@@ -22,7 +22,7 @@ const BANKS = [
 ]
 
 type Form = {
-  mother_name: string; monthly_income: string
+  monthly_income: string
   professional_occupation: string; birthdate: string; phone_ddd: string; phone_number: string
   address_cep: string; address_street: string; address_number: string
   address_complement: string; address_neighborhood: string
@@ -33,7 +33,7 @@ type Form = {
 }
 
 const EMPTY: Form = {
-  mother_name: '', monthly_income: '',
+  monthly_income: '',
   professional_occupation: '', birthdate: '', phone_ddd: '', phone_number: '',
   address_cep: '', address_street: '', address_number: '',
   address_complement: '', address_neighborhood: '',
@@ -126,13 +126,12 @@ export default function ContaBancariaPage() {
       setUserId(user.id)
       const { data } = await supabase
         .from('profiles')
-        .select('cpf,mother_name,monthly_income,professional_occupation,birthdate,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,address_reference,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type,bank_holder_name')
+        .select('cpf,monthly_income,professional_occupation,birthdate,phone_ddd,phone_number,address_cep,address_street,address_number,address_complement,address_neighborhood,address_city,address_state,address_reference,bank_code,bank_agency,bank_agency_digit,bank_account,bank_account_digit,bank_account_type,bank_holder_name')
         .eq('id', user.id)
         .single()
       if (data) {
         setCpf(data.cpf || '')
         setForm({
-          mother_name: data.mother_name || '',
           monthly_income: centsToDisplay(data.monthly_income),
           professional_occupation: data.professional_occupation || '',
           birthdate: data.birthdate ? isoToDisplay(data.birthdate) : '',
@@ -203,7 +202,6 @@ export default function ContaBancariaPage() {
 
   function validateStep(): string {
     if (step === 1) {
-      if (!form.mother_name.trim()) return 'Informe o nome da mãe.'
       if (!form.monthly_income) return 'Informe a renda mensal.'
       if (!form.professional_occupation.trim()) return 'Informe a ocupação profissional.'
       if (!form.birthdate) return 'Informe a data de nascimento.'
@@ -399,17 +397,26 @@ export default function ContaBancariaPage() {
             </div>
           </div>
           <div style={fld}>
-            <label style={lbl}>Nome da mãe</label>
-            <input value={form.mother_name} onChange={e => set('mother_name', e.target.value)}
-              placeholder="Nome completo da mãe" style={inp} />
-          </div>
-          <div style={fld}>
             <label style={lbl}>Renda mensal</label>
-            <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif" }}>R$</span>
-              <input value={form.monthly_income} onChange={e => set('monthly_income', e.target.value)}
-                placeholder="0,00" style={{ ...inp, paddingLeft: 36 }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {[
+                { value: '2000,00', label: 'Até R$ 2.000' },
+                { value: '3500,00', label: 'R$ 2.000 a R$ 5.000' },
+                { value: '7500,00', label: 'R$ 5.000 a R$ 10.000' },
+                { value: '10000,00', label: 'Acima de R$ 10.000' },
+              ].map(opt => (
+                <button key={opt.value} type="button" onClick={() => set('monthly_income', opt.value)} style={{
+                  padding: '12px 8px', borderRadius: 10,
+                  border: `1px solid ${form.monthly_income === opt.value ? '#0EA5A0' : '#E8E8E8'}`,
+                  background: form.monthly_income === opt.value ? '#E6F7F6' : '#fff',
+                  color: form.monthly_income === opt.value ? '#0EA5A0' : '#6E6E73',
+                  fontFamily: "'Noto Sans', sans-serif", fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                }}>{opt.label}</button>
+              ))}
             </div>
+            <p style={{ fontSize: 12, color: '#6E6E73', marginTop: 6, fontFamily: "'Noto Sans', sans-serif" }}>
+              Exigido pelo Banco Central para prevenção a fraudes financeiras.
+            </p>
           </div>
           <div style={fld}>
             <label style={lbl}>Ocupação profissional</label>
