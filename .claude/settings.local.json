@@ -123,7 +123,8 @@
       "Bash(git -C \"C:\\\\Users\\\\Carlo\\\\roleon-\" add \"src/app/api/produtor/register/route.ts\")",
       "Bash(git -C \"C:\\\\Users\\\\Carlo\\\\roleon-\" add \"src/app/api/produtor/banking/route.ts\" \"src/app/produtor/perfil/conta-bancaria/page.tsx\")",
       "Bash(git -C \"C:\\\\Users\\\\Carlo\\\\roleon-\" add \"src/app/produtor/perfil/conta-bancaria/page.tsx\")",
-      "Bash(git -C \"C:\\\\Users\\\\Carlo\\\\roleon-\" add \"src/app/api/produtor/banking/route.ts\")"
+      "Bash(git -C \"C:\\\\Users\\\\Carlo\\\\roleon-\" add \"src/app/api/produtor/banking/route.ts\")",
+      "Bash(powershell -Command \"New-Item -ItemType Directory -Force -Path 'C:\\\\Users\\\\Carlo\\\\roleon-\\\\src\\\\app\\\\api\\\\admin\\\\consumers' | Out-Null\")"
     ]
   }
 }
