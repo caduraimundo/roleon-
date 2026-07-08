@@ -80,8 +80,7 @@ const DISTANCES = [10, 25, 50, 100]
 
 // ── Search Bar ───────────────────────────────────────────────────────────────
 
-function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistance, searchValue, onSearchChange }: {
-  safeTop: number
+function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searchValue, onSearchChange }: {
   hasActiveFilter: boolean
   onFilterOpen: () => void
   distance: number
@@ -93,7 +92,7 @@ function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistan
 
   return (
     <div style={{
-      padding: `${safeTop - 8}px 16px 10px`,
+      padding: 'calc(8px + env(safe-area-inset-top, 0px)) 16px 10px',
       pointerEvents: 'none',
     }}>
       <div style={{
@@ -517,7 +516,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     events: Array<{ id: string; title: string; lat: number; lng: number }>
   }>({ places: [], events: [] })
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const [safeTop, setSafeTop] = useState(56)
 
 
   useEffect(() => {
@@ -572,23 +570,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       })
   }, [userId])
 
-  useEffect(() => {
-    const measureSafeTop = () => {
-      const el = document.createElement('div')
-      el.style.cssText = 'position:fixed;left:0;top:0;height:env(safe-area-inset-top,0px);pointer-events:none;visibility:hidden;'
-      document.documentElement.appendChild(el)
-      const value = parseFloat(getComputedStyle(el).height) || 0
-      document.documentElement.removeChild(el)
-      if (value > 0) setSafeTop(value)
-    }
-    measureSafeTop()
-    window.addEventListener('resize', measureSafeTop)
-    window.addEventListener('orientationchange', measureSafeTop)
-    return () => {
-      window.removeEventListener('resize', measureSafeTop)
-      window.removeEventListener('orientationchange', measureSafeTop)
-    }
-  }, [])
 
   useEffect(() => {
     const map = mapInstanceRef.current
@@ -1086,12 +1067,12 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         pointerEvents: 'none',
       }}>
         <div style={{ pointerEvents: 'auto' }}>
-          <SearchBar safeTop={safeTop} hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} searchValue={searchValue} onSearchChange={handleSearch} />
+          <SearchBar hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} searchValue={searchValue} onSearchChange={handleSearch} />
         </div>
         {showSuggestions && (
           <div style={{
             position: 'absolute',
-            top: safeTop + 60,
+            top: 'calc(68px + env(safe-area-inset-top, 0px))',
             left: 12, right: 12,
             background: '#fff',
             borderRadius: 12,
