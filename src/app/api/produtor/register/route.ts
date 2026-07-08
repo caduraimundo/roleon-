@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
 
   const { error } = await supabaseAdmin
     .from('profiles')
-    .update({ role: 'producer', cpf: cpf.replace(/\D/g, ''), birthdate, name: name.trim(), avatar_initials: getInitials(name.trim()), phone_ddd, phone_number })
+    .update({ role: 'producer', is_producer: true, cpf: cpf.replace(/\D/g, ''), birthdate, name: name.trim(), avatar_initials: getInitials(name.trim()), phone_ddd, phone_number })
     .eq('id', user.id)
 
   if (error) {
