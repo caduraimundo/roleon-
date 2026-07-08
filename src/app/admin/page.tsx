@@ -1234,7 +1234,7 @@ export default function AdminPage() {
   const [prodDetailLoading, setProdDetailLoading] = useState(false)
   const [prodActionLoading, setProdActionLoading] = useState(false)
   const [prodFeedback, setProdFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
-  const [userSubTab, setUserSubTab] = useState<'produtores' | 'consumidores'>('produtores')
+  const [userSubTab, setUserSubTab] = useState<'produtores' | 'consumidores'>('consumidores')
   const [consumers, setConsumers] = useState<any[]>([])
   const [consLoading, setConsLoading] = useState(false)
   const [consSearch, setConsSearch] = useState('')
@@ -1721,7 +1721,7 @@ export default function AdminPage() {
     if (tab === 'vendas' && !vendasLoading && !vendasResumo) {
       loadVendas('pendentes')
     }
-  }, [tab])
+  }, [tab, userSubTab])
 
   if (loading) {
     return (
