@@ -325,7 +325,7 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
     return (
       <div style={{
         position: 'absolute', left: 14, right: 14,
-        bottom: bottomNavHeight + 24,
+        bottom: `calc(${bottomNavHeight + 24}px + env(safe-area-inset-bottom, 0px))`,
         background: '#fff', borderRadius: 14,
         boxShadow: '0 10px 28px rgba(0,0,0,0.13), 0 0 0 0.5px rgba(0,0,0,0.05)',
         zIndex: 12, fontFamily: "'Noto Sans', sans-serif", overflow: 'hidden',
@@ -421,7 +421,7 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
   }
 
   return (
-    <div onClick={handleExpand} style={{ position: 'absolute', left: 14, right: 14, bottom: bottomNavHeight + 24, background: '#ffffff', borderRadius: 14, padding: '11px 14px', boxShadow: '0 10px 28px rgba(0,0,0,0.10), 0 0 0 0.5px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', gap: 10, zIndex: 12, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
+    <div onClick={handleExpand} style={{ position: 'absolute', left: 14, right: 14, bottom: `calc(${bottomNavHeight + 24}px + env(safe-area-inset-bottom, 0px))`, background: '#ffffff', borderRadius: 14, padding: '11px 14px', boxShadow: '0 10px 28px rgba(0,0,0,0.10), 0 0 0 0.5px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', gap: 10, zIndex: 12, fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}>
       <div style={{ width: 32, height: 32, borderRadius: 999, background: '#E6F7F6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0EA5A0', flexShrink: 0 }}>
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M12 13a1 1 0 100-2 1 1 0 000 2z" fill="currentColor"/>
