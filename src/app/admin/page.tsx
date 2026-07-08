@@ -1235,6 +1235,9 @@ export default function AdminPage() {
   const [prodActionLoading, setProdActionLoading] = useState(false)
   const [prodFeedback, setProdFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
   const [userSubTab, setUserSubTab] = useState<'produtores' | 'consumidores'>('produtores')
+  const [consumers, setConsumers] = useState<any[]>([])
+  const [consLoading, setConsLoading] = useState(false)
+  const [consSearch, setConsSearch] = useState('')
 
   // Vendas
   const [vendasResumo, setVendasResumo] = useState<any | null>(null)
@@ -1389,6 +1392,17 @@ export default function AdminPage() {
     const d = await res.json()
     setProducers(d.producers ?? [])
     setProdLoading(false)
+  }
+
+  const loadConsumidores = async () => {
+    setConsLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch('/api/admin/consumers', {
+      headers: { Authorization: `Bearer ${session?.access_token}` },
+    })
+    const d = await res.json()
+    setConsumers(d.consumers ?? [])
+    setConsLoading(false)
   }
 
   const openProdDetail = async (p: any) => {
@@ -1700,6 +1714,9 @@ export default function AdminPage() {
     }
     if (tab === 'produtores' && !prodLoading && producers.length === 0) {
       loadProdutores()
+    }
+    if (tab === 'produtores' && userSubTab === 'consumidores' && !consLoading && consumers.length === 0) {
+      loadConsumidores()
     }
     if (tab === 'vendas' && !vendasLoading && !vendasResumo) {
       loadVendas('pendentes')
@@ -2307,13 +2324,46 @@ export default function AdminPage() {
       )
 
       if (userSubTab === 'consumidores') {
+        const filteredConsumers = consumers.filter(c => !consSearch.trim() || c.name?.toLowerCase().includes(consSearch.toLowerCase()) || c.email?.toLowerCase().includes(consSearch.toLowerCase()))
         return (
           <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Usuários</div>
+              <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Usuários</div>
+                <button onClick={loadConsumidores} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 13, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", paddingBottom: 2 }}>Atualizar</button>
+              </div>
+              <div style={{ fontSize: 12, color: DIM, marginTop: 4 }}>{consumers.length} cadastrados</div>
             </div>
+
             {subTabSwitcher}
-            <div style={{ textAlign: 'center', padding: '40px 0', color: DIM, fontSize: 14 }}>Lista de consumidores em breve.</div>
+
+            <div style={{ position: 'relative', marginBottom: 14 }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: DIM, pointerEvents: 'none' }}>
+                <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
+                <path d="M10.5 10.5L14 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              <input value={consSearch} onChange={e => setConsSearch(e.target.value)} placeholder="Buscar por nome ou email" style={{ width: '100%', border: `1px solid ${BORDER}`, borderRadius: 10, padding: '10px 12px 10px 34px', fontSize: 14, fontFamily: "'Noto Sans', sans-serif", outline: 'none', color: TEXT, background: WHITE, boxSizing: 'border-box' as const }} />
+            </div>
+
+            {consLoading && <div style={{ textAlign: 'center', padding: '40px 0', color: DIM, fontSize: 14 }}>Carregando...</div>}
+
+            {!consLoading && filteredConsumers.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: DIM, fontSize: 14 }}>Nenhum consumidor encontrado.</div>
+            )}
+
+            {!consLoading && filteredConsumers.map((c: any) => {
+              const initials = c.avatar_initials || c.name?.slice(0,2)?.toUpperCase() || 'U'
+              return (
+                <div key={c.id} style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, padding: 14, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: TEAL, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 14, fontWeight: 700 }}>{initials}</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: TEXT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</div>
+                    <div style={{ fontSize: 12, color: DIM, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email}</div>
+                    <div style={{ fontSize: 11, color: DIM, marginTop: 2 }}>{formatDate(c.created_at)}</div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         )
       }
