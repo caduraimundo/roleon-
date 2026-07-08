@@ -92,7 +92,7 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
 
   return (
     <div style={{
-      padding: 'calc(8px + env(safe-area-inset-top, 0px)) 16px 10px',
+      padding: 'calc(16px + env(safe-area-inset-top, 0px)) 16px 10px',
       pointerEvents: 'none',
     }}>
       <div style={{
@@ -1072,7 +1072,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         {showSuggestions && (
           <div style={{
             position: 'absolute',
-            top: 'calc(68px + env(safe-area-inset-top, 0px))',
+            top: 'calc(76px + env(safe-area-inset-top, 0px))',
             left: 12, right: 12,
             background: '#fff',
             borderRadius: 12,
