@@ -93,7 +93,7 @@ function SearchBar({ safeTop, hasActiveFilter, onFilterOpen, distance, setDistan
 
   return (
     <div style={{
-      padding: `${safeTop + 4}px 16px 10px`,
+      padding: `${safeTop - 8}px 16px 10px`,
       pointerEvents: 'none',
     }}>
       <div style={{
