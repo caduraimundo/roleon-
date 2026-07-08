@@ -160,7 +160,7 @@ function AdminHeader({ onSignOut, showSignOut }: { onSignOut: () => void; showSi
 function AdminBottomNav({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) {
   const items: { id: Tab; label: string; Icon: () => React.JSX.Element }[] = [
     { id: 'moderacao',  label: 'Eventos',  Icon: IconShield   },
-    { id: 'produtores', label: 'Produtores', Icon: IconUsers    },
+    { id: 'produtores', label: 'Usuários', Icon: IconUsers    },
     { id: 'vendas',     label: 'Vendas',     Icon: IconBarChart },
     { id: 'mais',       label: 'Mais',       Icon: IconGrid     },
   ]
@@ -1234,6 +1234,7 @@ export default function AdminPage() {
   const [prodDetailLoading, setProdDetailLoading] = useState(false)
   const [prodActionLoading, setProdActionLoading] = useState(false)
   const [prodFeedback, setProdFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
+  const [userSubTab, setUserSubTab] = useState<'produtores' | 'consumidores'>('produtores')
 
   // Vendas
   const [vendasResumo, setVendasResumo] = useState<any | null>(null)
@@ -2298,6 +2299,25 @@ export default function AdminPage() {
         )
       }
 
+      const subTabSwitcher = (
+        <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+          <button onClick={() => setUserSubTab('consumidores')} style={{ flex: 1, padding: '10px 0', borderRadius: 10, fontSize: 13, fontWeight: userSubTab === 'consumidores' ? 700 : 600, background: userSubTab === 'consumidores' ? TEAL : WHITE, color: userSubTab === 'consumidores' ? WHITE : TEXT, border: userSubTab === 'consumidores' ? 'none' : '1px solid #E8E8E8', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Consumidores</button>
+          <button onClick={() => setUserSubTab('produtores')} style={{ flex: 1, padding: '10px 0', borderRadius: 10, fontSize: 13, fontWeight: userSubTab === 'produtores' ? 700 : 600, background: userSubTab === 'produtores' ? TEAL : WHITE, color: userSubTab === 'produtores' ? WHITE : TEXT, border: userSubTab === 'produtores' ? 'none' : '1px solid #E8E8E8', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Produtores</button>
+        </div>
+      )
+
+      if (userSubTab === 'consumidores') {
+        return (
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Usuários</div>
+            </div>
+            {subTabSwitcher}
+            <div style={{ textAlign: 'center', padding: '40px 0', color: DIM, fontSize: 14 }}>Lista de consumidores em breve.</div>
+          </div>
+        )
+      }
+
       // Lista de produtores
       const filtered = producers
         .filter(p => {
@@ -2311,11 +2331,13 @@ export default function AdminPage() {
         <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
           <div style={{ marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Produtores</div>
+              <div style={{ fontSize: 20, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Usuários</div>
               <button onClick={loadProdutores} style={{ background: 'none', border: 'none', cursor: 'pointer', color: TEAL, fontSize: 13, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", paddingBottom: 2 }}>Atualizar</button>
             </div>
             <div style={{ fontSize: 12, color: DIM, marginTop: 4 }}>{producers.length} cadastrados</div>
           </div>
+
+          {subTabSwitcher}
 
           {/* Filtros */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
