@@ -1098,7 +1098,7 @@ function PayloadSheet({ log, onClose }: { log: any; onClose: () => void }) {
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: '100%', maxWidth: 480, maxHeight: '75vh', background: WHITE,
+          width: '100%', maxWidth: 480, maxHeight: '75dvh', background: WHITE,
           borderRadius: '16px 16px 0 0', display: 'flex', flexDirection: 'column',
           boxShadow: '0 -4px 20px rgba(0,0,0,0.15)',
         }}

@@ -274,7 +274,7 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, initial }: {
         width: '100%',
         background: '#fff',
         borderTopLeftRadius: 22, borderTopRightRadius: 22,
-        maxHeight: '90vh',
+        maxHeight: '90dvh',
         display: 'flex', flexDirection: 'column',
         animation: 'fsUp 280ms cubic-bezier(.2,.9,.3,1)',
         fontFamily: "'Noto Sans', sans-serif",

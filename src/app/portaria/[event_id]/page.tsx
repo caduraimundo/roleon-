@@ -127,7 +127,7 @@ export default function PortariaPublicaPage({
   if (loading) {
     return (
       <div style={{
-        minHeight: '100vh', background: '#1A1A1A',
+        minHeight: '100dvh', background: '#1A1A1A',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontFamily: "'Noto Sans', sans-serif", color: '#6E6E73', fontSize: 15,
       }}>
@@ -139,7 +139,7 @@ export default function PortariaPublicaPage({
   if (tokenError) {
     return (
       <div style={{
-        minHeight: '100vh', background: '#1A1A1A',
+        minHeight: '100dvh', background: '#1A1A1A',
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
         fontFamily: "'Noto Sans', sans-serif",
@@ -160,7 +160,7 @@ export default function PortariaPublicaPage({
 
   return (
     <div style={{
-      minHeight: '100vh', background: '#1A1A1A',
+      minHeight: '100dvh', background: '#1A1A1A',
       fontFamily: "'Noto Sans', sans-serif", paddingBottom: 32,
     }}>
       <div style={{ padding: '20px 20px 12px', textAlign: 'center' }}>

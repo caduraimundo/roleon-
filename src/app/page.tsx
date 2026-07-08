@@ -8,7 +8,7 @@ import { supabase } from '../lib/supabase'
 const MapClient = dynamic(() => import("@/components/MapClient"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-screen w-full items-center justify-center bg-white text-gray-500">
+    <div className="flex h-dvh w-full items-center justify-center bg-white text-gray-500">
       Carregando o mapa...
     </div>
   ),
@@ -42,7 +42,7 @@ export default function Home() {
   }, [router])
 
   return (
-    <div className="h-screen w-full">
+    <div className="h-dvh w-full">
       <MapClient />
     </div>
   );
