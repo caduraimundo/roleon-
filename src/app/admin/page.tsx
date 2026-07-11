@@ -1915,7 +1915,7 @@ export default function AdminPage() {
                 {[
                   { label: 'Data',      value: formatDate(detailEvent.event_date) },
                   { label: 'Local',     value: detailEvent.location_name || '—' },
-                  { label: 'Gênero',    value: Array.isArray(detailEvent.genre) ? detailEvent.genre.join(', ') : (detailEvent.genre || '—') },
+                  { label: 'Categoria',    value: Array.isArray(detailEvent.genre) ? detailEvent.genre.join(', ') : (detailEvent.genre || '—') },
                   { label: 'Classificação', value: ev?.age_rating || 'Livre' },
                   { label: 'Descrição', value: ev?.description || '—' },
                 ].map((f, i) => (

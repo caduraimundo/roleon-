@@ -209,7 +209,7 @@ export default function EditarEventoPage() {
     setError('')
     if (!termsAccepted) { showError('Aceite os termos para salvar o evento'); return }
     if (!title.trim()) { showError('Título é obrigatório'); return }
-    if (genres.length < 1) { showError('Selecione pelo menos um gênero'); return }
+    if (genres.length < 1) { showError('Selecione pelo menos uma categoria'); return }
     if (!eventDate || !eventTime) { showError('Data e hora são obrigatórios'); return }
     if (cep.replace(/\D/g, '').length !== 8) { showError('CEP é obrigatório'); return }
     if (!rua.trim()) { showError('Rua é obrigatória'); return }
@@ -512,9 +512,9 @@ export default function EditarEventoPage() {
           />
         </div>
 
-        {/* Gênero */}
+        {/* Categoria */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>Gênero</label>
+          <label style={labelStyle}>Categoria</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
             {GENRES.map(g => {
               const selected = genres.includes(g)
@@ -544,7 +544,7 @@ export default function EditarEventoPage() {
               )
             })}
           </div>
-          <span style={{ fontSize: 12, color: '#6E6E73', marginTop: 6 }}>Selecione até 3 gêneros</span>
+          <span style={{ fontSize: 12, color: '#6E6E73', marginTop: 6 }}>Selecione até 3 categorias</span>
         </div>
 
         {/* Data e Hora */}

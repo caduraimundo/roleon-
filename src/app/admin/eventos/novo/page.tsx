@@ -125,7 +125,7 @@ export default function NovoEventoAdminPage() {
     setError('')
     if (!termsAccepted) { showError('Aceite os termos para publicar o evento'); return }
     if (!title.trim()) { showError('Título é obrigatório'); return }
-    if (genres.length < 1) { showError('Selecione pelo menos um gênero'); return }
+    if (genres.length < 1) { showError('Selecione pelo menos uma categoria'); return }
     if (!eventDate || !eventTime) { showError('Data e hora são obrigatórios'); return }
     if (new Date(`${eventDate}T${eventTime}:00-03:00`) < new Date(Date.now() + 2 * 60 * 60 * 1000)) {
       showError('O evento precisa ser criado com pelo menos 2 horas de antecedência'); return
@@ -361,9 +361,9 @@ export default function NovoEventoAdminPage() {
           </span>
         </div>
 
-        {/* Gênero */}
+        {/* Categoria */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>Gênero</label>
+          <label style={labelStyle}>Categoria</label>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
             {GENRES.map(g => {
               const selected = genres.includes(g)
@@ -393,7 +393,7 @@ export default function NovoEventoAdminPage() {
               )
             })}
           </div>
-          <span style={{ fontSize: 12, color: '#6E6E73', marginTop: 6 }}>Selecione até 3 gêneros</span>
+          <span style={{ fontSize: 12, color: '#6E6E73', marginTop: 6 }}>Selecione até 3 categorias</span>
         </div>
 
         {/* Data e Hora */}

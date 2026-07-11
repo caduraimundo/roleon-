@@ -175,7 +175,7 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight, us
         <EventThumb ev={ev} size={76} width={152} />
 
         <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {/* Gênero */}
+          {/* Categoria */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'nowrap', overflow: 'hidden' }}>
             {visibleGenres.map((g) => (
               <span key={g} style={{

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-// Gêneros musicais - sem emoji, só texto
+// Categorias de evento - sem emoji, só texto
 const GENRES = ['Samba', 'MPB', 'Rock', 'Funk', 'Sertanejo']
 
 interface FilterBarProps {
