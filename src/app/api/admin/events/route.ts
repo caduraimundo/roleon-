@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!Array.isArray(genres) || genres.length < 1) {
-      return NextResponse.json({ error: 'Selecione pelo menos um gênero' }, { status: 400 })
+      return NextResponse.json({ error: 'Selecione pelo menos uma categoria' }, { status: 400 })
     }
 
     let geoLat: number | null = location_lat ?? null
