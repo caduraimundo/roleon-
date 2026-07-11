@@ -17,6 +17,7 @@ export default function NovoEventoAdminPage() {
   const [eventDate, setEventDate] = useState('')
   const [eventTime, setEventTime] = useState('')
   const [isUnlimited, setIsUnlimited] = useState(false)
+  const [freeCapacity, setFreeCapacity] = useState('')
   const [ageRating, setAgeRating] = useState('Livre')
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
@@ -131,6 +132,9 @@ export default function NovoEventoAdminPage() {
     if (!numero.trim()) { showError('Número é obrigatório'); return }
     if (!cidade.trim()) { showError('Cidade é obrigatória'); return }
     if (!estado.trim()) { showError('Estado é obrigatório'); return }
+    if (!isUnlimited && (!freeCapacity || parseInt(freeCapacity) <= 0)) {
+      showError('Informe a quantidade de vagas'); return
+    }
 
     setLoading(true)
     let coverImageUrl: string | null = null
@@ -183,6 +187,7 @@ export default function NovoEventoAdminPage() {
           cover_image: coverImageUrl ?? null,
           policies: policies.filter(p => p.trim() !== ''),
           display_organizer_name: organizerName,
+          ticket_types: isUnlimited ? [] : [{ name: 'Entrada gratuita', price: 0, quantity: parseInt(freeCapacity) }],
         }),
       })
 
@@ -600,6 +605,16 @@ export default function NovoEventoAdminPage() {
               </button>
             ))}
           </div>
+          {!isUnlimited && (
+            <input
+              type="number"
+              min="1"
+              placeholder="Quantidade de vagas"
+              value={freeCapacity}
+              onChange={e => setFreeCapacity(e.target.value)}
+              style={{ ...inputStyle, marginTop: 10 }}
+            />
+          )}
         </div>
 
         {/* Termos */}
