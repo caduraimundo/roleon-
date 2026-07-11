@@ -118,6 +118,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  const minEventDate = new Date(Date.now() + 2 * 60 * 60 * 1000)
+  if (isNaN(new Date(event_date).getTime()) || new Date(event_date) < minEventDate) {
+    return NextResponse.json({ error: 'O evento precisa ser criado com pelo menos 2 horas de antecedência' }, { status: 400 })
+  }
+
   if (!Array.isArray(genres) || genres.length < 1) {
     return NextResponse.json({ error: 'Selecione pelo menos um gênero' }, { status: 400 })
   }
