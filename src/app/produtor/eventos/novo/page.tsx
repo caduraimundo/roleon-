@@ -141,6 +141,9 @@ export default function NovoEventoPage() {
     if (!title.trim()) { showError('Título é obrigatório'); return }
     if (genres.length < 1) { showError('Selecione pelo menos um gênero'); return }
     if (!eventDate || !eventTime) { showError('Data e hora são obrigatórios'); return }
+    if (new Date(`${eventDate}T${eventTime}:00-03:00`) < new Date(Date.now() + 2 * 60 * 60 * 1000)) {
+      showError('O evento precisa ser criado com pelo menos 2 horas de antecedência'); return
+    }
     if (cep.replace(/\D/g, '').length !== 8) { showError('CEP é obrigatório'); return }
     if (!rua.trim()) { showError('Rua é obrigatória'); return }
     if (!numero.trim()) { showError('Número é obrigatório'); return }
