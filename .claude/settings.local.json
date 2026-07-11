@@ -128,7 +128,13 @@
       "mcp__ca924a0b-bc34-41d9-bdd0-df142f432b89__list_projects",
       "mcp__ca924a0b-bc34-41d9-bdd0-df142f432b89__get_project",
       "Bash(vercel firewall *)",
-      "Bash(echo \"EXIT:$?\")"
+      "Bash(echo \"EXIT:$?\")",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_run_code_unsafe",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_find"
     ]
   }
 }

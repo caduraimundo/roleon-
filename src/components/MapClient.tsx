@@ -866,11 +866,11 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       }
     })
 
-    // Remove ghost markers de eventos que saíram da lista
-    markerRefs.current.forEach((_, id) => {
-      if (!filteredEvents.find((e) => e.id === id)) {
-        const m = markerRefs.current.get(id); if (m) m.map = null
-        markerRefs.current.delete(id)
+    // Remove ghost markers de grupos que saíram da lista
+    markerRefs.current.forEach((_, key) => {
+      if (!groups.has(key)) {
+        const m = markerRefs.current.get(key); if (m) m.map = null
+        markerRefs.current.delete(key)
       }
     })
 
@@ -935,26 +935,28 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       }
     })
 
-    // Ghost markers invisíveis — um por evento, só para o MarkerClusterer calcular grupos
-    filteredEvents.forEach((ev) => {
-      const position = new google.maps.LatLng(ev.lat, ev.lng)
-      if (!markerRefs.current.has(ev.id)) {
+    // Ghost markers invisíveis — um por grupo de coordenada, só para o MarkerClusterer calcular grupos
+    groups.forEach((groupEvents, key) => {
+      const first = groupEvents[0]
+      const position = new google.maps.LatLng(first.lat, first.lng)
+      if (!markerRefs.current.has(key)) {
         const ghostDiv = document.createElement('div')
         ghostDiv.style.display = 'none'
         const marker = new google.maps.marker.AdvancedMarkerElement({ position, content: ghostDiv })
-        markerRefs.current.set(ev.id, marker)
+        markerRefs.current.set(key, marker)
       }
-      allMarkers.push(markerRefs.current.get(ev.id)!)
+      const marker = markerRefs.current.get(key)!
+      ;(marker as any).__eventCount = groupEvents.length
+      allMarkers.push(marker)
     })
 
     // Sincroniza visibilidade das OverlayViews (por grupo) com o estado do clustering:
-    // um overlay de grupo fica visível se ao menos um ghost marker do grupo não foi absorvido pela bolha de cluster
+    // um overlay de grupo fica visível se o ghost marker do grupo não foi absorvido pela bolha de cluster
     const syncOverlays = () => {
-      groups.forEach((groupEvents, key) => {
+      groups.forEach((_, key) => {
         const entry = overlayRefs.current.get(key)
         if (!entry) return
-        const anyVisible = groupEvents.some((ev) => !!markerRefs.current.get(ev.id)?.map)
-        entry.overlay.setMap(anyVisible ? mapInstanceRef.current : null)
+        entry.overlay.setMap(markerRefs.current.get(key)?.map ? mapInstanceRef.current : null)
       })
     }
 
@@ -963,7 +965,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       markers: allMarkers,
       renderer: {
         render: ({ count, position, markers }) => {
-          const total = markers?.length ?? count
+          const total = (markers ?? []).reduce((sum, m) => sum + ((m as any).__eventCount ?? 1), 0) || count
           const clusterDiv = document.createElement('div')
           clusterDiv.innerHTML = `<div style="width:40px;height:40px;border-radius:50%;background:#0EA5A0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;">${total}</div>`
           return new google.maps.marker.AdvancedMarkerElement({
@@ -1218,6 +1220,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       {/* Card de evento, grupo de pins sobrepostos, ou hint */}
       {pinGroup ? (
         <MapHint
+          key="pin-group"
           count={pinGroup.length}
           events={pinGroup}
           bottomNavHeight={bottomNavHeight}
@@ -1243,6 +1246,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         </div>
       ) : (
         <MapHint
+            key="nearby-hint"
             count={filteredEvents.length}
             bottomNavHeight={bottomNavHeight}
             events={filteredEvents}
