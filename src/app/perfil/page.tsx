@@ -185,7 +185,7 @@ export default function PerfilPage() {
           </div>
 
           {/* Nome */}
-          <div style={{ fontSize: 20, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.3 }}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.3, textAlign: 'center' }}>
             {name}
           </div>
 
