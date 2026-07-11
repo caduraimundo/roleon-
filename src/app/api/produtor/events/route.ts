@@ -118,8 +118,14 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const minEventDate = new Date(Date.now() + 2 * 60 * 60 * 1000)
-  if (isNaN(new Date(event_date).getTime()) || new Date(event_date) < minEventDate) {
+  const eventDateObj = new Date(event_date)
+  if (isNaN(eventDateObj.getTime())) {
+    return NextResponse.json({ error: 'Data do evento inválida' }, { status: 400 })
+  }
+  if (eventDateObj < new Date()) {
+    return NextResponse.json({ error: 'A data do evento já passou. Verifique o dia, mês e ano informados.' }, { status: 400 })
+  }
+  if (eventDateObj < new Date(Date.now() + 2 * 60 * 60 * 1000)) {
     return NextResponse.json({ error: 'O evento precisa ser criado com pelo menos 2 horas de antecedência' }, { status: 400 })
   }
 
