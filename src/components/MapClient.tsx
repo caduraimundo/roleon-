@@ -500,7 +500,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   const [userId,          setUserId]          = useState<string | null>(null)
   const [showAuth,        setShowAuth]        = useState(false)
   const [activePin,       setActivePin]       = useState<string | null>(null)
-  const [pinGroup,        setPinGroup]        = useState<RoleonEvent[] | null>(null)
+  const [pinGroup,        setPinGroup]        = useState<{ key: string; events: RoleonEvent[] } | null>(null)
   const [nearbyExpanded,  setNearbyExpanded]  = useState(false)
   const [activeChip,      setActiveChip]      = useState<string | null>(null)
   const [activeTab,       setActiveTab]       = useState<TabId>('explorar')
@@ -880,7 +880,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       const first = groupEvents[0]
       const isGroup = groupEvents.length > 1
       const position = new google.maps.LatLng(first.lat, first.lng)
-      const isActive = !isGroup && first.id === activePin
+      const isActive = isGroup ? pinGroup?.key === key : (!isGroup && first.id === activePin)
 
       if (!overlayRefs.current.has(key)) {
         const container = document.createElement('div')
@@ -927,10 +927,10 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       const btn = container.querySelector('button')
       if (btn) {
         if (isGroup) {
-          btn.onclick = () => setPinGroup(groupEvents)
+          btn.onclick = () => { setPinGroup({ key, events: groupEvents }); setActivePin(null) }
         } else {
           const soloId = first.id
-          btn.onclick = () => setActivePin((prev) => (prev === soloId ? null : soloId))
+          btn.onclick = () => { setActivePin((prev) => (prev === soloId ? null : soloId)); setPinGroup(null) }
         }
       }
     })
@@ -1148,7 +1148,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       </div>
 
       {/* FABs: filtros + localização */}
-      {!activePin && !nearbyExpanded && (
+      {!activePin && !nearbyExpanded && !pinGroup && (
         <div style={{
           position: 'absolute', right: 14,
           bottom: `calc(${bottomNavHeight + 95}px + env(safe-area-inset-bottom, 0px))`,
@@ -1221,8 +1221,8 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       {pinGroup ? (
         <MapHint
           key="pin-group"
-          count={pinGroup.length}
-          events={pinGroup}
+          count={pinGroup.events.length}
+          events={pinGroup.events}
           bottomNavHeight={bottomNavHeight}
           userLocation={userLocation}
           startExpanded={true}
