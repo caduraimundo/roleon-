@@ -289,10 +289,12 @@ interface MapHintProps {
   userLocation?: { lat: number; lng: number } | null
   onEventSelect?: (id: string) => void
   onExpandChange?: (expanded: boolean) => void
+  startExpanded?: boolean
+  headerLabel?: string
 }
 
-export function MapHint({ count, bottomNavHeight, events, userLocation, onEventSelect, onExpandChange }: MapHintProps) {
-  const [expanded, setExpanded] = useState(false)
+export function MapHint({ count, bottomNavHeight, events, userLocation, onEventSelect, onExpandChange, startExpanded = false, headerLabel = 'Perto de você' }: MapHintProps) {
+  const [expanded, setExpanded] = useState(startExpanded)
   const [index, setIndex] = useState(0)
 
   const sorted = useMemo(() => {
@@ -331,7 +333,7 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
         zIndex: 12, fontFamily: "'Noto Sans', sans-serif", overflow: 'hidden',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px 8px', borderBottom: '0.5px solid rgba(0,0,0,0.07)' }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#6E6E73', letterSpacing: 0.6, textTransform: 'uppercase' }}>Perto de você</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#6E6E73', letterSpacing: 0.6, textTransform: 'uppercase' }}>{headerLabel}</span>
           <button onClick={handleClose} style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: '#6E6E73' }}>
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
           </button>

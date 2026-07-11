@@ -500,6 +500,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   const [userId,          setUserId]          = useState<string | null>(null)
   const [showAuth,        setShowAuth]        = useState(false)
   const [activePin,       setActivePin]       = useState<string | null>(null)
+  const [pinGroup,        setPinGroup]        = useState<RoleonEvent[] | null>(null)
   const [nearbyExpanded,  setNearbyExpanded]  = useState(false)
   const [activeChip,      setActiveChip]      = useState<string | null>(null)
   const [activeTab,       setActiveTab]       = useState<TabId>('explorar')
@@ -847,11 +848,27 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     clustererRef.current?.clearMarkers()
     clustererRef.current = null
 
-    // Remove overlays e ghost markers de eventos que saíram da lista
-    overlayRefs.current.forEach((_, id) => {
+    // Agrupa eventos por coordenada (arredondada a 5 casas decimais)
+    const groupKey = (ev: RoleonEvent) => `${ev.lat.toFixed(5)}_${ev.lng.toFixed(5)}`
+    const groups = new Map<string, RoleonEvent[]>()
+    filteredEvents.forEach((ev) => {
+      const key = groupKey(ev)
+      const arr = groups.get(key)
+      if (arr) arr.push(ev)
+      else groups.set(key, [ev])
+    })
+
+    // Remove overlays de grupos que saíram da lista
+    overlayRefs.current.forEach((_, key) => {
+      if (!groups.has(key)) {
+        overlayRefs.current.get(key)?.overlay.setMap(null)
+        overlayRefs.current.delete(key)
+      }
+    })
+
+    // Remove ghost markers de eventos que saíram da lista
+    markerRefs.current.forEach((_, id) => {
       if (!filteredEvents.find((e) => e.id === id)) {
-        overlayRefs.current.get(id)?.overlay.setMap(null)
-        overlayRefs.current.delete(id)
         const m = markerRefs.current.get(id); if (m) m.map = null
         markerRefs.current.delete(id)
       }
@@ -859,11 +876,13 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
 
     const allMarkers: google.maps.marker.AdvancedMarkerElement[] = []
 
-    filteredEvents.forEach((ev) => {
-      const position = new google.maps.LatLng(ev.lat, ev.lng)
-      const isActive = ev.id === activePin
+    groups.forEach((groupEvents, key) => {
+      const first = groupEvents[0]
+      const isGroup = groupEvents.length > 1
+      const position = new google.maps.LatLng(first.lat, first.lng)
+      const isActive = !isGroup && first.id === activePin
 
-      if (!overlayRefs.current.has(ev.id)) {
+      if (!overlayRefs.current.has(key)) {
         const container = document.createElement('div')
         container.style.cssText = 'position:absolute;'
         class PinOverlay extends google.maps.OverlayView {
@@ -873,18 +892,19 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         }
         const overlay = new PinOverlay()
         overlay.setMap(mapInstanceRef.current)
-        overlayRefs.current.set(ev.id, { overlay, container })
+        overlayRefs.current.set(key, { overlay, container })
       }
 
-      const { container } = overlayRefs.current.get(ev.id)!
-      const soldOut = !!ev.isSoldOut
+      const { container } = overlayRefs.current.get(key)!
+      const soldOut = !isGroup && !!first.isSoldOut
       const pinBg = soldOut ? '#6E6E73' : (isActive ? PRIMARY : '#fff')
       const pinText = soldOut ? '#fff' : (isActive ? '#fff' : TEXT)
       const pinShadow = isActive && !soldOut
         ? `0 8px 18px rgba(14,165,160,0.4),0 0 0 1.5px ${PRIMARY}`
         : '0 3px 8px rgba(0,0,0,0.14),0 0 0 1px rgba(0,0,0,0.04)'
       container.innerHTML = `
-        <button data-ev="${ev.id}" style="
+        <button data-group="${key}" style="
+          position:relative;
           transform:translate(-50%,-100%) ${isActive?'scale(1.06)':'scale(1)'};
           transition:transform 280ms cubic-bezier(.2,.9,.3,1.4);
           background:transparent;border:0;padding:0;cursor:pointer;outline:none;
@@ -895,18 +915,29 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
             font-family:'Noto Sans',sans-serif;font-size:12.5px;font-weight:700;
             display:flex;flex-direction:column;align-items:center;gap:2px;white-space:nowrap;line-height:1;
             box-shadow:${pinShadow};">
-            <span>${ev.price === 0 ? 'Grátis' : `R$${ev.price}`}</span>
+            <span>${first.price === 0 ? 'Grátis' : `R$${first.price}`}</span>
             ${soldOut ? '<span style="font-size:9px;font-weight:600;letter-spacing:0.3px;">Esgotado</span>' : ''}
           </div>
           <div style="width:8px;height:8px;background:${pinBg};
             transform:rotate(45deg);margin-top:-4px;
             box-shadow:${isActive&&!soldOut?'none':'1.5px 1.5px 3px rgba(0,0,0,0.08)'};"></div>
+          ${isGroup ? `<div style="position:absolute;top:-6px;right:-6px;width:16px;height:16px;border-radius:50%;background:#0EA5A0;color:#fff;font-family:'Noto Sans',sans-serif;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;">${groupEvents.length}</div>` : ''}
         </button>`
 
       const btn = container.querySelector('button')
-      if (btn) btn.onclick = () => setActivePin((prev) => (prev === ev.id ? null : ev.id))
+      if (btn) {
+        if (isGroup) {
+          btn.onclick = () => setPinGroup(groupEvents)
+        } else {
+          const soloId = first.id
+          btn.onclick = () => setActivePin((prev) => (prev === soloId ? null : soloId))
+        }
+      }
+    })
 
-      // Ghost marker invisível — só para o MarkerClusterer calcular grupos
+    // Ghost markers invisíveis — um por evento, só para o MarkerClusterer calcular grupos
+    filteredEvents.forEach((ev) => {
+      const position = new google.maps.LatLng(ev.lat, ev.lng)
       if (!markerRefs.current.has(ev.id)) {
         const ghostDiv = document.createElement('div')
         ghostDiv.style.display = 'none'
@@ -916,12 +947,14 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       allMarkers.push(markerRefs.current.get(ev.id)!)
     })
 
-    // Sincroniza visibilidade das OverlayViews com o estado do clustering
+    // Sincroniza visibilidade das OverlayViews (por grupo) com o estado do clustering:
+    // um overlay de grupo fica visível se ao menos um ghost marker do grupo não foi absorvido pela bolha de cluster
     const syncOverlays = () => {
-      markerRefs.current.forEach((marker, id) => {
-        const entry = overlayRefs.current.get(id)
+      groups.forEach((groupEvents, key) => {
+        const entry = overlayRefs.current.get(key)
         if (!entry) return
-        entry.overlay.setMap(marker.map ? mapInstanceRef.current : null)
+        const anyVisible = groupEvents.some((ev) => !!markerRefs.current.get(ev.id)?.map)
+        entry.overlay.setMap(anyVisible ? mapInstanceRef.current : null)
       })
     }
 
@@ -1182,8 +1215,19 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         </div>
       )}
 
-      {/* Card de evento ou hint */}
-      {activeEvent ? (
+      {/* Card de evento, grupo de pins sobrepostos, ou hint */}
+      {pinGroup ? (
+        <MapHint
+          count={pinGroup.length}
+          events={pinGroup}
+          bottomNavHeight={bottomNavHeight}
+          userLocation={userLocation}
+          startExpanded={true}
+          headerLabel="Eventos neste local"
+          onEventSelect={(id) => { setActivePin(id); setPinGroup(null) }}
+          onExpandChange={(exp) => { if (!exp) setPinGroup(null) }}
+        />
+      ) : activeEvent ? (
         <PinSheet event={activeEvent} onClose={() => setActivePin(null)} onViewDetail={handleViewDetail} bottomNavHeight={bottomNavHeight} userLocation={userLocation} />
       ) : loading ? (
         <div style={{
