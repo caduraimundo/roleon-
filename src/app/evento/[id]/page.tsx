@@ -342,12 +342,12 @@ export default function EventoPage() {
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 padding: 0, marginTop: 2,
-                display: 'flex', alignItems: 'center', gap: 5,
+                display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap', rowGap: 2,
                 fontFamily: "'Noto Sans', sans-serif",
               }}
             >
-              <span style={{ fontSize: 12.5, color: '#6E6E73' }}>Organizado por</span>
-              <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1A1A1A' }}>{organizer.name}</span>
+              <span style={{ fontSize: 12.5, color: '#6E6E73', flexShrink: 0 }}>Organizado{' '}por</span>
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1A1A1A', flexShrink: 0, whiteSpace: 'normal' }}>{organizer.name}</span>
               {organizer.verified && (
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <circle cx="7" cy="7" r="7" fill="#0EA5A0"/>
@@ -360,9 +360,9 @@ export default function EventoPage() {
             </button>
           )}
           {!organizer && ev.displayOrganizerName && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 2 }}>
-              <span style={{ fontSize: 12.5, color: '#6E6E73' }}>Organizado por</span>
-              <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1A1A1A' }}>{ev.displayOrganizerName}</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap', rowGap: 2, marginTop: 2 }}>
+              <span style={{ fontSize: 12.5, color: '#6E6E73', flexShrink: 0 }}>Organizado{' '}por</span>
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1A1A1A', flexShrink: 0, whiteSpace: 'normal' }}>{ev.displayOrganizerName}</span>
             </div>
           )}
         </div>
