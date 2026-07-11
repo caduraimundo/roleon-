@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
       is_unlimited,
       cover_image,
       display_organizer_name,
+      ticket_types,
     } = body
 
     for (const campo of ['title', 'event_date', 'location_name']) {
@@ -98,6 +99,20 @@ export async function POST(req: NextRequest) {
     if (eventError || !evento) {
       console.error('[admin/events] erro insert:', JSON.stringify(eventError))
       return NextResponse.json({ error: 'Erro ao criar evento: ' + (eventError?.message ?? 'sem dados') }, { status: 500 })
+    }
+
+    if (Array.isArray(ticket_types) && ticket_types.length > 0) {
+      const rows = (ticket_types as { name: string; price: number; quantity: number | null }[]).map(t => ({
+        event_id: evento.id,
+        name: t.name,
+        price: t.price,
+        quantity: t.quantity ?? null,
+      }))
+
+      const { error: ticketError } = await supabaseAdmin.from('ticket_types').insert(rows)
+      if (ticketError) {
+        return NextResponse.json({ error: 'Evento criado, mas erro ao salvar tipos de ingresso' }, { status: 500 })
+      }
     }
 
     return NextResponse.json({ ok: true, event_id: evento.id }, { status: 200 })
