@@ -142,20 +142,13 @@ export default function PerfilProdutorPage() {
           </div>
 
           {/* Nome + badge de verificado centralizados juntos como bloco */}
-          <div style={{
-            marginTop: 12,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-          }}>
+          <div style={{ marginTop: 12, textAlign: 'center' }}>
             <span style={{
               fontSize: 20, fontWeight: 700,
               color: '#1A1A1A', letterSpacing: -0.3,
             }}>{profile.name}</span>
             {profile.verified && (
-              <span style={{
-                display: 'flex', alignItems: 'center', flexShrink: 0,
-              }}>
+              <span style={{ display: 'inline-flex', verticalAlign: 'middle', marginLeft: 6 }}>
                 <svg width="18" height="18" viewBox="0 0 14 14" fill="none">
                   <circle cx="7" cy="7" r="7" fill="#0EA5A0"/>
                   <path d="M4 7l2 2 4-4" stroke="#fff" strokeWidth="1.5"
