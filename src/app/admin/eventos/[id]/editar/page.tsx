@@ -10,27 +10,29 @@ const AGE_RATINGS = ['Livre', '+18 anos']
 function parseLocationName(locationName: string) {
   const result = { cep: '', rua: '', numero: '', bairro: '', cidade: '', estado: '' }
   try {
-    let rest = locationName
-    const cepMatch = rest.match(/, CEP (\d{5}-\d{3})$/)
-    if (!cepMatch) return result
-    result.cep = cepMatch[1]
-    rest = rest.slice(0, rest.length - cepMatch[0].length)
+    const cepMatch = locationName.match(/CEP\s*([\d-]{8,9})/)
+    result.cep = cepMatch ? cepMatch[1] : ''
+    let rest = locationName.replace(/,?\s*CEP\s*[\d-]+/, '').trim()
 
     const estadoMatch = rest.match(/ - ([A-Z]{2})$/)
-    if (!estadoMatch) return result
-    result.estado = estadoMatch[1]
-    rest = rest.slice(0, rest.length - estadoMatch[0].length)
+    if (estadoMatch) {
+      result.estado = estadoMatch[1]
+      rest = rest.slice(0, rest.length - estadoMatch[0].length)
+    }
 
     const parts = rest.split(', ')
-    if (parts.length === 3) {
-      result.rua = parts[0]
-      result.numero = parts[1]
-      result.cidade = parts[2]
-    } else if (parts.length === 4) {
+    if (parts.length === 4) {
       result.rua = parts[0]
       result.numero = parts[1]
       result.bairro = parts[2]
       result.cidade = parts[3]
+    } else if (parts.length === 3) {
+      result.rua = parts[0]
+      result.numero = parts[1]
+      result.cidade = parts[2]
+    } else {
+      result.rua = parts[0] || ''
+      result.numero = parts[1] || ''
     }
   } catch {}
   return result
