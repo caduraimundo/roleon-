@@ -148,7 +148,6 @@ export default function NovoEventoPage() {
     if (eventDateTime < new Date(Date.now() + 2 * 60 * 60 * 1000)) {
       showError('O evento precisa ser criado com pelo menos 2 horas de antecedência'); return
     }
-    if (cep.replace(/\D/g, '').length !== 8) { showError('CEP é obrigatório'); return }
     if (!rua.trim()) { showError('Rua é obrigatória'); return }
     if (!numero.trim()) { showError('Número é obrigatório'); return }
     if (!cidade.trim()) { showError('Cidade é obrigatória'); return }
@@ -205,7 +204,7 @@ export default function NovoEventoPage() {
           description,
           genres,
           event_date,
-          location_name: `${rua}, ${numero}${bairro ? ', ' + bairro : ''}, ${cidade} - ${estado}, CEP ${cep}`,
+          location_name: `${rua}, ${numero}${bairro ? ', ' + bairro : ''}, ${cidade} - ${estado}${cep.replace(/\D/g, '').length === 8 ? `, CEP ${cep}` : ''}`,
           location_lat: null,
           location_lng: null,
           is_free: isFree,
@@ -432,6 +431,7 @@ export default function NovoEventoPage() {
         {/* Local */}
         <div style={sectionStyle}>
           <label style={labelStyle}>Local</label>
+          <span style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#6E6E73', marginBottom: 6 }}>CEP (opcional)</span>
           <input
             type="text"
             inputMode="numeric"
@@ -448,6 +448,9 @@ export default function NovoEventoPage() {
           />
           {cepError && <p style={{ fontSize: 12, color: '#FF3B30', margin: '0 0 8px' }}>{cepError}</p>}
           {cepLoading && <p style={{ fontSize: 12, color: '#6E6E73', margin: '0 0 8px' }}>Buscando CEP...</p>}
+          {!cepError && !cepLoading && (
+            <p style={{ fontSize: 12, color: '#6E6E73', margin: '0 0 8px' }}>Não sabe o CEP? Pode deixar em branco e preencher o endereço manualmente abaixo.</p>
+          )}
           <input
             type="text"
             placeholder="Rua ou Avenida"

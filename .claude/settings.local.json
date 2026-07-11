@@ -124,7 +124,10 @@
       "Bash(git -C \"C:\\\\Users\\\\Carlo\\\\roleon-\" add \"src/app/api/produtor/banking/route.ts\" \"src/app/produtor/perfil/conta-bancaria/page.tsx\")",
       "Bash(git -C \"C:\\\\Users\\\\Carlo\\\\roleon-\" add \"src/app/produtor/perfil/conta-bancaria/page.tsx\")",
       "Bash(git -C \"C:\\\\Users\\\\Carlo\\\\roleon-\" add \"src/app/api/produtor/banking/route.ts\")",
-      "Bash(powershell -Command \"New-Item -ItemType Directory -Force -Path 'C:\\\\Users\\\\Carlo\\\\roleon-\\\\src\\\\app\\\\api\\\\admin\\\\consumers' | Out-Null\")"
+      "Bash(powershell -Command \"New-Item -ItemType Directory -Force -Path 'C:\\\\Users\\\\Carlo\\\\roleon-\\\\src\\\\app\\\\api\\\\admin\\\\consumers' | Out-Null\")",
+      "mcp__ca924a0b-bc34-41d9-bdd0-df142f432b89__list_projects",
+      "mcp__ca924a0b-bc34-41d9-bdd0-df142f432b89__get_project",
+      "Bash(vercel firewall *)"
     ]
   }
 }
