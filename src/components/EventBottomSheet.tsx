@@ -291,9 +291,10 @@ interface MapHintProps {
   onExpandChange?: (expanded: boolean) => void
   startExpanded?: boolean
   headerLabel?: string
+  actionLabel?: string
 }
 
-export function MapHint({ count, bottomNavHeight, events, userLocation, onEventSelect, onExpandChange, startExpanded = false, headerLabel = 'Perto de você' }: MapHintProps) {
+export function MapHint({ count, bottomNavHeight, events, userLocation, onEventSelect, onExpandChange, startExpanded = false, headerLabel = 'Perto de você', actionLabel = 'Ver evento' }: MapHintProps) {
   const [expanded, setExpanded] = useState(startExpanded)
   const [index, setIndex] = useState(0)
 
@@ -403,7 +404,7 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
               boxShadow: '0 6px 14px rgba(14,165,160,0.28)',
               whiteSpace: 'nowrap', flexShrink: 0,
             }}>
-              Ver evento
+              {actionLabel}
             </button>
           </div>
         </div>

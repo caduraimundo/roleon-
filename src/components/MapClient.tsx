@@ -1051,10 +1051,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     setSearchValue('')
   }, [events])
 
-  const handleViewDetail = useCallback(() => {
-    if (!activeEvent) return
-    try { sessionStorage.setItem(`evento-${activeEvent.id}`, JSON.stringify(activeEvent)) } catch {}
-    if (onEventSelect) onEventSelect(activeEvent)
+  const goToEventDetail = useCallback((ev: RoleonEvent) => {
+    try { sessionStorage.setItem(`evento-${ev.id}`, JSON.stringify(ev)) } catch {}
+    if (onEventSelect) onEventSelect(ev)
     try {
       const center = mapInstanceRef.current?.getCenter()
       const zoom = mapInstanceRef.current?.getZoom()
@@ -1069,8 +1068,13 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         localStorage.setItem('map-position', payload)
       }
     } catch {}
-    router.push(`/evento/${activeEvent.id}`)
-  }, [activeEvent, onEventSelect, router])
+    router.push(`/evento/${ev.id}`)
+  }, [onEventSelect, router, searchCenter])
+
+  const handleViewDetail = useCallback(() => {
+    if (!activeEvent) return
+    goToEventDetail(activeEvent)
+  }, [activeEvent, goToEventDetail])
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F7F7F7', overflow: 'hidden' }}>
@@ -1227,7 +1231,12 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           userLocation={userLocation}
           startExpanded={true}
           headerLabel="Eventos neste local"
-          onEventSelect={(id) => { setActivePin(id); setPinGroup(null) }}
+          onEventSelect={(id) => {
+            const ev = pinGroup?.events.find((e) => e.id === id)
+            setPinGroup(null)
+            if (ev) goToEventDetail(ev)
+          }}
+          actionLabel="Ver detalhes"
           onExpandChange={(exp) => { if (!exp) setPinGroup(null) }}
         />
       ) : activeEvent ? (
