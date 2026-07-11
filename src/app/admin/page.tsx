@@ -110,6 +110,13 @@ function IconClock() {
     </svg>
   )
 }
+function IconClose() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 18 18" fill="none">
+      <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  )
+}
 
 // ── HEADER ───────────────────────────────────────────────────────────────────
 function AdminHeader({ onSignOut, showSignOut }: { onSignOut: () => void; showSignOut: boolean }) {
@@ -1115,8 +1122,8 @@ function PayloadSheet({ log, onClose }: { log: any; onClose: () => void }) {
               marginLeft: 'auto', marginRight: 8,
             }}
           >{copiado ? 'Copiado!' : 'Copiar'}</button>
-          <button onClick={onClose} style={{ width: 32, height: 32, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          <button onClick={onClose} style={{ width: 24, height: 24, borderRadius: 999, background: '#F0F0F0', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: TEXT }}>
+            <IconClose />
           </button>
         </div>
         <div style={{ padding: 16, overflowY: 'auto', flex: 1 }}>

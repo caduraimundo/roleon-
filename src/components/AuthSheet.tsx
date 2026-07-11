@@ -191,7 +191,7 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
           aria-label="Fechar"
           style={{
             position: 'absolute', top: 14, right: 20,
-            width: 28, height: 28, borderRadius: 999,
+            width: 24, height: 24, borderRadius: 999,
             background: '#F0F0F0', border: 0, cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             color: '#6E6E73',

@@ -291,7 +291,7 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, initial }: {
           padding: '4px 20px 16px', borderBottom: `0.5px solid ${BORDER}`, flexShrink: 0,
         }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: TEXT }}>Filtros</div>
-          <button onClick={onClose} style={{ border: 0, background: 'transparent', cursor: 'pointer', color: DIM }}>
+          <button onClick={onClose} style={{ width: 24, height: 24, borderRadius: 999, background: '#F0F0F0', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: DIM }}>
             <IconClose />
           </button>
         </div>

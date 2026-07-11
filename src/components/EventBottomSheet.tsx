@@ -335,8 +335,8 @@ export function MapHint({ count, bottomNavHeight, events, userLocation, onEventS
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px 8px', borderBottom: '0.5px solid rgba(0,0,0,0.07)' }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: '#6E6E73', letterSpacing: 0.6, textTransform: 'uppercase' }}>{headerLabel}</span>
-          <button onClick={handleClose} style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: '#6E6E73' }}>
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
+          <button onClick={handleClose} style={{ width: 24, height: 24, borderRadius: 999, background: '#F0F0F0', border: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6E6E73' }}>
+            <IconClose />
           </button>
         </div>
         <div style={{ padding: '12px 14px' }}>
