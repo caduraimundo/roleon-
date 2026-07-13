@@ -302,6 +302,15 @@ export default function IngressoPage() {
                 <p style={{ margin: 0, color: '#1A1A1A', fontWeight: 600, fontSize: 13 }}>{ticket.ticket_type_name}</p>
               </div>
             )}
+
+            {ticket?.price_paid !== undefined && ticket?.price_paid !== null && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <p style={{ margin: 0, color: '#6E6E73', fontSize: 13 }}>Valor pago</p>
+                <p style={{ margin: 0, color: '#1A1A1A', fontWeight: 600, fontSize: 13 }}>
+                  {ticket.price_paid === 0 ? 'Gratuito' : ticket.price_paid.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Divider estilo ticket perfurado */}
