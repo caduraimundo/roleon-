@@ -191,7 +191,7 @@ export default function InteressesPage() {
               border: '1px solid #EFEFEF', overflow: 'hidden',
             }}>
               {ev.coverUrl ? (
-                <img src={ev.coverUrl} alt={ev.title} style={{ width: '100%', height: 140, objectFit: 'cover' }} />
+                <img src={ev.coverUrl} alt={ev.title} style={{ width: '100%', height: 140, objectFit: 'cover', objectPosition: 'center top' }} />
               ) : (
                 <div style={{
                   width: '100%', height: 140, background: '#E6F7F6',

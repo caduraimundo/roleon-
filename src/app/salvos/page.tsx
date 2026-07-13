@@ -214,7 +214,7 @@ export default function SalvosPage() {
                 <img
                   src={ev.coverUrl}
                   alt={ev.title}
-                  style={{ width: '100%', height: 140, objectFit: 'cover' }}
+                  style={{ width: '100%', height: 140, objectFit: 'cover', objectPosition: 'center top' }}
                 />
               ) : (
                 <div style={{
