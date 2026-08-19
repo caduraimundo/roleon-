@@ -465,7 +465,7 @@ export default function NovoEventoAdminPage() {
               <button
                 type="button"
                 onClick={() => setNumero('S/N')}
-                style={{ background: 'none', border: 'none', padding: 0, alignSelf: 'flex-start', fontSize: 12, fontWeight: 600, color: '#0EA5A0', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                style={{ background: '#E6F7F6', border: 'none', padding: '5px 10px', borderRadius: 8, alignSelf: 'flex-start', fontSize: 12, fontWeight: 600, color: '#0EA5A0', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
               >
                 Sem número
               </button>
