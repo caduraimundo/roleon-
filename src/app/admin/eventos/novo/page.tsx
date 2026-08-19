@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
+import ImageCropModal from '../../../../components/ImageCropModal'
 
 const GENRES = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Axé', 'República']
 const AGE_RATINGS = ['Livre', '+18 anos']
@@ -21,6 +22,9 @@ export default function NovoEventoAdminPage() {
   const [ageRating, setAgeRating] = useState('Livre')
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
+  const [cropModalOpen, setCropModalOpen] = useState(false)
+  const [originalFileMeta, setOriginalFileMeta] = useState<{ name: string; type: string } | null>(null)
   const [policies, setPolicies] = useState<string[]>([''])
   const [cep, setCep] = useState('')
   const [rua, setRua] = useState('')
@@ -98,8 +102,9 @@ export default function NovoEventoAdminPage() {
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    setCoverFile(file)
-    setCoverPreview(URL.createObjectURL(file))
+    setOriginalFileMeta({ name: file.name, type: file.type })
+    setCropSrc(URL.createObjectURL(file))
+    setCropModalOpen(true)
   }
 
   const buscarCep = async (value: string) => {
@@ -291,7 +296,8 @@ export default function NovoEventoAdminPage() {
               <img
                 src={coverPreview}
                 alt="Capa do evento"
-                style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 12, display: 'block' }}
+                onClick={() => cropSrc && setCropModalOpen(true)}
+                style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 12, display: 'block', cursor: cropSrc ? 'pointer' : 'default' }}
               />
               <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                 <button
@@ -301,7 +307,7 @@ export default function NovoEventoAdminPage() {
                   Trocar imagem
                 </button>
                 <button
-                  onClick={() => { setCoverFile(null); setCoverPreview(null) }}
+                  onClick={() => { setCoverFile(null); setCoverPreview(null); setCropSrc(null) }}
                   style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: '1px solid #FFD0D0', background: '#FFF5F5', fontSize: 13, fontWeight: 500, color: '#C0392B', cursor: 'pointer' }}
                 >
                   Remover
@@ -724,6 +730,25 @@ export default function NovoEventoAdminPage() {
           </div>
         </div>
       )}
+
+        {cropModalOpen && cropSrc && (
+          <ImageCropModal
+            imageSrc={cropSrc}
+            aspect={2}
+            onCancel={() => {
+              setCropModalOpen(false)
+              setCropSrc(null)
+            }}
+            onConfirm={(blob) => {
+              if (originalFileMeta) {
+                const file = new File([blob], originalFileMeta.name, { type: originalFileMeta.type })
+                setCoverFile(file)
+              }
+              setCoverPreview(URL.createObjectURL(blob))
+              setCropModalOpen(false)
+            }}
+          />
+        )}
     </div>
   )
 }
