@@ -38,7 +38,7 @@ function isPast(event_date: string) {
 
 export default function AnalisesPage() {
   const router = useRouter()
-  const [period, setPeriod]   = useState('30d')
+  const [period, setPeriod]   = useState('7d')
   const [data, setData]       = useState<Analytics | null>(null)
   const [loading, setLoading] = useState(true)
 
