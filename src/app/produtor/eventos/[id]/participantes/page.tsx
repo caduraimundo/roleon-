@@ -24,6 +24,10 @@ function formatCurrency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
+function isFuturo(event_date: string) {
+  return new Date(event_date.replace(' ', 'T')) > new Date()
+}
+
 type Ticket = {
   id: string
   codigo: string
@@ -51,6 +55,7 @@ export default function ParticipantesPage({
   const [cancelEventConfirm, setCancelEventConfirm] = useState(false)
   const [cancelEventLoading, setCancelEventLoading] = useState(false)
   const [eventCancelled, setEventCancelled] = useState(false)
+  const [eventDate, setEventDate] = useState<string | null>(null)
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null)
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const [search, setSearch] = useState('')
@@ -74,6 +79,7 @@ export default function ParticipantesPage({
       if (!res.ok) throw new Error('Falha ao carregar participantes')
       const data = await res.json()
       setTickets(data.tickets ?? [])
+      setEventDate(data.event_date ?? null)
     } catch {
       setLoadError(true)
     } finally {
@@ -295,7 +301,8 @@ export default function ParticipantesPage({
             )
             .map(ticket => {
             const badge = statusBadge(ticket.status)
-            const canCancel = (ticket.status === 'paid' || ticket.status === 'valid') && !eventCancelled
+            const eventIsPast = eventDate ? !isFuturo(eventDate) : false
+            const canCancel = (ticket.status === 'paid' || ticket.status === 'valid') && !eventCancelled && !eventIsPast
             return (
               <div key={ticket.id} style={{
                 background: '#fff', borderRadius: 14,
