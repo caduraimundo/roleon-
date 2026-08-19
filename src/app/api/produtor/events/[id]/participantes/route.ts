@@ -30,6 +30,12 @@ export async function GET(
     const user = await getAuthProducer(req, event_id)
     if (!user) return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
 
+    const { data: eventRow } = await supabaseAdmin
+      .from('events')
+      .select('event_date, status')
+      .eq('id', event_id)
+      .maybeSingle()
+
     const { data: tickets, error } = await supabaseAdmin
       .from('tickets')
       .select('id, user_id, status, price_paid, payment_method, ticket_type_name, recipient_email, created_at, checkin_token')
@@ -43,7 +49,7 @@ export async function GET(
     }
 
     if (!tickets || tickets.length === 0) {
-      return NextResponse.json({ tickets: [] })
+      return NextResponse.json({ tickets: [], event_date: eventRow?.event_date ?? null, event_status: eventRow?.status ?? null })
     }
 
     const userIds = [...new Set(tickets.map(t => t.user_id).filter(Boolean))]
@@ -70,7 +76,7 @@ export async function GET(
       created_at: t.created_at,
     }))
 
-    return NextResponse.json({ tickets: result })
+    return NextResponse.json({ tickets: result, event_date: eventRow?.event_date ?? null, event_status: eventRow?.status ?? null })
   } catch (err) {
     console.error('[participantes GET] erro:', err)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
