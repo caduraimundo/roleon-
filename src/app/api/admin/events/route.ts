@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       title,
       description,
       event_date,
+      event_end_date,
       location_name,
       location_lat,
       location_lng,
@@ -46,10 +47,15 @@ export async function POST(req: NextRequest) {
       ticket_types,
     } = body
 
-    for (const campo of ['title', 'event_date', 'location_name']) {
+    for (const campo of ['title', 'event_date', 'event_end_date', 'location_name']) {
       if (!body[campo]) {
         return NextResponse.json({ error: `Campo obrigatório: ${campo}` }, { status: 400 })
       }
+    }
+
+    const eventEndDateObj = new Date(event_end_date)
+    if (isNaN(eventEndDateObj.getTime())) {
+      return NextResponse.json({ error: 'Data de término inválida' }, { status: 400 })
     }
 
     const eventDateObj = new Date(event_date)
@@ -90,6 +96,7 @@ export async function POST(req: NextRequest) {
         title,
         description,
         event_date,
+        event_end_date,
         location_name,
         location_lat: geoLat,
         location_lng: geoLng,
