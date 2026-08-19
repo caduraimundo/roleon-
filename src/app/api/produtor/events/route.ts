@@ -100,6 +100,7 @@ export async function POST(req: NextRequest) {
     title,
     description,
     event_date,
+    event_end_date,
     location_name,
     location_lat,
     location_lng,
@@ -112,7 +113,7 @@ export async function POST(req: NextRequest) {
     ticket_types,
   } = body
 
-  for (const campo of ['title', 'event_date', 'location_name']) {
+  for (const campo of ['title', 'event_date', 'event_end_date', 'location_name']) {
     if (!body[campo]) {
       return NextResponse.json({ error: `Campo obrigatório: ${campo}` }, { status: 400 })
     }
@@ -127,6 +128,14 @@ export async function POST(req: NextRequest) {
   }
   if (eventDateObj < new Date(Date.now() + 2 * 60 * 60 * 1000)) {
     return NextResponse.json({ error: 'O evento precisa ser criado com pelo menos 2 horas de antecedência' }, { status: 400 })
+  }
+
+  const eventEndDateObj = new Date(event_end_date)
+  if (isNaN(eventEndDateObj.getTime())) {
+    return NextResponse.json({ error: 'Data de término inválida' }, { status: 400 })
+  }
+  if (eventEndDateObj <= eventDateObj) {
+    return NextResponse.json({ error: 'O término precisa ser depois do início do evento' }, { status: 400 })
   }
 
   if (!Array.isArray(genres) || genres.length < 1) {
@@ -179,6 +188,7 @@ export async function POST(req: NextRequest) {
       title,
       description,
       event_date,
+      event_end_date,
       location_name,
       location_lat: geoLat,
       location_lng: geoLng,
