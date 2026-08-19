@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../../lib/supabase'
+import ImageCropModal from '../../../../components/ImageCropModal'
 
 const GENRES = ['Samba/Pagode', 'MPB', 'Rock', 'Funk', 'Sertanejo', 'Forró', 'Rap', 'Eletrônico', 'Piseiro', 'Reggae', 'Axé', 'República']
 
@@ -22,6 +23,9 @@ export default function NovoEventoPage() {
   const [ageRating, setAgeRating] = useState('Livre')
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [coverPreview, setCoverPreview] = useState<string | null>(null)
+  const [cropSrc, setCropSrc] = useState<string | null>(null)
+  const [cropModalOpen, setCropModalOpen] = useState(false)
+  const [originalFileMeta, setOriginalFileMeta] = useState<{ name: string; type: string } | null>(null)
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([{ name: '', price: '', quantity: '' }])
   const [policies, setPolicies] = useState<string[]>([''])
   const [cep, setCep] = useState('')
@@ -104,8 +108,9 @@ export default function NovoEventoPage() {
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    setCoverFile(file)
-    setCoverPreview(URL.createObjectURL(file))
+    setOriginalFileMeta({ name: file.name, type: file.type })
+    setCropSrc(URL.createObjectURL(file))
+    setCropModalOpen(true)
   }
 
   const updateTicket = (index: number, field: keyof TicketType, value: string) => {
@@ -839,6 +844,26 @@ export default function NovoEventoPage() {
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 }}>O time Roleon vai revisar em breve.</div>
             </div>
           </div>
+        )}
+
+        {cropModalOpen && cropSrc && (
+          <ImageCropModal
+            imageSrc={cropSrc}
+            aspect={2}
+            onCancel={() => {
+              setCropModalOpen(false)
+              setCropSrc(null)
+            }}
+            onConfirm={(blob) => {
+              if (originalFileMeta) {
+                const file = new File([blob], originalFileMeta.name, { type: originalFileMeta.type })
+                setCoverFile(file)
+              }
+              setCoverPreview(URL.createObjectURL(blob))
+              setCropModalOpen(false)
+              setCropSrc(null)
+            }}
+          />
         )}
     </div>
   )
