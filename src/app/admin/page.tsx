@@ -118,6 +118,74 @@ function IconClose() {
   )
 }
 
+// ── TELA DE LOGIN ADMIN ────────────────────────────────────────────────────
+function AdminLoginScreen({ variant }: { variant: 'no-session' | 'wrong-role' }) {
+  const [entering, setEntering] = useState(false)
+
+  const handleGoogleLogin = async () => {
+    if (entering) return
+    setEntering(true)
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=/admin`,
+        queryParams: {
+          prompt: 'select_account',
+        },
+      },
+    })
+  }
+
+  const handleSwitchAccount = async () => {
+    await supabase.auth.signOut()
+    window.location.href = '/admin'
+  }
+
+  return (
+    <div style={{
+      minHeight: '100dvh', background: BG,
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      gap: 16, padding: '0 32px',
+      fontFamily: "'Noto Sans', sans-serif",
+    }}>
+      <div style={{ fontSize: 34, fontWeight: 700, color: TEAL, letterSpacing: -0.8 }}>Roleon</div>
+
+      {variant === 'no-session' && (
+        <>
+          <div style={{ fontSize: 14, color: DIM, marginTop: -8, marginBottom: 8 }}>Painel administrativo</div>
+          <button
+            onClick={handleGoogleLogin}
+            disabled={entering}
+            style={{
+              height: 44, width: '100%', maxWidth: 280,
+              background: TEAL, color: WHITE, border: 'none', borderRadius: 8,
+              fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
+              cursor: entering ? 'default' : 'pointer', opacity: entering ? 0.7 : 1,
+            }}
+          >{entering ? 'Entrando...' : 'Entrar com Google'}</button>
+        </>
+      )}
+
+      {variant === 'wrong-role' && (
+        <>
+          <div style={{ fontSize: 14, color: TEXT, textAlign: 'center', maxWidth: 280, lineHeight: 1.5 }}>
+            Esta conta não tem acesso ao painel administrativo.
+          </div>
+          <button
+            onClick={handleSwitchAccount}
+            style={{
+              height: 44, width: '100%', maxWidth: 280,
+              background: WHITE, color: TEXT, border: `1px solid ${BORDER}`, borderRadius: 8,
+              fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
+              cursor: 'pointer',
+            }}
+          >Sair e entrar com outra conta</button>
+        </>
+      )}
+    </div>
+  )
+}
+
 // ── HEADER ───────────────────────────────────────────────────────────────────
 function AdminHeader({ onSignOut, showSignOut }: { onSignOut: () => void; showSignOut: boolean }) {
   return (
@@ -1202,6 +1270,7 @@ function MaisSection({ onNavigate, onSignOut }: { onNavigate: (s: MaisSection) =
 export default function AdminPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [authState, setAuthState] = useState<'checking' | 'no-session' | 'wrong-role' | 'ok'>('checking')
   const [tab, setTab] = useState<Tab>(() => {
     if (typeof window !== 'undefined') {
       const p = new URLSearchParams(window.location.search).get('tab') as Tab
@@ -1304,7 +1373,7 @@ export default function AdminPage() {
   useEffect(() => {
     const check = async () => {
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { router.replace('/'); return }
+      if (!session) { setAuthState('no-session'); setLoading(false); return }
 
       const { data: profile } = await supabase
         .from('profiles')
@@ -1312,11 +1381,12 @@ export default function AdminPage() {
         .eq('id', session.user.id)
         .maybeSingle()
 
-      if (profile?.role !== 'admin') { router.replace('/'); return }
+      if (profile?.role !== 'admin') { setAuthState('wrong-role'); setLoading(false); return }
+      setAuthState('ok')
       setLoading(false)
     }
     check()
-  }, [router])
+  }, [])
 
   const loadModeracao = async () => {
     setModLoading(true)
@@ -1744,6 +1814,13 @@ export default function AdminPage() {
         </svg>
       </div>
     )
+  }
+
+  if (authState === 'no-session') {
+    return <AdminLoginScreen variant="no-session" />
+  }
+  if (authState === 'wrong-role') {
+    return <AdminLoginScreen variant="wrong-role" />
   }
 
   // Resolve qual conteudo mostrar
