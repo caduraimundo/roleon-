@@ -382,7 +382,7 @@ export default function NovoEventoAdminPage() {
                   onClick={() => {
                     if (selected) {
                       setGenres(prev => prev.filter(x => x !== g))
-                    } else if (genres.length < 3) {
+                    } else {
                       setGenres(prev => [...prev, g])
                     }
                   }}
