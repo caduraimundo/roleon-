@@ -145,15 +145,49 @@ function AdminLoginScreen({ variant }: { variant: 'no-session' | 'wrong-role' })
   const handleGoogleLogin = async () => {
     if (entering) return
     setEntering(true)
-    await supabase.auth.signInWithOAuth({
+
+    const callbackUrl = `${window.location.origin}/auth/callback?popup=1&next=${encodeURIComponent('/admin')}`
+    let popup: Window | null = null
+
+    const { data } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/admin`,
+        redirectTo: callbackUrl,
+        skipBrowserRedirect: true,
         queryParams: {
           prompt: 'select_account',
         },
       },
     })
+
+    if (data?.url) {
+      popup = window.open(
+        data.url,
+        'google-login',
+        'width=520,height=620,left=' + Math.round(window.screenX + (window.outerWidth - 520) / 2) + ',top=' + Math.round(window.screenY + (window.outerHeight - 620) / 2)
+      )
+
+      if (!popup) {
+        window.location.href = data.url
+        return
+      }
+    } else {
+      setEntering(false)
+      return
+    }
+
+    const finalizeLogin = () => {
+      window.removeEventListener('storage', handleStorageChange)
+      popup?.close()
+      window.location.href = '/admin'
+    }
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === 'roleon_auth_success' && event.newValue) {
+        try { localStorage.removeItem('roleon_auth_success') } catch (e) {}
+        finalizeLogin()
+      }
+    }
+    window.addEventListener('storage', handleStorageChange)
   }
 
   const handleSwitchAccount = async () => {
