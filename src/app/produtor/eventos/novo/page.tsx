@@ -321,7 +321,8 @@ export default function NovoEventoPage() {
               <img
                 src={coverPreview}
                 alt="Capa do evento"
-                style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 12, display: 'block' }}
+                onClick={() => cropSrc && setCropModalOpen(true)}
+                style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 12, display: 'block', cursor: cropSrc ? 'pointer' : 'default' }}
               />
               <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                 <button
@@ -331,7 +332,7 @@ export default function NovoEventoPage() {
                   Trocar imagem
                 </button>
                 <button
-                  onClick={() => { setCoverFile(null); setCoverPreview(null) }}
+                  onClick={() => { setCoverFile(null); setCoverPreview(null); setCropSrc(null) }}
                   style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: '1px solid #FFD0D0', background: '#FFF5F5', fontSize: 13, fontWeight: 500, color: '#C0392B', cursor: 'pointer' }}
                 >
                   Remover
@@ -861,7 +862,6 @@ export default function NovoEventoPage() {
               }
               setCoverPreview(URL.createObjectURL(blob))
               setCropModalOpen(false)
-              setCropSrc(null)
             }}
           />
         )}
