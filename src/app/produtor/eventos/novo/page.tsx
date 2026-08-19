@@ -470,7 +470,7 @@ export default function NovoEventoPage() {
               value={numero}
               disabled={numero === 'S/N'}
               onChange={e => setNumero(e.target.value.replace(/\D/g, ''))}
-              style={{ ...inputStyle, flex: 1, background: numero === 'S/N' ? '#FAFAFA' : '#fff' }}
+              style={{ ...inputStyle, width: 110, flexShrink: 0, background: numero === 'S/N' ? '#FAFAFA' : '#fff' }}
             />
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
               <input
