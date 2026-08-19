@@ -119,6 +119,26 @@ function IconClose() {
 }
 
 // ── TELA DE LOGIN ADMIN ────────────────────────────────────────────────────
+function IconGoogleLogo() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18">
+      <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+      <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+      <path fill="#FBBC05" d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71s.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9s.348 2.827.957 4.042l3.007-2.332z"/>
+      <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+    </svg>
+  )
+}
+
+function IconAdminLock() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <rect x="5" y="11" width="14" height="9" rx="2" stroke="#6E6E73" strokeWidth="1.6"/>
+      <path d="M8 11V8a4 4 0 018 0v3" stroke="#6E6E73" strokeWidth="1.6" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
 function AdminLoginScreen({ variant }: { variant: 'no-session' | 'wrong-role' }) {
   const [entering, setEntering] = useState(false)
 
@@ -144,44 +164,79 @@ function AdminLoginScreen({ variant }: { variant: 'no-session' | 'wrong-role' })
   return (
     <div style={{
       minHeight: '100dvh', background: BG,
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      gap: 16, padding: '0 32px',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: 24,
       fontFamily: "'Noto Sans', sans-serif",
     }}>
-      <div style={{ fontSize: 34, fontWeight: 700, color: TEAL, letterSpacing: -0.8 }}>Roleon</div>
+      <div style={{
+        width: '100%', maxWidth: 340,
+        background: WHITE, borderRadius: 20,
+        padding: '44px 32px 36px',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
+        filter: 'drop-shadow(0 4px 24px rgba(0,0,0,0.07))',
+      }}>
+        <div style={{
+          width: 64, height: 64, borderRadius: 13,
+          background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: 4,
+        }}>
+          <span style={{ color: WHITE, fontSize: 32, fontWeight: 700, fontFamily: 'Arial, sans-serif' }}>R</span>
+        </div>
 
-      {variant === 'no-session' && (
-        <>
-          <div style={{ fontSize: 14, color: DIM, marginTop: -8, marginBottom: 8 }}>Painel administrativo</div>
+        <div style={{ fontSize: 22, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Roleon</div>
+        <div style={{ fontSize: 13, color: DIM, marginTop: -12, marginBottom: 4 }}>Painel administrativo</div>
+
+        {variant === 'no-session' && (
           <button
             onClick={handleGoogleLogin}
             disabled={entering}
             style={{
-              height: 44, width: '100%', maxWidth: 280,
-              background: TEAL, color: WHITE, border: 'none', borderRadius: 8,
+              height: 44, width: '100%',
+              background: TEAL, color: WHITE, border: 'none', borderRadius: 10,
               fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
               cursor: entering ? 'default' : 'pointer', opacity: entering ? 0.7 : 1,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+              marginTop: 8,
             }}
-          >{entering ? 'Entrando...' : 'Entrar com Google'}</button>
-        </>
-      )}
+          >
+            {entering ? (
+              'Entrando...'
+            ) : (
+              <>
+                <div style={{ background: WHITE, borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <IconGoogleLogo />
+                </div>
+                Entrar com Google
+              </>
+            )}
+          </button>
+        )}
 
-      {variant === 'wrong-role' && (
-        <>
-          <div style={{ fontSize: 14, color: TEXT, textAlign: 'center', maxWidth: 280, lineHeight: 1.5 }}>
-            Esta conta não tem acesso ao painel administrativo.
-          </div>
-          <button
-            onClick={handleSwitchAccount}
-            style={{
-              height: 44, width: '100%', maxWidth: 280,
-              background: WHITE, color: TEXT, border: `1px solid ${BORDER}`, borderRadius: 8,
-              fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
-              cursor: 'pointer',
-            }}
-          >Sair e entrar com outra conta</button>
-        </>
-      )}
+        {variant === 'wrong-role' && (
+          <>
+            <div style={{
+              width: 48, height: 48, borderRadius: '50%',
+              background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginTop: 4,
+            }}>
+              <IconAdminLock />
+            </div>
+            <div style={{ fontSize: 14, color: TEXT, textAlign: 'center', lineHeight: 1.5 }}>
+              Esta conta não tem acesso ao painel administrativo.
+            </div>
+            <button
+              onClick={handleSwitchAccount}
+              style={{
+                height: 44, width: '100%',
+                background: WHITE, color: TEXT, border: `1px solid ${BORDER}`, borderRadius: 10,
+                fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
+                cursor: 'pointer',
+                marginTop: 8,
+              }}
+            >Sair e entrar com outra conta</button>
+          </>
+        )}
+      </div>
     </div>
   )
 }
