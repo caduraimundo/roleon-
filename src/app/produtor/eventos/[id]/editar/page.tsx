@@ -459,7 +459,14 @@ export default function EditarEventoPage() {
               <img
                 src={existingCoverUrl}
                 alt="Capa do evento"
-                style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 12, display: 'block' }}
+                onClick={() => {
+                  const ext = existingCoverUrl.split('.').pop()?.toLowerCase()
+                  const type = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg'
+                  setOriginalFileMeta({ name: `capa.${ext || 'jpg'}`, type })
+                  setCropSrc(existingCoverUrl)
+                  setCropModalOpen(true)
+                }}
+                style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 12, display: 'block', cursor: 'pointer' }}
               />
               <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                 <button
