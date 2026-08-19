@@ -465,20 +465,28 @@ export default function NovoEventoPage() {
           />
           <div style={{ display: 'flex', gap: 12, marginBottom: 8, alignItems: 'flex-start' }}>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <input
+                  type="checkbox"
+                  checked={numero === 'S/N'}
+                  onChange={e => setNumero(e.target.checked ? 'S/N' : '')}
+                  style={{ width: 14, height: 14, accentColor: '#0EA5A0', cursor: 'pointer' }}
+                />
+                <label
+                  onClick={() => setNumero(numero === 'S/N' ? '' : 'S/N')}
+                  style={{ fontSize: 12, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif", cursor: 'pointer' }}
+                >
+                  Sem número
+                </label>
+              </div>
               <input
                 type="text"
                 placeholder="Nº"
                 value={numero}
+                disabled={numero === 'S/N'}
                 onChange={e => setNumero(e.target.value.replace(/\D/g, ''))}
-                style={{ ...inputStyle }}
+                style={{ ...inputStyle, background: numero === 'S/N' ? '#FAFAFA' : '#fff' }}
               />
-              <button
-                type="button"
-                onClick={() => setNumero('S/N')}
-                style={{ background: '#fff', border: '1px solid #0EA5A0', padding: '4px 10px', borderRadius: 8, alignSelf: 'flex-start', fontSize: 12, fontWeight: 600, color: '#0EA5A0', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
-              >
-                Sem número
-              </button>
             </div>
             <input
               type="text"
