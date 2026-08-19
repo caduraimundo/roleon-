@@ -402,7 +402,6 @@ export default function NovoEventoAdminPage() {
               )
             })}
           </div>
-          <span style={{ fontSize: 12, color: '#6E6E73', marginTop: 6 }}>Selecione até 3 categorias</span>
         </div>
 
         {/* Data e Hora */}
