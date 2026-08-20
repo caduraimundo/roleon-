@@ -50,6 +50,8 @@ export default function EditarEventoAdminPage() {
   const [genres, setGenres] = useState<string[]>([])
   const [eventDate, setEventDate] = useState('')
   const [eventTime, setEventTime] = useState('')
+  const [eventEndDate, setEventEndDate] = useState('')
+  const [eventEndTime, setEventEndTime] = useState('')
   const [isUnlimited, setIsUnlimited] = useState(false)
   const [ageRating, setAgeRating] = useState('Livre')
   const [coverFile, setCoverFile] = useState<File | null>(null)
@@ -92,7 +94,7 @@ export default function EditarEventoAdminPage() {
 
       const { data: ev } = await supabase
         .from('events')
-        .select('id, title, description, genre, event_date, location_name, age_rating, is_unlimited, cover_image, policies, display_organizer_name, producer_id, status')
+        .select('id, title, description, genre, event_date, event_end_date, location_name, age_rating, is_unlimited, cover_image, policies, display_organizer_name, producer_id, status')
         .eq('id', eventId)
         .single()
 
@@ -115,6 +117,12 @@ export default function EditarEventoAdminPage() {
         const d = new Date(ev.event_date)
         setEventDate(d.toISOString().slice(0, 10))
         setEventTime(d.toISOString().slice(11, 16))
+      }
+
+      if ((ev as any).event_end_date) {
+        const dEnd = new Date((ev as any).event_end_date)
+        setEventEndDate(dEnd.toISOString().slice(0, 10))
+        setEventEndTime(dEnd.toISOString().slice(11, 16))
       }
 
       if (ev.location_name) {
@@ -163,7 +171,11 @@ export default function EditarEventoAdminPage() {
     if (!termsAccepted) { showError('Aceite os termos para salvar o evento'); return }
     if (!title.trim()) { showError('Título é obrigatório'); return }
     if (genres.length < 1) { showError('Selecione pelo menos uma categoria'); return }
-    if (!eventDate || !eventTime) { showError('Data e hora são obrigatórios'); return }
+    if (!eventDate || !eventTime) { showError('Data e hora de início são obrigatórios'); return }
+    if (!eventEndDate || !eventEndTime) { showError('Data e hora de término são obrigatórios'); return }
+    if (new Date(`${eventEndDate}T${eventEndTime}:00-03:00`) <= new Date(`${eventDate}T${eventTime}:00-03:00`)) {
+      showError('O término precisa ser depois do início do evento'); return
+    }
     if (!rua.trim()) { showError('Rua é obrigatória'); return }
     if (!numero.trim()) { showError('Número é obrigatório'); return }
     if (!cidade.trim()) { showError('Cidade é obrigatória'); return }
@@ -201,6 +213,7 @@ export default function EditarEventoAdminPage() {
       }
 
       const event_date = `${eventDate}T${eventTime}:00-03:00`
+      const event_end_date = `${eventEndDate}T${eventEndTime}:00-03:00`
       const res = await fetch(`/api/admin/events/${eventId}`, {
         method: 'PUT',
         headers: {
@@ -213,6 +226,7 @@ export default function EditarEventoAdminPage() {
           genres,
           age_rating: ageRating,
           event_date,
+          event_end_date,
           location_name: `${rua}, ${numero}${bairro ? ', ' + bairro : ''}, ${cidade} - ${estado}${cep.replace(/\D/g, '').length === 8 ? `, CEP ${cep}` : ''}`,
           is_unlimited: isUnlimited,
           cover_image: coverImageUrl ?? null,
@@ -431,7 +445,7 @@ export default function EditarEventoAdminPage() {
 
         {/* Data e Hora */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>Data e hora</label>
+          <label style={labelStyle}>Início</label>
           <div style={{ display: 'flex', gap: 12 }}>
             <input
               type="date"
@@ -443,6 +457,24 @@ export default function EditarEventoAdminPage() {
               type="time"
               value={eventTime}
               onChange={e => setEventTime(e.target.value)}
+              style={{ ...inputStyle, flex: 'none', width: 100 }}
+            />
+          </div>
+        </div>
+
+        <div style={sectionStyle}>
+          <label style={labelStyle}>Término</label>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <input
+              type="date"
+              value={eventEndDate}
+              onChange={e => setEventEndDate(e.target.value)}
+              style={{ ...inputStyle, flex: 1, minWidth: 0, display: 'block' }}
+            />
+            <input
+              type="time"
+              value={eventEndTime}
+              onChange={e => setEventEndTime(e.target.value)}
               style={{ ...inputStyle, flex: 'none', width: 100 }}
             />
           </div>
