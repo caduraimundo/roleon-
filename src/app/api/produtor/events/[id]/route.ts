@@ -63,6 +63,7 @@ export async function PUT(
     title,
     description,
     event_date,
+    event_end_date,
     location_name,
     location_lat,
     location_lng,
@@ -73,6 +74,17 @@ export async function PUT(
     policies,
     ticket_types,
   } = body
+
+  if (event_end_date !== undefined && event_end_date !== null) {
+    const endObj = new Date(event_end_date)
+    if (isNaN(endObj.getTime())) {
+      return NextResponse.json({ error: 'Data de término inválida' }, { status: 400 })
+    }
+    const startRef = event_date !== undefined ? new Date(event_date) : new Date((event.event_date as string).replace(' ', 'T'))
+    if (endObj <= startRef) {
+      return NextResponse.json({ error: 'O término precisa ser depois do início do evento' }, { status: 400 })
+    }
+  }
 
   // Buscar tickets vendidos - usado em múltiplos pontos abaixo
   const { data: soldTickets } = await supabaseAdmin
@@ -109,6 +121,7 @@ export async function PUT(
   if (title !== undefined) update.title = title
   if (description !== undefined) update.description = description
   if (event_date !== undefined) update.event_date = event_date
+  if (event_end_date !== undefined) update.event_end_date = event_end_date
   if (location_name !== undefined) {
     update.location_name = location_name
     // Geocodifica o novo endereço para atualizar o pin no mapa
