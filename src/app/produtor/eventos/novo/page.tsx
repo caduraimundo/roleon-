@@ -17,6 +17,8 @@ export default function NovoEventoPage() {
   const [genres, setGenres] = useState<string[]>([])
   const [eventDate, setEventDate] = useState('')
   const [eventTime, setEventTime] = useState('')
+  const [eventEndDate, setEventEndDate] = useState('')
+  const [eventEndTime, setEventEndTime] = useState('')
   const [isFree, setIsFree] = useState(false)
   const [isUnlimited, setIsUnlimited] = useState(false)
   const [freeCapacity, setFreeCapacity] = useState('')
@@ -80,6 +82,8 @@ export default function NovoEventoPage() {
           if (d.estado) setEstado(d.estado)
           if (d.eventDate) setEventDate(d.eventDate)
           if (d.eventTime) setEventTime(d.eventTime)
+          if (d.eventEndDate) setEventEndDate(d.eventEndDate)
+          if (d.eventEndTime) setEventEndTime(d.eventEndTime)
           if (d.isFree !== undefined) setIsFree(d.isFree)
           if (d.isUnlimited !== undefined) setIsUnlimited(d.isUnlimited)
           if (d.freeCapacity) setFreeCapacity(d.freeCapacity)
@@ -99,11 +103,11 @@ export default function NovoEventoPage() {
     const draft = {
       title, description, genres,
       cep, rua, numero, bairro, cidade, estado,
-      eventDate, eventTime, isFree, isUnlimited, freeCapacity, ageRating,
+      eventDate, eventTime, eventEndDate, eventEndTime, isFree, isUnlimited, freeCapacity, ageRating,
       ticketTypes, policies,
     }
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
-  }, [draftLoaded, title, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, isFree, isUnlimited, freeCapacity, ageRating, ticketTypes, policies])
+  }, [draftLoaded, title, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, eventEndDate, eventEndTime, isFree, isUnlimited, freeCapacity, ageRating, ticketTypes, policies])
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -145,13 +149,18 @@ export default function NovoEventoPage() {
     if (!termsAccepted) { showError('Aceite os termos para publicar o evento'); return }
     if (!title.trim()) { showError('Título é obrigatório'); return }
     if (genres.length < 1) { showError('Selecione pelo menos uma categoria'); return }
-    if (!eventDate || !eventTime) { showError('Data e hora são obrigatórios'); return }
+    if (!eventDate || !eventTime) { showError('Data e hora de início são obrigatórios'); return }
+    if (!eventEndDate || !eventEndTime) { showError('Data e hora de término são obrigatórios'); return }
     const eventDateTime = new Date(`${eventDate}T${eventTime}:00-03:00`)
+    const eventEndDateTime = new Date(`${eventEndDate}T${eventEndTime}:00-03:00`)
     if (eventDateTime < new Date()) {
       showError('A data do evento já passou. Verifique o dia, mês e ano informados.'); return
     }
     if (eventDateTime < new Date(Date.now() + 2 * 60 * 60 * 1000)) {
       showError('O evento precisa ser criado com pelo menos 2 horas de antecedência'); return
+    }
+    if (eventEndDateTime <= eventDateTime) {
+      showError('O término precisa ser depois do início do evento'); return
     }
     if (!rua.trim()) { showError('Rua é obrigatória'); return }
     if (!numero.trim()) { showError('Número é obrigatório'); return }
@@ -198,6 +207,7 @@ export default function NovoEventoPage() {
       }
 
       const event_date = `${eventDate}T${eventTime}:00-03:00`
+      const event_end_date = `${eventEndDate}T${eventEndTime}:00-03:00`
       const res = await fetch('/api/produtor/events', {
         method: 'POST',
         headers: {
@@ -209,6 +219,7 @@ export default function NovoEventoPage() {
           description,
           genres,
           event_date,
+          event_end_date,
           location_name: `${rua}, ${numero}${bairro ? ', ' + bairro : ''}, ${cidade} - ${estado}${cep.replace(/\D/g, '').length === 8 ? `, CEP ${cep}` : ''}`,
           location_lat: null,
           location_lng: null,
@@ -416,7 +427,7 @@ export default function NovoEventoPage() {
 
         {/* Data e Hora */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>Data e hora</label>
+          <label style={labelStyle}>Início</label>
           <div style={{ display: 'flex', gap: 12 }}>
             <input
               type="date"
@@ -428,6 +439,24 @@ export default function NovoEventoPage() {
               type="time"
               value={eventTime}
               onChange={e => setEventTime(e.target.value)}
+              style={{ ...inputStyle, flex: 'none', width: 100 }}
+            />
+          </div>
+        </div>
+
+        <div style={sectionStyle}>
+          <label style={labelStyle}>Término</label>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <input
+              type="date"
+              value={eventEndDate}
+              onChange={e => setEventEndDate(e.target.value)}
+              style={{ ...inputStyle, flex: 1, minWidth: 0, display: 'block' }}
+            />
+            <input
+              type="time"
+              value={eventEndTime}
+              onChange={e => setEventEndTime(e.target.value)}
               style={{ ...inputStyle, flex: 'none', width: 100 }}
             />
           </div>
