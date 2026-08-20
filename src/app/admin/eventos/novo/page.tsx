@@ -17,6 +17,8 @@ export default function NovoEventoAdminPage() {
   const [genres, setGenres] = useState<string[]>([])
   const [eventDate, setEventDate] = useState('')
   const [eventTime, setEventTime] = useState('')
+  const [eventEndDate, setEventEndDate] = useState('')
+  const [eventEndTime, setEventEndTime] = useState('')
   const [isUnlimited, setIsUnlimited] = useState(false)
   const [freeCapacity, setFreeCapacity] = useState('')
   const [ageRating, setAgeRating] = useState('Livre')
@@ -77,6 +79,8 @@ export default function NovoEventoAdminPage() {
           if (d.estado) setEstado(d.estado)
           if (d.eventDate) setEventDate(d.eventDate)
           if (d.eventTime) setEventTime(d.eventTime)
+          if (d.eventEndDate) setEventEndDate(d.eventEndDate)
+          if (d.eventEndTime) setEventEndTime(d.eventEndTime)
           if (d.isUnlimited !== undefined) setIsUnlimited(d.isUnlimited)
           if (d.ageRating) setAgeRating(d.ageRating)
           if (d.policies?.length) setPolicies(d.policies)
@@ -93,11 +97,11 @@ export default function NovoEventoAdminPage() {
     const draft = {
       title, organizerName, description, genres,
       cep, rua, numero, bairro, cidade, estado,
-      eventDate, eventTime, isUnlimited, ageRating,
+      eventDate, eventTime, eventEndDate, eventEndTime, isUnlimited, ageRating,
       policies,
     }
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
-  }, [draftLoaded, title, organizerName, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, isUnlimited, ageRating, policies])
+  }, [draftLoaded, title, organizerName, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, eventEndDate, eventEndTime, isUnlimited, ageRating, policies])
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -131,8 +135,13 @@ export default function NovoEventoAdminPage() {
     if (!termsAccepted) { showError('Aceite os termos para publicar o evento'); return }
     if (!title.trim()) { showError('Título é obrigatório'); return }
     if (genres.length < 1) { showError('Selecione pelo menos uma categoria'); return }
-    if (!eventDate || !eventTime) { showError('Data e hora são obrigatórios'); return }
+    if (!eventDate || !eventTime) { showError('Data e hora de início são obrigatórios'); return }
+    if (!eventEndDate || !eventEndTime) { showError('Data e hora de término são obrigatórios'); return }
     const eventDateTime = new Date(`${eventDate}T${eventTime}:00-03:00`)
+    const eventEndDateTime = new Date(`${eventEndDate}T${eventEndTime}:00-03:00`)
+    if (eventEndDateTime <= eventDateTime) {
+      showError('O término precisa ser depois do início do evento'); return
+    }
     if (eventDateTime < new Date()) {
       showError('A data do evento já passou. Verifique o dia, mês e ano informados.'); return
     }
@@ -179,6 +188,7 @@ export default function NovoEventoAdminPage() {
       }
 
       const event_date = `${eventDate}T${eventTime}:00-03:00`
+      const event_end_date = `${eventEndDate}T${eventEndTime}:00-03:00`
       const res = await fetch('/api/admin/events', {
         method: 'POST',
         headers: {
@@ -191,6 +201,7 @@ export default function NovoEventoAdminPage() {
           genres,
           age_rating: ageRating,
           event_date,
+          event_end_date,
           location_name: `${rua}, ${numero}${bairro ? ', ' + bairro : ''}, ${cidade} - ${estado}${cep.replace(/\D/g, '').length === 8 ? `, CEP ${cep}` : ''}`,
           location_lat: null,
           location_lng: null,
@@ -406,7 +417,7 @@ export default function NovoEventoAdminPage() {
 
         {/* Data e Hora */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>Data e hora</label>
+          <label style={labelStyle}>Início</label>
           <div style={{ display: 'flex', gap: 12 }}>
             <input
               type="date"
@@ -418,6 +429,24 @@ export default function NovoEventoAdminPage() {
               type="time"
               value={eventTime}
               onChange={e => setEventTime(e.target.value)}
+              style={{ ...inputStyle, flex: 'none', width: 100 }}
+            />
+          </div>
+        </div>
+
+        <div style={sectionStyle}>
+          <label style={labelStyle}>Término</label>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <input
+              type="date"
+              value={eventEndDate}
+              onChange={e => setEventEndDate(e.target.value)}
+              style={{ ...inputStyle, flex: 1, minWidth: 0, display: 'block' }}
+            />
+            <input
+              type="time"
+              value={eventEndTime}
+              onChange={e => setEventEndTime(e.target.value)}
               style={{ ...inputStyle, flex: 'none', width: 100 }}
             />
           </div>
