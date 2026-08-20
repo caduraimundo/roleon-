@@ -19,6 +19,8 @@ export default function EditarEventoPage() {
   const [genres, setGenres] = useState<string[]>([])
   const [eventDate, setEventDate] = useState('')
   const [eventTime, setEventTime] = useState('')
+  const [eventEndDate, setEventEndDate] = useState('')
+  const [eventEndTime, setEventEndTime] = useState('')
   const [isFree, setIsFree] = useState(false)
   const [isUnlimited, setIsUnlimited] = useState(false)
   const [freeCapacity, setFreeCapacity] = useState('')
@@ -76,7 +78,7 @@ export default function EditarEventoPage() {
 
       const { data: ev } = await supabase
         .from('events')
-        .select('id, title, description, genre, event_date, location_name, location_lat, location_lng, price, is_free, is_unlimited, cover_image, producer_id, status, policies, age_rating, event_type, created_at')
+        .select('id, title, description, genre, event_date, event_end_date, location_name, location_lat, location_lng, price, is_free, is_unlimited, cover_image, producer_id, status, policies, age_rating, event_type, created_at')
         .eq('id', eventId)
         .single()
 
@@ -97,6 +99,15 @@ export default function EditarEventoPage() {
       } else {
         setEventDate('')
         setEventTime('')
+      }
+      const evEndDateUtc = (ev as any).event_end_date ? new Date(String((ev as any).event_end_date).replace(' ', 'T')) : null
+      if (evEndDateUtc) {
+        const evEndDateBr = new Date(evEndDateUtc.getTime() - 3 * 60 * 60 * 1000)
+        setEventEndDate(evEndDateBr.toISOString().slice(0, 10))
+        setEventEndTime(evEndDateBr.toISOString().slice(11, 16))
+      } else {
+        setEventEndDate('')
+        setEventEndTime('')
       }
       setIsFree(ev.is_free || false)
       setIsUnlimited(ev.is_unlimited || false)
@@ -215,7 +226,11 @@ export default function EditarEventoPage() {
     if (!termsAccepted) { showError('Aceite os termos para salvar o evento'); return }
     if (!title.trim()) { showError('Título é obrigatório'); return }
     if (genres.length < 1) { showError('Selecione pelo menos uma categoria'); return }
-    if (!eventDate || !eventTime) { showError('Data e hora são obrigatórios'); return }
+    if (!eventDate || !eventTime) { showError('Data e hora de início são obrigatórios'); return }
+    if (!eventEndDate || !eventEndTime) { showError('Data e hora de término são obrigatórios'); return }
+    if (new Date(`${eventEndDate}T${eventEndTime}:00-03:00`) <= new Date(`${eventDate}T${eventTime}:00-03:00`)) {
+      showError('O término precisa ser depois do início do evento'); return
+    }
     if (!rua.trim()) { showError('Rua é obrigatória'); return }
     if (!numero.trim()) { showError('Número é obrigatório'); return }
     if (!cidade.trim()) { showError('Cidade é obrigatória'); return }
@@ -261,6 +276,7 @@ export default function EditarEventoPage() {
       }
 
       const event_date = `${eventDate}T${eventTime}:00-03:00`
+      const event_end_date = `${eventEndDate}T${eventEndTime}:00-03:00`
       const res = await fetch(`/api/produtor/events/${eventId}`, {
         method: 'PUT',
         headers: {
@@ -272,6 +288,7 @@ export default function EditarEventoPage() {
           description,
           genre: genres,
           event_date,
+          event_end_date,
           location_name: `${rua}, ${numero}${bairro ? ', ' + bairro : ''}, ${cidade} - ${estado}${cep.replace(/\D/g, '').length === 8 ? `, CEP ${cep}` : ''}`,
           location_lat: null,
           location_lng: null,
@@ -560,7 +577,7 @@ export default function EditarEventoPage() {
 
         {/* Data e Hora */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>Data e hora</label>
+          <label style={labelStyle}>Início</label>
           <div style={{ display: 'flex', gap: 12 }}>
             <input
               type="date"
@@ -572,6 +589,24 @@ export default function EditarEventoPage() {
               type="time"
               value={eventTime}
               onChange={e => setEventTime(e.target.value)}
+              style={{ ...inputStyle, flex: 'none', width: 100 }}
+            />
+          </div>
+        </div>
+
+        <div style={sectionStyle}>
+          <label style={labelStyle}>Término</label>
+          <div style={{ display: 'flex', gap: 12 }}>
+            <input
+              type="date"
+              value={eventEndDate}
+              onChange={e => setEventEndDate(e.target.value)}
+              style={{ ...inputStyle, flex: 1, minWidth: 0, display: 'block' }}
+            />
+            <input
+              type="time"
+              value={eventEndTime}
+              onChange={e => setEventEndTime(e.target.value)}
               style={{ ...inputStyle, flex: 'none', width: 100 }}
             />
           </div>
