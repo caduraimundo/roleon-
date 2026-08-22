@@ -495,6 +495,7 @@ export default function NovoEventoPage() {
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
             <input
               type="text"
+              inputMode="numeric"
               placeholder="Nº"
               value={numero}
               disabled={numero === 'S/N'}
