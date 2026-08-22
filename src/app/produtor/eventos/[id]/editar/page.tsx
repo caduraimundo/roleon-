@@ -705,9 +705,9 @@ export default function EditarEventoPage() {
 
         {/* Políticas */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>Informações adicionais do evento</label>
+          <label style={labelStyle}>Informações adicionais</label>
           <span style={{ fontSize: 12, color: '#6E6E73', marginBottom: 8 }}>
-            Ex: Estacionamento no local, Lotação controlada, Proibido reentrada
+            Ex: Estacionamento no local, Proibido reentrada
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {additionalInfo.map((item, i) => (
@@ -759,7 +759,7 @@ export default function EditarEventoPage() {
               marginTop: 8,
             }}
           >
-            + Adicionar política
+            + Adicionar informação
           </button>
         </div>
 
