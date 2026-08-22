@@ -586,9 +586,15 @@ export default function NovoEventoAdminPage() {
                   onChange={e => setAdditionalInfo(prev => prev.map((p, j) => j === i ? e.target.value : p))}
                   style={{ ...inputStyle, flex: 1, padding: '10px 12px' }}
                 />
-                {additionalInfo.length > 1 && (
+                {(
                   <button
-                    onClick={() => setAdditionalInfo(prev => prev.filter((_, j) => j !== i))}
+                    onClick={() => {
+                      if (additionalInfo.length > 1) {
+                        setAdditionalInfo(prev => prev.filter((_, j) => j !== i))
+                      } else {
+                        setAdditionalInfo(prev => prev.map((p, j) => j === i ? '' : p))
+                      }
+                    }}
                     style={{
                       width: 24,
                       height: 24,
