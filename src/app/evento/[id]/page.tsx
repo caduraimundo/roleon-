@@ -31,6 +31,7 @@ interface FullEvent {
   id: string; title: string; genre: string; genres: string[]; price: number
   isFree: boolean; fee: number; venue: string
   dateStr: string | null; timeStr: string | null; yearStr: string | null
+  endDateStr: string | null; endTimeStr: string | null; endYearStr: string | null
   heroColor: string
   description?: string | null; policies?: string[] | null
   cover_image?: string | null
@@ -48,7 +49,8 @@ function fromCache(cached: RoleonEvent): FullEvent {
       : cached.genre ? [cached.genre] : [],
     price: cached.price, isFree: cached.price === 0, fee: cached.fee,
     venue: cached.venue, dateStr: cached.date || null, timeStr: cached.time || null,
-    yearStr: null, heroColor: GENRE_COLORS[cached.genre] ?? DEFAULT_COLOR,
+    yearStr: null, endDateStr: null, endTimeStr: null, endYearStr: null,
+    heroColor: GENRE_COLORS[cached.genre] ?? DEFAULT_COLOR,
     description: cached.description ?? null, policies: null,
     cover_image: null, location_lat: null, location_lng: null,
   }
@@ -56,6 +58,7 @@ function fromCache(cached: RoleonEvent): FullEvent {
 
 function fromSupabase(row: Record<string, unknown>): FullEvent {
   const d = row.event_date ? new Date(row.event_date as string) : null
+  const dEnd = row.event_end_date ? new Date(row.event_end_date as string) : null
   const price = Number(row.price) || 0
   const isFree = !!(row.is_free) || price === 0
   return {
@@ -72,6 +75,9 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
     dateStr: d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', timeZone: 'America/Sao_Paulo' }).replace(/^./, c => c.toUpperCase()) : null,
     timeStr: d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }) : null,
     yearStr: d ? d.toLocaleDateString('pt-BR', { year: 'numeric', timeZone: 'America/Sao_Paulo' }) : null,
+    endDateStr: dEnd ? dEnd.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', timeZone: 'America/Sao_Paulo' }).replace(/^./, c => c.toUpperCase()) : null,
+    endTimeStr: dEnd ? dEnd.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }) : null,
+    endYearStr: dEnd ? dEnd.toLocaleDateString('pt-BR', { year: 'numeric', timeZone: 'America/Sao_Paulo' }) : null,
     ageRating: (row.age_rating as string | null) ?? null,
     heroColor: GENRE_COLORS[Array.isArray(row.genre)
       ? (row.genre as string[])[0] ?? ''
@@ -189,7 +195,7 @@ export default function EventoPage() {
 
     supabase
       .from('events')
-      .select('id, title, genre, price, location_name, event_date, is_free, description, policies, cover_image, location_lat, location_lng, producer_id, display_organizer_name, age_rating')
+      .select('id, title, genre, price, location_name, event_date, event_end_date, is_free, description, policies, cover_image, location_lat, location_lng, producer_id, display_organizer_name, age_rating')
       .eq('id', id)
       .single()
       .then(({ data }) => {
@@ -254,6 +260,7 @@ export default function EventoPage() {
   console.log('ticket_types state:', ticketTypes, 'isFree:', ev.isFree)
 
   const dateLabel = [ev.dateStr, ev.yearStr].filter(Boolean).join(', ') + (ev.timeStr ? ` · ${ev.timeStr}` : '')
+  const endDateLabel = [ev.endDateStr, ev.endYearStr].filter(Boolean).join(', ') + (ev.endTimeStr ? ` · ${ev.endTimeStr}` : '')
 
   const selectedType = ticketTypes.find(t => t.id === selectedTypeId)
   const ctaPrice = selectedType ? selectedType.price : ev.price
@@ -377,13 +384,27 @@ export default function EventoPage() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 11, fontWeight: 600, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
-                  Data
+                  Início
                 </div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>{dateLabel}</div>
               </div>
             </div>
           )}
-          {ev.dateStr && ev.venue && <div style={{ height: 1, background: '#F7F7F7', margin: '0 16px' }} />}
+          {ev.dateStr && ev.endDateStr && <div style={{ height: 1, background: '#F7F7F7', margin: '0 16px' }} />}
+          {ev.endDateStr && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: '#E6F7F6', color: '#0EA5A0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <IconCalendar />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
+                  Término
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>{endDateLabel}</div>
+              </div>
+            </div>
+          )}
+          {(ev.dateStr || ev.endDateStr) && ev.venue && <div style={{ height: 1, background: '#F7F7F7', margin: '0 16px' }} />}
           {ev.venue && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
               <div style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: '#E6F7F6', color: '#0EA5A0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
