@@ -1497,7 +1497,7 @@ export default function AdminPage() {
     setDetailLoading(true)
     const { data } = await supabase
       .from('events')
-      .select('id, title, description, genre, event_date, location_name, price, is_free, cover_image, producer_id, display_organizer_name, age_rating, profiles!producer_id(name, email, avatar_initials), ticket_types(id, name, price, quantity, quantity_sold)')
+      .select('id, title, description, genre, event_date, event_end_date, location_name, price, is_free, cover_image, producer_id, display_organizer_name, age_rating, profiles!producer_id(name, email, avatar_initials), ticket_types(id, name, price, quantity, quantity_sold)')
       .eq('id', ev.id)
       .maybeSingle()
     setDetailData(data)
@@ -2057,7 +2057,7 @@ export default function AdminPage() {
         const b = (detailEvent.status === 'active' && isDetailPast) ? badge.completed : (badge[detailEvent.status] ?? badge.pending)
         const producer = ev?.profiles as any
         const tickets = (ev?.ticket_types ?? []) as any[]
-        const formatDate = (d: string) => d ? new Date(d.replace(' ', 'T')).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'
+        const formatDateTime = (d: string) => d ? new Date(d.replace(' ', 'T')).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }) + ' · ' + new Date(d.replace(' ', 'T')).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '—'
         const formatPrice = (p: number) => p ? `R$ ${Number(p).toFixed(2).replace('.', ',')}` : 'Gratuito'
 
         return (
@@ -2086,7 +2086,8 @@ export default function AdminPage() {
                 {/* Informações */}
                 <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Informações do Evento</div>
                 {[
-                  { label: 'Data',      value: formatDate(detailEvent.event_date) },
+                  { label: 'Início',    value: formatDateTime(detailEvent.event_date) },
+                  { label: 'Término',   value: formatDateTime(ev?.event_end_date) },
                   { label: 'Local',     value: detailEvent.location_name || '—' },
                   { label: 'Categoria',    value: Array.isArray(detailEvent.genre) ? detailEvent.genre.join(', ') : (detailEvent.genre || '—') },
                   { label: 'Classificação', value: ev?.age_rating || 'Livre' },
