@@ -33,7 +33,7 @@ interface FullEvent {
   dateStr: string | null; timeStr: string | null; yearStr: string | null
   endDateStr: string | null; endTimeStr: string | null; endYearStr: string | null
   heroColor: string
-  description?: string | null; policies?: string[] | null
+  description?: string | null; additionalInfo?: string[] | null
   cover_image?: string | null
   location_lat?: number | null
   location_lng?: number | null
@@ -51,7 +51,7 @@ function fromCache(cached: RoleonEvent): FullEvent {
     venue: cached.venue, dateStr: cached.date || null, timeStr: cached.time || null,
     yearStr: null, endDateStr: null, endTimeStr: null, endYearStr: null,
     heroColor: GENRE_COLORS[cached.genre] ?? DEFAULT_COLOR,
-    description: cached.description ?? null, policies: null,
+    description: cached.description ?? null, additionalInfo: null,
     cover_image: null, location_lat: null, location_lng: null,
   }
 }
@@ -83,7 +83,7 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
       ? (row.genre as string[])[0] ?? ''
       : (row.genre as string) ?? ''] ?? DEFAULT_COLOR,
     description: (row.description as string | null) ?? null,
-    policies: Array.isArray(row.policies) ? (row.policies as string[]) : null,
+    additionalInfo: Array.isArray(row.additional_info) ? (row.additional_info as string[]) : null,
     cover_image: (row.cover_image as string | null) ?? null,
     location_lat: (row.location_lat as number | null) ?? null,
     location_lng: (row.location_lng as number | null) ?? null,
@@ -195,7 +195,7 @@ export default function EventoPage() {
 
     supabase
       .from('events')
-      .select('id, title, genre, price, location_name, event_date, event_end_date, is_free, description, policies, cover_image, location_lat, location_lng, producer_id, display_organizer_name, age_rating')
+      .select('id, title, genre, price, location_name, event_date, event_end_date, is_free, description, additional_info, cover_image, location_lat, location_lng, producer_id, display_organizer_name, age_rating')
       .eq('id', id)
       .single()
       .then(({ data }) => {
@@ -526,14 +526,14 @@ export default function EventoPage() {
           />
         )}
 
-        {/* Politicas */}
-        {ev.policies && ev.policies.length > 0 && (
+        {/* Informações adicionais */}
+        {ev.additionalInfo && ev.additionalInfo.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 6 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>
-              Politicas do evento
+              Informações adicionais
             </div>
             <div style={{ background: '#fff', border: '1px solid #EFEFEF', borderRadius: 14, overflow: 'hidden' }}>
-              {ev.policies.map((policy, i) => (
+              {ev.additionalInfo.map((info, i) => (
                 <div key={i}>
                   {i > 0 && <div style={{ height: '0.5px', background: '#EFEFEF', margin: '0 14px' }} />}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}>
@@ -543,7 +543,7 @@ export default function EventoPage() {
                       <circle cx="7" cy="4.2" r="0.7" fill="#0EA5A0"/>
                     </svg>
                     <span style={{ fontSize: 13.5, color: '#1A1A1A', lineHeight: 1.55, fontFamily: "'Noto Sans', sans-serif" }}>
-                      {policy}
+                      {info}
                     </span>
                   </div>
                 </div>
