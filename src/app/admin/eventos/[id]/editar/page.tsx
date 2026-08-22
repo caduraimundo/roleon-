@@ -59,7 +59,7 @@ export default function EditarEventoAdminPage() {
   const [cropSrc, setCropSrc] = useState<string | null>(null)
   const [cropModalOpen, setCropModalOpen] = useState(false)
   const [originalFileMeta, setOriginalFileMeta] = useState<{ name: string; type: string } | null>(null)
-  const [policies, setPolicies] = useState<string[]>([''])
+  const [additionalInfo, setAdditionalInfo] = useState<string[]>([''])
   const [cep, setCep] = useState('')
   const [rua, setRua] = useState('')
   const [numero, setNumero] = useState('')
@@ -94,7 +94,7 @@ export default function EditarEventoAdminPage() {
 
       const { data: ev } = await supabase
         .from('events')
-        .select('id, title, description, genre, event_date, event_end_date, location_name, age_rating, is_unlimited, cover_image, policies, display_organizer_name, producer_id, status')
+        .select('id, title, description, genre, event_date, event_end_date, location_name, age_rating, is_unlimited, cover_image, additional_info, display_organizer_name, producer_id, status')
         .eq('id', eventId)
         .single()
 
@@ -111,7 +111,7 @@ export default function EditarEventoAdminPage() {
       setAgeRating(ev.age_rating || 'Livre')
       setIsUnlimited(!!ev.is_unlimited)
       setCoverPreview(ev.cover_image || null)
-      setPolicies(Array.isArray(ev.policies) && ev.policies.length > 0 ? ev.policies : [''])
+      setAdditionalInfo(Array.isArray(ev.additional_info) && ev.additional_info.length > 0 ? ev.additional_info : [''])
 
       if (ev.event_date) {
         const d = new Date(ev.event_date)
@@ -230,7 +230,7 @@ export default function EditarEventoAdminPage() {
           location_name: `${rua}, ${numero}${bairro ? ', ' + bairro : ''}, ${cidade} - ${estado}${cep.replace(/\D/g, '').length === 8 ? `, CEP ${cep}` : ''}`,
           is_unlimited: isUnlimited,
           cover_image: coverImageUrl ?? null,
-          policies: policies.filter(p => p.trim() !== ''),
+          additional_info: additionalInfo.filter(p => p.trim() !== ''),
           display_organizer_name: organizerName,
         }),
       })
@@ -600,23 +600,23 @@ export default function EditarEventoAdminPage() {
 
         {/* Políticas */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>Políticas do evento</label>
+          <label style={labelStyle}>Informações adicionais do evento</label>
           <span style={{ fontSize: 12, color: '#6E6E73', marginBottom: 8 }}>
-            Ex: Lotação controlada, Proibido reentrada
+            Ex: Estacionamento no local, Lotação controlada, Proibido reentrada
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {policies.map((policy, i) => (
+            {additionalInfo.map((item, i) => (
               <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input
                   type="text"
-                  placeholder="Ex: Proibido reentrada"
-                  value={policy}
-                  onChange={e => setPolicies(prev => prev.map((p, j) => j === i ? e.target.value : p))}
+                  placeholder="Ex: Estacionamento no local"
+                  value={item}
+                  onChange={e => setAdditionalInfo(prev => prev.map((p, j) => j === i ? e.target.value : p))}
                   style={{ ...inputStyle, flex: 1, padding: '10px 12px' }}
                 />
-                {policies.length > 1 && (
+                {additionalInfo.length > 1 && (
                   <button
-                    onClick={() => setPolicies(prev => prev.filter((_, j) => j !== i))}
+                    onClick={() => setAdditionalInfo(prev => prev.filter((_, j) => j !== i))}
                     style={{
                       width: 24,
                       height: 24,
@@ -639,7 +639,7 @@ export default function EditarEventoAdminPage() {
             ))}
           </div>
           <button
-            onClick={() => setPolicies(prev => [...prev, ''])}
+            onClick={() => setAdditionalInfo(prev => [...prev, ''])}
             style={{
               width: '100%',
               height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
