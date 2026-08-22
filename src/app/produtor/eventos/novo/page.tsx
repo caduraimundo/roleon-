@@ -29,7 +29,7 @@ export default function NovoEventoPage() {
   const [cropModalOpen, setCropModalOpen] = useState(false)
   const [originalFileMeta, setOriginalFileMeta] = useState<{ name: string; type: string } | null>(null)
   const [ticketTypes, setTicketTypes] = useState<TicketType[]>([{ name: '', price: '', quantity: '' }])
-  const [policies, setPolicies] = useState<string[]>([''])
+  const [additionalInfo, setAdditionalInfo] = useState<string[]>([''])
   const [cep, setCep] = useState('')
   const [rua, setRua] = useState('')
   const [numero, setNumero] = useState('')
@@ -89,7 +89,7 @@ export default function NovoEventoPage() {
           if (d.freeCapacity) setFreeCapacity(d.freeCapacity)
           if (d.ageRating) setAgeRating(d.ageRating)
           if (d.ticketTypes?.length) setTicketTypes(d.ticketTypes)
-          if (d.policies?.length) setPolicies(d.policies)
+          if (d.additionalInfo?.length) setAdditionalInfo(d.additionalInfo)
         } catch {}
       }
       setDraftLoaded(true)
@@ -104,10 +104,10 @@ export default function NovoEventoPage() {
       title, description, genres,
       cep, rua, numero, bairro, cidade, estado,
       eventDate, eventTime, eventEndDate, eventEndTime, isFree, isUnlimited, freeCapacity, ageRating,
-      ticketTypes, policies,
+      ticketTypes, additionalInfo,
     }
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
-  }, [draftLoaded, title, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, eventEndDate, eventEndTime, isFree, isUnlimited, freeCapacity, ageRating, ticketTypes, policies])
+  }, [draftLoaded, title, description, genres, cep, rua, numero, bairro, cidade, estado, eventDate, eventTime, eventEndDate, eventEndTime, isFree, isUnlimited, freeCapacity, ageRating, ticketTypes, additionalInfo])
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -227,7 +227,7 @@ export default function NovoEventoPage() {
           is_unlimited: isUnlimited,
           age_rating: ageRating,
           cover_image: coverImageUrl ?? null,
-          policies: policies.filter(p => p.trim() !== ''),
+          additional_info: additionalInfo.filter(p => p.trim() !== ''),
           ticket_types: isFree
             ? (isUnlimited ? [] : [{ name: 'Entrada gratuita', price: 0, quantity: parseInt(freeCapacity) }])
             : ticketTypes.map(t => ({
@@ -582,23 +582,23 @@ export default function NovoEventoPage() {
 
         {/* Políticas */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>Políticas do evento</label>
+          <label style={labelStyle}>Informações adicionais do evento</label>
           <span style={{ fontSize: 12, color: '#6E6E73', marginBottom: 8 }}>
-            Ex: Lotação controlada, Proibido reentrada
+            Ex: Estacionamento no local, Lotação controlada, Proibido reentrada
           </span>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {policies.map((policy, i) => (
+            {additionalInfo.map((policy, i) => (
               <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 <input
                   type="text"
-                  placeholder="Ex: Proibido reentrada"
+                  placeholder="Ex: Estacionamento no local"
                   value={policy}
-                  onChange={e => setPolicies(prev => prev.map((p, j) => j === i ? e.target.value : p))}
+                  onChange={e => setAdditionalInfo(prev => prev.map((p, j) => j === i ? e.target.value : p))}
                   style={{ ...inputStyle, flex: 1, padding: '10px 12px' }}
                 />
-                {policies.length > 1 && (
+                {additionalInfo.length > 1 && (
                   <button
-                    onClick={() => setPolicies(prev => prev.filter((_, j) => j !== i))}
+                    onClick={() => setAdditionalInfo(prev => prev.filter((_, j) => j !== i))}
                     style={{
                       width: 24,
                       height: 24,
@@ -621,7 +621,7 @@ export default function NovoEventoPage() {
             ))}
           </div>
           <button
-            onClick={() => setPolicies(prev => [...prev, ''])}
+            onClick={() => setAdditionalInfo(prev => [...prev, ''])}
             style={{
               width: '100%',
               height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
