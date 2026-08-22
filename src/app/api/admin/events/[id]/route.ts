@@ -60,7 +60,7 @@ export async function PUT(
     location_name,
     genres,
     age_rating,
-    policies,
+    additional_info,
     is_unlimited,
     cover_image,
     display_organizer_name,
@@ -84,7 +84,7 @@ export async function PUT(
   if (event_end_date !== undefined) update.event_end_date = event_end_date
   if (genres !== undefined) update.genre = genres
   if (age_rating !== undefined) update.age_rating = age_rating
-  if (policies !== undefined) update.policies = policies
+  if (additional_info !== undefined) update.additional_info = additional_info
   if (is_unlimited !== undefined) update.is_unlimited = is_unlimited
   if (cover_image !== undefined) update.cover_image = cover_image
   if (display_organizer_name !== undefined) update.display_organizer_name = display_organizer_name?.trim() || null
