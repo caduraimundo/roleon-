@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useSmartBack } from '../../hooks/useSmartBack'
 import { supabase } from '../../lib/supabase'
 import AuthSheet from '../../components/AuthSheet'
+import Image from 'next/image'
 
 interface SavedEvent {
   id: string
@@ -211,11 +212,15 @@ export default function SalvosPage() {
             >
               {/* Foto ou placeholder */}
               {ev.coverUrl ? (
-                <img
-                  src={ev.coverUrl}
-                  alt={ev.title}
-                  style={{ width: '100%', height: 140, objectFit: 'cover', objectPosition: 'center top' }}
-                />
+                <div style={{ position: 'relative', width: '100%', height: 140 }}>
+                  <Image
+                    src={ev.coverUrl}
+                    alt={ev.title}
+                    fill
+                    sizes="(max-width: 480px) 100vw, 400px"
+                    style={{ objectFit: 'cover', objectPosition: 'center top' }}
+                  />
+                </div>
               ) : (
                 <div style={{
                   width: '100%', height: 140,
