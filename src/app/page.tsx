@@ -43,6 +43,23 @@ export default function Home() {
 
   return (
     <div className="h-dvh w-full">
+      <div style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        gap: 8, padding: 24, textAlign: 'center',
+        background: '#fff',
+      }}>
+        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1A1A1A', margin: 0 }}>
+          Roleon
+        </h1>
+        <p style={{ fontSize: 14, color: '#6E6E73', maxWidth: 320, margin: 0 }}>
+          Descubra shows, festas e eventos culturais perto de você. Compre seu ingresso com segurança.
+        </p>
+        <a href="/privacidade" style={{ fontSize: 13, color: '#0EA5A0', marginTop: 8 }}>
+          Política de Privacidade
+        </a>
+      </div>
       <MapClient />
     </div>
   );
