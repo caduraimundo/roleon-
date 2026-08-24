@@ -6,6 +6,7 @@ import { supabase } from '../../../lib/supabase'
 import { BackButton } from '../../../components/BackButton'
 import { calcFees } from '../../../lib/pricing'
 import { validateCPF } from '../../../lib/validateCPF'
+import Image from 'next/image'
 
 function maskCpf(v: string) {
   const d = v.replace(/\D/g, '').slice(0, 11)
@@ -366,10 +367,12 @@ export default function CheckoutPage() {
           <div style={{ ...CARD, padding: '14px 16px', display: 'flex', alignItems: 'flex-start', gap: 14 }}>
             {/* Thumbnail */}
             {evento.cover_image ? (
-              <img
+              <Image
                 src={evento.cover_image}
                 alt={evento.title}
-                style={{ width: 144, height: 72, borderRadius: 8, objectFit: 'cover', objectPosition: 'center top', flexShrink: 0 }}
+                width={144}
+                height={72}
+                style={{ borderRadius: 8, objectFit: 'cover', objectPosition: 'center top', flexShrink: 0 }}
               />
             ) : (
               <div style={{
