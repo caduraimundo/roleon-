@@ -224,13 +224,8 @@ export default function SalvosPage() {
               ) : (
                 <div style={{
                   width: '100%', height: 140,
-                  background: '#E6F7F6',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#0EA5A0', letterSpacing: 0.5, textTransform: 'uppercase' }}>
-                    {ev.genre}
-                  </span>
-                </div>
+                  background: '#1A1A1A',
+                }} />
               )}
 
               {/* Info */}

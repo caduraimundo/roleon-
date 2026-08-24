@@ -323,19 +323,16 @@ function EventCard({ e, router }: { e: any; router: ReturnType<typeof useRouter>
       {/* Banner da capa, com badge de status sobreposto */}
       <div style={{
         width: '100%', height: 130, borderRadius: 10,
-        background: '#E6F7F6',
+        background: '#1A1A1A',
         overflow: 'hidden', position: 'relative',
         display: 'flex', alignItems: 'center',
         justifyContent: 'center',
       }}>
-        {e.cover_image ? (
+        {e.cover_image && (
           <Image src={e.cover_image} alt={e.title} fill
             sizes="(max-width: 480px) 100vw, 400px"
             style={{ objectFit: 'cover', objectPosition: 'center top' }}
           />
-        ) : (
-          <span style={{ fontSize: 12, fontWeight: 600, color: '#0EA5A0',
-            letterSpacing: 0.5, textTransform: 'uppercase' }}>{e.genre}</span>
         )}
         <span style={{
           position: 'absolute', top: 10, right: 10,

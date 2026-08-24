@@ -220,19 +220,16 @@ export default function EventosPage() {
                 {/* Banner da capa, com badge de status sobreposto */}
                 <div style={{
                   width: '100%', height: 130, borderRadius: 10,
-                  background: '#E6F7F6',
+                  background: '#1A1A1A',
                   overflow: 'hidden', position: 'relative',
                   display: 'flex', alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                  {ev.cover_image ? (
+                  {ev.cover_image && (
                     <Image src={ev.cover_image} alt={ev.title} fill
                       sizes="(max-width: 480px) 100vw, 400px"
                       style={{ objectFit: 'cover', objectPosition: 'center top' }}
                     />
-                  ) : (
-                    <span style={{ fontSize: 12, fontWeight: 600, color: '#0EA5A0',
-                      letterSpacing: 0.5, textTransform: 'uppercase' }}>{ev.genre}</span>
                   )}
                   <span style={{
                     position: 'absolute', top: 10, right: 10,

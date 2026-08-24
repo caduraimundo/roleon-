@@ -203,13 +203,8 @@ export default function InteressesPage() {
                 </div>
               ) : (
                 <div style={{
-                  width: '100%', height: 140, background: '#E6F7F6',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: '#0EA5A0', letterSpacing: 0.5, textTransform: 'uppercase' }}>
-                    {ev.genre}
-                  </span>
-                </div>
+                  width: '100%', height: 140, background: '#1A1A1A',
+                }} />
               )}
               <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div>

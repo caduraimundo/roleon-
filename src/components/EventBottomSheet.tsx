@@ -92,13 +92,10 @@ function EventThumb({ ev, size = 76, width }: { ev: RoleonEvent; size?: number; 
         width: thumbW,
         height: size,
         borderRadius: 12,
-        background: '#E6F7F6',
+        background: '#1A1A1A',
         position: 'relative',
         overflow: 'hidden',
         flexShrink: 0,
-        display: ev.cover_image ? undefined : 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
       }}
     >
       {ev.cover_image ? (
@@ -112,15 +109,7 @@ function EventThumb({ ev, size = 76, width }: { ev: RoleonEvent; size?: number; 
             objectPosition: 'center top',
           }}
         />
-      ) : (
-        <span style={{
-          fontSize: 10, fontWeight: 600, color: '#0EA5A0',
-          letterSpacing: 0.5, textTransform: 'uppercase',
-          textAlign: 'center', padding: '0 4px',
-        }}>
-          {ev.genre}
-        </span>
-      )}
+      ) : null}
     </div>
   )
 }
