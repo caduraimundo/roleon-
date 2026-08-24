@@ -8,6 +8,7 @@ import EventoCTA from './EventoCTA'
 import AuthSheet from '../../../components/AuthSheet'
 import type { RoleonEvent } from '../../../components/EventBottomSheet'
 import { calcFees } from '../../../lib/pricing'
+import Image from 'next/image'
 
 const GENRE_COLORS: Record<string, string> = {
   'Samba/Pagode': '#7B5E57',
@@ -277,17 +278,15 @@ export default function EventoPage() {
       {/* HERO */}
       <div style={{ position: 'relative', flexShrink: 0, overflow: 'hidden', background: '#E6F7F6', aspectRatio: '2/1', width: '100%' }}>
         {ev.cover_image && (
-          <img
+          <Image
             src={ev.cover_image}
             alt={ev.title}
+            fill
+            sizes="100vw"
+            priority
             style={{
-              position: 'absolute',
-              top: 0, right: 0, bottom: 0, left: 0,
-              width: '100%',
-              height: '100%',
               objectFit: 'cover',
               objectPosition: 'center top',
-              display: 'block',
             }}
           />
         )}
