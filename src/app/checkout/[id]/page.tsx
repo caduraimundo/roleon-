@@ -377,13 +377,8 @@ export default function CheckoutPage() {
             ) : (
               <div style={{
                 width: 144, height: 72, borderRadius: 8, flexShrink: 0,
-                background: '#0EA5A0',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 11, fontWeight: 700, color: '#fff', letterSpacing: 0.5,
-                textTransform: 'uppercase', textAlign: 'center', padding: 4,
-              }}>
-                {evento.title.split(/\s+/).slice(0, 2).join('\n')}
-              </div>
+                background: '#1A1A1A',
+              }} />
             )}
 
             {/* Info */}
