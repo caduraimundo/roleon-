@@ -219,7 +219,7 @@ export default function EventosPage() {
                 {/* Banner da capa, com badge de status sobreposto */}
                 <div style={{
                   width: '100%', height: 130, borderRadius: 10,
-                  background: cardColor(ev.id),
+                  background: '#E6F7F6',
                   overflow: 'hidden', position: 'relative',
                   display: 'flex', alignItems: 'center',
                   justifyContent: 'center',
@@ -232,8 +232,8 @@ export default function EventosPage() {
                       objectPosition: 'center top',
                     }}/>
                   ) : (
-                    <span style={{ color: '#fff', fontSize: 22,
-                      fontWeight: 700, opacity: 0.9 }}>♪</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: '#0EA5A0',
+                      letterSpacing: 0.5, textTransform: 'uppercase' }}>{ev.genre}</span>
                   )}
                   <span style={{
                     position: 'absolute', top: 10, right: 10,

@@ -91,13 +91,16 @@ function EventThumb({ ev, size = 76, width }: { ev: RoleonEvent; size?: number; 
         width: thumbW,
         height: size,
         borderRadius: 12,
-        background: ev.color,
+        background: '#E6F7F6',
         position: 'relative',
         overflow: 'hidden',
         flexShrink: 0,
+        display: ev.cover_image ? undefined : 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
-      {ev.cover_image && (
+      {ev.cover_image ? (
         <img
           src={ev.cover_image}
           alt={ev.title}
@@ -112,15 +115,15 @@ function EventThumb({ ev, size = 76, width }: { ev: RoleonEvent; size?: number; 
             borderRadius: 'inherit',
           }}
         />
+      ) : (
+        <span style={{
+          fontSize: 10, fontWeight: 600, color: '#0EA5A0',
+          letterSpacing: 0.5, textTransform: 'uppercase',
+          textAlign: 'center', padding: '0 4px',
+        }}>
+          {ev.genre}
+        </span>
       )}
-      {/* Grid sutil sobre a cor */}
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none"
-        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.18 }}>
-        <g stroke="#fff" strokeWidth="1" fill="none">
-          <path d="M0 30 L100 30 M0 50 L100 50 M0 70 L100 70"/>
-          <path d="M30 0 L30 100 M70 0 L70 100"/>
-        </g>
-      </svg>
     </div>
   )
 }
