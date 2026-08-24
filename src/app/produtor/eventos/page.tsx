@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, Fragment } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 
@@ -225,12 +226,10 @@ export default function EventosPage() {
                   justifyContent: 'center',
                 }}>
                   {ev.cover_image ? (
-                    <img src={ev.cover_image} alt={ev.title} style={{
-                      position: 'absolute',
-                      top: 0, right: 0, bottom: 0, left: 0,
-                      width: '100%', height: '100%', objectFit: 'cover',
-                      objectPosition: 'center top',
-                    }}/>
+                    <Image src={ev.cover_image} alt={ev.title} fill
+                      sizes="(max-width: 480px) 100vw, 400px"
+                      style={{ objectFit: 'cover', objectPosition: 'center top' }}
+                    />
                   ) : (
                     <span style={{ fontSize: 12, fontWeight: 600, color: '#0EA5A0',
                       letterSpacing: 0.5, textTransform: 'uppercase' }}>{ev.genre}</span>

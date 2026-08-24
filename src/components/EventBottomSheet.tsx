@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Image from 'next/image'
 
 function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371
@@ -101,18 +102,14 @@ function EventThumb({ ev, size = 76, width }: { ev: RoleonEvent; size?: number; 
       }}
     >
       {ev.cover_image ? (
-        <img
+        <Image
           src={ev.cover_image}
           alt={ev.title}
+          fill
+          sizes="152px"
           style={{
-            position: 'absolute',
-            top: 0, right: 0, bottom: 0, left: 0,
-            width: '100%',
-            height: '100%',
             objectFit: 'cover',
             objectPosition: 'center top',
-            display: 'block',
-            borderRadius: 'inherit',
           }}
         />
       ) : (
