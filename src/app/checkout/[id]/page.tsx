@@ -377,7 +377,7 @@ export default function CheckoutPage() {
             ) : (
               <div style={{
                 width: 144, height: 72, borderRadius: 8, flexShrink: 0,
-                background: '#1A1A1A',
+                background: 'linear-gradient(135deg, #E6F7F6 0%, #0EA5A0 55%, #0B7A76 100%)',
               }} />
             )}
 

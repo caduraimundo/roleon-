@@ -276,7 +276,7 @@ export default function EventoPage() {
     }}>
 
       {/* HERO */}
-      <div style={{ position: 'relative', flexShrink: 0, overflow: 'hidden', background: '#1A1A1A', aspectRatio: '2/1', width: '100%' }}>
+      <div style={{ position: 'relative', flexShrink: 0, overflow: 'hidden', background: 'linear-gradient(135deg, #E6F7F6 0%, #0EA5A0 55%, #0B7A76 100%)', aspectRatio: '2/1', width: '100%' }}>
         {ev.cover_image && (
           <Image
             src={ev.cover_image}
