@@ -54,7 +54,7 @@ export default function Home() {
           Roleon
         </h1>
         <p style={{ fontSize: 14, color: '#6E6E73', maxWidth: 320, margin: 0 }}>
-          Descubra shows, festas e eventos culturais perto de você. Compre seu ingresso com segurança.
+          Descubra shows, festas e eventos culturais perto de você. Entre com sua conta Google pra comprar ingressos com segurança e salvar seus eventos favoritos.
         </p>
         <a href="/privacidade" style={{ fontSize: 13, color: '#0EA5A0', marginTop: 8 }}>
           Política de Privacidade
