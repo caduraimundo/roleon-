@@ -8,7 +8,10 @@ import { supabase } from '../lib/supabase'
 const MapClient = dynamic(() => import("@/components/MapClient"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-dvh w-full items-center justify-center bg-white text-gray-500">
+    <div
+      className="flex items-center justify-center bg-white text-gray-500"
+      style={{ position: 'absolute', inset: 0 }}
+    >
       Carregando o mapa...
     </div>
   ),
