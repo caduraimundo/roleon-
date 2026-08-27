@@ -220,7 +220,7 @@ export default function EventosPage() {
                 {/* Banner da capa, com badge de status sobreposto */}
                 <div style={{
                   width: '100%', height: 130, borderRadius: 10,
-                  background: 'linear-gradient(135deg, #E6F7F6 0%, #0EA5A0 55%, #0B7A76 100%)',
+                  background: 'linear-gradient(to top, #0EA5A0 0%, #0EA5A0 50%, #C4ECE6 100%)',
                   overflow: 'hidden', position: 'relative',
                   display: 'flex', alignItems: 'center',
                   justifyContent: 'center',
