@@ -237,7 +237,7 @@ export async function POST(req: NextRequest) {
       <table width="100%" style="max-width:480px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
         <tr>
           <td style="background:#0EA5A0;padding:24px;text-align:center;">
-            <p style="margin:0;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:2px;">ROLEON</p>
+            <img src="https://www.roleon.com.br/logo/roleon-logo-branco.png" alt="Roleon" width="120" height="29" style="display:block;margin:0 auto;border:0;" />
           </td>
         </tr>
         <tr>
