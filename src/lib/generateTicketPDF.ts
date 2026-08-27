@@ -47,6 +47,12 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
     fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold)
   }
 
+  let logoImage = null
+  try {
+    const logoBytes = readFileSync(join(process.cwd(), 'public/logo/roleon-logo.png'))
+    logoImage = await pdfDoc.embedPng(logoBytes)
+  } catch {}
+
   const teal = rgb(0.055, 0.643, 0.627)
   const dark = rgb(0.102, 0.102, 0.102)
   const gray = rgb(0.431, 0.431, 0.451)
@@ -65,20 +71,30 @@ export async function generateTicketPDF(data: TicketPDFData): Promise<Buffer> {
   const cardH = height - margin * 2
   page.drawRectangle({ x: cardX, y: cardY, width: cardW, height: cardH, color: white })
 
-  // Header ROLEON
+  // Header logo Roleon
   const headerH = 48
   const headerY = cardY + cardH - headerH
-  const headerText = 'ROLEON'
-  const headerFontSize = 18
-  const headerTextW = fontBold.widthOfTextAtSize(headerText, headerFontSize)
-  page.drawText(headerText, {
-    x: cardX + (cardW - headerTextW) / 2,
-    y: headerY + 15,
-    size: headerFontSize,
-    font: fontBold,
-    color: teal,
-
-  })
+  if (logoImage) {
+    const logoH = 26
+    const logoW = logoH * (logoImage.width / logoImage.height)
+    page.drawImage(logoImage, {
+      x: cardX + (cardW - logoW) / 2,
+      y: headerY + 11,
+      width: logoW,
+      height: logoH,
+    })
+  } else {
+    const headerText = 'ROLEON'
+    const headerFontSize = 18
+    const headerTextW = fontBold.widthOfTextAtSize(headerText, headerFontSize)
+    page.drawText(headerText, {
+      x: cardX + (cardW - headerTextW) / 2,
+      y: headerY + 15,
+      size: headerFontSize,
+      font: fontBold,
+      color: teal,
+    })
+  }
 
   // Divisor header
   let cursorY = headerY - 1

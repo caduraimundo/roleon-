@@ -209,16 +209,8 @@ function AdminLoginScreen({ variant }: { variant: 'no-session' | 'wrong-role' })
         display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
         filter: 'drop-shadow(0 4px 24px rgba(0,0,0,0.07))',
       }}>
-        <div style={{
-          width: 64, height: 64, borderRadius: 13,
-          background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          marginBottom: 4,
-        }}>
-          <span style={{ color: WHITE, fontSize: 32, fontWeight: 700, fontFamily: 'Arial, sans-serif' }}>R</span>
-        </div>
-
-        <div style={{ fontSize: 22, fontWeight: 700, color: TEXT, letterSpacing: -0.4 }}>Roleon</div>
-        <div style={{ fontSize: 13, color: DIM, marginTop: -12, marginBottom: 4 }}>Painel administrativo</div>
+        <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 48, width: 'auto', marginBottom: 4 }} />
+        <div style={{ fontSize: 13, color: DIM, marginTop: -4, marginBottom: 4 }}>Painel administrativo</div>
 
         {variant === 'no-session' && (
           <button
@@ -290,12 +282,7 @@ function AdminHeader({ onSignOut, showSignOut }: { onSignOut: () => void; showSi
       fontFamily: "'Noto Sans', sans-serif",
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{
-          width: 26, height: 26, background: TEAL, borderRadius: 7,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: WHITE, fontSize: 14, fontWeight: 800, flexShrink: 0,
-        }}>R</div>
-        <span style={{ fontSize: 17, fontWeight: 800, color: TEXT, letterSpacing: -0.5 }}>Roleon</span>
+        <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 22, width: 'auto', display: 'block' }} />
         <span style={{
           fontSize: 9.5, color: TEAL,
           background: TEAL_BG, borderRadius: 999,

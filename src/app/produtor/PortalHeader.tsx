@@ -50,17 +50,7 @@ export default function PortalHeader() {
       justifyContent: 'space-between',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{
-          width: 26, height: 26, borderRadius: 7,
-          background: '#0EA5A0', color: '#fff',
-          display: 'inline-flex', alignItems: 'center',
-          justifyContent: 'center',
-          fontWeight: 800, fontSize: 14, letterSpacing: -0.5,
-        }}>R</span>
-        <span style={{
-          fontSize: 17, fontWeight: 800,
-          color: '#1A1A1A', letterSpacing: -0.5,
-        }}>Roleon</span>
+        <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 22, width: 'auto', display: 'block' }} />
         <span style={{
           background: '#E6F7F6', color: '#0EA5A0',
           fontSize: 9.5, fontWeight: 800, letterSpacing: 0.4,
