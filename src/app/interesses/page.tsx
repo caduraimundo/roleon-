@@ -203,7 +203,7 @@ export default function InteressesPage() {
                 </div>
               ) : (
                 <div style={{
-                  width: '100%', height: 140, background: 'linear-gradient(to top, #0EA5A0 0%, #0EA5A0 50%, #C4ECE6 100%)',
+                  width: '100%', height: 140, background: 'linear-gradient(135deg, #E6F7F6 0%, #0EA5A0 55%, #0B7A76 100%)',
                 }} />
               )}
               <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
