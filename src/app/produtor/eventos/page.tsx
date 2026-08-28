@@ -360,7 +360,7 @@ export default function EventosPage() {
                         {/* Copiar link — terciário, sem borda, cinza suave */}
                         <button
                           onClick={async () => {
-                            const url = `https://roleon.com.br/evento/${ev.id}`
+                            const url = `https://www.roleon.com.br/evento/${ev.slug || ev.id}`
                             try {
                               await navigator.clipboard.writeText(url)
                             } catch {
