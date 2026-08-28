@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
   const { data } = await supabase
     .from('events')
-    .select('title, description, cover_image')
+    .select('title, description, cover_image, slug')
     .eq(isUUID ? 'id' : 'slug', id)
     .single()
 
@@ -17,16 +17,18 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const title = data.title ?? 'Evento'
   const description = data.description ? data.description.slice(0, 160) : 'Confira este evento no Roleon.'
-  const image = data.cover_image ?? '/logo/roleon-logo.png'
+  const image = data.cover_image ?? '/og-image.png'
+  const canonicalUrl = `https://www.roleon.com.br/evento/${data.slug ?? id}`
 
   return {
     title,
     description,
+    alternates: { canonical: canonicalUrl },
     openGraph: {
       title,
       description,
       images: [{ url: image }],
-      url: `https://www.roleon.com.br/evento/${id}`,
+      url: canonicalUrl,
       type: 'website',
     },
   }
