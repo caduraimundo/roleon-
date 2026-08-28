@@ -1,0 +1,584 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+import { useParams, notFound } from 'next/navigation'
+import { supabase } from '../../../lib/supabase'
+import HeroActions from './HeroActions'
+import EventoCTA from './EventoCTA'
+import AuthSheet from '../../../components/AuthSheet'
+import type { RoleonEvent } from '../../../components/EventBottomSheet'
+import { calcFees } from '../../../lib/pricing'
+import Image from 'next/image'
+
+const GENRE_COLORS: Record<string, string> = {
+  'Samba/Pagode': '#7B5E57',
+  'MPB':          '#556B5D',
+  'República':    '#6B5E7A',
+  'Funk':         '#8A6F4A',
+  'Forró':        '#7A6550',
+  'Rock':         '#4A6B6F',
+}
+const DEFAULT_COLOR = '#0EA5A0'
+
+interface TicketType {
+  id: string
+  name: string
+  price: number
+  quantity: number | null
+  quantity_sold: number | null
+}
+
+interface FullEvent {
+  id: string; title: string; genre: string; genres: string[]; price: number
+  isFree: boolean; fee: number; venue: string
+  dateStr: string | null; timeStr: string | null; yearStr: string | null
+  endDateStr: string | null; endTimeStr: string | null; endYearStr: string | null
+  heroColor: string
+  description?: string | null; additionalInfo?: string[] | null
+  cover_image?: string | null
+  location_lat?: number | null
+  location_lng?: number | null
+  displayOrganizerName?: string | null
+  ageRating?: string | null
+}
+
+function fromCache(cached: RoleonEvent): FullEvent {
+  return {
+    id: cached.id, title: cached.title, genre: cached.genre,
+    genres: Array.isArray((cached as any).genres) && (cached as any).genres.length > 0
+      ? (cached as any).genres
+      : cached.genre ? [cached.genre] : [],
+    price: cached.price, isFree: cached.price === 0, fee: cached.fee,
+    venue: cached.venue, dateStr: cached.date || null, timeStr: cached.time || null,
+    yearStr: null, endDateStr: null, endTimeStr: null, endYearStr: null,
+    heroColor: GENRE_COLORS[cached.genre] ?? DEFAULT_COLOR,
+    description: cached.description ?? null, additionalInfo: null,
+    cover_image: null, location_lat: null, location_lng: null,
+  }
+}
+
+function fromSupabase(row: Record<string, unknown>): FullEvent {
+  const d = row.event_date ? new Date(row.event_date as string) : null
+  const dEnd = row.event_end_date ? new Date(row.event_end_date as string) : null
+  const price = Number(row.price) || 0
+  const isFree = !!(row.is_free) || price === 0
+  return {
+    id: String(row.id), title: (row.title as string) ?? '',
+    genre: Array.isArray(row.genre)
+      ? (row.genre as string[])[0] ?? ''
+      : (row.genre as string) ?? '',
+    genres: Array.isArray(row.genre) && (row.genre as string[]).length > 0
+      ? (row.genre as string[])
+      : [(row.genre as string)].filter(Boolean),
+    price, isFree,
+    fee: isFree ? 0 : (() => { const f = calcFees(price, 1, 'pix'); return f.roleonFee + f.pagarmeFee })(),
+    venue: ((row.location_name as string) ?? '').replace(/, CEP \d{5}-\d{3}$/, ''),
+    dateStr: d ? d.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', timeZone: 'America/Sao_Paulo' }).replace(/^./, c => c.toUpperCase()) : null,
+    timeStr: d ? d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }) : null,
+    yearStr: d ? d.toLocaleDateString('pt-BR', { year: 'numeric', timeZone: 'America/Sao_Paulo' }) : null,
+    endDateStr: dEnd ? dEnd.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', timeZone: 'America/Sao_Paulo' }).replace(/^./, c => c.toUpperCase()) : null,
+    endTimeStr: dEnd ? dEnd.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' }) : null,
+    endYearStr: dEnd ? dEnd.toLocaleDateString('pt-BR', { year: 'numeric', timeZone: 'America/Sao_Paulo' }) : null,
+    ageRating: (row.age_rating as string | null) ?? null,
+    heroColor: GENRE_COLORS[Array.isArray(row.genre)
+      ? (row.genre as string[])[0] ?? ''
+      : (row.genre as string) ?? ''] ?? DEFAULT_COLOR,
+    description: (row.description as string | null) ?? null,
+    additionalInfo: Array.isArray(row.additional_info) ? (row.additional_info as string[]) : null,
+    cover_image: (row.cover_image as string | null) ?? null,
+    location_lat: (row.location_lat as number | null) ?? null,
+    location_lng: (row.location_lng as number | null) ?? null,
+    displayOrganizerName: (row.display_organizer_name as string | null) ?? null,
+  }
+}
+
+// -- Icones -------------------------------------------------------------------
+
+function IconCalendar() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ flexShrink: 0 }}>
+      <rect x="1.5" y="3.5" width="13" height="11" rx="2" stroke="#0EA5A0" strokeWidth="1.4"/>
+      <path d="M1.5 7h13M5 1.5v4M11 1.5v4" stroke="#0EA5A0" strokeWidth="1.4" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
+function IconPin() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0, color: '#0EA5A0' }}>
+      <path d="M7 1.5c2.5 0 4.5 2 4.5 4.5 0 3.3-4.5 6.5-4.5 6.5S2.5 9.3 2.5 6c0-2.5 2-4.5 4.5-4.5z" stroke="currentColor" strokeWidth="1.5"/>
+      <circle cx="7" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
+    </svg>
+  )
+}
+
+// -- Seletor de tipo de ingresso ----------------------------------------------
+
+function TicketTypeSelector({ types, selectedId, onSelect }: {
+  types: TicketType[]
+  selectedId: string
+  onSelect: (t: TicketType) => void
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div style={{
+        fontSize: 11, fontWeight: 700, color: '#9A9A9A',
+        textTransform: 'uppercase', letterSpacing: 0.8,
+      }}>
+        Tipos de ingresso
+      </div>
+      {types.map((t) => {
+        const sel = t.id === selectedId
+        return (
+          <button
+            key={t.id}
+            onClick={() => onSelect(t)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 14,
+              padding: 16, borderRadius: 12,
+              border: `1.5px solid ${sel ? '#0EA5A0' : '#E5E5E5'}`,
+              background: sel ? '#F0FAFA' : '#fff',
+              cursor: 'pointer', textAlign: 'left',
+              fontFamily: "'Noto Sans', sans-serif",
+            }}
+          >
+            {/* Radio */}
+            <div style={{
+              width: 20, height: 20, borderRadius: '50%', flexShrink: 0,
+              border: `2px solid ${sel ? '#0EA5A0' : '#E5E5E5'}`,
+              background: sel ? '#0EA5A0' : '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              {sel && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff' }} />}
+            </div>
+
+            {/* Nome */}
+            <div style={{ flex: 1, fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>
+              {t.name}
+            </div>
+
+            {/* Preco */}
+            <div style={{ textAlign: 'right', flexShrink: 0, fontSize: 15, fontWeight: 700, color: '#1A1A1A' }}>
+              R$ {t.price.toFixed(2).replace('.', ',')}
+            </div>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+// -- Page ---------------------------------------------------------------------
+
+export default function EventoPage() {
+  const params = useParams()
+  const id     = String(params.id)
+
+  const [ev,             setEv]             = useState<FullEvent | null>(null)
+  const [ticketTypes,    setTicketTypes]    = useState<TicketType[]>([])
+  const [selectedTypeId, setSelectedTypeId] = useState<string>('')
+  const [isSoldOut,      setIsSoldOut]      = useState(false)
+  const [missing,        setMissing]        = useState(false)
+  const [organizer, setOrganizer] = useState<{
+    name: string; avatar_initials: string; verified: boolean
+    member_since: string; event_count: number
+  } | null>(null)
+  const [showOrgSheet, setShowOrgSheet] = useState(false)
+  const [showAuth,       setShowAuth]       = useState(false)
+  const [toast,          setToast]          = useState<string | null>(null)
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(`evento-${id}`)
+      if (raw) setEv(fromCache(JSON.parse(raw) as RoleonEvent))
+    } catch {}
+
+    supabase
+      .from('events')
+      .select('id, title, genre, price, location_name, event_date, event_end_date, is_free, description, additional_info, cover_image, location_lat, location_lng, producer_id, display_organizer_name, age_rating')
+      .eq('id', id)
+      .single()
+      .then(({ data }) => {
+        if (!data) { setMissing(true); return }
+        const full = fromSupabase(data as Record<string, unknown>)
+        setEv(full)
+        try { sessionStorage.setItem(`evento-${id}`, JSON.stringify(full)) } catch {}
+        const producerId = (data as Record<string, unknown>).producer_id as string | null
+        if (producerId) {
+          fetch(`/api/public/organizador/${producerId}`)
+            .then(r => r.ok ? r.json() : null)
+            .then(d => { if (d && d.name) setOrganizer(d) })
+            .catch(() => {})
+        }
+      })
+
+    supabase
+      .from('ticket_types')
+      .select('id, name, price, quantity, quantity_sold')
+      .eq('event_id', id)
+      .order('price', { ascending: true })
+      .then(({ data, error }) => {
+        console.log('ticket_types:', data, 'error:', error)
+        if (data && data.length > 0) {
+          const types = data.map(r => ({
+            id: String(r.id),
+            name: String(r.name),
+            price: Number(r.price),
+            quantity: r.quantity != null ? Number(r.quantity) : null,
+            quantity_sold: r.quantity_sold != null ? Number(r.quantity_sold) : null,
+          }))
+          setTicketTypes(types)
+          setSelectedTypeId(types[0].id)
+          const ttWithLimit = types.filter(t => t.quantity != null)
+          setIsSoldOut(ttWithLimit.length > 0 && ttWithLimit.every(t => (t.quantity_sold ?? 0) >= (t.quantity ?? 0)))
+          sessionStorage.setItem('ticket_type_name', JSON.stringify({
+            ticket_type_id: types[0].id,
+            ticket_type_name: types[0].name,
+            price: types[0].price,
+          }))
+        }
+      })
+  }, [id])
+
+  const showToast = (msg: string) => {
+    setToast(msg)
+    if (toastTimer.current) clearTimeout(toastTimer.current)
+    toastTimer.current = setTimeout(() => setToast(null), 2000)
+  }
+  void showToast
+
+  if (missing) notFound()
+
+  if (!ev) {
+    return (
+      <div style={{ minHeight: '100dvh', background: '#F7F7F7' }}>
+        <div style={{ height: 260, background: DEFAULT_COLOR, opacity: 0.6 }} />
+      </div>
+    )
+  }
+
+  console.log('ticket_types state:', ticketTypes, 'isFree:', ev.isFree)
+
+  const dateLabel = [ev.dateStr, ev.yearStr].filter(Boolean).join(', ') + (ev.timeStr ? ` · ${ev.timeStr}` : '')
+  const endDateLabel = [ev.endDateStr, ev.endYearStr].filter(Boolean).join(', ') + (ev.endTimeStr ? ` · ${ev.endTimeStr}` : '')
+
+  const selectedType = ticketTypes.find(t => t.id === selectedTypeId)
+  const ctaPrice = selectedType ? selectedType.price : ev.price
+  const ctaFee   = ev.isFree ? 0 : (() => { const f = calcFees(ctaPrice, 1, 'pix'); return f.roleonFee + f.pagarmeFee })()
+
+  return (
+    <div style={{
+      minHeight: '100dvh', background: '#F7F7F7',
+      fontFamily: "'Noto Sans', sans-serif",
+      display: 'flex', flexDirection: 'column',
+      paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 90px)',
+    }}>
+
+      {/* HERO */}
+      <div style={{ position: 'relative', flexShrink: 0, overflow: 'hidden', background: 'linear-gradient(135deg, #E6F7F6 0%, #0EA5A0 55%, #0B7A76 100%)', aspectRatio: '2/1', width: '100%' }}>
+        {ev.cover_image && (
+          <Image
+            src={ev.cover_image}
+            alt={ev.title}
+            fill
+            sizes="100vw"
+            priority
+            style={{
+              objectFit: 'cover',
+              objectPosition: 'center top',
+            }}
+          />
+        )}
+        {ev.cover_image && (
+          <>
+            <div style={{
+              position: 'absolute', top: 0, left: 0, right: 0, height: 100,
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.42) 0%, transparent 100%)',
+              zIndex: 1, pointerEvents: 'none',
+            }} />
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0, height: 80,
+              background: 'linear-gradient(to top, rgba(0,0,0,0.48) 0%, transparent 100%)',
+              zIndex: 1, pointerEvents: 'none',
+            }} />
+          </>
+        )}
+        <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+          <HeroActions title={ev.title} />
+        </div>
+      </div>
+
+      {/* CONTEUDO */}
+      <div style={{ flex: 1, padding: '22px 20px 0', display: 'flex', flexDirection: 'column', gap: 18 }}>
+
+        {/* Genre pills */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          {(ev.genres ?? [ev.genre]).filter(Boolean).map((g: string) => (
+            <div key={g} style={{
+              background: '#E6F7F6', color: '#0EA5A0',
+              fontSize: 11, fontWeight: 700, letterSpacing: 0.7,
+              textTransform: 'uppercase', padding: '4px 10px', borderRadius: 999,
+            }}>
+              {g}
+            </div>
+          ))}
+          {isSoldOut && (
+            <div style={{
+              background: '#F0F0F0', color: '#6E6E73',
+              fontSize: 11, fontWeight: 700, letterSpacing: 0.7,
+              textTransform: 'uppercase', padding: '4px 10px', borderRadius: 999,
+            }}>
+              Esgotado
+            </div>
+          )}
+        </div>
+
+        {/* Titulo + venue */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: -6 }}>
+          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#1A1A1A', lineHeight: 1.2, letterSpacing: -0.5 }}>
+            {ev.title}
+          </h1>
+          {organizer && (
+            <button
+              onClick={() => setShowOrgSheet(true)}
+              style={{
+                background: 'none', border: 'none', cursor: 'pointer',
+                padding: 0, marginTop: 2,
+                display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap', rowGap: 2,
+                fontFamily: "'Noto Sans', sans-serif",
+              }}
+            >
+              <span style={{ fontSize: 12.5, color: '#6E6E73', flexShrink: 0 }}>Organizado{' '}por</span>
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1A1A1A', flexShrink: 0, whiteSpace: 'normal' }}>{organizer.name}</span>
+              {organizer.verified && (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <circle cx="7" cy="7" r="7" fill="#0EA5A0"/>
+                  <path d="M4 7l2 2 4-4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              )}
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ marginLeft: 1 }}>
+                <path d="M4.5 3l3 3-3 3" stroke="#C8C8C8" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          )}
+          {!organizer && ev.displayOrganizerName && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap', rowGap: 2, marginTop: 2 }}>
+              <span style={{ fontSize: 12.5, color: '#6E6E73', flexShrink: 0 }}>Organizado{' '}por</span>
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1A1A1A', flexShrink: 0, whiteSpace: 'normal' }}>{ev.displayOrganizerName}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Card data + local */}
+        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #EFEFEF', overflow: 'hidden' }}>
+          {ev.dateStr && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: '#E6F7F6', color: '#0EA5A0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <IconCalendar />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
+                  Início
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>{dateLabel}</div>
+              </div>
+            </div>
+          )}
+          {ev.dateStr && ev.endDateStr && <div style={{ height: 1, background: '#F7F7F7', margin: '0 16px' }} />}
+          {ev.endDateStr && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: '#E6F7F6', color: '#0EA5A0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <IconCalendar />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 11, fontWeight: 600, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
+                  Término
+                </div>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A' }}>{endDateLabel}</div>
+              </div>
+            </div>
+          )}
+          {(ev.dateStr || ev.endDateStr) && ev.venue && <div style={{ height: 1, background: '#F7F7F7', margin: '0 16px' }} />}
+          {ev.venue && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+              <div style={{ width: 30, height: 30, borderRadius: 8, backgroundColor: '#E6F7F6', color: '#0EA5A0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <IconPin />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1A1A', marginBottom: 2 }}>{ev.venue}</div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Como chegar */}
+        {ev.venue && (
+          <button
+            onClick={() => {
+              const lat = ev.location_lat
+              const lng = ev.location_lng
+              const url = (lat && lng)
+                ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.venue)}`
+              window.open(url, '_blank')
+            }}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+              background: 'transparent', border: '1.5px solid #0EA5A0',
+              borderRadius: 10, height: 44, padding: '0 18px',
+              color: '#0EA5A0', fontSize: 14, fontWeight: 600,
+              fontFamily: "'Noto Sans', sans-serif",
+              cursor: 'pointer', width: '100%',
+            }}>
+            Como chegar
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M7 17L17 7M17 7H10M17 7v7"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        )}
+
+        {/* Classificação */}
+        {ev.ageRating && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+              Classificação
+            </div>
+            <div style={{ fontSize: 14.5, color: '#3A3A3A' }}>
+              {ev.ageRating}
+            </div>
+          </div>
+        )}
+
+        {/* Descricao */}
+        {ev.description && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+              O Ambiente
+            </div>
+            <p style={{ margin: 0, fontSize: 14.5, color: '#3A3A3A', lineHeight: 1.7 }}>{ev.description}</p>
+          </div>
+        )}
+
+        {/* Bottom sheet organizador */}
+        {organizer && showOrgSheet && (
+              <div
+                onClick={() => setShowOrgSheet(false)}
+                style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 200, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+              >
+                <div
+                  onClick={e => e.stopPropagation()}
+                  style={{ background: '#fff', borderRadius: '20px 20px 0 0', padding: '24px 20px 40px', width: '100%', maxWidth: 480, fontFamily: "'Noto Sans', sans-serif", position: 'relative' }}
+                >
+                  <button onClick={() => setShowOrgSheet(false)} style={{ position: 'absolute', top: 16, right: 16, width: 32, height: 32, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="#1A1A1A" strokeWidth="1.8" strokeLinecap="round"/></svg>
+                  </button>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+                    <div style={{
+                      width: 64, height: 64, borderRadius: 18,
+                      background: '#0EA5A0',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: '#fff', fontSize: 22, fontWeight: 700,
+                    }}>
+                      {organizer.avatar_initials || organizer.name.slice(0,2).toUpperCase()}
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: '#1A1A1A', letterSpacing: -0.3 }}>{organizer.name}</div>
+                      {organizer.verified && (
+                        <span style={{ display: 'inline-block', marginTop: 6, fontSize: 11, fontWeight: 600, background: '#E6F7F6', color: '#0A7A76', borderRadius: 999, padding: '3px 8px' }}>Verificado</span>
+                      )}
+                    </div>
+                  </div>
+                  <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 0, border: '1px solid #EFEFEF', borderRadius: 12, overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid #F7F7F7' }}>
+                      <span style={{ fontSize: 13, color: '#6E6E73' }}>Membro desde</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>
+                        {new Date(organizer.member_since).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px' }}>
+                      <span style={{ fontSize: 13, color: '#6E6E73' }}>Eventos na plataforma</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#1A1A1A' }}>{organizer.event_count}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        )}
+
+        {/* Seletor de tipos de ingresso */}
+        {!ev.isFree && ticketTypes.length > 0 && (
+          <TicketTypeSelector
+            types={ticketTypes}
+            selectedId={selectedTypeId}
+            onSelect={(t) => setSelectedTypeId(t.id)}
+          />
+        )}
+
+        {/* Informações adicionais */}
+        {ev.additionalInfo && ev.additionalInfo.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 6 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9A9A', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+              Informações adicionais
+            </div>
+            <div style={{ background: '#fff', border: '1px solid #EFEFEF', borderRadius: 14, overflow: 'hidden' }}>
+              {ev.additionalInfo.map((info, i) => (
+                <div key={i}>
+                  {i > 0 && <div style={{ height: '0.5px', background: '#EFEFEF', margin: '0 14px' }} />}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px' }}>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ flexShrink: 0 }}>
+                      <circle cx="7" cy="7" r="6.2" stroke="#0EA5A0" strokeWidth="1.3"/>
+                      <path d="M7 6.2v4" stroke="#0EA5A0" strokeWidth="1.4" strokeLinecap="round"/>
+                      <circle cx="7" cy="4.2" r="0.7" fill="#0EA5A0"/>
+                    </svg>
+                    <span style={{ fontSize: 13.5, color: '#1A1A1A', lineHeight: 1.55, fontFamily: "'Noto Sans', sans-serif" }}>
+                      {info}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <EventoCTA
+        id={ev.id}
+        isFree={ev.isFree}
+        price={ev.price}
+        fee={ctaFee}
+        ticketTypeId={selectedType?.id}
+        ticketTypeName={selectedType?.name}
+        selectedPrice={ctaPrice}
+        isSoldOut={isSoldOut}
+        title={ev.title}
+        eventDate={dateLabel || undefined}
+      />
+      <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
+
+      {toast && (
+        <div style={{
+          position: 'fixed',
+          bottom: 'calc(env(safe-area-inset-bottom, 0px) + 100px)',
+          left: '50%', transform: 'translateX(-50%)',
+          background: '#0EA5A0', color: '#fff',
+          fontSize: 13.5, fontWeight: 600,
+          fontFamily: "'Noto Sans', sans-serif",
+          padding: '10px 20px', borderRadius: 8,
+          boxShadow: '0 4px 16px rgba(14,165,160,0.35)',
+          zIndex: 9999, whiteSpace: 'nowrap', pointerEvents: 'none',
+          animation: 'toastIn 200ms ease',
+        }}>
+          <style>{`@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}`}</style>
+          {toast}
+        </div>
+      )}
+    </div>
+  )
+}
