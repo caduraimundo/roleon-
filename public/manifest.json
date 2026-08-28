@@ -34,5 +34,21 @@
       "type": "image/png",
       "purpose": "maskable"
     }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-1.png",
+      "sizes": "1170x1992",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Descubra eventos culturais perto de voce no mapa"
+    },
+    {
+      "src": "/screenshots/desktop-1.png",
+      "sizes": "1600x900",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Descubra eventos culturais perto de voce no mapa"
+    }
   ]
 }
