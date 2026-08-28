@@ -99,40 +99,57 @@ function urlBase64ToUint8Array(base64String: string): ArrayBuffer {
   return Uint8Array.from(Array.from(rawData, (c) => c.charCodeAt(0))).buffer as ArrayBuffer
 }
 
-async function subscribeToPush() {
-  const reg = await navigator.serviceWorker.ready
-  const existing = await reg.pushManager.getSubscription()
-  if (existing) {
+type PushResult = 'ok' | 'denied' | 'unsupported'
+
+async function subscribeToPush(): Promise<PushResult> {
+  try {
+    if (typeof Notification === 'undefined' || !navigator.serviceWorker) {
+      return 'unsupported'
+    }
+    const reg = await navigator.serviceWorker.ready
+    if (!reg.pushManager) {
+      return 'unsupported'
+    }
+    const existing = await reg.pushManager.getSubscription()
+    if (existing) {
+      await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription: existing.toJSON() })
+      })
+      return 'ok'
+    }
+    const permission = await Notification.requestPermission()
+    if (permission !== 'granted') {
+      return 'denied'
+    }
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(
+        process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
+      )
+    })
     await fetch('/api/push/subscribe', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ subscription: existing.toJSON() })
+      body: JSON.stringify({ subscription: sub.toJSON() })
     })
-    return true
+    return 'ok'
+  } catch {
+    return 'unsupported'
   }
-  const permission = await Notification.requestPermission()
-  if (permission !== 'granted') {
-    return false
-  }
-  const sub = await reg.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: urlBase64ToUint8Array(
-      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
-    )
-  })
-  await fetch('/api/push/subscribe', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ subscription: sub.toJSON() })
-  })
-  return true
 }
 
 async function unsubscribeFromPush() {
-  const reg = await navigator.serviceWorker.ready
-  const sub = await reg.pushManager.getSubscription()
-  if (sub) await sub.unsubscribe()
-  await fetch('/api/push/unsubscribe', { method: 'POST' })
+  try {
+    const reg = await navigator.serviceWorker.ready
+    if (!reg.pushManager) return
+    const sub = await reg.pushManager.getSubscription()
+    if (sub) await sub.unsubscribe()
+    await fetch('/api/push/unsubscribe', { method: 'POST' })
+  } catch {
+    // silencioso - se nao conseguir cancelar a assinatura no navegador, tudo bem, so nao quebra a troca do toggle
+  }
 }
 
 // ── Notificações helpers ──────────────────────────────────────────────────────
@@ -146,6 +163,17 @@ function getNotificationInstructions(): string {
     return 'No Android: toque no cadeado na barra de endereço > Permissões > Notificações > Permitir'
   }
   return 'Clique no cadeado na barra de endereço > Notificações > Permitir'
+}
+
+function getUnsupportedInstructions(): string {
+  const ua = navigator.userAgent
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    (navigator as any).standalone === true
+  if (/iPhone|iPad/.test(ua) && !isStandalone) {
+    return 'No iPhone, notificações só funcionam com o app adicionado à tela de início. Toque em Compartilhar e depois em Adicionar à Tela de Início, e abra o Roleon por esse ícone.'
+  }
+  return 'Seu navegador não suporta notificações push neste momento.'
 }
 
 // ── Componente ────────────────────────────────────────────────────────────────
@@ -268,10 +296,10 @@ export default function ConfiguracoesPage() {
                 onChange={async (v) => {
                   if (v) {
                     setNearby(true)
-                    const ok = await subscribeToPush()
-                    if (!ok) {
+                    const result = await subscribeToPush()
+                    if (result !== 'ok') {
                       setNearby(false)
-                      setToast(getNotificationInstructions())
+                      setToast(result === 'unsupported' ? getUnsupportedInstructions() : getNotificationInstructions())
                       setTimeout(() => setToast(null), 6000)
                       return
                     }
