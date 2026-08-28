@@ -523,7 +523,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     setLoading(true)
     supabase
       .from('events')
-      .select('id, title, genre, event_date, location_name, location_lat, location_lng, price, is_free, cover_image, ticket_types(id, quantity, quantity_sold)')
+      .select('id, slug, title, genre, event_date, location_name, location_lat, location_lng, price, is_free, cover_image, ticket_types(id, quantity, quantity_sold)')
       .eq('status', 'active')
       .gte('event_date', new Date().toISOString())
       .then(({ data, error }) => {
@@ -538,6 +538,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
             const isSoldOut = ttWithLimit.length > 0 && ttWithLimit.every(t => (t.quantity_sold ?? 0) >= (t.quantity ?? 0))
             return {
               id:           String(row.id),
+              slug:         (row.slug as string) ?? '',
               title:        (row.title as string) ?? '',
               genre:        Array.isArray(row.genre)
                 ? (row.genre as string[])[0] ?? ''
@@ -1068,7 +1069,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         localStorage.setItem('map-position', payload)
       }
     } catch {}
-    router.push(`/evento/${ev.id}`)
+    router.push(`/evento/${ev.slug || ev.id}`)
   }, [onEventSelect, router, searchCenter])
 
   const handleViewDetail = useCallback(() => {

@@ -14,6 +14,7 @@ function haversineKm(lat1: number, lng1: number, lat2: number, lng2: number): nu
 // Tipagem do evento - adapte aos campos do seu banco de dados
 export interface RoleonEvent {
   id: string
+  slug?: string
   title: string
   venue: string
   neighborhood: string

@@ -21,6 +21,7 @@ interface TicketWithEvent {
   ticket_type_name: string | null
   payment_method: string | null
   events: {
+    slug: string | null
     title: string
     event_date: string | null
     location_name: string | null
@@ -214,7 +215,7 @@ export default function IngressosPage() {
 
       const { data } = await supabase
         .from('tickets')
-        .select('id, event_id, price_paid, status, created_at, ticket_type_name, payment_method, events(title, event_date, location_name)')
+        .select('id, event_id, price_paid, status, created_at, ticket_type_name, payment_method, events(slug, title, event_date, location_name)')
         .eq('user_id', user.id)
 
       const rows = (data as unknown as TicketWithEvent[]) ?? []
@@ -392,7 +393,7 @@ export default function IngressosPage() {
               ticket={t}
               onClick={() => {
                 if (t.id.startsWith('free-')) {
-                  router.push(`/evento/${t.event_id}`)
+                  router.push(`/evento/${t.events?.slug || t.event_id}`)
                 } else {
                   router.push(`/ingresso/${t.id}`)
                 }

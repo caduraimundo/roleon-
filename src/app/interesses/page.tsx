@@ -8,6 +8,7 @@ import AuthSheet from '../../components/AuthSheet'
 import Image from 'next/image'
 
 interface InterestEvent {
+  slug?: string
   savedId: string
   eventId: string
   title: string
@@ -66,7 +67,7 @@ export default function InteressesPage() {
           id,
           event_id,
           events (
-            id, title, genre, price, is_free, event_date, location_name, cover_image
+            id, slug, title, genre, price, is_free, event_date, location_name, cover_image
           )
         `)
         .eq('user_id', user.id)
@@ -83,6 +84,7 @@ export default function InteressesPage() {
           return {
             savedId: row.id,
             eventId: String(ev?.id ?? row.event_id),
+            slug: String(ev?.slug ?? ''),
             title: String(ev?.title ?? ''),
             genre: String(ev?.genre ?? ''),
             price,
@@ -223,7 +225,7 @@ export default function InteressesPage() {
                     {ev.isFree ? 'Gratuito' : `R$ ${ev.price.toFixed(2).replace('.', ',')}`}
                   </div>
                   <button
-                    onClick={() => router.push(`/evento/${ev.eventId}`)}
+                    onClick={() => router.push(`/evento/${ev.slug || ev.eventId}`)}
                     style={{
                       background: '#0EA5A0', color: '#fff',
                       border: 0, borderRadius: 8, cursor: 'pointer',

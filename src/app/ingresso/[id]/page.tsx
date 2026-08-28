@@ -7,6 +7,7 @@ import { supabase } from '../../../lib/supabase'
 import { BackButton } from '../../../components/BackButton'
 
 interface EventInfo {
+  slug: string | null
   title: string
   event_date: string | null
   location_name: string | null
@@ -162,7 +163,7 @@ export default function IngressoPage() {
 
       const { data: t, error: tErr } = await supabase
         .from('tickets')
-        .select('id, event_id, user_id, price_paid, qr_code, status, created_at, ticket_type_name, checkin_token, events(title, event_date, location_name)')
+        .select('id, event_id, user_id, price_paid, qr_code, status, created_at, ticket_type_name, checkin_token, events(slug, title, event_date, location_name)')
         .eq('id', ticketId)
         .single()
 
@@ -474,7 +475,7 @@ export default function IngressoPage() {
                   O prazo de pagamento encerrou. Você pode tentar comprar novamente.
                 </div>
                 <button
-                  onClick={() => router.push(`/evento/${ticket.event_id}`)}
+                  onClick={() => router.push(`/evento/${ticket.events?.slug || ticket.event_id}`)}
                   style={{
                     marginTop: 4, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
                     padding: '0 24px', borderRadius: 12,

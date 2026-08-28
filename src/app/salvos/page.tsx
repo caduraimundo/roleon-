@@ -9,6 +9,7 @@ import Image from 'next/image'
 
 interface SavedEvent {
   id: string
+  slug?: string
   title: string
   genre: string
   price: number
@@ -69,7 +70,7 @@ export default function SalvosPage() {
           id,
           event_id,
           events (
-            id, title, genre, price, is_free, event_date, cover_image_url
+            id, slug, title, genre, price, is_free, event_date, cover_image_url
           )
         `)
         .eq('user_id', session.user.id)
@@ -83,6 +84,7 @@ export default function SalvosPage() {
           return {
             id: row.id,
             eventId: String(ev?.id ?? row.event_id),
+            slug: String(ev?.slug ?? ''),
             title: String(ev?.title ?? ''),
             genre: String(ev?.genre ?? ''),
             price,
@@ -250,7 +252,7 @@ export default function SalvosPage() {
                     {ev.isFree ? 'Gratuito' : `R$ ${ev.price.toFixed(2).replace('.', ',')}`}
                   </div>
                   <button
-                    onClick={() => router.push(`/evento/${ev.eventId}`)}
+                    onClick={() => router.push(`/evento/${ev.slug || ev.eventId}`)}
                     style={{
                       background: '#0EA5A0', color: '#fff',
                       border: 0, borderRadius: 8, cursor: 'pointer',
