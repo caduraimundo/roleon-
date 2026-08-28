@@ -30,6 +30,13 @@ export const metadata: Metadata = {
     title: "Roleon - Eventos e Ingressos",
     description: "Descubra shows, festas e eventos culturais perto de voce. Compre seu ingresso com seguranca.",
     locale: "pt_BR",
+    url: "https://www.roleon.com.br",
+    images: [
+      {
+        url: "/logo/roleon-logo.png",
+        alt: "Roleon",
+      },
+    ],
   },
   icons: {
     icon: [
