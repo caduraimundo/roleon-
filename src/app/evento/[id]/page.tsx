@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
   const { data } = await supabase
     .from('events')
-    .select('title, description, cover_image, slug')
+    .select('title, description, cover_image, slug, event_date, event_end_date, location_name, location_lat, location_lng, price, is_free, status, display_organizer_name')
     .eq(isUUID ? 'id' : 'slug', id)
     .single()
 
@@ -34,6 +34,77 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 }
 
-export default function Page() {
-  return <EventoClient />
+async function getEventJsonLd(id: string, isUUID: boolean) {
+  const { data } = await supabase
+    .from('events')
+    .select('title, description, cover_image, slug, event_date, event_end_date, location_name, location_lat, location_lng, price, is_free, status, display_organizer_name')
+    .eq(isUUID ? 'id' : 'slug', id)
+    .single()
+
+  if (!data) {
+    return null
+  }
+
+  const canonicalUrl = `https://www.roleon.com.br/evento/${data.slug ?? id}`
+  const image = data.cover_image ?? 'https://www.roleon.com.br/og-image.png'
+
+  const jsonLd: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: data.title,
+    description: data.description,
+    startDate: new Date(data.event_date).toISOString(),
+    eventStatus: data.status === 'cancelled' ? 'https://schema.org/EventCancelled' : 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    location: {
+      '@type': 'Place',
+      name: data.location_name,
+      ...(data.location_lat != null && data.location_lng != null ? {
+        geo: {
+          '@type': 'GeoCoordinates',
+          latitude: data.location_lat,
+          longitude: data.location_lng,
+        },
+      } : {}),
+    },
+    image: [image],
+    offers: {
+      '@type': 'Offer',
+      url: canonicalUrl,
+      price: data.is_free ? '0' : Number(data.price).toFixed(2),
+      priceCurrency: 'BRL',
+      availability: 'https://schema.org/InStock',
+    },
+  }
+
+  if (data.event_end_date) {
+    jsonLd.endDate = new Date(data.event_end_date).toISOString()
+  }
+
+  if (data.display_organizer_name) {
+    jsonLd.organizer = {
+      '@type': 'Organization',
+      name: data.display_organizer_name,
+    }
+  }
+
+  return jsonLd
+}
+
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
+  const jsonLd = await getEventJsonLd(id, isUUID)
+
+  return (
+    <>
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+        />
+      )}
+      <EventoClient />
+    </>
+  )
 }
