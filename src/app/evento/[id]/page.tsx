@@ -4,10 +4,11 @@ import EventoClient from './EventoClient'
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
   const { data } = await supabase
     .from('events')
     .select('title, description, cover_image')
-    .eq('id', id)
+    .eq(isUUID ? 'id' : 'slug', id)
     .single()
 
   if (!data) {

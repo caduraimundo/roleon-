@@ -173,6 +173,7 @@ function TicketTypeSelector({ types, selectedId, onSelect }: {
 export default function EventoPage() {
   const params = useParams()
   const id     = String(params.id)
+  const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
 
   const [ev,             setEv]             = useState<FullEvent | null>(null)
   const [ticketTypes,    setTicketTypes]    = useState<TicketType[]>([])
@@ -197,11 +198,12 @@ export default function EventoPage() {
     supabase
       .from('events')
       .select('id, title, genre, price, location_name, event_date, event_end_date, is_free, description, additional_info, cover_image, location_lat, location_lng, producer_id, display_organizer_name, age_rating')
-      .eq('id', id)
+      .eq(isUUID ? 'id' : 'slug', id)
       .single()
       .then(({ data }) => {
         if (!data) { setMissing(true); return }
         const full = fromSupabase(data as Record<string, unknown>)
+        const realId = String((data as Record<string, unknown>).id)
         setEv(full)
         try { sessionStorage.setItem(`evento-${id}`, JSON.stringify(full)) } catch {}
         const producerId = (data as Record<string, unknown>).producer_id as string | null
@@ -211,35 +213,35 @@ export default function EventoPage() {
             .then(d => { if (d && d.name) setOrganizer(d) })
             .catch(() => {})
         }
-      })
 
-    supabase
-      .from('ticket_types')
-      .select('id, name, price, quantity, quantity_sold')
-      .eq('event_id', id)
-      .order('price', { ascending: true })
-      .then(({ data, error }) => {
-        console.log('ticket_types:', data, 'error:', error)
-        if (data && data.length > 0) {
-          const types = data.map(r => ({
-            id: String(r.id),
-            name: String(r.name),
-            price: Number(r.price),
-            quantity: r.quantity != null ? Number(r.quantity) : null,
-            quantity_sold: r.quantity_sold != null ? Number(r.quantity_sold) : null,
-          }))
-          setTicketTypes(types)
-          setSelectedTypeId(types[0].id)
-          const ttWithLimit = types.filter(t => t.quantity != null)
-          setIsSoldOut(ttWithLimit.length > 0 && ttWithLimit.every(t => (t.quantity_sold ?? 0) >= (t.quantity ?? 0)))
-          sessionStorage.setItem('ticket_type_name', JSON.stringify({
-            ticket_type_id: types[0].id,
-            ticket_type_name: types[0].name,
-            price: types[0].price,
-          }))
-        }
+        supabase
+          .from('ticket_types')
+          .select('id, name, price, quantity, quantity_sold')
+          .eq('event_id', realId)
+          .order('price', { ascending: true })
+          .then(({ data, error }) => {
+            console.log('ticket_types:', data, 'error:', error)
+            if (data && data.length > 0) {
+              const types = data.map(r => ({
+                id: String(r.id),
+                name: String(r.name),
+                price: Number(r.price),
+                quantity: r.quantity != null ? Number(r.quantity) : null,
+                quantity_sold: r.quantity_sold != null ? Number(r.quantity_sold) : null,
+              }))
+              setTicketTypes(types)
+              setSelectedTypeId(types[0].id)
+              const ttWithLimit = types.filter(t => t.quantity != null)
+              setIsSoldOut(ttWithLimit.length > 0 && ttWithLimit.every(t => (t.quantity_sold ?? 0) >= (t.quantity ?? 0)))
+              sessionStorage.setItem('ticket_type_name', JSON.stringify({
+                ticket_type_id: types[0].id,
+                ticket_type_name: types[0].name,
+                price: types[0].price,
+              }))
+            }
+          })
       })
-  }, [id])
+  }, [id, isUUID])
 
   const showToast = (msg: string) => {
     setToast(msg)
