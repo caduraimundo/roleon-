@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import * as Sentry from '@sentry/nextjs'
+import { generateSlug } from '@/lib/slug'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -142,6 +143,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Selecione pelo menos uma categoria' }, { status: 400 })
   }
 
+  const slug = generateSlug(title)
+  const { data: slugExistente } = await supabaseAdmin
+    .from('events')
+    .select('id')
+    .eq('slug', slug)
+    .maybeSingle()
+  if (slugExistente) {
+    return NextResponse.json(
+      { error: 'Ja existe um evento com esse nome. Escolha um titulo diferente.' },
+      { status: 400 }
+    )
+  }
+
   if (!is_free) {
     const hasValidTicket = Array.isArray(ticket_types) &&
       ticket_types.some((t: { price: number }) => t.price > 0)
@@ -186,6 +200,7 @@ export async function POST(req: NextRequest) {
     .from('events')
     .insert({
       title,
+      slug,
       description,
       event_date,
       event_end_date,
@@ -205,6 +220,12 @@ export async function POST(req: NextRequest) {
     .select('id')
     .single()
 
+  if (eventError?.code === '23505') {
+    return NextResponse.json(
+      { error: 'Ja existe um evento com esse nome. Escolha um titulo diferente.' },
+      { status: 400 }
+    )
+  }
   if (eventError || !evento) {
     console.error('[events] erro insert:', JSON.stringify(eventError))
     return NextResponse.json({ error: 'Erro ao criar evento: ' + (eventError?.message ?? 'sem dados') }, { status: 500 })
