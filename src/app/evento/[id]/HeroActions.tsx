@@ -26,14 +26,15 @@ const BTN: React.CSSProperties = {
 
 const TOP = 'calc(env(safe-area-inset-top, 0px) + 10px)'
 
-export default function HeroActions({ title }: { title: string }) {
+export default function HeroActions({ title, slug }: { title: string; slug: string }) {
   const router = useRouter()
 
   const handleShare = () => {
+    const url = slug ? `https://www.roleon.com.br/evento/${slug}` : window.location.href
     if (navigator.share) {
-      navigator.share({ title, url: window.location.href }).catch(() => {})
+      navigator.share({ title, url }).catch(() => {})
     } else {
-      navigator.clipboard?.writeText(window.location.href)
+      navigator.clipboard?.writeText(url)
     }
   }
 

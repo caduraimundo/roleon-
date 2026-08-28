@@ -29,7 +29,7 @@ interface TicketType {
 }
 
 interface FullEvent {
-  id: string; title: string; genre: string; genres: string[]; price: number
+  id: string; slug: string; title: string; genre: string; genres: string[]; price: number
   isFree: boolean; fee: number; venue: string
   dateStr: string | null; timeStr: string | null; yearStr: string | null
   endDateStr: string | null; endTimeStr: string | null; endYearStr: string | null
@@ -44,7 +44,7 @@ interface FullEvent {
 
 function fromCache(cached: RoleonEvent): FullEvent {
   return {
-    id: cached.id, title: cached.title, genre: cached.genre,
+    id: cached.id, slug: (cached as any).slug ?? '', title: cached.title, genre: cached.genre,
     genres: Array.isArray((cached as any).genres) && (cached as any).genres.length > 0
       ? (cached as any).genres
       : cached.genre ? [cached.genre] : [],
@@ -63,7 +63,7 @@ function fromSupabase(row: Record<string, unknown>): FullEvent {
   const price = Number(row.price) || 0
   const isFree = !!(row.is_free) || price === 0
   return {
-    id: String(row.id), title: (row.title as string) ?? '',
+    id: String(row.id), slug: (row.slug as string) ?? '', title: (row.title as string) ?? '',
     genre: Array.isArray(row.genre)
       ? (row.genre as string[])[0] ?? ''
       : (row.genre as string) ?? '',
@@ -197,7 +197,7 @@ export default function EventoPage() {
 
     supabase
       .from('events')
-      .select('id, title, genre, price, location_name, event_date, event_end_date, is_free, description, additional_info, cover_image, location_lat, location_lng, producer_id, display_organizer_name, age_rating')
+      .select('id, slug, title, genre, price, location_name, event_date, event_end_date, is_free, description, additional_info, cover_image, location_lat, location_lng, producer_id, display_organizer_name, age_rating')
       .eq(isUUID ? 'id' : 'slug', id)
       .single()
       .then(({ data }) => {
@@ -307,7 +307,7 @@ export default function EventoPage() {
           </>
         )}
         <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
-          <HeroActions title={ev.title} />
+          <HeroActions title={ev.title} slug={ev.slug} />
         </div>
       </div>
 
