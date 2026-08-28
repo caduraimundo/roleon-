@@ -12,6 +12,7 @@ const notoSans = Noto_Sans({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.roleon.com.br"),
   title: {
     default: "Roleon",
     template: "%s | Roleon",
