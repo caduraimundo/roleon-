@@ -1,15 +1,23 @@
 import type { Metadata } from 'next'
+import { cache } from 'react'
 import { supabase } from '../../../lib/supabase'
+import { fromSupabase } from './eventTransform'
 import EventoClient from './EventoClient'
+
+const getEventRow = cache(async (id: string, isUUID: boolean) => {
+  const { data } = await supabase
+    .from('events')
+    .select('id, slug, title, genre, price, location_name, event_date, event_end_date, is_free, description, additional_info, cover_image, location_lat, location_lng, producer_id, display_organizer_name, age_rating, status')
+    .eq(isUUID ? 'id' : 'slug', id)
+    .single()
+
+  return data
+})
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
-  const { data } = await supabase
-    .from('events')
-    .select('title, description, cover_image, slug, event_date, event_end_date, location_name, location_lat, location_lng, price, is_free, status, display_organizer_name')
-    .eq(isUUID ? 'id' : 'slug', id)
-    .single()
+  const data = await getEventRow(id, isUUID)
 
   if (!data) {
     return { title: 'Evento nao encontrado' }
@@ -35,11 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 async function getEventJsonLd(id: string, isUUID: boolean) {
-  const { data } = await supabase
-    .from('events')
-    .select('title, description, cover_image, slug, event_date, event_end_date, location_name, location_lat, location_lng, price, is_free, status, display_organizer_name')
-    .eq(isUUID ? 'id' : 'slug', id)
-    .single()
+  const data = await getEventRow(id, isUUID)
 
   if (!data) {
     return null
@@ -95,6 +99,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const { id } = await params
   const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)
   const jsonLd = await getEventJsonLd(id, isUUID)
+  const data = await getEventRow(id, isUUID)
+  const initialEvent = data ? fromSupabase(data as Record<string, unknown>) : null
 
   return (
     <>
@@ -104,7 +110,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
         />
       )}
-      <EventoClient />
+      <EventoClient initialEvent={initialEvent} />
     </>
   )
 }
