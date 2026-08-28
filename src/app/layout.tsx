@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     url: "https://www.roleon.com.br",
     images: [
       {
-        url: "/logo/roleon-logo.png",
+        url: "/og-image.png",
         alt: "Roleon",
       },
     ],
