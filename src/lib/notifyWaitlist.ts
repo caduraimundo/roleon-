@@ -10,7 +10,7 @@ const supabaseAdmin = createClient(
 export async function notifyWaitlist({ eventId, ticketTypeId }: { eventId: string; ticketTypeId: string | null }) {
   const { data: event } = await supabaseAdmin
     .from('events')
-    .select('title')
+    .select('title, slug')
     .eq('id', eventId)
     .single()
 
@@ -33,7 +33,7 @@ export async function notifyWaitlist({ eventId, ticketTypeId }: { eventId: strin
   if (!entries || entries.length === 0) return
 
   const resend = new Resend(process.env.RESEND_API_KEY)
-  const eventUrl = `https://www.roleon.com.br/evento/${eventId}`
+  const eventUrl = `https://www.roleon.com.br/evento/${(event as any).slug || eventId}`
   const notifiedIds: string[] = []
 
   for (const entry of entries) {

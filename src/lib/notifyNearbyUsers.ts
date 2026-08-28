@@ -32,7 +32,7 @@ export async function notifyNearbyUsers(eventId: string) {
     // Buscar o evento aprovado
     const { data: event, error: eventError } = await supabaseAdmin
       .from('events')
-      .select('id, title, location_lat, location_lng')
+      .select('id, slug, title, location_lat, location_lng')
       .eq('id', eventId)
       .single()
 
@@ -74,7 +74,7 @@ export async function notifyNearbyUsers(eventId: string) {
     const payload = JSON.stringify({
       title: 'Novo rolê perto de você',
       body: event.title,
-      url: `/evento/${event.id}`,
+      url: `/evento/${event.slug || event.id}`,
     })
 
     await Promise.allSettled(

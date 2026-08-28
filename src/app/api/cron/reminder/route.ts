@@ -35,6 +35,7 @@ export async function GET(req: Request) {
         user_id,
         events!inner (
           id,
+          slug,
           title,
           event_date,
           location_name
@@ -151,6 +152,7 @@ export async function GET(req: Request) {
         user_id,
         events!inner (
           id,
+          slug,
           title,
           event_date,
           location_name
@@ -199,7 +201,7 @@ export async function GET(req: Request) {
                 </div>
                 <div style="margin-top: 8px; display: inline-block; background: #E6F7F6; color: #0EA5A0; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px;">Entrada gratuita</div>
               </div>
-              <a href="https://www.roleon.com.br/evento/${event.id}"
+              <a href="https://www.roleon.com.br/evento/${event.slug || event.id}"
                 style="display: block; text-align: center; background: #0EA5A0; color: #fff; font-weight: 700; font-size: 15px; padding: 14px; border-radius: 12px; text-decoration: none;">
                 Ver evento
               </a>
@@ -247,7 +249,7 @@ export async function GET(req: Request) {
               JSON.stringify({
                 title: 'Lembrete de presença',
                 body: `${event.title} é amanhã`,
-                url: `/evento/${event.id}`,
+                url: `/evento/${event.slug || event.id}`,
               })
             )
             pushSent++
