@@ -12,9 +12,11 @@ interface BottomNavProps {
 function IconCompass({ active }: { active: boolean }) {
   return (
     <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <circle cx="11" cy="11" r="8.2" stroke="currentColor" strokeWidth="1.6"/>
       <path
-        d="M10 1.6 L12.4 6 L16 4.4 L14.8 9 L18.4 10.4 L14.8 12 L14 15.6 L11.6 13.6 L10 18.4 L8.4 13.6 L6 15.6 L5.2 12 L1.6 10.4 L5.2 9 L4 4.4 L7.6 6 Z"
-        fill="currentColor"
+        d="M14 8l-1.2 4.2L8.6 14l1.2-4.2L14 8z"
+        stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"
+        fill={active ? 'currentColor' : 'none'}
       />
     </svg>
   )
