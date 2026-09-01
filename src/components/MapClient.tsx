@@ -96,11 +96,19 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
       pointerEvents: 'none',
       display: 'flex', alignItems: 'center', gap: 10,
     }}>
-      <img
-        src="/icons/icon-192.png"
-        alt="Roleon"
-        style={{ height: 44, width: 44, flexShrink: 0, objectFit: 'contain', pointerEvents: 'none' }}
-      />
+      <div style={{
+        height: 44, width: 44, flexShrink: 0,
+        background: '#fff', borderRadius: 16,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        pointerEvents: 'none',
+      }}>
+        <img
+          src="/icons/icon-192.png"
+          alt="Roleon"
+          style={{ height: 28, width: 28, objectFit: 'contain' }}
+        />
+      </div>
       <div style={{
         position: 'relative',
         display: 'flex', alignItems: 'center', gap: 6,
@@ -1115,17 +1123,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       }}>
         <div style={{ pointerEvents: 'auto' }}>
           <SearchBar hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} searchValue={searchValue} onSearchChange={handleSearch} />
-        </div>
-        <div style={{
-          position: 'absolute',
-          top: 'calc(74px + env(safe-area-inset-top, 0px))',
-          left: 26,
-          display: 'flex', alignItems: 'center', gap: 5,
-          pointerEvents: 'none',
-          opacity: 0.65,
-        }}>
-          <img src="/icons/icon-192.png" alt="" style={{ height: 16, width: 16, objectFit: 'contain', flexShrink: 0 }} />
-          <span style={{ fontSize: 11.5, fontWeight: 500, color: '#1A1A1A', fontFamily: "'Noto Sans', sans-serif" }}>Roleon</span>
         </div>
         {showSuggestions && (
           <div style={{
