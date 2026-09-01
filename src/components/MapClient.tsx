@@ -94,14 +94,21 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
     <div style={{
       padding: 'calc(16px + env(safe-area-inset-top, 0px)) 16px 10px',
       pointerEvents: 'none',
+      display: 'flex', alignItems: 'center', gap: 10,
     }}>
+      <img
+        src="/icons/icon-192.png"
+        alt="Roleon"
+        style={{ height: 44, width: 44, flexShrink: 0, objectFit: 'contain', pointerEvents: 'none' }}
+      />
       <div style={{
         position: 'relative',
-        display: 'flex', alignItems: 'center', gap: 8,
+        display: 'flex', alignItems: 'center', gap: 6,
         background: '#fff', borderRadius: 16,
-        padding: '10px 14px',
+        padding: '10px 12px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
         pointerEvents: 'auto',
+        flex: 1, minWidth: 0,
       }}>
         <span style={{ color: DIM, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
           <IconSearch />
@@ -110,9 +117,9 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
           type="text"
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
-          placeholder="Buscar local ou evento..."
+          placeholder="Buscar local..."
           style={{
-            flex: 1, minWidth: 0, fontSize: 16, fontWeight: 500, color: TEXT,
+            flex: 1, minWidth: 0, fontSize: 14.5, fontWeight: 500, color: TEXT,
             fontFamily: "'Noto Sans', sans-serif",
             border: 'none', outline: 'none', background: 'transparent',
             padding: 0, margin: 0,
@@ -125,9 +132,9 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
         <button
           onClick={() => setOpen(s => !s)}
           style={{
-            marginLeft: 4, flexShrink: 0,
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            padding: '7px 10px',
+            marginLeft: 0, flexShrink: 0,
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            padding: '7px 6px',
             border: 0, borderRadius: 999, cursor: 'pointer',
             background: 'transparent',
             color: TEXT,
