@@ -103,6 +103,11 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
         boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
         pointerEvents: 'auto',
       }}>
+        <img
+          src="/icons/icon-192.png"
+          alt="Roleon"
+          style={{ height: 20, width: 20, flexShrink: 0, objectFit: 'contain' }}
+        />
         <span style={{ color: DIM, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
           <IconSearch />
         </span>
