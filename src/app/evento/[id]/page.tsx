@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { cache } from 'react'
+import { notFound } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { fromSupabase } from './eventTransform'
 import EventoClient from './EventoClient'
@@ -101,6 +102,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const jsonLd = await getEventJsonLd(id, isUUID)
   const data = await getEventRow(id, isUUID)
   const initialEvent = data ? fromSupabase(data as Record<string, unknown>) : null
+
+  if (!initialEvent) {
+    notFound()
+  }
 
   return (
     <>
