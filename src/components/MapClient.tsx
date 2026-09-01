@@ -1109,6 +1109,17 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         <div style={{ pointerEvents: 'auto' }}>
           <SearchBar hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} searchValue={searchValue} onSearchChange={handleSearch} />
         </div>
+        <div style={{
+          position: 'absolute',
+          top: 'calc(74px + env(safe-area-inset-top, 0px))',
+          left: 26,
+          display: 'flex', alignItems: 'center', gap: 5,
+          pointerEvents: 'none',
+          opacity: 0.65,
+        }}>
+          <img src="/icons/icon-192.png" alt="" style={{ height: 16, width: 16, objectFit: 'contain', flexShrink: 0 }} />
+          <span style={{ fontSize: 11.5, fontWeight: 500, color: '#1A1A1A', fontFamily: "'Noto Sans', sans-serif" }}>Roleon</span>
+        </div>
         {showSuggestions && (
           <div style={{
             position: 'absolute',
