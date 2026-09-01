@@ -18,6 +18,9 @@ export const metadata: Metadata = {
     template: "%s | Roleon",
   },
   description: "Descubra shows, festas e eventos culturais perto de voce. Compre seu ingresso com seguranca.",
+  alternates: {
+    canonical: "https://www.roleon.com.br",
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
