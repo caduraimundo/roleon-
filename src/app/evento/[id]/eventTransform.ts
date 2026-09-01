@@ -22,6 +22,7 @@ export interface FullEvent {
   location_lng?: number | null
   displayOrganizerName?: string | null
   ageRating?: string | null
+  producerId?: string | null
 }
 
 export function fromSupabase(row: Record<string, unknown>): FullEvent {
@@ -56,5 +57,6 @@ export function fromSupabase(row: Record<string, unknown>): FullEvent {
     location_lat: (row.location_lat as number | null) ?? null,
     location_lng: (row.location_lng as number | null) ?? null,
     displayOrganizerName: (row.display_organizer_name as string | null) ?? null,
+    producerId: (row.producer_id as string | null) ?? null,
   }
 }

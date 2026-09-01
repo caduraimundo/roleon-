@@ -142,6 +142,49 @@ export default function EventoPage({ initialEvent }: { initialEvent?: FullEvent 
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
+    if (initialEvent === null) {
+      setMissing(true)
+      return
+    }
+
+    if (initialEvent) {
+      const producerId = initialEvent.producerId
+      if (producerId) {
+        fetch(`/api/public/organizador/${producerId}`)
+          .then(r => r.ok ? r.json() : null)
+          .then(d => { if (d && d.name) setOrganizer(d) })
+          .catch(() => {})
+      }
+
+      supabase
+        .from('ticket_types')
+        .select('id, name, price, quantity, quantity_sold')
+        .eq('event_id', initialEvent.id)
+        .order('price', { ascending: true })
+        .then(({ data, error }) => {
+          console.log('ticket_types:', data, 'error:', error)
+          if (data && data.length > 0) {
+            const types = data.map(r => ({
+              id: String(r.id),
+              name: String(r.name),
+              price: Number(r.price),
+              quantity: r.quantity != null ? Number(r.quantity) : null,
+              quantity_sold: r.quantity_sold != null ? Number(r.quantity_sold) : null,
+            }))
+            setTicketTypes(types)
+            setSelectedTypeId(types[0].id)
+            const ttWithLimit = types.filter(t => t.quantity != null)
+            setIsSoldOut(ttWithLimit.length > 0 && ttWithLimit.every(t => (t.quantity_sold ?? 0) >= (t.quantity ?? 0)))
+            sessionStorage.setItem('ticket_type_name', JSON.stringify({
+              ticket_type_id: types[0].id,
+              ticket_type_name: types[0].name,
+              price: types[0].price,
+            }))
+          }
+        })
+      return
+    }
+
     try {
       const raw = sessionStorage.getItem(`evento-${id}`)
       if (raw) setEv(fromCache(JSON.parse(raw) as RoleonEvent))
@@ -193,7 +236,7 @@ export default function EventoPage({ initialEvent }: { initialEvent?: FullEvent 
             }
           })
       })
-  }, [id, isUUID])
+  }, [id, isUUID, initialEvent])
 
   const showToast = (msg: string) => {
     setToast(msg)
