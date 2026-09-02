@@ -6,6 +6,7 @@ import { useSmartBack } from '../../hooks/useSmartBack'
 import { supabase } from '../../lib/supabase'
 import AuthSheet from '../../components/AuthSheet'
 import Image from 'next/image'
+import AppLoadingScreen from '../../components/AppLoadingScreen'
 
 interface SavedEvent {
   id: string
@@ -148,9 +149,7 @@ export default function SalvosPage() {
 
       {/* Conteúdo */}
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 80 }}>
-          <div style={{ fontSize: 14, color: '#9A9A9A' }}>Carregando...</div>
-        </div>
+        <AppLoadingScreen fullScreen={false} />
       ) : !authed ? (
         /* Não logado */
         <div style={{

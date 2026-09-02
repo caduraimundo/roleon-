@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import AppLoadingScreen from '../../../components/AppLoadingScreen'
 
 export default function PortariaPublicaPage({
   params,
@@ -125,15 +126,7 @@ export default function PortariaPublicaPage({
   }
 
   if (loading) {
-    return (
-      <div style={{
-        minHeight: '100dvh', background: '#1A1A1A',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontFamily: "'Noto Sans', sans-serif", color: '#6E6E73', fontSize: 15,
-      }}>
-        Carregando...
-      </div>
-    )
+    return <AppLoadingScreen dark={true} />
   }
 
   if (tokenError) {
