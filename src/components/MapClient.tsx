@@ -1130,6 +1130,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       )}
 
       {/* Controles do topo: search bar + chips */}
+      {mapReady && (
       <div ref={loadingTopRef} style={{
         position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
         pointerEvents: 'none',
@@ -1188,9 +1189,10 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           </div>
         )}
       </div>
+      )}
 
       {/* FABs: filtros + localização */}
-      {!activePin && !nearbyExpanded && !pinGroup && (
+      {mapReady && !activePin && !nearbyExpanded && !pinGroup && (
         <div style={{
           position: 'absolute', right: 14,
           bottom: `calc(${bottomNavHeight + 95}px + env(safe-area-inset-bottom, 0px))`,
@@ -1260,6 +1262,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       )}
 
       {/* Card de evento, grupo de pins sobrepostos, ou hint */}
+      {mapReady && (
       <div ref={loadingBottomRef}>
       {pinGroup ? (
         <MapHint
@@ -1313,6 +1316,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           />
       )}
       </div>
+      )}
 
       {/* Filter sheet */}
       {showFilter && (
@@ -1325,7 +1329,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       )}
 
       {/* Bottom nav */}
-      <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+      {mapReady && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
 
       {/* Auth sheet */}
       <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
