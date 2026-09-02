@@ -92,7 +92,7 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
 
   return (
     <div style={{
-      padding: '4px 16px 10px',
+      padding: '14px 16px 10px',
       pointerEvents: 'none',
     }}>
       <div style={{
@@ -110,7 +110,7 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
           type="text"
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
-          placeholder="Buscar local/evento..."
+          placeholder="Buscar local ou evento..."
           style={{
             flex: 1, minWidth: 0, fontSize: 14.5, fontWeight: 500, color: TEXT,
             fontFamily: "'Noto Sans', sans-serif",
@@ -1108,7 +1108,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       }}>
         <div style={{
           display: 'flex', justifyContent: 'center',
-          padding: 'calc(14px + env(safe-area-inset-top, 0px)) 16px 6px',
+          background: '#ffffff', borderBottom: '0.5px solid #EAEAEA',
+          boxShadow: '0 4px 14px rgba(0,0,0,0.04)',
+          padding: 'calc(14px + env(safe-area-inset-top, 0px)) 16px 12px',
           pointerEvents: 'none',
         }}>
           <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 17, width: 'auto', objectFit: 'contain', display: 'block' }} />
@@ -1119,7 +1121,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         {showSuggestions && (
           <div style={{
             position: 'absolute',
-            top: 'calc(114px + env(safe-area-inset-top, 0px))',
+            top: 'calc(117px + env(safe-area-inset-top, 0px))',
             left: 12, right: 12,
             background: '#fff',
             borderRadius: 12,
