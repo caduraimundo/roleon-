@@ -17,7 +17,7 @@ const MapClient = dynamic(() => import("@/components/MapClient"), {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 12,
+        gap: 8,
       }}
     >
       <img
@@ -27,7 +27,7 @@ const MapClient = dynamic(() => import("@/components/MapClient"), {
         height={64}
         style={{ objectFit: 'contain', animation: 'pulse-opacity 1.6s ease-in-out infinite' }}
       />
-      <span className="text-gray-500">Carregando o mapa...</span>
+      <span style={{ fontSize: 13, fontWeight: 600, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif" }}>Carregando...</span>
       <style>{`
         @keyframes pulse-opacity {
           0%, 100% { opacity: 1; }
