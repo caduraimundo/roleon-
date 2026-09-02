@@ -1090,11 +1090,19 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           gap: 12,
         }}>
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
-            <circle cx="16" cy="16" r="13" stroke="#E0E0E0" strokeWidth="3"/>
-            <path d="M16 3a13 13 0 0113 13" stroke="#0EA5A0" strokeWidth="3" strokeLinecap="round"/>
-            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-          </svg>
+          <img
+            src="/icons/icon-192.png"
+            alt="Roleon"
+            width={64}
+            height={64}
+            style={{ objectFit: 'contain', animation: 'pulse-opacity 1.6s ease-in-out infinite' }}
+          />
+          <style>{`
+            @keyframes pulse-opacity {
+              0%, 100% { opacity: 1; }
+              50% { opacity: 0.4; }
+            }
+          `}</style>
           <span style={{ fontSize: 13, fontWeight: 600, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif" }}>
             Carregando mapa...
           </span>
