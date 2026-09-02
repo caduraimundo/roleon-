@@ -493,6 +493,8 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   const locationSavedRef = useRef(false)
   const mapCenteredRef = useRef(false)
   const [mapReady, setMapReady] = useState(false)
+  const [mapLoadError, setMapLoadError] = useState(false)
+  const [retryKey, setRetryKey] = useState(0)
   const loadingTopRef = useRef<HTMLDivElement>(null)
   const loadingBottomRef = useRef<HTMLDivElement>(null)
   const [loadingBounds, setLoadingBounds] = useState<{ top: number; bottom: number } | null>(null)
@@ -675,10 +677,16 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     let cancelled = false
     let retryTimer: ReturnType<typeof setTimeout> | null = null
     let cleanupGeo: (() => void) | null = null
+    let attempts = 0
 
     const initMap = () => {
       if (cancelled || !mapRef.current) return
       if (!window.google?.maps?.Map) {
+        attempts++
+        if (attempts >= 100) {
+          setMapLoadError(true)
+          return
+        }
         retryTimer = setTimeout(initMap, 100)
         return
       }
@@ -842,7 +850,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       if (retryTimer !== null) clearTimeout(retryTimer)
       if (cleanupGeo) cleanupGeo()
     }
-  }, [])
+  }, [retryKey])
 
   // Renderiza pins
   useEffect(() => {
@@ -1110,27 +1118,47 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
           gap: 2,
         }}>
-          <img
-            src="/icons/icon-192.png"
-            alt="Roleon"
-            width={64}
-            height={64}
-            style={{ objectFit: 'contain', animation: 'pulse-opacity 1.6s ease-in-out infinite' }}
-          />
-          <style>{`
-            @keyframes pulse-opacity {
-              0%, 100% { opacity: 1; }
-              50% { opacity: 0.4; }
-            }
-          `}</style>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif" }}>
-            Carregando...
-          </span>
+          {mapLoadError ? (
+            <>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif", textAlign: 'center', padding: '0 32px' }}>
+                Não foi possível carregar o mapa.
+              </span>
+              <button
+                onClick={() => { setMapLoadError(false); setRetryKey((k) => k + 1) }}
+                style={{
+                  marginTop: 8, padding: '10px 20px', borderRadius: 999,
+                  background: '#0EA5A0', color: '#fff', border: 0, cursor: 'pointer',
+                  fontSize: 13, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
+                }}
+              >
+                Tentar novamente
+              </button>
+            </>
+          ) : (
+            <>
+              <img
+                src="/icons/icon-192.png"
+                alt="Roleon"
+                width={64}
+                height={64}
+                style={{ objectFit: 'contain', animation: 'pulse-opacity 1.6s ease-in-out infinite' }}
+              />
+              <style>{`
+                @keyframes pulse-opacity {
+                  0%, 100% { opacity: 1; }
+                  50% { opacity: 0.4; }
+                }
+              `}</style>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif" }}>
+                Carregando...
+              </span>
+            </>
+          )}
         </div>
       )}
 
       {/* Controles do topo: search bar + chips */}
-      {mapReady && (
+      {(mapReady || mapLoadError) && (
       <div ref={loadingTopRef} style={{
         position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
         pointerEvents: 'none',
@@ -1192,7 +1220,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       )}
 
       {/* FABs: filtros + localização */}
-      {mapReady && !activePin && !nearbyExpanded && !pinGroup && (
+      {(mapReady || mapLoadError) && !activePin && !nearbyExpanded && !pinGroup && (
         <div style={{
           position: 'absolute', right: 14,
           bottom: `calc(${bottomNavHeight + 95}px + env(safe-area-inset-bottom, 0px))`,
@@ -1262,7 +1290,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       )}
 
       {/* Card de evento, grupo de pins sobrepostos, ou hint */}
-      {mapReady && (
+      {(mapReady || mapLoadError) && (
       <div ref={loadingBottomRef}>
       {pinGroup ? (
         <MapHint
@@ -1329,7 +1357,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       )}
 
       {/* Bottom nav */}
-      {mapReady && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
+      {(mapReady || mapLoadError) && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
 
       {/* Auth sheet */}
       <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
