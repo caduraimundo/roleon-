@@ -4,38 +4,11 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from "next/dynamic";
 import { supabase } from '../lib/supabase'
+import AppLoadingScreen from '../components/AppLoadingScreen'
 
 const MapClient = dynamic(() => import("@/components/MapClient"), {
   ssr: false,
-  loading: () => (
-    <div
-      className="bg-white"
-      style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 2,
-      }}
-    >
-      <img
-        src="/icons/icon-192.png"
-        alt="Roleon"
-        width={64}
-        height={64}
-        style={{ objectFit: 'contain', animation: 'pulse-opacity 1.6s ease-in-out infinite' }}
-      />
-      <span style={{ fontSize: 13, fontWeight: 600, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif" }}>Carregando...</span>
-      <style>{`
-        @keyframes pulse-opacity {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
-        }
-      `}</style>
-    </div>
-  ),
+  loading: () => <AppLoadingScreen absolute background="#fff" />,
 });
 
 export default function Home() {
