@@ -1012,7 +1012,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     measure()
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
-  }, [mapReady, filteredEvents])
+  }, [mapReady, mapLoadError])
 
   const handleSearch = useCallback(async (value: string) => {
     setSearchValue(value)
@@ -1126,9 +1126,10 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
               <button
                 onClick={() => { setMapLoadError(false); setRetryKey((k) => k + 1) }}
                 style={{
-                  marginTop: 8, padding: '10px 20px', borderRadius: 999,
+                  marginTop: 8, height: 44, padding: '0 20px', borderRadius: 10,
                   background: '#0EA5A0', color: '#fff', border: 0, cursor: 'pointer',
                   fontSize: 13, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
+                  boxShadow: '0 6px 14px rgba(14,165,160,0.28)',
                 }}
               >
                 Tentar novamente
