@@ -92,23 +92,9 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
 
   return (
     <div style={{
-      padding: 'calc(16px + env(safe-area-inset-top, 0px)) 16px 10px',
+      padding: '4px 16px 10px',
       pointerEvents: 'none',
-      display: 'flex', alignItems: 'center', gap: 8,
     }}>
-      <div style={{
-        height: 50, width: 44, flexShrink: 0,
-        background: '#fff', borderRadius: 16,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        pointerEvents: 'none',
-      }}>
-        <img
-          src="/icons/icon-192.png"
-          alt="Roleon"
-          style={{ height: 30, width: 30, objectFit: 'contain' }}
-        />
-      </div>
       <div style={{
         position: 'relative',
         display: 'flex', alignItems: 'center', gap: 6,
@@ -116,7 +102,6 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
         padding: '10px 12px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
         pointerEvents: 'auto',
-        flex: 1, minWidth: 0,
       }}>
         <span style={{ color: DIM, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
           <IconSearch />
@@ -1121,13 +1106,20 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
         pointerEvents: 'none',
       }}>
+        <div style={{
+          display: 'flex', justifyContent: 'center',
+          padding: 'calc(14px + env(safe-area-inset-top, 0px)) 16px 6px',
+          pointerEvents: 'none',
+        }}>
+          <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 30, width: 'auto', objectFit: 'contain' }} />
+        </div>
         <div style={{ pointerEvents: 'auto' }}>
           <SearchBar hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} searchValue={searchValue} onSearchChange={handleSearch} />
         </div>
         {showSuggestions && (
           <div style={{
             position: 'absolute',
-            top: 'calc(76px + env(safe-area-inset-top, 0px))',
+            top: 'calc(114px + env(safe-area-inset-top, 0px))',
             left: 12, right: 12,
             background: '#fff',
             borderRadius: 12,
