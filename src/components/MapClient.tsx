@@ -1111,13 +1111,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           padding: 'calc(14px + env(safe-area-inset-top, 0px)) 16px 6px',
           pointerEvents: 'none',
         }}>
-          <div style={{
-            background: '#fff', borderRadius: 14,
-            padding: '7px 16px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
-          }}>
-            <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 17, width: 'auto', objectFit: 'contain', display: 'block' }} />
-          </div>
+          <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 17, width: 'auto', objectFit: 'contain', display: 'block' }} />
         </div>
         <div style={{ pointerEvents: 'auto' }}>
           <SearchBar hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} searchValue={searchValue} onSearchChange={handleSearch} />
