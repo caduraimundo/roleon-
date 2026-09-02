@@ -493,6 +493,9 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   const locationSavedRef = useRef(false)
   const mapCenteredRef = useRef(false)
   const [mapReady, setMapReady] = useState(false)
+  const loadingTopRef = useRef<HTMLDivElement>(null)
+  const loadingBottomRef = useRef<HTMLDivElement>(null)
+  const [loadingBounds, setLoadingBounds] = useState<{ top: number; bottom: number } | null>(null)
 
   const [events,          setEvents]          = useState<RoleonEvent[]>([])
   const [loading,         setLoading]         = useState(true)
@@ -990,6 +993,19 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     if (activePin && !filteredEvents.find((e) => e.id === activePin)) setActivePin(null)
   }, [filteredEvents, activePin])
 
+  useEffect(() => {
+    if (mapReady) return
+    const measure = () => {
+      const top = loadingTopRef.current?.getBoundingClientRect().bottom
+      const bottomEl = loadingBottomRef.current?.firstElementChild as HTMLElement | undefined
+      const bottom = bottomEl?.getBoundingClientRect().top
+      if (top != null && bottom != null && bottom > top) setLoadingBounds({ top, bottom })
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [mapReady, filteredEvents])
+
   const handleSearch = useCallback(async (value: string) => {
     setSearchValue(value)
     if (!value.trim()) {
@@ -1085,10 +1101,14 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
 
       {!mapReady && (
         <div style={{
-          position: 'absolute', inset: 0, zIndex: 10,
+          position: 'absolute',
+          top: loadingBounds ? loadingBounds.top : 0,
+          bottom: loadingBounds ? undefined : 0,
+          height: loadingBounds ? loadingBounds.bottom - loadingBounds.top : undefined,
+          left: 0, right: 0, zIndex: 10,
           background: '#F7F7F7',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          gap: 8,
+          gap: 2,
         }}>
           <img
             src="/icons/icon-192.png"
@@ -1110,7 +1130,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       )}
 
       {/* Controles do topo: search bar + chips */}
-      <div style={{
+      <div ref={loadingTopRef} style={{
         position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
         pointerEvents: 'none',
       }}>
@@ -1240,6 +1260,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       )}
 
       {/* Card de evento, grupo de pins sobrepostos, ou hint */}
+      <div ref={loadingBottomRef}>
       {pinGroup ? (
         <MapHint
           key="pin-group"
@@ -1291,6 +1312,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
             onExpandChange={(exp) => setNearbyExpanded(exp)}
           />
       )}
+      </div>
 
       {/* Filter sheet */}
       {showFilter && (
