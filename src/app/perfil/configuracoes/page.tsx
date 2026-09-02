@@ -243,7 +243,7 @@ export default function ConfiguracoesPage() {
   }
 
   if (loading) {
-    return <AppLoadingScreen />
+    return <AppLoadingScreen showIcon={false} />
   }
 
   return (

@@ -79,7 +79,7 @@ export default function EditarPerfilPage() {
   }
 
   if (loading) {
-    return <AppLoadingScreen />
+    return <AppLoadingScreen showIcon={false} />
   }
 
   return (

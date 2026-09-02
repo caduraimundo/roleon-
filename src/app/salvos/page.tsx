@@ -149,7 +149,7 @@ export default function SalvosPage() {
 
       {/* Conteúdo */}
       {loading ? (
-        <AppLoadingScreen fullScreen={false} />
+        <AppLoadingScreen fullScreen={false} showIcon={false} />
       ) : !authed ? (
         /* Não logado */
         <div style={{

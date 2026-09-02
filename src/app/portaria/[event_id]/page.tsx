@@ -126,7 +126,7 @@ export default function PortariaPublicaPage({
   }
 
   if (loading) {
-    return <AppLoadingScreen dark={true} />
+    return <AppLoadingScreen dark={true} showIcon={false} />
   }
 
   if (tokenError) {

@@ -116,7 +116,7 @@ export default function PerfilPage() {
   }
 
   if (loading) {
-    return <AppLoadingScreen />
+    return <AppLoadingScreen showIcon={false} />
   }
 
   if (showAuth) {
