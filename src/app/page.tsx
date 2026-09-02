@@ -17,7 +17,7 @@ const MapClient = dynamic(() => import("@/components/MapClient"), {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 8,
+        gap: 4,
       }}
     >
       <img
