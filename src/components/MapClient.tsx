@@ -1088,7 +1088,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           position: 'absolute', inset: 0, zIndex: 10,
           background: '#F7F7F7',
           display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          gap: 12,
+          gap: 8,
         }}>
           <img
             src="/icons/icon-192.png"
@@ -1104,7 +1104,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
             }
           `}</style>
           <span style={{ fontSize: 13, fontWeight: 600, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif" }}>
-            Carregando mapa...
+            Carregando...
           </span>
         </div>
       )}
