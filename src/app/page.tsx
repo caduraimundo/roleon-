@@ -9,10 +9,31 @@ const MapClient = dynamic(() => import("@/components/MapClient"), {
   ssr: false,
   loading: () => (
     <div
-      className="flex items-center justify-center bg-white text-gray-500"
-      style={{ position: 'absolute', inset: 0 }}
+      className="bg-white"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+      }}
     >
-      Carregando o mapa...
+      <img
+        src="/icons/icon-192.png"
+        alt="Roleon"
+        width={64}
+        height={64}
+        style={{ objectFit: 'contain', animation: 'pulse-opacity 1.6s ease-in-out infinite' }}
+      />
+      <span className="text-gray-500">Carregando o mapa...</span>
+      <style>{`
+        @keyframes pulse-opacity {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
     </div>
   ),
 });
