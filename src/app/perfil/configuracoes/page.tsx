@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { BackButton } from '../../../components/BackButton'
+import AppLoadingScreen from '../../../components/AppLoadingScreen'
 
 // ── Ícones ────────────────────────────────────────────────────────────────────
 
@@ -242,15 +243,7 @@ export default function ConfiguracoesPage() {
   }
 
   if (loading) {
-    return (
-      <div style={{
-        minHeight: '100dvh', background: '#F7F7F7',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontFamily: "'Noto Sans', sans-serif", fontSize: 14, color: '#6E6E73',
-      }}>
-        Carregando...
-      </div>
-    )
+    return <AppLoadingScreen />
   }
 
   return (

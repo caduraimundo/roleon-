@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 import { BackButton } from '../../components/BackButton'
 import BottomNav from '../../components/BottomNav'
+import AppLoadingScreen from '../../components/AppLoadingScreen'
 
 const TEAL = '#0EA5A0'
 const TEXT = '#1A1A1A'
@@ -113,22 +114,6 @@ function IconPin() {
       <path d="M7 1.5c2.5 0 4.5 2 4.5 4.5 0 3.3-4.5 6.5-4.5 6.5S2.5 9.3 2.5 6c0-2.5 2-4.5 4.5-4.5z" stroke="currentColor" strokeWidth="1.5"/>
       <circle cx="7" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
     </svg>
-  )
-}
-
-function LoadingScreen() {
-  return (
-    <div style={{
-      minHeight: '100dvh', background: '#F7F7F7',
-      fontFamily: "'Noto Sans', sans-serif",
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-    }}>
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" style={{ animation: 'spin 1s linear infinite' }}>
-        <circle cx="16" cy="16" r="13" stroke="#E0E0E0" strokeWidth="3"/>
-        <path d="M16 3a13 13 0 0113 13" stroke={TEAL} strokeWidth="3" strokeLinecap="round"/>
-        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
-      </svg>
-    </div>
   )
 }
 
@@ -261,7 +246,7 @@ export default function IngressosPage() {
     load()
   }, [router])
 
-  if (loading) return <LoadingScreen />
+  if (loading) return <AppLoadingScreen />
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)
