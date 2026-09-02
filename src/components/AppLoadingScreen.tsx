@@ -1,6 +1,6 @@
 'use client';
 
-export default function AppLoadingScreen({ fullScreen = true, dark = false }: { fullScreen?: boolean; dark?: boolean }) {
+export default function AppLoadingScreen({ fullScreen = true, dark = false, showIcon = true }: { fullScreen?: boolean; dark?: boolean; showIcon?: boolean }) {
   const iconSize = fullScreen ? 64 : 40
   return (
     <div style={{
@@ -12,13 +12,15 @@ export default function AppLoadingScreen({ fullScreen = true, dark = false }: { 
       justifyContent: 'center',
       gap: 2,
     }}>
-      <img
-        src="/icons/icon-192.png"
-        alt="Roleon"
-        width={iconSize}
-        height={iconSize}
-        style={{ objectFit: 'contain', animation: 'pulse-opacity 1.6s ease-in-out infinite' }}
-      />
+      {showIcon && (
+        <img
+          src="/icons/icon-192.png"
+          alt="Roleon"
+          width={iconSize}
+          height={iconSize}
+          style={{ objectFit: 'contain', animation: 'pulse-opacity 1.6s ease-in-out infinite' }}
+        />
+      )}
       <style>{`
         @keyframes pulse-opacity {
           0%, 100% { opacity: 1; }
