@@ -6,6 +6,7 @@ import { MarkerClusterer } from '@googlemaps/markerclusterer'
 import BottomNav, { TabId } from './BottomNav'
 import { PinSheet, MapHint, RoleonEvent } from './EventBottomSheet'
 import AuthSheet from './AuthSheet'
+import AppLoadingScreen from './AppLoadingScreen'
 import { supabase } from '../lib/supabase'
 
 const PRIMARY = '#0EA5A0'
@@ -1108,54 +1109,11 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       <div ref={mapRef} style={{ position: 'absolute', inset: 0 }} />
 
       {!mapReady && (
-        <div style={{
-          position: 'absolute',
-          top: loadingBounds ? loadingBounds.top : 0,
-          bottom: loadingBounds ? undefined : 0,
-          height: loadingBounds ? loadingBounds.bottom - loadingBounds.top : undefined,
-          left: 0, right: 0, zIndex: 10,
-          background: '#F7F7F7',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-          gap: 2,
-        }}>
-          {mapLoadError ? (
-            <>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif", textAlign: 'center', padding: '0 32px' }}>
-                Não foi possível carregar o mapa.
-              </span>
-              <button
-                onClick={() => { setMapLoadError(false); setRetryKey((k) => k + 1) }}
-                style={{
-                  marginTop: 8, height: 44, padding: '0 20px', borderRadius: 10,
-                  background: '#0EA5A0', color: '#fff', border: 0, cursor: 'pointer',
-                  fontSize: 13, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif",
-                  boxShadow: '0 6px 14px rgba(14,165,160,0.28)',
-                }}
-              >
-                Tentar novamente
-              </button>
-            </>
-          ) : (
-            <>
-              <img
-                src="/icons/icon-192.png"
-                alt="Roleon"
-                width={64}
-                height={64}
-                style={{ objectFit: 'contain', animation: 'pulse-opacity 1.6s ease-in-out infinite' }}
-              />
-              <style>{`
-                @keyframes pulse-opacity {
-                  0%, 100% { opacity: 1; }
-                  50% { opacity: 0.4; }
-                }
-              `}</style>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#6E6E73', fontFamily: "'Noto Sans', sans-serif" }}>
-                Carregando...
-              </span>
-            </>
-          )}
-        </div>
+        <AppLoadingScreen
+          bounds={loadingBounds}
+          zIndex={10}
+          error={mapLoadError ? { message: 'Não foi possível carregar o mapa.', onRetry: () => { setMapLoadError(false); setRetryKey((k) => k + 1) } } : null}
+        />
       )}
 
       {/* Controles do topo: search bar + chips */}
