@@ -92,7 +92,7 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
 
   return (
     <div style={{
-      padding: '14px 16px 10px',
+      padding: '8px 16px 10px',
       pointerEvents: 'none',
     }}>
       <div style={{
@@ -1113,7 +1113,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           padding: 'calc(14px + env(safe-area-inset-top, 0px)) 16px 12px',
           pointerEvents: 'none',
         }}>
-          <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 17, width: 'auto', objectFit: 'contain', display: 'block' }} />
+          <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 19, width: 'auto', objectFit: 'contain', display: 'block' }} />
         </div>
         <div style={{ pointerEvents: 'auto' }}>
           <SearchBar hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} searchValue={searchValue} onSearchChange={handleSearch} />
@@ -1121,7 +1121,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         {showSuggestions && (
           <div style={{
             position: 'absolute',
-            top: 'calc(117px + env(safe-area-inset-top, 0px))',
+            top: 'calc(113px + env(safe-area-inset-top, 0px))',
             left: 12, right: 12,
             background: '#fff',
             borderRadius: 12,
