@@ -94,10 +94,10 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
     <div style={{
       padding: 'calc(16px + env(safe-area-inset-top, 0px)) 16px 10px',
       pointerEvents: 'none',
-      display: 'flex', alignItems: 'center', gap: 10,
+      display: 'flex', alignItems: 'center', gap: 8,
     }}>
       <div style={{
-        height: 44, width: 44, flexShrink: 0,
+        height: 50, width: 44, flexShrink: 0,
         background: '#fff', borderRadius: 16,
         boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -106,7 +106,7 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
         <img
           src="/icons/icon-192.png"
           alt="Roleon"
-          style={{ height: 28, width: 28, objectFit: 'contain' }}
+          style={{ height: 30, width: 30, objectFit: 'contain' }}
         />
       </div>
       <div style={{
@@ -125,7 +125,7 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
           type="text"
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
-          placeholder="Buscar local..."
+          placeholder="Buscar local/evento..."
           style={{
             flex: 1, minWidth: 0, fontSize: 14.5, fontWeight: 500, color: TEXT,
             fontFamily: "'Noto Sans', sans-serif",
