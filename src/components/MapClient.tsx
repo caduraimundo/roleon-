@@ -1112,11 +1112,11 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           pointerEvents: 'none',
         }}>
           <div style={{
-            background: '#fff', borderRadius: 16,
-            padding: '10px 22px',
+            background: '#fff', borderRadius: 14,
+            padding: '7px 16px',
             boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
           }}>
-            <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 22, width: 'auto', objectFit: 'contain', display: 'block' }} />
+            <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 17, width: 'auto', objectFit: 'contain', display: 'block' }} />
           </div>
         </div>
         <div style={{ pointerEvents: 'auto' }}>
