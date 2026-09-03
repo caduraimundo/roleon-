@@ -1,5 +1,7 @@
 'use client';
 
+import { ICON_BASE64 } from './iconBase64'
+
 type AppLoadingScreenProps = {
   fullScreen?: boolean
   dark?: boolean
@@ -76,7 +78,7 @@ export default function AppLoadingScreen({
                 <circle cx="42" cy="42" r="38" fill="none" stroke="#0EA5A0" strokeWidth="3" strokeLinecap="round" strokeDasharray="60 179" />
               </svg>
               <img
-                src="/icons/icon-192.png"
+                src={`data:image/png;base64,${ICON_BASE64}`}
                 alt="Roleon"
                 width={iconSize}
                 height={iconSize}
