@@ -3,7 +3,6 @@ import { Noto_Sans } from "next/font/google"
 import "./globals.css";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 import ChunkErrorReloader from "@/components/ChunkErrorReloader";
-import Script from "next/script";
 
 const notoSans = Noto_Sans({
   variable: "--font-noto-sans",
@@ -71,10 +70,6 @@ export default function RootLayout({
       className={`${notoSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Script
-          src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places,marker&v=beta&loading=async`}
-          strategy="beforeInteractive"
-        />
         <ServiceWorkerRegistrar />
         <ChunkErrorReloader />
         {children}

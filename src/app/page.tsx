@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from "next/dynamic";
+import Script from "next/script";
 import { supabase } from '../lib/supabase'
 import AppLoadingScreen from '../components/AppLoadingScreen'
 
@@ -39,6 +40,11 @@ export default function Home() {
   }, [router])
 
   return (
+    <>
+    <Script
+      src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places,marker&v=beta&loading=async`}
+      strategy="beforeInteractive"
+    />
     <div className="h-dvh w-full">
       <div style={{
         position: 'absolute', inset: 0,
@@ -59,5 +65,6 @@ export default function Home() {
       </div>
       <MapClient />
     </div>
+    </>
   );
 }
