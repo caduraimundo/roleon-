@@ -80,8 +80,8 @@ export default function AppLoadingScreen({
               <img
                 src={`data:image/png;base64,${ICON_BASE64}`}
                 alt="Roleon"
-                width={iconSize}
-                height={iconSize}
+                width={iconSize - 6}
+                height={iconSize - 6}
                 style={{ objectFit: 'contain' }}
               />
             </div>
