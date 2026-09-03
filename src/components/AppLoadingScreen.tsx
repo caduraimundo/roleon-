@@ -23,7 +23,7 @@ export default function AppLoadingScreen({
   zIndex,
   error = null,
 }: AppLoadingScreenProps) {
-  const iconSize = fullScreen ? 64 : 40
+  const iconSize = fullScreen ? 48 : 40
   const inOverlayMode = bounds !== undefined
 
   const positionStyle = inOverlayMode
@@ -67,15 +67,15 @@ export default function AppLoadingScreen({
       ) : (
         <>
           {showIcon && (
-            <div style={{ position: 'relative', width: iconSize + 20, height: iconSize + 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ position: 'relative', width: iconSize + 16, height: iconSize + 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg
-                width={iconSize + 20}
-                height={iconSize + 20}
-                viewBox="0 0 84 84"
+                width={iconSize + 16}
+                height={iconSize + 16}
+                viewBox="0 0 64 64"
                 style={{ position: 'absolute', top: 0, left: 0, animation: 'spin-ring 1s linear infinite', transformOrigin: '50% 50%' }}
               >
-                <circle cx="42" cy="42" r="38" fill="none" stroke="#E0E0E0" strokeWidth="3" />
-                <circle cx="42" cy="42" r="38" fill="none" stroke="#0EA5A0" strokeWidth="3" strokeLinecap="round" strokeDasharray="60 179" />
+                <circle cx="32" cy="32" r="27" fill="none" stroke="#E0E0E0" strokeWidth="4" />
+                <circle cx="32" cy="32" r="27" fill="none" stroke="#0EA5A0" strokeWidth="4" strokeLinecap="round" strokeDasharray="42 128" />
               </svg>
               <img
                 src={`data:image/png;base64,${ICON_BASE64}`}
