@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { portariaScanRatelimit } from '@/lib/ratelimit'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,6 +12,15 @@ export async function POST(
   { params }: { params: Promise<{ event_id: string }> }
 ) {
   try {
+    const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1'
+    const { success } = await portariaScanRatelimit.limit(ip)
+    if (!success) {
+      return NextResponse.json(
+        { error: 'Muitas tentativas. Aguarde um minuto e tente novamente.' },
+        { status: 429 }
+      )
+    }
+
     const { event_id } = await params
     const { access_token, checkin_token } = await req.json()
 

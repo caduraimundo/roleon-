@@ -19,3 +19,10 @@ export const checkoutRatelimit = new Ratelimit({
   limiter: Ratelimit.slidingWindow(20, "1 h"),
   prefix: "roleon:checkout",
 });
+
+// 30 tentativas por minuto - para check-in na portaria
+export const portariaScanRatelimit = new Ratelimit({
+  redis,
+  limiter: Ratelimit.slidingWindow(30, "1 m"),
+  prefix: "roleon:portaria-scan",
+});
