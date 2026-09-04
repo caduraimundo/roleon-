@@ -32,11 +32,13 @@ export async function notifyNearbyUsers(eventId: string) {
     // Buscar o evento aprovado
     const { data: event, error: eventError } = await supabaseAdmin
       .from('events')
-      .select('id, slug, title, location_lat, location_lng')
+      .select('id, slug, title, location_lat, location_lng, status, nearby_notified_at')
       .eq('id', eventId)
       .single()
 
     if (eventError || !event) return
+    if (event.status !== 'active') return
+    if (event.nearby_notified_at) return
     if (!event.location_lat || !event.location_lng) return
 
     // Buscar usuários com notificação ativa e localização salva
@@ -82,6 +84,11 @@ export async function notifyNearbyUsers(eventId: string) {
         webpush.sendNotification(s.subscription as any, payload)
       )
     )
+
+    await supabaseAdmin
+      .from('events')
+      .update({ nearby_notified_at: new Date().toISOString() })
+      .eq('id', eventId)
   } catch (err) {
     console.error('notifyNearbyUsers erro:', err)
   }
