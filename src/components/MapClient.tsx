@@ -648,7 +648,8 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       if (!match) return false
     }
     const distCenter = searchCenter ?? userLocation
-    if (distCenter && ev.lat && ev.lng) {
+    if (distCenter) {
+      if (!Number.isFinite(ev.lat) || !Number.isFinite(ev.lng)) return false
       if (haversineKm(distCenter.lat, distCenter.lng, ev.lat, ev.lng) > distance) return false
     }
     if (filterDate) {
@@ -1027,7 +1028,8 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     const eventMatches = events
       .filter(e => {
         if (!e.title.toLowerCase().includes(value.toLowerCase())) return false
-        if (distCenter && e.lat && e.lng) {
+        if (distCenter) {
+          if (!Number.isFinite(e.lat) || !Number.isFinite(e.lng)) return false
           return haversineKm(distCenter.lat, distCenter.lng, e.lat, e.lng) <= distance
         }
         return true
