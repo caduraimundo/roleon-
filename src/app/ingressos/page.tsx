@@ -246,7 +246,7 @@ export default function IngressosPage() {
     load()
   }, [router])
 
-  if (loading) return <AppLoadingScreen showIcon={false} />
+  if (loading) return <AppLoadingScreen />
 
   const today = new Date()
   today.setHours(0, 0, 0, 0)

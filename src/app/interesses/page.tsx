@@ -141,7 +141,7 @@ export default function InteressesPage() {
       </div>
 
       {loading ? (
-        <AppLoadingScreen fullScreen={false} showIcon={false} />
+        <AppLoadingScreen fullScreen={false} />
       ) : !authed ? (
         <div style={{
           display: 'flex', flexDirection: 'column', alignItems: 'center',
