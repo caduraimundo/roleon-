@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { generateTicketPDF } from '../../../../../lib/generateTicketPDF'
+import { redis } from '@/lib/ratelimit'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -33,10 +34,25 @@ function formatEventDate(dateStr: string): string {
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params
+
+  const token = req.nextUrl.searchParams.get('token')
+  if (!token) {
+    return NextResponse.json({ error: 'Link de acesso não informado' }, { status: 401 })
+  }
+
+  const tokenKey = `ticket-pdf-token:${token}`
+  const storedTicketId = await redis.get<string>(tokenKey)
+  if (!storedTicketId) {
+    return NextResponse.json({ error: 'Link expirado ou inválido' }, { status: 403 })
+  }
+  if (storedTicketId !== id) {
+    return NextResponse.json({ error: 'Link expirado ou inválido' }, { status: 403 })
+  }
+  await redis.del(tokenKey)
 
   const { data: ticket, error } = await supabaseAdmin
     .from('tickets')

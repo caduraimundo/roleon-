@@ -392,10 +392,32 @@ export default function IngressoPage() {
                       return
                     }
 
+                    const { data: { session } } = await supabase.auth.getSession()
+                    if (!session) {
+                      setToastMsg('Sessão expirada. Faça login novamente.')
+                      setTimeout(() => setToastMsg(null), 4000)
+                      return
+                    }
+
+                    let downloadUrl: string
+                    try {
+                      const linkRes = await fetch(`/api/ingresso/${ticket.id}/pdf-link`, {
+                        method: 'POST',
+                        headers: { Authorization: `Bearer ${session.access_token}` },
+                      })
+                      if (!linkRes.ok) throw new Error('Falha ao gerar link do PDF')
+                      const linkData = await linkRes.json()
+                      downloadUrl = linkData.url
+                    } catch {
+                      setToastMsg('Não foi possível gerar o PDF. Tente novamente.')
+                      setTimeout(() => setToastMsg(null), 4000)
+                      return
+                    }
+
                     if (isIOS) {
-                      window.location.href = `/api/ingresso/${ticket.id}/pdf`
+                      window.location.href = downloadUrl
                     } else {
-                      const res = await fetch(`/api/ingresso/${ticket.id}/pdf`)
+                      const res = await fetch(downloadUrl)
                       const blob = await res.blob()
                       const url = URL.createObjectURL(blob)
                       const a = document.createElement('a')
