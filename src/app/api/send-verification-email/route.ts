@@ -12,9 +12,13 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, email, name } = await req.json()
-    if (!userId || !email) {
-      return NextResponse.json({ error: 'Dados incompletos' }, { status: 400 })
+    const bearerToken = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
+    const { data: { user } } = await supabaseAdmin.auth.getUser(bearerToken)
+    if (!user) {
+      return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    }
+    if (!user.email) {
+      return NextResponse.json({ error: 'Conta sem e-mail cadastrado' }, { status: 400 })
     }
 
     const token = randomBytes(32).toString('hex')
@@ -26,13 +30,13 @@ export async function POST(req: NextRequest) {
         verification_token: token,
         verification_token_expires_at: expiresAt.toISOString(),
       })
-      .eq('id', userId)
+      .eq('id', user.id)
 
     const verifyUrl = `https://www.roleon.com.br/api/verify-email?token=${token}`
 
     const { error: resendError } = await resend.emails.send({
       from: 'Roleon <noreply@roleon.com.br>',
-      to: email,
+      to: user.email,
       subject: 'Confirme seu cadastro no Roleon',
       html: `
         <div style="font-family:'Noto Sans',sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;background:#F7F7F7;">
@@ -56,7 +60,7 @@ export async function POST(req: NextRequest) {
     if (resendError) {
       console.error('[send-verification-email] Resend retornou erro:', resendError)
       Sentry.captureException(new Error(`Resend falhou ao enviar e-mail de verificação: ${resendError.message}`), {
-        extra: { resendError, userId },
+        extra: { resendError, userId: user.id },
         tags: { fluxo: 'send-verification-email' },
       })
       await Sentry.flush(2000)

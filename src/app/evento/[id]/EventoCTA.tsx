@@ -211,12 +211,7 @@ export default function EventoCTA({ id, isFree, price, ticketTypeId, ticketTypeN
     if (session?.user) {
       await fetch('/api/send-verification-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: session.user.id,
-          email: session.user.email,
-          name: session.user.user_metadata?.full_name ?? '',
-        }),
+        headers: { Authorization: `Bearer ${session.access_token}` },
       })
     }
     setResendLoading(false)
