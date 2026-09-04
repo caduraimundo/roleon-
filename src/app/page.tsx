@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation'
 import dynamic from "next/dynamic";
 import Script from "next/script";
 import { supabase } from '../lib/supabase'
-import AppLoadingScreen from '../components/AppLoadingScreen'
+import AppLoadingScreenWithIcon from '../components/AppLoadingScreenWithIcon'
 
 const MapClient = dynamic(() => import("@/components/MapClient"), {
   ssr: false,
-  loading: () => <AppLoadingScreen absolute background="#fff" />,
+  loading: () => <AppLoadingScreenWithIcon absolute background="#fff" />,
 });
 
 export default function Home() {

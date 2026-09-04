@@ -6,7 +6,7 @@ import { MarkerClusterer } from '@googlemaps/markerclusterer'
 import BottomNav, { TabId } from './BottomNav'
 import { PinSheet, MapHint, RoleonEvent } from './EventBottomSheet'
 import AuthSheet from './AuthSheet'
-import AppLoadingScreen from './AppLoadingScreen'
+import AppLoadingScreenWithIcon from './AppLoadingScreenWithIcon'
 import { supabase } from '../lib/supabase'
 
 const PRIMARY = '#0EA5A0'
@@ -1109,7 +1109,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       <div ref={mapRef} style={{ position: 'absolute', inset: 0 }} />
 
       {!mapReady && (
-        <AppLoadingScreen
+        <AppLoadingScreenWithIcon
           bounds={loadingBounds}
           zIndex={10}
           error={mapLoadError ? { message: 'Não foi possível carregar o mapa.', onRetry: () => { setMapLoadError(false); setRetryKey((k) => k + 1) } } : null}
