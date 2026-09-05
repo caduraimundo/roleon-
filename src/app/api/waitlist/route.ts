@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json()
-  const { event_id, ticket_type_id, email } = body
+  const { event_id, ticket_type_id } = body
 
   if (!event_id) {
     return NextResponse.json({ error: 'event_id obrigatório' }, { status: 400 })
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
   const payload: Record<string, string> = {
     user_id: user.id,
     event_id,
-    email: email ?? user.email ?? '',
+    email: user.email ?? '',
   }
   if (ticket_type_id) payload.ticket_type_id = ticket_type_id
 
