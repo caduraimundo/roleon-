@@ -113,9 +113,13 @@ async function subscribeToPush(): Promise<PushResult> {
     }
     const existing = await reg.pushManager.getSubscription()
     if (existing) {
+      const { data: { session } } = await supabase.auth.getSession()
       await fetch('/api/push/subscribe', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
         body: JSON.stringify({ subscription: existing.toJSON() })
       })
       return 'ok'
@@ -130,9 +134,13 @@ async function subscribeToPush(): Promise<PushResult> {
         process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!
       )
     })
+    const { data: { session } } = await supabase.auth.getSession()
     await fetch('/api/push/subscribe', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`,
+      },
       body: JSON.stringify({ subscription: sub.toJSON() })
     })
     return 'ok'
@@ -147,7 +155,13 @@ async function unsubscribeFromPush() {
     if (!reg.pushManager) return
     const sub = await reg.pushManager.getSubscription()
     if (sub) await sub.unsubscribe()
-    await fetch('/api/push/unsubscribe', { method: 'POST' })
+    const { data: { session } } = await supabase.auth.getSession()
+    await fetch('/api/push/unsubscribe', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session?.access_token}`,
+      },
+    })
   } catch {
     // silencioso - se nao conseguir cancelar a assinatura no navegador, tudo bem, so nao quebra a troca do toggle
   }

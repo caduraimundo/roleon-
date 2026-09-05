@@ -756,11 +756,16 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
               }
               if (!locationSavedRef.current) {
                 locationSavedRef.current = true
-                fetch('/api/profile/update-location', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ lat: coords.latitude, lng: coords.longitude }),
-                }).catch(() => {})
+                supabase.auth.getSession().then(({ data: { session } }) => {
+                  fetch('/api/profile/update-location', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      ...(session ? { 'Authorization': `Bearer ${session.access_token}` } : {}),
+                    },
+                    body: JSON.stringify({ lat: coords.latitude, lng: coords.longitude }),
+                  }).catch(() => {})
+                })
               }
               placeDot(coords.latitude, coords.longitude)
             } catch (e) {
