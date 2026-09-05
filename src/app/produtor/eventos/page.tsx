@@ -231,15 +231,27 @@ export default function EventosPage() {
                       style={{ objectFit: 'cover', objectPosition: 'center top' }}
                     />
                   )}
-                  <span style={{
+                  <div style={{
                     position: 'absolute', top: 10, right: 10,
-                    fontSize: 11, fontWeight: 600,
-                    padding: '3px 8px', borderRadius: 20,
-                    color: badge.color, background: badge.bg,
-                    whiteSpace: 'nowrap',
+                    display: 'flex', gap: 6,
                   }}>
-                    {badge.text}
-                  </span>
+                    <span style={{
+                      fontSize: 11, fontWeight: 600,
+                      padding: '3px 8px', borderRadius: 20,
+                      color: badge.color, background: badge.bg,
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {badge.text}
+                    </span>
+                    {ev.status === 'pending' && ev.first_approved_at && (
+                      <span style={{
+                        fontSize: 11, fontWeight: 600,
+                        padding: '3px 8px', borderRadius: 20,
+                        color: '#4338CA', background: '#EEF2FF',
+                        whiteSpace: 'nowrap',
+                      }}>Editado</span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Título + data */}

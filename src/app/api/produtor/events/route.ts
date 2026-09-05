@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 
     const { data: eventos } = await supabaseAdmin
       .from('events')
-      .select('id, slug, title, event_date, status, is_free, cover_image, genre')
+      .select('id, slug, title, event_date, status, is_free, cover_image, genre, first_approved_at')
       .eq('producer_id', user.id)
       .or(`status.neq.rejected,created_at.gte.${ninetyDaysAgo.toISOString()}`)
       .order('event_date', { ascending: false })

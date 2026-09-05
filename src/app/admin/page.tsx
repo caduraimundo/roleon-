@@ -2292,6 +2292,13 @@ export default function AdminPage() {
                       ...(badge.border ? { border: `1px solid ${badge.border}` } : {}),
                       borderRadius: 20, padding: '3px 8px', whiteSpace: 'nowrap',
                     }}>{badge.label}</span>
+                    {ev.status === 'pending' && ev.first_approved_at && (
+                      <span style={{
+                        fontSize: 11, fontWeight: 600, flexShrink: 0,
+                        background: '#EEF2FF', color: '#4338CA',
+                        borderRadius: 20, padding: '3px 8px', whiteSpace: 'nowrap',
+                      }}>Editado</span>
+                    )}
                   </div>
 
                   <div style={{ fontSize: 12, color: DIM, marginTop: 5 }}>

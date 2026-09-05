@@ -40,7 +40,7 @@ export async function POST(
 
     const { data: event } = await supabaseAdmin
       .from('events')
-      .select('id, status, location_name, producer_id')
+      .select('id, status, location_name, producer_id, first_approved_at')
       .eq('id', eventId)
       .single()
 
@@ -62,9 +62,18 @@ export async function POST(
       lng = geoData.results[0].geometry.location.lng
     }
 
+    const updatePayload: Record<string, unknown> = {
+      status: 'active',
+      location_lat: lat,
+      location_lng: lng,
+    }
+    if (!event.first_approved_at) {
+      updatePayload.first_approved_at = new Date().toISOString()
+    }
+
     await supabaseAdmin
       .from('events')
-      .update({ status: 'active', location_lat: lat, location_lng: lng })
+      .update(updatePayload)
       .eq('id', eventId)
 
     const { data: producer } = await supabaseAdmin

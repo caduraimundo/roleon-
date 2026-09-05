@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 
     const { data } = await supabaseAdmin
       .from('events')
-      .select('id, title, cover_image, genre, price, is_free, location_name, event_date, producer_id, profiles!producer_id(name, email)')
+      .select('id, title, cover_image, genre, price, is_free, location_name, event_date, producer_id, first_approved_at, profiles!producer_id(name, email)')
       .eq('status', 'pending')
       .order('created_at', { ascending: true })
 
