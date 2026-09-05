@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import * as Sentry from '@sentry/nextjs'
+import { escapeHtml } from '../../../../../../lib/escapeHtml'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -85,7 +86,7 @@ export async function POST(
               Infelizmente seu evento não foi aprovado pelo seguinte motivo:
             </p>
             <div style="background: #FFF0F0; border-left: 4px solid #EF4444; padding: 12px; margin: 16px 0;">
-              <p style="color: #1A1A1A; font-size: 14px; margin: 0;">${motivo}</p>
+              <p style="color: #1A1A1A; font-size: 14px; margin: 0;">${escapeHtml(motivo)}</p>
             </div>
             <p style="color: #6E6E73; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
               Você pode editar o evento e reenviar para aprovação.
