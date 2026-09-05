@@ -37,8 +37,8 @@ function cardColor(id: string) {
 
 const FILTERS = [
   { id: 'active',    label: 'Ativos'     },
-  { id: 'completed', label: 'Encerrados' },
   { id: 'pending',   label: 'Pendentes'  },
+  { id: 'completed', label: 'Encerrados' },
   { id: 'rejected',  label: 'Recusados'  },
   { id: 'cancelled', label: 'Cancelados' },
 ]

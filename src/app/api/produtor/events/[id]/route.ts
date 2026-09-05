@@ -50,7 +50,7 @@ export async function PUT(
 
   const { data: producerProfile } = await supabaseAdmin
     .from('profiles')
-    .select('pagar_me_recipient_id')
+    .select('pagar_me_recipient_id, name')
     .eq('id', user.id)
     .single()
 
@@ -171,7 +171,8 @@ export async function PUT(
     (description !== undefined && description !== (event as any).description) ||
     (cover_image !== undefined && cover_image !== (event as any).cover_image)
 
-  if (event.status === 'active' && sensitiveFieldChanged) {
+  const wentBackToPending = event.status === 'active' && sensitiveFieldChanged
+  if (wentBackToPending) {
     update.status = 'pending'
   }
 
@@ -183,6 +184,43 @@ export async function PUT(
 
     if (error) {
       return NextResponse.json({ error: 'Erro ao atualizar evento' }, { status: 500 })
+    }
+
+    if (wentBackToPending) {
+      const eventTitle = title !== undefined ? title : (event as any).title
+      const { error: resendError } = await resend.emails.send({
+        from: 'Roleon <noreply@roleon.com.br>',
+        to: 'roleonbr@gmail.com',
+        subject: 'Evento editado aguardando reaprovação',
+        html: `
+          <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px;">
+            <h2 style="color: #0EA5A0; margin: 0 0 16px;">Evento editado, aguardando reaprovação</h2>
+            <p style="color: #1A1A1A; font-size: 15px; margin: 0 0 12px;">
+              <strong>${eventTitle}</strong>
+            </p>
+            <p style="color: #6E6E73; font-size: 14px; line-height: 1.6; margin: 0 0 12px;">
+              Este evento já estava publicado e foi editado pelo produtor em um campo que exige nova aprovação (título, descrição ou capa).
+            </p>
+            <p style="color: #6E6E73; font-size: 14px; line-height: 1.6; margin: 0 0 24px;">
+              Produtor: ${producerProfile?.name || 'não informado'}
+            </p>
+            <a href="https://www.roleon.com.br/admin"
+               style="display: inline-block; background: #0EA5A0; color: #fff;
+                      text-decoration: none; padding: 12px 24px; border-radius: 10px;
+                      font-weight: 600; font-size: 14px;">
+              Ver no painel admin
+            </a>
+          </div>
+        `
+      })
+      if (resendError) {
+        console.error('[produtor/events PUT] Resend retornou erro ao notificar reaprovacao:', resendError)
+        Sentry.captureException(new Error(`Resend falhou ao notificar reaprovacao de evento editado: ${resendError.message}`), {
+          extra: { resendError, eventId: id },
+          tags: { fluxo: 'produtor-event-edit-notify-admin' },
+        })
+        await Sentry.flush(2000)
+      }
     }
   }
 
