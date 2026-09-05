@@ -36,7 +36,7 @@ export async function PUT(
 
   const { data: event } = await supabaseAdmin
     .from('events')
-    .select('id, producer_id, status, event_date, location_name, location_lat, location_lng, is_free, title')
+    .select('id, producer_id, status, event_date, location_name, location_lat, location_lng, is_free, title, description, cover_image')
     .eq('id', id)
     .single()
 
@@ -163,6 +163,16 @@ export async function PUT(
     const tickets = Array.isArray(ticket_types) ? ticket_types as { price: number }[] : []
     const validPrices = tickets.map(t => Number(t.price) || 0).filter(p => p > 0)
     update.price = isFreeVal ? 0 : validPrices.length > 0 ? Math.min(...validPrices) : 0
+  }
+
+  // Campos de conteudo sensivel exigem nova aprovacao do admin se o evento ja estava ativo
+  const sensitiveFieldChanged =
+    (title !== undefined && title !== (event as any).title) ||
+    (description !== undefined && description !== (event as any).description) ||
+    (cover_image !== undefined && cover_image !== (event as any).cover_image)
+
+  if (event.status === 'active' && sensitiveFieldChanged) {
+    update.status = 'pending'
   }
 
   if (Object.keys(update).length > 0) {
