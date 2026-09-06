@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
 };
 
 export default withSentryConfig(nextConfig, {
-  org: "roleon",
+  org: "roleon-app",
   project: "javascript-nextjs",
   silent: true,
 });
