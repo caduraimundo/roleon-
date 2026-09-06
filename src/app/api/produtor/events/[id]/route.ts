@@ -354,5 +354,5 @@ export async function PUT(
     }
   }
 
-  return NextResponse.json({ ok: true })
+  return NextResponse.json({ ok: true, wentBackToPending })
 }

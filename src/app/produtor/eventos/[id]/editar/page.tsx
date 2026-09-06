@@ -47,6 +47,7 @@ export default function EditarEventoPage() {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [showSuccessToast, setShowSuccessToast] = useState(false)
+  const [wentBackToPending, setWentBackToPending] = useState(false)
   const [eventStatus, setEventStatus] = useState('')
   const [cancelConfirm, setCancelConfirm] = useState(false)
   const [cancelLoading, setCancelLoading] = useState(false)
@@ -309,6 +310,7 @@ export default function EditarEventoPage() {
 
       const data = await res.json()
       if (res.ok) {
+        setWentBackToPending(Boolean(data.wentBackToPending))
         setShowSuccessToast(true)
         setTimeout(() => router.replace('/produtor/painel'), 2200)
       } else {
@@ -1047,7 +1049,9 @@ export default function EditarEventoPage() {
             <path d="M7.5 11l2.5 2.5 4.5-4.5" stroke="#0EA5A0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>Evento atualizado com sucesso!</div>
+            <div style={{ fontSize: 14, fontWeight: 700 }}>
+              {wentBackToPending ? 'Evento alterado, enviado para aprovação' : 'Evento atualizado com sucesso!'}
+            </div>
           </div>
         </div>
       )}
