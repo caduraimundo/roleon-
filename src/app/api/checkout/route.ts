@@ -99,8 +99,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (body.customer_document && !validateCPF(body.customer_document)) {
-      return NextResponse.json({ error: 'CPF inválido' }, { status: 400 })
+    if (!body.customer_document || !validateCPF(body.customer_document)) {
+      return NextResponse.json({ error: 'CPF é obrigatório e precisa ser válido' }, { status: 400 })
     }
 
     const { data: event, error: eventError } = await supabaseAdmin
