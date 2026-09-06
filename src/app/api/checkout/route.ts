@@ -41,13 +41,17 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  const isMock = !process.env.PAGARME_API_KEY || process.env.PAGARME_API_KEY === 'ak_test_placeholder'
-
   const body = await req.json()
 
   const token = req.headers.get('Authorization')?.replace('Bearer ', '') || ''
   const { data: { user } } = await supabaseAdmin.auth.getUser(token)
   const userId = user?.id ?? null
+
+  if (!userId) {
+    return NextResponse.json({ error: 'Autenticação necessária' }, { status: 401 })
+  }
+
+  const isMock = !process.env.PAGARME_API_KEY || process.env.PAGARME_API_KEY === 'ak_test_placeholder'
 
   if (isMock) {
     if (body.payment_method === 'credit_card') {
@@ -66,10 +70,6 @@ export async function POST(req: NextRequest) {
       amount: body.amount || 5000,
       expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
     })
-  }
-
-  if (!userId) {
-    return NextResponse.json({ error: 'Autenticação necessária' }, { status: 401 })
   }
 
   let cardReservedCount = 0
