@@ -24,7 +24,7 @@ export async function GET(
 
     const { id } = await params
 
-    const [profileRes, eventsRes] = await Promise.all([
+    const [profileRes, eventsRes, authRes, loginHistoryRes] = await Promise.all([
       supabaseAdmin
         .from('profiles')
         .select('id, name, email, avatar_initials, verified, producer_disabled, pagar_me_recipient_id, cpf, created_at, bank_code, bank_account, bank_holder_name, phone_ddd, phone_number')
@@ -36,9 +36,24 @@ export async function GET(
         .eq('producer_id', id)
         .order('created_at', { ascending: false })
         .limit(10),
+      supabaseAdmin.auth.admin.getUserById(id),
+      supabaseAdmin
+        .from('login_history')
+        .select('ip, user_agent, created_at')
+        .eq('user_id', id)
+        .order('created_at', { ascending: false })
+        .limit(10),
     ])
 
-    return NextResponse.json({ producer: profileRes.data, events: eventsRes.data ?? [] })
+    return NextResponse.json({
+      producer: profileRes.data,
+      events: eventsRes.data ?? [],
+      auth: {
+        created_at: authRes.data?.user?.created_at ?? null,
+        last_sign_in_at: authRes.data?.user?.last_sign_in_at ?? null,
+      },
+      login_history: loginHistoryRes.data ?? [],
+    })
   } catch (err) {
     console.error('[producer-detail] erro:', err)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
