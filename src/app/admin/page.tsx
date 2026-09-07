@@ -1414,7 +1414,13 @@ export default function AdminPage() {
   const [vendasFeedback, setVendasFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
 
   // Ingressos
-  const [ticketsTab, setTicketsTab] = useState<'busca' | 'checkins'>('busca')
+  const [ticketsTab, setTicketsTab] = useState<'busca' | 'checkins'>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('sub')
+      if (p === 'busca' || p === 'checkins') return p
+    }
+    return 'busca'
+  })
   const [ticketCode, setTicketCode] = useState('')
   const [ticketResults, setTicketResults] = useState<any[]>([])
   const [ticketSearchLoading, setTicketSearchLoading] = useState(false)
@@ -1705,6 +1711,7 @@ export default function AdminPage() {
 
   const handleTicketSelect = async (id: string) => {
     setSelectedTicketId(id)
+    router.replace(`/admin?tab=mais&section=ingressos&sub=busca&ticket=${id}`, { scroll: false })
     setTicketDetailLoading(true)
     setTicketDetail(null)
     setRefundOpen(false)
@@ -1732,6 +1739,7 @@ export default function AdminPage() {
     setTicketResults([])
     setSelectedTicketId(null)
     setTicketDetail(null)
+    router.replace('/admin?tab=mais&section=ingressos&sub=busca', { scroll: false })
     try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
@@ -1965,6 +1973,16 @@ export default function AdminPage() {
     }
   }, [tab, userSubTab, producers, consumers, prodLoading, consLoading])
 
+  const restauradoTicketRef = useRef(false)
+  useEffect(() => {
+    if (restauradoTicketRef.current) return
+    if (tab !== 'mais' || maisSection !== 'ingressos' || ticketsTab !== 'busca') return
+    restauradoTicketRef.current = true
+    const ticketId = new URLSearchParams(window.location.search).get('ticket')
+    if (!ticketId) return
+    handleTicketSelect(ticketId)
+  }, [tab, maisSection, ticketsTab])
+
   if (loading) {
     return (
       <div style={{
@@ -2029,7 +2047,7 @@ export default function AdminPage() {
             eventoCheckinsLoading={eventoCheckinsLoading}
             onEventoBack={handleEventoBack}
             ticketsTab={ticketsTab}
-            onTicketsTabChange={setTicketsTab}
+            onTicketsTabChange={(t) => { setTicketsTab(t); router.replace(`/admin?tab=mais&section=ingressos&sub=${t}`, { scroll: false }) }}
           />
         </>
       )
