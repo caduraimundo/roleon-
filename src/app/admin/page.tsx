@@ -1386,7 +1386,13 @@ export default function AdminPage() {
   const [prodDetailLoading, setProdDetailLoading] = useState(false)
   const [prodActionLoading, setProdActionLoading] = useState(false)
   const [prodFeedback, setProdFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
-  const [userSubTab, setUserSubTab] = useState<'produtores' | 'consumidores'>('consumidores')
+  const [userSubTab, setUserSubTab] = useState<'produtores' | 'consumidores'>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('sub')
+      if (p === 'produtores' || p === 'consumidores') return p
+    }
+    return 'consumidores'
+  })
   const [consumers, setConsumers] = useState<any[]>([])
   const [consLoading, setConsLoading] = useState(false)
   const [consSearch, setConsSearch] = useState('')
@@ -1567,6 +1573,7 @@ export default function AdminPage() {
 
   const openProdDetail = async (p: any) => {
     setProdDetail(p)
+    router.replace(`/admin?tab=produtores&sub=produtores&user=${p.id}`, { scroll: false })
     setProdDetailLoading(true)
     const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch(`/api/admin/producers/${p.id}`, {
@@ -1579,6 +1586,7 @@ export default function AdminPage() {
 
   const openConsDetail = async (c: any) => {
     setConsDetail(c)
+    router.replace(`/admin?tab=produtores&sub=consumidores&user=${c.id}`, { scroll: false })
     setConsDetailLoading(true)
     const { data: { session } } = await supabase.auth.getSession()
     const res = await fetch(`/api/admin/consumers/${c.id}`, {
@@ -1933,6 +1941,29 @@ export default function AdminPage() {
     const found = allEvents.find(e => e.id === eventId)
     if (found) openDetail(found)
   }, [pendingEvents, activeEvents, modLoading])
+
+  const restauradoUserRef = useRef(false)
+  useEffect(() => {
+    if (restauradoUserRef.current) return
+    if (tab !== 'produtores') return
+    if (userSubTab === 'produtores') {
+      if (prodLoading) return
+      if (producers.length === 0) return
+      restauradoUserRef.current = true
+      const userId = new URLSearchParams(window.location.search).get('user')
+      if (!userId) return
+      const found = producers.find(p => p.id === userId)
+      if (found) openProdDetail(found)
+    } else {
+      if (consLoading) return
+      if (consumers.length === 0) return
+      restauradoUserRef.current = true
+      const userId = new URLSearchParams(window.location.search).get('user')
+      if (!userId) return
+      const found = consumers.find(c => c.id === userId)
+      if (found) openConsDetail(found)
+    }
+  }, [tab, userSubTab, producers, consumers, prodLoading, consLoading])
 
   if (loading) {
     return (
@@ -2461,7 +2492,7 @@ export default function AdminPage() {
         return (
           <>
             <div style={{ width: '100%', background: WHITE, borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, position: 'relative', flexShrink: 0 }}>
-              <button onClick={() => { setProdDetail(null); setProdDetailData(null) }} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <button onClick={() => { setProdDetail(null); setProdDetailData(null); router.replace(`/admin?tab=produtores&sub=${userSubTab}`, { scroll: false }) }} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
               </button>
               <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Detalhe do Produtor</span>
@@ -2556,8 +2587,8 @@ export default function AdminPage() {
 
       const subTabSwitcher = (
         <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-          <button onClick={() => setUserSubTab('consumidores')} style={{ flex: 1, padding: '10px 0', borderRadius: 10, fontSize: 13, fontWeight: userSubTab === 'consumidores' ? 700 : 600, background: userSubTab === 'consumidores' ? TEAL : WHITE, color: userSubTab === 'consumidores' ? WHITE : TEXT, border: userSubTab === 'consumidores' ? 'none' : '1px solid #E8E8E8', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Consumidores</button>
-          <button onClick={() => setUserSubTab('produtores')} style={{ flex: 1, padding: '10px 0', borderRadius: 10, fontSize: 13, fontWeight: userSubTab === 'produtores' ? 700 : 600, background: userSubTab === 'produtores' ? TEAL : WHITE, color: userSubTab === 'produtores' ? WHITE : TEXT, border: userSubTab === 'produtores' ? 'none' : '1px solid #E8E8E8', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Produtores</button>
+          <button onClick={() => { setUserSubTab('consumidores'); setProdDetail(null); setProdDetailData(null); setConsDetail(null); setConsDetailData(null); router.replace('/admin?tab=produtores&sub=consumidores', { scroll: false }) }} style={{ flex: 1, padding: '10px 0', borderRadius: 10, fontSize: 13, fontWeight: userSubTab === 'consumidores' ? 700 : 600, background: userSubTab === 'consumidores' ? TEAL : WHITE, color: userSubTab === 'consumidores' ? WHITE : TEXT, border: userSubTab === 'consumidores' ? 'none' : '1px solid #E8E8E8', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Consumidores</button>
+          <button onClick={() => { setUserSubTab('produtores'); setProdDetail(null); setProdDetailData(null); setConsDetail(null); setConsDetailData(null); router.replace('/admin?tab=produtores&sub=produtores', { scroll: false }) }} style={{ flex: 1, padding: '10px 0', borderRadius: 10, fontSize: 13, fontWeight: userSubTab === 'produtores' ? 700 : 600, background: userSubTab === 'produtores' ? TEAL : WHITE, color: userSubTab === 'produtores' ? WHITE : TEXT, border: userSubTab === 'produtores' ? 'none' : '1px solid #E8E8E8', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Produtores</button>
         </div>
       )
 
@@ -2584,7 +2615,7 @@ export default function AdminPage() {
         return (
           <>
             <div style={{ width: '100%', background: WHITE, borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, position: 'relative', flexShrink: 0 }}>
-              <button onClick={() => { setConsDetail(null); setConsDetailData(null) }} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <button onClick={() => { setConsDetail(null); setConsDetailData(null); router.replace(`/admin?tab=produtores&sub=${userSubTab}`, { scroll: false }) }} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
               </button>
               <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Detalhe do Consumidor</span>
