@@ -80,3 +80,30 @@ export async function GET(
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
   }
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const admin = await checkAdmin(req)
+    if (!admin) return NextResponse.json({ error: 'Acesso restrito' }, { status: 403 })
+
+    const { id } = await params
+    const body = await req.json()
+    const allowed = ['consumer_disabled']
+    const update: Record<string, boolean> = {}
+    for (const key of allowed) {
+      if (key in body) update[key] = body[key]
+    }
+    if (Object.keys(update).length === 0) {
+      return NextResponse.json({ error: 'Nenhum campo válido para atualizar' }, { status: 400 })
+    }
+
+    await supabaseAdmin.from('profiles').update(update).eq('id', id)
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    console.error('[consumer-patch] erro:', err)
+    return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
+  }
+}
