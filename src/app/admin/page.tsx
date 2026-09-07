@@ -2587,7 +2587,7 @@ export default function AdminPage() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Informações</div>
                 {[
                   { label: 'Email',    value: c.email },
-                  { label: 'Cadastro', value: formatDate(c.created_at) },
+                  { label: 'Cadastro', value: formatDateTime(c.created_at) },
                 ].map((f, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '9px 0', borderBottom: `1px solid #F7F7F7`, gap: 12 }}>
                     <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0 }}>{f.label}</span>
@@ -2599,18 +2599,12 @@ export default function AdminPage() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 6 }}>Acesso</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '9px 0', borderBottom: `1px solid #F7F7F7`, gap: 12 }}>
                   <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0 }}>Último login</span>
-                  <span style={{ fontSize: 13, color: TEXT, textAlign: 'right' }}>{formatDateTime(consDetailData?.auth?.last_sign_in_at)}</span>
+                  <span style={{ fontSize: 13, color: TEXT, textAlign: 'right' }}>{formatDateTime(consDetailData?.login_history?.[0]?.created_at)}</span>
                 </div>
-                {(consDetailData?.login_history ?? []).length > 0 && (
-                  <div style={{ marginTop: 4 }}>
-                    {(consDetailData?.login_history ?? []).slice(0, 5).map((lh: any, i: number) => (
-                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: `1px solid #F7F7F7`, gap: 8 }}>
-                        <span style={{ fontSize: 12, color: TEXT, fontFamily: 'monospace' }}>{lh.ip}</span>
-                        <span style={{ fontSize: 11, color: DIM }}>{formatDateTime(lh.created_at)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '9px 0', borderBottom: `1px solid #F7F7F7`, gap: 12 }}>
+                  <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0 }}>IP do último login</span>
+                  <span style={{ fontSize: 13, color: TEXT, textAlign: 'right', fontFamily: 'monospace' }}>{consDetailData?.login_history?.[0]?.ip ?? '-'}</span>
+                </div>
 
                 {/* Ingressos */}
                 <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 6 }}>Ingressos comprados</div>
