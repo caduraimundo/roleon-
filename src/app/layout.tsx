@@ -9,6 +9,7 @@ const notoSans = Noto_Sans({
   variable: "--font-noto-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  preload: false,
 })
 
 export const metadata: Metadata = {

@@ -2,7 +2,7 @@ import { Noto_Sans } from 'next/font/google'
 import PortalHeader from './PortalHeader'
 import BottomNav from './BottomNav'
 
-const noto = Noto_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'] })
+const noto = Noto_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700'], preload: false })
 
 export default function PortalLayout({ children }: { children: React.ReactNode }) {
   return (
