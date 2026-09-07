@@ -287,7 +287,7 @@ export async function POST(req: NextRequest) {
           .single()
         if (ticketError) {
           console.error('TICKET INSERT ERROR:', JSON.stringify(ticketError))
-          await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: 'pix', failureReason: 'falha_insert_ticket_pix', failureDetail: ticketError.message, ip })
+          await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: 'pix', failureReason: 'falha_insert_ticket_pix', failureDetail: ticketError.message, amount: unitTotal, ip })
           return NextResponse.json({ error: 'Falha ao salvar ticket', detail: ticketError.message, hint: ticketError.hint }, { status: 500 })
         }
         if (ticket?.id) ticketIds.push(ticket.id)
@@ -628,7 +628,7 @@ export async function POST(req: NextRequest) {
             .catch(e => console.error('[checkout cartão] notifyWaitlist falhou:', e))
         }
 
-        await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: 'credit_card', failureReason: 'falha_insert_ticket_cartao_pos_pagamento', failureDetail: ticketError.message, ip })
+        await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: 'credit_card', failureReason: 'falha_insert_ticket_cartao_pos_pagamento', failureDetail: ticketError.message, amount: unitTotal, ip })
         return NextResponse.json({
           error: 'Falha ao salvar ingresso. O pagamento foi processado - entre em contato com suporte@roleon.com.br informando o código: ' + order.id,
           detail: ticketError.message,
