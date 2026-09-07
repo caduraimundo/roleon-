@@ -180,9 +180,11 @@ export async function POST(req: NextRequest) {
         .eq('id', body.ticket_type_id)
         .single()
       if (ttError || !tt) {
+        await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: body.payment_method ?? null, failureReason: 'tipo_ingresso_nao_encontrado', ip })
         return NextResponse.json({ error: 'Tipo de ingresso não encontrado' }, { status: 400 })
       }
       if ((tt as any).event_id !== event_id) {
+        await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: body.payment_method ?? null, failureReason: 'tipo_ingresso_evento_incompativel', ip })
         return NextResponse.json({ error: 'Tipo de ingresso não pertence a este evento' }, { status: 400 })
       }
       price = Number((tt as any).price) || 0
@@ -285,6 +287,7 @@ export async function POST(req: NextRequest) {
           .single()
         if (ticketError) {
           console.error('TICKET INSERT ERROR:', JSON.stringify(ticketError))
+          await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: 'pix', failureReason: 'falha_insert_ticket_pix', failureDetail: ticketError.message, ip })
           return NextResponse.json({ error: 'Falha ao salvar ticket', detail: ticketError.message, hint: ticketError.hint }, { status: 500 })
         }
         if (ticket?.id) ticketIds.push(ticket.id)
@@ -625,6 +628,7 @@ export async function POST(req: NextRequest) {
             .catch(e => console.error('[checkout cartão] notifyWaitlist falhou:', e))
         }
 
+        await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: 'credit_card', failureReason: 'falha_insert_ticket_cartao_pos_pagamento', failureDetail: ticketError.message, ip })
         return NextResponse.json({
           error: 'Falha ao salvar ingresso. O pagamento foi processado - entre em contato com suporte@roleon.com.br informando o código: ' + order.id,
           detail: ticketError.message,
