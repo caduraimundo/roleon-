@@ -1382,7 +1382,7 @@ export default function AdminPage() {
   const [prodFilter, setProdFilter] = useState<'ativos' | 'desativados'>('ativos')
   const [prodSearch, setProdSearch] = useState('')
   const [prodDetail, setProdDetail] = useState<any | null>(null)
-  const [prodDetailData, setProdDetailData] = useState<{ producer: any; events: any[] } | null>(null)
+  const [prodDetailData, setProdDetailData] = useState<{ producer: any; events: any[]; auth?: { created_at: string | null; last_sign_in_at: string | null }; login_history?: any[] } | null>(null)
   const [prodDetailLoading, setProdDetailLoading] = useState(false)
   const [prodActionLoading, setProdActionLoading] = useState(false)
   const [prodFeedback, setProdFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
@@ -2429,6 +2429,7 @@ export default function AdminPage() {
     }
     if (tab === 'produtores') {
       const formatDate = (d: string) => d ? new Date(d).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'
+      const formatDateTime = (iso: string | null | undefined) => iso ? new Date(iso).toLocaleString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'
 
       const statusBadge = (p: any) => {
         if (p.producer_disabled) return { label: 'Desativado', bg: '#FEF2F2', color: '#991B1B', border: '#FECACA' }
@@ -2477,7 +2478,7 @@ export default function AdminPage() {
                   { label: 'Email',       value: p.email },
                   { label: 'Telefone',    value: (p.phone_ddd && p.phone_number) ? `(${p.phone_ddd}) ${p.phone_number}` : '-' },
                   { label: 'CPF',         value: p.cpf || '-' },
-                  { label: 'Cadastro',    value: formatDate(p.created_at) },
+                  { label: 'Cadastro',    value: formatDateTime(p.created_at) },
                   { label: 'Recipient ID', value: p.pagar_me_recipient_id || '-' },
                 ].map((f, i) => (
                   <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '9px 0', borderBottom: `1px solid #F7F7F7`, gap: 12 }}>
@@ -2485,6 +2486,17 @@ export default function AdminPage() {
                     <span style={{ fontSize: f.label === 'Recipient ID' ? 10 : 13, color: TEXT, textAlign: 'right', wordBreak: 'break-all', fontFamily: f.label === 'Recipient ID' ? 'monospace' : 'inherit' }}>{f.value}</span>
                   </div>
                 ))}
+
+                {/* Acesso */}
+                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 6 }}>Acesso</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '9px 0', borderBottom: `1px solid #F7F7F7`, gap: 12 }}>
+                  <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0 }}>Último login</span>
+                  <span style={{ fontSize: 13, color: TEXT, textAlign: 'right' }}>{formatDateTime(prodDetailData?.login_history?.[0]?.created_at)}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '9px 0', borderBottom: `1px solid #F7F7F7`, gap: 12 }}>
+                  <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0 }}>IP do último login</span>
+                  <span style={{ fontSize: 13, color: TEXT, textAlign: 'right', fontFamily: 'monospace' }}>{prodDetailData?.login_history?.[0]?.ip ?? '-'}</span>
+                </div>
 
                 {/* Eventos */}
                 {evs.length > 0 && (
