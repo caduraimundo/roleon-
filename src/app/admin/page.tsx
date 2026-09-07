@@ -1442,7 +1442,13 @@ export default function AdminPage() {
   const [eventoCheckinsLoading, setEventoCheckinsLoading] = useState(false)
 
   // Cupons
-  const [cuponsTab, setCuponsTab] = useState<'ativos' | 'inativos'>('ativos')
+  const [cuponsTab, setCuponsTab] = useState<'ativos' | 'inativos'>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('sub')
+      if (p === 'ativos' || p === 'inativos') return p
+    }
+    return 'ativos'
+  })
   const [cuponsList, setCuponsList] = useState<any[]>([])
   const [cuponsLoading, setCuponsLoading] = useState(false)
   const [cuponsError, setCuponsError] = useState('')
@@ -2115,7 +2121,7 @@ export default function AdminPage() {
           </div>
           <CuponsSection
             cuponsTab={cuponsTab}
-            onCuponsTabChange={(t) => { setCuponsTab(t); fetchCupons(t) }}
+            onCuponsTabChange={(t) => { setCuponsTab(t); fetchCupons(t); router.replace(`/admin?tab=mais&section=cupons&sub=${t}`, { scroll: false }) }}
             cupons={cuponsList}
             cuponsLoading={cuponsLoading}
             cuponsError={cuponsError}
