@@ -1451,7 +1451,13 @@ export default function AdminPage() {
   const [deactivateLoading, setDeactivateLoading] = useState(false)
 
   // Logs
-  const [logsTab, setLogsTab] = useState<'webhooks' | 'auditoria'>('webhooks')
+  const [logsTab, setLogsTab] = useState<'webhooks' | 'auditoria'>(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search).get('sub')
+      if (p === 'webhooks' || p === 'auditoria') return p
+    }
+    return 'webhooks'
+  })
   const [webhooksList, setWebhooksList] = useState<any[]>([])
   const [webhooksLoading, setWebhooksLoading] = useState(false)
   const [webhooksError, setWebhooksError] = useState('')
@@ -1983,6 +1989,19 @@ export default function AdminPage() {
     handleTicketSelect(ticketId)
   }, [tab, maisSection, ticketsTab])
 
+  const restauradoLogRef = useRef(false)
+  useEffect(() => {
+    if (restauradoLogRef.current) return
+    if (tab !== 'mais' || maisSection !== 'logs' || logsTab !== 'webhooks') return
+    if (webhooksLoading) return
+    if (webhooksList.length === 0) return
+    restauradoLogRef.current = true
+    const logId = new URLSearchParams(window.location.search).get('log')
+    if (!logId) return
+    const found = webhooksList.find(l => l.id === logId)
+    if (found) setPayloadSheetLog(found)
+  }, [tab, maisSection, logsTab, webhooksList, webhooksLoading])
+
   if (loading) {
     return (
       <div style={{
@@ -2063,7 +2082,7 @@ export default function AdminPage() {
           </div>
           <LogsSection
             logsTab={logsTab}
-            onLogsTabChange={(t) => { setLogsTab(t) }}
+            onLogsTabChange={(t) => { setLogsTab(t); setPayloadSheetLog(null); router.replace(`/admin?tab=mais&section=logs&sub=${t}`, { scroll: false }) }}
             webhooks={webhooksList}
             webhooksLoading={webhooksLoading}
             webhooksError={webhooksError}
@@ -2080,7 +2099,7 @@ export default function AdminPage() {
             auditSearch={auditSearch}
             onAuditSearchChange={setAuditSearch}
             onAuditSearchSubmit={() => fetchAuditLogs()}
-            onViewPayload={(log) => setPayloadSheetLog(log)}
+            onViewPayload={(log) => { setPayloadSheetLog(log); router.replace(`/admin?tab=mais&section=logs&sub=webhooks&log=${log.id}`, { scroll: false }) }}
           />
         </>
       )
@@ -2902,7 +2921,7 @@ export default function AdminPage() {
         />
       </div>
 
-      <PayloadSheet log={payloadSheetLog} onClose={() => setPayloadSheetLog(null)} />
+      <PayloadSheet log={payloadSheetLog} onClose={() => { setPayloadSheetLog(null); router.replace(`/admin?tab=mais&section=logs&sub=${logsTab}`, { scroll: false }) }} />
     </div>
   )
 }
