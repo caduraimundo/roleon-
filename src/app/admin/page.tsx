@@ -1390,6 +1390,7 @@ export default function AdminPage() {
   const [consumers, setConsumers] = useState<any[]>([])
   const [consLoading, setConsLoading] = useState(false)
   const [consSearch, setConsSearch] = useState('')
+  const [consFilter, setConsFilter] = useState<'ativos' | 'desativados'>('ativos')
 
   // Vendas
   const [vendasResumo, setVendasResumo] = useState<any | null>(null)
@@ -2492,7 +2493,9 @@ export default function AdminPage() {
       )
 
       if (userSubTab === 'consumidores') {
-        const filteredConsumers = consumers.filter(c => !consSearch.trim() || c.name?.toLowerCase().includes(consSearch.toLowerCase()) || c.email?.toLowerCase().includes(consSearch.toLowerCase()))
+        const filteredConsumers = consumers
+          .filter(c => consFilter === 'desativados' ? c.consumer_disabled : !c.consumer_disabled)
+          .filter(c => !consSearch.trim() || c.name?.toLowerCase().includes(consSearch.toLowerCase()) || c.email?.toLowerCase().includes(consSearch.toLowerCase()))
         return (
           <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
             <div style={{ marginBottom: 14 }}>
@@ -2504,6 +2507,14 @@ export default function AdminPage() {
             </div>
 
             {subTabSwitcher}
+
+            {/* Filtros */}
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+              {([{ id: 'ativos', label: 'Ativos' }, { id: 'desativados', label: 'Desativados' }] as const).map(f => {
+                const on = consFilter === f.id
+                return <button key={f.id} onClick={() => setConsFilter(f.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : '1px solid #E8E8E8', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{f.label}</button>
+              })}
+            </div>
 
             <div style={{ position: 'relative', marginBottom: 14 }}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: DIM, pointerEvents: 'none' }}>
@@ -2529,6 +2540,9 @@ export default function AdminPage() {
                     <div style={{ fontSize: 12, color: DIM, marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.email}</div>
                     <div style={{ fontSize: 11, color: DIM, marginTop: 2 }}>{formatDate(c.created_at)}</div>
                   </div>
+                  {c.consumer_disabled && (
+                    <span style={{ fontSize: 11, fontWeight: 600, background: '#FEF2F2', color: '#991B1B', border: '1px solid #FECACA', borderRadius: 20, padding: '3px 8px', whiteSpace: 'nowrap', flexShrink: 0 }}>Desativado</span>
+                  )}
                 </div>
               )
             })}
