@@ -42,7 +42,7 @@ async function logCheckoutAttempt(params: {
   ip: string
 }) {
   try {
-    await supabaseAdmin.from('checkout_attempts').insert({
+    const { error } = await supabaseAdmin.from('checkout_attempts').insert({
       user_id: params.userId,
       event_id: params.eventId,
       ticket_type_id: params.ticketTypeId,
@@ -52,8 +52,11 @@ async function logCheckoutAttempt(params: {
       amount: params.amount ?? null,
       ip: params.ip,
     })
+    if (error) {
+      console.error('[checkout] logCheckoutAttempt insert retornou erro:', error)
+    }
   } catch (e) {
-    console.error('[checkout] logCheckoutAttempt falhou:', e)
+    console.error('[checkout] logCheckoutAttempt lançou excecao:', e)
   }
 }
 
