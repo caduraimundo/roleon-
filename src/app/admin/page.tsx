@@ -2535,6 +2535,127 @@ export default function AdminPage() {
         </div>
       )
 
+      // Tela de detalhe do consumidor
+      if (consDetail) {
+        const c = consDetailData?.consumer ?? consDetail
+        const initials = c.avatar_initials || c.name?.slice(0,2)?.toUpperCase() || 'U'
+        const tickets = consDetailData?.tickets ?? []
+        const attempts = consDetailData?.checkout_attempts ?? []
+        const failureLabels: Record<string, string> = {
+          dados_invalidos: 'Dados inválidos',
+          limite_ingressos: 'Limite de ingressos atingido',
+          cpf_invalido: 'CPF inválido',
+          evento_nao_encontrado: 'Evento não encontrado',
+          evento_sem_recipiente: 'Produtor sem dados bancários',
+          cupom_invalido: 'Cupom inválido',
+          estoque_esgotado: 'Estoque esgotado',
+          erro_interno: 'Erro interno',
+          pagarme_pix_recusado: 'PIX recusado',
+          pagarme_cartao_recusado: 'Cartão recusado',
+        }
+        const formatDateTime = (iso: string | null | undefined) => iso ? new Date(iso).toLocaleString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'
+
+        return (
+          <>
+            <div style={{ width: '100%', background: WHITE, borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, position: 'relative', flexShrink: 0 }}>
+              <button onClick={() => { setConsDetail(null); setConsDetailData(null) }} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+              </button>
+              <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Detalhe do Consumidor</span>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px 16px 24px', fontFamily: "'Noto Sans', sans-serif" }}>
+
+            {consDetailLoading ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', color: DIM }}>Carregando...</div>
+            ) : (
+              <div style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, padding: 20 }}>
+                {/* Avatar + nome + badge */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                  <div style={{ width: 56, height: 56, borderRadius: 16, background: TEAL, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 20, fontWeight: 700 }}>{initials}</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: TEXT }}>{c.name}</div>
+                  <span style={{ fontSize: 11, fontWeight: 600, background: c.consumer_disabled ? '#FEF2F2' : '#E6F7F6', color: c.consumer_disabled ? '#991B1B' : '#0A7A76', border: c.consumer_disabled ? '1px solid #FECACA' : 'none', borderRadius: 20, padding: '3px 8px' }}>{c.consumer_disabled ? 'Desativado' : 'Ativo'}</span>
+                </div>
+
+                <div style={{ borderTop: `1px solid ${BORDER}`, marginBottom: 14 }} />
+
+                {/* Feedback */}
+                {consFeedback && (
+                  <div style={{ background: consFeedback.tipo === 'ok' ? '#E6F7F6' : '#FEF2F2', color: consFeedback.tipo === 'ok' ? '#0A7A76' : '#991B1B', border: `1px solid ${consFeedback.tipo === 'ok' ? '#A7E8E6' : '#FECACA'}`, borderRadius: 10, padding: '10px 14px', marginBottom: 12, fontSize: 13, fontWeight: 600 }}>{consFeedback.msg}</div>
+                )}
+
+                {/* Informações */}
+                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Informações</div>
+                {[
+                  { label: 'Email',    value: c.email },
+                  { label: 'Cadastro', value: formatDate(c.created_at) },
+                ].map((f, i) => (
+                  <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '9px 0', borderBottom: `1px solid #F7F7F7`, gap: 12 }}>
+                    <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0 }}>{f.label}</span>
+                    <span style={{ fontSize: 13, color: TEXT, textAlign: 'right', wordBreak: 'break-all' }}>{f.value}</span>
+                  </div>
+                ))}
+
+                {/* Acesso */}
+                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 6 }}>Acesso</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '9px 0', borderBottom: `1px solid #F7F7F7`, gap: 12 }}>
+                  <span style={{ fontSize: 11, color: '#9CA3AF', flexShrink: 0 }}>Último login</span>
+                  <span style={{ fontSize: 13, color: TEXT, textAlign: 'right' }}>{formatDateTime(consDetailData?.auth?.last_sign_in_at)}</span>
+                </div>
+                {(consDetailData?.login_history ?? []).length > 0 && (
+                  <div style={{ marginTop: 4 }}>
+                    {(consDetailData?.login_history ?? []).slice(0, 5).map((lh: any, i: number) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: `1px solid #F7F7F7`, gap: 8 }}>
+                        <span style={{ fontSize: 12, color: TEXT, fontFamily: 'monospace' }}>{lh.ip}</span>
+                        <span style={{ fontSize: 11, color: DIM }}>{formatDateTime(lh.created_at)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Ingressos */}
+                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 6 }}>Ingressos comprados</div>
+                {tickets.length > 0 ? tickets.map((t: any) => (
+                  <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid #F7F7F7`, gap: 8 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, color: TEXT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{t.event?.title ?? '-'}</div>
+                      <div style={{ fontSize: 11, color: DIM, marginTop: 2 }}>{t.ticket_type_name} · {t.payment_method === 'pix' ? 'PIX' : 'Cartão'}</div>
+                    </div>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: TEAL, flexShrink: 0 }}>R$ {Number(t.price_paid).toFixed(2)}</span>
+                  </div>
+                )) : (
+                  <div style={{ fontSize: 13, color: DIM, marginTop: 4 }}>Nenhum ingresso comprado.</div>
+                )}
+
+                {/* Tentativas falhas */}
+                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 6 }}>Tentativas de compra que falharam</div>
+                {attempts.length > 0 ? attempts.map((a: any) => (
+                  <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid #F7F7F7`, gap: 8 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13, color: TEXT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.event_title ?? 'Evento não identificado'}</div>
+                      <div style={{ fontSize: 11, color: '#991B1B', marginTop: 2 }}>{failureLabels[a.failure_reason] ?? a.failure_reason}</div>
+                    </div>
+                    <span style={{ fontSize: 11, color: DIM, flexShrink: 0 }}>{formatDateTime(a.created_at)}</span>
+                  </div>
+                )) : (
+                  <div style={{ fontSize: 13, color: DIM, marginTop: 4 }}>Nenhuma tentativa registrada.</div>
+                )}
+
+                {/* Ações */}
+                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 20, marginBottom: 10 }}>Ações</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {!c.consumer_disabled ? (
+                    <button onClick={() => consAction(c.id, 'consumer_disabled', true)} disabled={consActionLoading} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: consActionLoading ? 0.6 : 1 }}>Desativar consumidor</button>
+                  ) : (
+                    <button onClick={() => consAction(c.id, 'consumer_disabled', false)} disabled={consActionLoading} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px', background: TEAL, color: WHITE, border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif", opacity: consActionLoading ? 0.6 : 1 }}>Reativar consumidor</button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          </>
+        )
+      }
+
       if (userSubTab === 'consumidores') {
         const filteredConsumers = consumers
           .filter(c => consFilter === 'desativados' ? c.consumer_disabled : !c.consumer_disabled)
