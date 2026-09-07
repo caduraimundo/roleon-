@@ -31,6 +31,32 @@ async function logAudit(
   });
 }
 
+async function logCheckoutAttempt(params: {
+  userId: string | null
+  eventId: string | null
+  ticketTypeId: string | null
+  paymentMethod: string | null
+  failureReason: string
+  failureDetail?: string | null
+  amount?: number | null
+  ip: string
+}) {
+  try {
+    await supabaseAdmin.from('checkout_attempts').insert({
+      user_id: params.userId,
+      event_id: params.eventId,
+      ticket_type_id: params.ticketTypeId,
+      payment_method: params.paymentMethod,
+      failure_reason: params.failureReason,
+      failure_detail: params.failureDetail ?? null,
+      amount: params.amount ?? null,
+      ip: params.ip,
+    })
+  } catch (e) {
+    console.error('[checkout] logCheckoutAttempt falhou:', e)
+  }
+}
+
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1'
   const { success } = await checkoutRatelimit.limit(ip)
@@ -81,6 +107,7 @@ export async function POST(req: NextRequest) {
     const { event_id, quantity, user_email, user_name, user_phone, payment_method } = body
 
     if (!event_id || !quantity) {
+      await logCheckoutAttempt({ userId, eventId: event_id ?? null, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: body.payment_method ?? null, failureReason: 'dados_invalidos', ip })
       return NextResponse.json({ error: 'Campos obrigatórios ausentes: event_id, quantity' }, { status: 400 })
     }
 
@@ -93,6 +120,7 @@ export async function POST(req: NextRequest) {
       })
 
     if (limitError || !withinLimit) {
+      await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: body.payment_method ?? null, failureReason: 'limite_ingressos', ip })
       return NextResponse.json(
         { error: 'Limite de 10 ingressos por evento atingido.' },
         { status: 409 }
@@ -100,6 +128,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!body.customer_document || !validateCPF(body.customer_document)) {
+      await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: body.payment_method ?? null, failureReason: 'cpf_invalido', ip })
       return NextResponse.json({ error: 'CPF é obrigatório e precisa ser válido' }, { status: 400 })
     }
 
@@ -111,6 +140,7 @@ export async function POST(req: NextRequest) {
 
     if (eventError || !event) {
       console.error('[checkout] erro ao buscar evento:', eventError)
+      await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: body.payment_method ?? null, failureReason: 'evento_nao_encontrado', ip })
       return NextResponse.json({ error: 'Evento não encontrado', detail: eventError?.message }, { status: 404 })
     }
 
@@ -126,6 +156,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!event.is_free && !producerRecipientId) {
+      await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: body.payment_method ?? null, failureReason: 'evento_sem_recipiente', ip })
       return NextResponse.json(
         { error: 'Este evento não está disponível para compra no momento. O organizador precisa configurar os dados bancários para repasse.' },
         { status: 400 }
