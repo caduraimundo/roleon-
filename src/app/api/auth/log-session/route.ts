@@ -15,24 +15,15 @@ export async function POST(req: NextRequest) {
     const ip = req.headers.get('x-forwarded-for') ?? '127.0.0.1'
     const userAgent = req.headers.get('user-agent') ?? null
 
-    const sixtySecondsAgo = new Date(Date.now() - 60_000).toISOString()
-    const { data: recent } = await supabaseAdmin
-      .from('login_history')
-      .select('id')
-      .eq('user_id', user.id)
-      .gte('created_at', sixtySecondsAgo)
-      .limit(1)
-      .maybeSingle()
+    const { data: deduped } = await supabaseAdmin.rpc('log_session_dedup', {
+      p_user_id: user.id,
+      p_ip: ip,
+      p_user_agent: userAgent,
+    })
 
-    if (recent) {
+    if (deduped) {
       return NextResponse.json({ ok: true, deduped: true })
     }
-
-    await supabaseAdmin.from('login_history').insert({
-      user_id: user.id,
-      ip,
-      user_agent: userAgent,
-    })
 
     return NextResponse.json({ ok: true })
   } catch (err) {
