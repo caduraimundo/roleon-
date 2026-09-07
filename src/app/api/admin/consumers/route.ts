@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
     const { data } = await supabaseAdmin
       .from('profiles')
-      .select('id, name, email, avatar_initials, created_at')
+      .select('id, name, email, avatar_initials, created_at, consumer_disabled')
       .or('role.eq.consumer,is_producer.eq.true')
       .order('created_at', { ascending: false })
 
