@@ -3,6 +3,7 @@ import { Noto_Sans } from "next/font/google"
 import "./globals.css";
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 import ChunkErrorReloader from "@/components/ChunkErrorReloader";
+import LoginActivityLogger from "@/components/LoginActivityLogger";
 
 const notoSans = Noto_Sans({
   variable: "--font-noto-sans",
@@ -71,6 +72,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <ServiceWorkerRegistrar />
+        <LoginActivityLogger />
         <ChunkErrorReloader />
         {children}
       </body>
