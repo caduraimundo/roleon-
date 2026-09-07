@@ -208,6 +208,7 @@ export async function POST(req: NextRequest) {
           .eq('active', true)
           .maybeSingle()
         if (!couponData) {
+          await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: 'pix', failureReason: 'cupom_invalido', failureDetail: 'inativo', ip })
           return NextResponse.json({ error: 'Cupom inválido ou inativo' }, { status: 400 })
         }
         const { data: couponResult } = await supabaseAdmin
@@ -218,6 +219,7 @@ export async function POST(req: NextRequest) {
           })
         const cr = Array.isArray(couponResult) ? couponResult[0] : couponResult
         if (!cr?.success) {
+          await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: 'pix', failureReason: 'cupom_invalido', failureDetail: cr?.error_message ?? 'esgotado', ip })
           return NextResponse.json(
             { error: cr?.error_message ?? 'Cupom invalido ou esgotado' },
             { status: 400 }
@@ -252,6 +254,7 @@ export async function POST(req: NextRequest) {
                 .rpc('release_coupon_use', { p_coupon_code: couponCode! })
               couponConsumed = false
             }
+            await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: 'pix', failureReason: 'estoque_esgotado', amount: unitTotal, ip })
             return NextResponse.json(
               { error: 'Ingressos esgotados para este lote.' },
               { status: 409 }
@@ -340,6 +343,7 @@ export async function POST(req: NextRequest) {
             .rpc('release_coupon_use', { p_coupon_code: couponCode! })
           couponConsumed = false
         }
+        await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: 'pix', failureReason: 'erro_interno', failureDetail: 'fetch_falhou', amount: payAmountCents / 100, ip })
         return NextResponse.json({ error: 'Falha ao criar pedido PIX' }, { status: 500 })
       }
 
@@ -362,6 +366,7 @@ export async function POST(req: NextRequest) {
             .rpc('release_coupon_use', { p_coupon_code: couponCode! })
           couponConsumed = false
         }
+        await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: 'pix', failureReason: 'erro_interno', failureDetail: 'http_nao_ok', amount: payAmountCents / 100, ip })
         return NextResponse.json({ error: 'Falha ao criar pedido', detail: err }, { status: 500 })
       }
 
@@ -387,6 +392,7 @@ export async function POST(req: NextRequest) {
             .rpc('release_coupon_use', { p_coupon_code: couponCode! })
           couponConsumed = false
         }
+        await logCheckoutAttempt({ userId, eventId: event_id, ticketTypeId: body.ticket_type_id ?? null, paymentMethod: 'pix', failureReason: 'pagarme_pix_recusado', amount: payAmountCents / 100, ip })
         return NextResponse.json({ error: 'Pagamento recusado', detail: order }, { status: 400 })
       }
 
