@@ -1391,6 +1391,11 @@ export default function AdminPage() {
   const [consLoading, setConsLoading] = useState(false)
   const [consSearch, setConsSearch] = useState('')
   const [consFilter, setConsFilter] = useState<'ativos' | 'desativados'>('ativos')
+  const [consDetail, setConsDetail] = useState<any | null>(null)
+  const [consDetailData, setConsDetailData] = useState<{ consumer: any; auth?: { created_at: string | null; last_sign_in_at: string | null }; login_history?: any[]; tickets?: any[]; checkout_attempts?: any[] } | null>(null)
+  const [consDetailLoading, setConsDetailLoading] = useState(false)
+  const [consActionLoading, setConsActionLoading] = useState(false)
+  const [consFeedback, setConsFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
 
   // Vendas
   const [vendasResumo, setVendasResumo] = useState<any | null>(null)
@@ -1569,6 +1574,44 @@ export default function AdminPage() {
     const d = await res.json()
     setProdDetailData(d)
     setProdDetailLoading(false)
+  }
+
+  const openConsDetail = async (c: any) => {
+    setConsDetail(c)
+    setConsDetailLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch(`/api/admin/consumers/${c.id}`, {
+      headers: { Authorization: `Bearer ${session?.access_token}` },
+    })
+    const d = await res.json()
+    setConsDetailData(d)
+    setConsDetailLoading(false)
+  }
+
+  const consAction = async (id: string, field: 'consumer_disabled', value: boolean) => {
+    setConsActionLoading(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch(`/api/admin/consumers/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ [field]: value }),
+    })
+    if (res.ok) {
+      setConsumers(prev => prev.map(c => c.id === id ? { ...c, [field]: value } : c))
+      if (consDetail?.id === id) setConsDetail((prev: any) => ({ ...prev, [field]: value }))
+      if (consDetailData?.consumer?.id === id) {
+        setConsDetailData(prev => prev ? { ...prev, consumer: { ...prev.consumer, [field]: value } } : prev)
+      }
+      const msgs: Record<string, string> = {
+        'consumer_disabled-true':  'Consumidor desativado.',
+        'consumer_disabled-false': 'Consumidor reativado.',
+      }
+      setConsFeedback({ tipo: 'ok', msg: msgs[`${field}-${value}`] ?? 'Atualizado.' })
+    } else {
+      setConsFeedback({ tipo: 'erro', msg: 'Erro ao atualizar consumidor.' })
+    }
+    setConsActionLoading(false)
+    setTimeout(() => setConsFeedback(null), 3000)
   }
 
   const prodAction = async (id: string, field: 'verified' | 'producer_disabled', value: boolean) => {
@@ -2533,7 +2576,7 @@ export default function AdminPage() {
             {!consLoading && filteredConsumers.map((c: any) => {
               const initials = c.avatar_initials || c.name?.slice(0,2)?.toUpperCase() || 'U'
               return (
-                <div key={c.id} style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, padding: 14, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div key={c.id} onClick={() => openConsDetail(c)} style={{ background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`, padding: 14, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
                   <div style={{ width: 40, height: 40, borderRadius: 12, background: TEAL, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: WHITE, fontSize: 14, fontWeight: 700 }}>{initials}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 600, color: TEXT, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</div>
