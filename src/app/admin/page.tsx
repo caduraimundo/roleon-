@@ -1379,7 +1379,7 @@ export default function AdminPage() {
   // Produtores
   const [producers, setProducers] = useState<any[]>([])
   const [prodLoading, setProdLoading] = useState(false)
-  const [prodFilter, setProdFilter] = useState<'verificados' | 'ativos' | 'desativados'>('verificados')
+  const [prodFilter, setProdFilter] = useState<'ativos' | 'desativados'>('ativos')
   const [prodSearch, setProdSearch] = useState('')
   const [prodDetail, setProdDetail] = useState<any | null>(null)
   const [prodDetailData, setProdDetailData] = useState<{ producer: any; events: any[] } | null>(null)
@@ -2539,9 +2539,8 @@ export default function AdminPage() {
       // Lista de produtores
       const filtered = producers
         .filter(p => {
-          if (prodFilter === 'verificados') return p.verified && !p.producer_disabled
           if (prodFilter === 'desativados') return p.producer_disabled
-          return !p.verified && !p.producer_disabled
+          return !p.producer_disabled
         })
         .filter(p => !prodSearch.trim() || p.name?.toLowerCase().includes(prodSearch.toLowerCase()) || p.email?.toLowerCase().includes(prodSearch.toLowerCase()))
 
@@ -2559,7 +2558,7 @@ export default function AdminPage() {
 
           {/* Filtros */}
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-            {([{ id: 'verificados', label: 'Verificados' }, { id: 'ativos', label: 'Ativos' }, { id: 'desativados', label: 'Desativados' }] as const).map(f => {
+            {([{ id: 'ativos', label: 'Ativos' }, { id: 'desativados', label: 'Desativados' }] as const).map(f => {
               const on = prodFilter === f.id
               return <button key={f.id} onClick={() => setProdFilter(f.id)} style={{ padding: '8px 16px', borderRadius: 8, fontSize: 13, fontWeight: on ? 700 : 600, background: on ? TEAL : WHITE, color: on ? WHITE : TEXT, border: on ? 'none' : '1px solid #E8E8E8', cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>{f.label}</button>
             })}
