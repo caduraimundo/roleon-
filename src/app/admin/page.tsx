@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
 
@@ -1487,6 +1487,7 @@ export default function AdminPage() {
 
   const openDetail = async (ev: any) => {
     setDetailEvent(ev)
+    router.replace(`/admin?tab=moderacao&event=${ev.id}`, { scroll: false })
     setDetailLoading(true)
     const { data } = await supabase
       .from('events')
@@ -1920,6 +1921,19 @@ export default function AdminPage() {
     }
   }, [tab, userSubTab])
 
+  const restauradoRef = useRef(false)
+  useEffect(() => {
+    if (restauradoRef.current) return
+    if (modLoading) return
+    if (pendingEvents.length === 0 && activeEvents.length === 0) return
+    restauradoRef.current = true
+    const eventId = new URLSearchParams(window.location.search).get('event')
+    if (!eventId) return
+    const allEvents = [...pendingEvents.map(e => ({ ...e, status: 'pending' })), ...activeEvents]
+    const found = allEvents.find(e => e.id === eventId)
+    if (found) openDetail(found)
+  }, [pendingEvents, activeEvents, modLoading])
+
   if (loading) {
     return (
       <div style={{
@@ -2094,7 +2108,7 @@ export default function AdminPage() {
         return (
           <>
             <div style={{ width: '100%', background: WHITE, borderBottom: `0.5px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'center', height: 56, position: 'relative', flexShrink: 0 }}>
-              <button onClick={() => { setDetailEvent(null); setDetailData(null) }} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <button onClick={() => { setDetailEvent(null); setDetailData(null); router.replace('/admin?tab=moderacao', { scroll: false }) }} style={{ position: 'absolute', left: 16, width: 36, height: 36, borderRadius: '50%', background: '#F7F7F7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#1A1A1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
               </button>
               <span style={{ fontSize: 17, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif" }}>Detalhe do Evento</span>
@@ -2177,8 +2191,8 @@ export default function AdminPage() {
                 <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 20, marginBottom: 10 }}>Ações</div>
                 {detailEvent.status === 'pending' && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <button onClick={() => { aprovar(detailEvent.id); setDetailEvent(null); setDetailData(null) }} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px', background: TEAL, color: WHITE, border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Aprovar evento</button>
-                    <button onClick={() => { setDetailEvent(null); setDetailData(null); setMotivoSheet({ id: detailEvent.id, tipo: 'rejeitar' }); setMotivo('') }} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Rejeitar evento</button>
+                    <button onClick={() => { aprovar(detailEvent.id); setDetailEvent(null); setDetailData(null); router.replace('/admin?tab=moderacao', { scroll: false }) }} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 15px', background: TEAL, color: WHITE, border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Aprovar evento</button>
+                    <button onClick={() => { setDetailEvent(null); setDetailData(null); router.replace('/admin?tab=moderacao', { scroll: false }); setMotivoSheet({ id: detailEvent.id, tipo: 'rejeitar' }); setMotivo('') }} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Rejeitar evento</button>
                   </div>
                 )}
                 {detailEvent.status === 'active' && !(detailEvent.event_date && new Date(detailEvent.event_date.replace(' ', 'T')) < new Date()) && (
@@ -2186,7 +2200,7 @@ export default function AdminPage() {
                     {!ev?.producer_id && (
                       <a href={`/admin/eventos/${detailEvent.id}/editar`} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px', background: '#F0F0F0', color: TEXT, borderRadius: 10, fontSize: 14, fontWeight: 600, fontFamily: "'Noto Sans', sans-serif", textDecoration: 'none', boxSizing: 'border-box' }}>Editar evento</a>
                     )}
-                    <button onClick={() => { setDetailEvent(null); setDetailData(null); setMotivoSheet({ id: detailEvent.id, tipo: 'cancelar' }); setMotivo('') }} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Cancelar evento</button>
+                    <button onClick={() => { setDetailEvent(null); setDetailData(null); router.replace('/admin?tab=moderacao', { scroll: false }); setMotivoSheet({ id: detailEvent.id, tipo: 'cancelar' }); setMotivo('') }} style={{ width: '100%', height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 13px', background: '#FEE2E2', color: '#991B1B', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Cancelar evento</button>
                   </div>
                 )}
               </div>
