@@ -2607,7 +2607,12 @@ export default function AdminPage() {
                 </div>
 
                 {/* Ingressos */}
-                <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 16, marginBottom: 6 }}>Ingressos comprados</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 16, marginBottom: 6 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: DIM, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Ingressos comprados</div>
+                  {tickets.length > 0 && (
+                    <div style={{ fontSize: 12, fontWeight: 600, color: TEAL }}>{tickets.length} · R$ {tickets.reduce((sum: number, t: any) => sum + Number(t.price_paid ?? 0), 0).toFixed(2)}</div>
+                  )}
+                </div>
                 {tickets.length > 0 ? tickets.map((t: any) => (
                   <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: `1px solid #F7F7F7`, gap: 8 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
