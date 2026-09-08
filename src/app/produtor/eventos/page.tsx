@@ -48,13 +48,14 @@ export default function EventosPage() {
   const [events, setEvents] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
-  const [filter, setFilter] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const p = new URLSearchParams(window.location.search).get('filter')
-      if (p && ['active', 'pending', 'completed', 'rejected', 'cancelled'].includes(p)) return p
+  const [filter, setFilter] = useState('active')
+
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search).get('filter')
+    if (p && ['active', 'pending', 'completed', 'rejected', 'cancelled'].includes(p)) {
+      setFilter(p)
     }
-    return 'active'
-  })
+  }, [])
 
   const init = async () => {
     setLoadError(false)
