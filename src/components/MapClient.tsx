@@ -515,6 +515,31 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   const [filterDate,      setFilterDate]      = useState<string | null>(null)
   const [filterPreco,     setFilterPreco]     = useState<string | null>(null)
   const [distance,        setDistance]        = useState(10)
+
+  const updateFiltersUrl = (genres: string[], date: string | null, price: string | null, dist: number) => {
+    const params = new URLSearchParams()
+    if (genres.length > 0) params.set('genres', genres.join(','))
+    if (date) params.set('date', date)
+    if (price) params.set('price', price)
+    if (dist !== 10) params.set('distance', String(dist))
+    const qs = params.toString()
+    router.replace(qs ? `/?${qs}` : '/', { scroll: false })
+  }
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const g = params.get('genres')
+    const d = params.get('date')
+    const p = params.get('price')
+    const dist = params.get('distance')
+    if (g) {
+      const valid = g.split(',').filter(x => CATEGORIAS.includes(x))
+      if (valid.length > 0) setFilterGenres(valid)
+    }
+    if (d && DATE_CHIPS.includes(d)) setFilterDate(d)
+    if (p && PRECOS.includes(p)) setFilterPreco(p)
+    if (dist && DISTANCES.includes(Number(dist))) setDistance(Number(dist))
+  }, [])
   const [searchValue,     setSearchValue]     = useState('')
   const [userLocation,    setUserLocation]    = useState<{ lat: number; lng: number } | null>(null)
   const [searchCenter,    setSearchCenter]    = useState<{ lat: number; lng: number } | null>(null)
@@ -1318,7 +1343,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           onClose={() => setShowFilter(false)}
           bottomNavHeight={bottomNavHeight}
           initial={{ genres: filterGenres, when: filterDate, price: filterPreco, distance }}
-          onApply={(genres, date, price, dist) => { setFilterGenres(genres); setFilterDate(date); setFilterPreco(price); setDistance(dist) }}
+          onApply={(genres, date, price, dist) => { setFilterGenres(genres); setFilterDate(date); setFilterPreco(price); setDistance(dist); updateFiltersUrl(genres, date, price, dist) }}
         />
       )}
 
