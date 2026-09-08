@@ -50,13 +50,6 @@ export default function EventosPage() {
   const [loadError, setLoadError] = useState(false)
   const [filter, setFilter] = useState('active')
 
-  useEffect(() => {
-    const p = new URLSearchParams(window.location.search).get('filter')
-    if (p && ['active', 'pending', 'completed', 'rejected', 'cancelled'].includes(p)) {
-      setFilter(p)
-    }
-  }, [])
-
   const init = async () => {
     setLoadError(false)
     try {
@@ -151,7 +144,7 @@ export default function EventosPage() {
             {FILTERS.map(f => {
               const active = f.id === filter
               return (
-                <button key={f.id} onClick={() => { setFilter(f.id); router.replace(`/produtor/eventos?filter=${f.id}`, { scroll: false }) }} style={{
+                <button key={f.id} onClick={() => setFilter(f.id)} style={{
                   padding: '8px 16px', borderRadius: 8,
                   border: active ? '1px solid #0EA5A0' : '1px solid #E8E8E8',
                   background: active ? '#0EA5A0' : '#fff',
