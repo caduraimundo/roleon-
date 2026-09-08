@@ -1164,7 +1164,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 19, width: 'auto', objectFit: 'contain', display: 'block' }} />
         </div>
         <div style={{ pointerEvents: 'auto' }}>
-          <SearchBar hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={setDistance} searchValue={searchValue} onSearchChange={handleSearch} />
+          <SearchBar hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={(d) => { setDistance(d); updateFiltersUrl(filterGenres, filterDate, filterPreco, d) }} searchValue={searchValue} onSearchChange={handleSearch} />
         </div>
         {showSuggestions && (
           <div style={{
