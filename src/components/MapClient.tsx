@@ -523,7 +523,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     if (price) params.set('price', price)
     if (dist !== 10) params.set('distance', String(dist))
     const qs = params.toString()
-    router.replace(qs ? `/?${qs}` : '/', { scroll: false })
+    window.history.replaceState(null, '', qs ? `/?${qs}` : '/')
   }
 
   useEffect(() => {
