@@ -43,7 +43,7 @@ export default function Home() {
     <>
     <Script
       src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places,marker&v=beta&loading=async`}
-      strategy="beforeInteractive"
+      strategy="afterInteractive"
     />
     <div className="h-dvh w-full">
       <div style={{
