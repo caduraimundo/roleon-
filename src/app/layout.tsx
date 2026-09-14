@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans } from "next/font/google"
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next"
 import ServiceWorkerRegistrar from "@/components/ServiceWorkerRegistrar";
 import ChunkErrorReloader from "@/components/ChunkErrorReloader";
 import LoginActivityLogger from "@/components/LoginActivityLogger";
@@ -75,6 +76,7 @@ export default function RootLayout({
         <ServiceWorkerRegistrar />
         <LoginActivityLogger />
         <ChunkErrorReloader />
+        <Analytics />
         {children}
       </body>
     </html>
