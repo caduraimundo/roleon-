@@ -24,7 +24,7 @@ export default function EditarPerfilPage() {
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       const user = session?.user
-      if (!user) { router.replace('/login'); return }
+      if (!user) { router.replace('/'); return }
 
       setEmail(user.email ?? '')
       setIsGoogle(session.user.app_metadata?.provider === 'google')

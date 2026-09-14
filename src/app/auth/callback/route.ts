@@ -15,8 +15,6 @@ export async function GET(request: Request) {
 
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const token_hash = searchParams.get('token_hash')
-  const type = searchParams.get('type')
 
   const cookieStore = await cookies()
   const supabase = createServerClient(
@@ -33,12 +31,6 @@ export async function GET(request: Request) {
       },
     }
   )
-
-  // Recovery via token_hash (reset de senha)
-  if (token_hash && type === 'recovery') {
-    await supabase.auth.verifyOtp({ token_hash, type: 'recovery' })
-    return NextResponse.redirect(`${origin}/auth/reset-password`)
-  }
 
   // Confirmação de e-mail via code
   if (code) {

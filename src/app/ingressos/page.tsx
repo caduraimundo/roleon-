@@ -194,7 +194,7 @@ export default function IngressosPage() {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
-        router.replace('/login')
+        router.replace('/')
         return
       }
 

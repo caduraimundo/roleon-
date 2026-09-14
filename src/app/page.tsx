@@ -30,15 +30,6 @@ export default function Home() {
     checkAdmin()
   }, [])
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        router.push('/auth/reset-password')
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [router])
-
   return (
     <>
     <Script
