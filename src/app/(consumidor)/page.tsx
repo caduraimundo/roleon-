@@ -4,8 +4,8 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import dynamic from "next/dynamic";
 import Script from "next/script";
-import { supabase } from '../lib/supabase'
-import AppLoadingScreenWithIcon from '../components/AppLoadingScreenWithIcon'
+import { supabase } from '@/lib/supabase'
+import AppLoadingScreenWithIcon from '@/components/AppLoadingScreenWithIcon'
 
 const MapClient = dynamic(() => import("@/components/MapClient"), {
   ssr: false,

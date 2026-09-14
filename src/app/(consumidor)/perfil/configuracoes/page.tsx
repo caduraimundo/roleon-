@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../../lib/supabase'
-import { BackButton } from '../../../components/BackButton'
-import AppLoadingScreen from '../../../components/AppLoadingScreen'
+import { supabase } from '@/lib/supabase'
+import { BackButton } from '@/components/BackButton'
+import AppLoadingScreen from '@/components/AppLoadingScreen'
 
 // ── Ícones ────────────────────────────────────────────────────────────────────
 

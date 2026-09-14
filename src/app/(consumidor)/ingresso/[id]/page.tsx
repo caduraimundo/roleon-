@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { useSmartBack } from '../../../hooks/useSmartBack'
-import { supabase } from '../../../lib/supabase'
-import { BackButton } from '../../../components/BackButton'
+import { useSmartBack } from '@/hooks/useSmartBack'
+import { supabase } from '@/lib/supabase'
+import { BackButton } from '@/components/BackButton'
 
 interface EventInfo {
   slug: string | null

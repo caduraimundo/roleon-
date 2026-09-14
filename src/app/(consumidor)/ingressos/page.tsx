@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../lib/supabase'
-import { BackButton } from '../../components/BackButton'
-import BottomNav from '../../components/BottomNav'
-import AppLoadingScreen from '../../components/AppLoadingScreen'
+import { supabase } from '@/lib/supabase'
+import { BackButton } from '@/components/BackButton'
+import BottomNav from '@/components/BottomNav'
+import AppLoadingScreen from '@/components/AppLoadingScreen'
 
 const TEAL = '#0EA5A0'
 const TEXT = '#1A1A1A'

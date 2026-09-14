@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../../lib/supabase'
-import { BackButton } from '../../../components/BackButton'
-import { getInitials } from '../../../lib/getInitials'
-import AppLoadingScreen from '../../../components/AppLoadingScreen'
+import { supabase } from '@/lib/supabase'
+import { BackButton } from '@/components/BackButton'
+import { getInitials } from '@/lib/getInitials'
+import AppLoadingScreen from '@/components/AppLoadingScreen'
 
 export default function EditarPerfilPage() {
   const router = useRouter()

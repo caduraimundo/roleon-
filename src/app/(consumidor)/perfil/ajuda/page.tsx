@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { BackButton } from '../../../components/BackButton'
+import { BackButton } from '@/components/BackButton'
 
 // ── Ícones ────────────────────────────────────────────────────────────────────
 

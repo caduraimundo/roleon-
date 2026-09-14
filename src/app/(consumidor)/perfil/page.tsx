@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '../../lib/supabase'
-import AuthSheet from '../../components/AuthSheet'
-import { BackButton } from '../../components/BackButton'
-import BottomNav from '../../components/BottomNav'
-import AppLoadingScreen from '../../components/AppLoadingScreen'
+import { supabase } from '@/lib/supabase'
+import AuthSheet from '@/components/AuthSheet'
+import { BackButton } from '@/components/BackButton'
+import BottomNav from '@/components/BottomNav'
+import AppLoadingScreen from '@/components/AppLoadingScreen'
 
 // ── Ícones ────────────────────────────────────────────────────────────────────
 
