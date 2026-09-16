@@ -946,7 +946,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   }, [activeEvent, goToEventDetail])
 
   return (
-    <div style={{ position: 'absolute', inset: 0, background: '#F7F7F7', overflow: 'hidden' }}>
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
 
       {!mapReady && (
         <AppLoadingScreenWithIcon
