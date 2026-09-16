@@ -829,6 +829,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
             position,
             content: clusterDiv,
             zIndex: 1000,
+            gmpClickable: true,
           })
           marker.addEventListener('gmp-click', () => { if (cluster.bounds) map.fitBounds(cluster.bounds) })
           return marker
