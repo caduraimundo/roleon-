@@ -818,16 +818,20 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     const clusterer = new MarkerClusterer({
       map: mapInstanceRef.current,
       markers: allMarkers,
+      onClusterClick: null as unknown as undefined,
       renderer: {
-        render: ({ count, position, markers }) => {
+        render: (cluster, stats, map) => {
+          const { count, position, markers } = cluster
           const total = (markers ?? []).reduce((sum, m) => sum + ((m as any).__eventCount ?? 1), 0) || count
           const clusterDiv = document.createElement('div')
           clusterDiv.innerHTML = `<div style="width:40px;height:40px;border-radius:50%;background:#0EA5A0;display:flex;align-items:center;justify-content:center;color:#fff;font-family:Arial,sans-serif;font-size:14px;font-weight:600;">${total}</div>`
-          return new google.maps.marker.AdvancedMarkerElement({
+          const marker = new google.maps.marker.AdvancedMarkerElement({
             position,
             content: clusterDiv,
             zIndex: 1000,
           })
+          marker.addEventListener('gmp-click', () => { if (cluster.bounds) map.fitBounds(cluster.bounds) })
+          return marker
         },
       },
     })
