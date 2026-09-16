@@ -112,6 +112,8 @@ export default function ImageCropModal({
       <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 14 }}>
         <input
           type="range"
+          id="zoom-recorte-imagem"
+          name="zoom-recorte-imagem"
           min={1}
           max={3}
           step={0.01}

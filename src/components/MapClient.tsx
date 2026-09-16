@@ -108,6 +108,8 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
         </span>
         <input
           type="text"
+          id="busca-mapa-evento"
+          name="busca-mapa-evento"
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
           placeholder="Buscar local ou evento..."
