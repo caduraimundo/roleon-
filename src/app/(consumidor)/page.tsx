@@ -43,6 +43,7 @@ export default function Home() {
         alignItems: 'center', justifyContent: 'center',
         gap: 8, padding: 24, textAlign: 'center',
         background: '#fff',
+        zIndex: -1,
       }}>
         <h1 style={{ fontSize: 22, fontWeight: 700, color: '#1A1A1A', margin: 0 }}>
           Roleon
