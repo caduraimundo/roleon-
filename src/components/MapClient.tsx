@@ -7,7 +7,7 @@ import BottomNav, { TabId } from './BottomNav'
 import { PinSheet, MapHint, RoleonEvent } from './EventBottomSheet'
 import AuthSheet from './AuthSheet'
 import AppLoadingScreenWithIcon from './AppLoadingScreenWithIcon'
-import GoogleMapCanvas from './GoogleMapCanvas'
+import { useMapShell } from '@/app/(consumidor)/map-shell-context'
 import { supabase } from '../lib/supabase'
 
 const PRIMARY = '#0EA5A0'
@@ -485,15 +485,11 @@ interface MapClientProps {
 }
 
 export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapClientProps) {
+  const { mapInstanceRef, userLocationRef, mapReady, setMapReady, mapLoadError, setMapLoadError, retryKey, setRetryKey, searchCenter, setSearchCenter } = useMapShell()
   const router         = useRouter()
-  const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const overlayRefs    = useRef<Map<string, { overlay: any; container: HTMLDivElement }>>(new Map())
   const markerRefs     = useRef<Map<string, google.maps.marker.AdvancedMarkerElement>>(new Map())
   const clustererRef   = useRef<MarkerClusterer | null>(null)
-  const userLocationRef = useRef<{ lat: number; lng: number } | null>(null)
-  const [mapReady, setMapReady] = useState(false)
-  const [mapLoadError, setMapLoadError] = useState(false)
-  const [retryKey, setRetryKey] = useState(0)
   const loadingTopRef = useRef<HTMLDivElement>(null)
   const loadingBottomRef = useRef<HTMLDivElement>(null)
   const [loadingBounds, setLoadingBounds] = useState<{ top: number; bottom: number } | null>(null)
@@ -540,7 +536,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   }, [])
   const [searchValue,     setSearchValue]     = useState('')
   const [userLocation,    setUserLocation]    = useState<{ lat: number; lng: number } | null>(null)
-  const [searchCenter,    setSearchCenter]    = useState<{ lat: number; lng: number } | null>(null)
   const [suggestions, setSuggestions] = useState<{
     places: Array<{ description: string; place_id: string }>
     events: Array<{ id: string; title: string; lat: number; lng: number }>
@@ -952,15 +947,6 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#F7F7F7', overflow: 'hidden' }}>
-
-      {/* Mapa */}
-      <GoogleMapCanvas
-        retryKey={retryKey}
-        onMapReady={(map) => { mapInstanceRef.current = map; setMapReady(true) }}
-        onLoadError={() => setMapLoadError(true)}
-        onUserLocationUpdate={(pos) => { userLocationRef.current = pos }}
-        onSearchCenterRestore={(pos) => setSearchCenter(pos)}
-      />
 
       {!mapReady && (
         <AppLoadingScreenWithIcon
