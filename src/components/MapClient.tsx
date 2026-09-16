@@ -270,6 +270,7 @@ function FilterSheet({ onClose, bottomNavHeight, onApply, initial }: {
         position: 'fixed', inset: 0, zIndex: 240,
         background: 'rgba(0,0,0,0.35)',
         display: 'flex', alignItems: 'flex-end',
+        pointerEvents: 'auto',
       }}>
       <div onClick={e => e.stopPropagation()} style={{
         width: '100%',
@@ -946,14 +947,16 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
   }, [activeEvent, goToEventDetail])
 
   return (
-    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
 
       {!mapReady && (
-        <AppLoadingScreenWithIcon
-          bounds={loadingBounds}
-          zIndex={10}
-          error={mapLoadError ? { message: 'Não foi possível carregar o mapa.', onRetry: () => { setMapLoadError(false); setRetryKey((k) => k + 1) } } : null}
-        />
+        <div style={{ pointerEvents: 'auto' }}>
+          <AppLoadingScreenWithIcon
+            bounds={loadingBounds}
+            zIndex={10}
+            error={mapLoadError ? { message: 'Não foi possível carregar o mapa.', onRetry: () => { setMapLoadError(false); setRetryKey((k) => k + 1) } } : null}
+          />
+        </div>
       )}
 
       {/* Controles do topo: search bar + chips */}
@@ -1025,6 +1028,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
           bottom: `calc(${bottomNavHeight + 95}px + env(safe-area-inset-bottom, 0px))`,
           display: 'flex', flexDirection: 'column', gap: 8,
           zIndex: 18,
+          pointerEvents: 'auto',
         }}>
           {/* FAB filtros */}
           <div style={{ position: 'relative' }}>
@@ -1090,7 +1094,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
 
       {/* Card de evento, grupo de pins sobrepostos, ou hint */}
       {(mapReady || mapLoadError) && (
-      <div ref={loadingBottomRef}>
+      <div ref={loadingBottomRef} style={{ pointerEvents: 'auto' }}>
       {pinGroup ? (
         <MapHint
           key="pin-group"
@@ -1156,10 +1160,16 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       )}
 
       {/* Bottom nav */}
-      {(mapReady || mapLoadError) && <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />}
+      {(mapReady || mapLoadError) && (
+        <div style={{ pointerEvents: 'auto' }}>
+          <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+        </div>
+      )}
 
       {/* Auth sheet */}
-      <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
+      <div style={{ pointerEvents: 'auto' }}>
+        <AuthSheet isOpen={showAuth} onClose={() => setShowAuth(false)} />
+      </div>
     </div>
   )
 }
