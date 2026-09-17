@@ -1364,12 +1364,16 @@ export default function AdminPage() {
 
   // Moderacao
   const [pendingEvents, setPendingEvents] = useState<any[]>([])
+  const [pendingSeries, setPendingSeries] = useState<any[]>([])
   const [activeEvents, setActiveEvents] = useState<any[]>([])
   const [modLoading, setModLoading] = useState(false)
   const [modFilter, setModFilter] = useState<'pending' | 'active' | 'completed' | 'cancelled' | 'rejected' | 'todos' | 'mine'>('active')
   const [actionId, setActionId] = useState<string | null>(null)
   const [motivoSheet, setMotivoSheet] = useState<{ id: string; tipo: 'rejeitar' | 'cancelar' } | null>(null)
   const [motivo, setMotivo] = useState('')
+  const [seriesActionId, setSeriesActionId] = useState<string | null>(null)
+  const [seriesRejectSheet, setSeriesRejectSheet] = useState<{ id: string; title: string } | null>(null)
+  const [serieMotivo, setSerieMotivo] = useState('')
   const [feedback, setFeedback] = useState<{ tipo: 'ok' | 'erro'; msg: string } | null>(null)
   const [modSearch, setModSearch] = useState('')
   const [detailEvent, setDetailEvent] = useState<any | null>(null)
@@ -1505,6 +1509,7 @@ export default function AdminPage() {
     const d1 = await r1.json()
     const d2 = await r2.json()
     setPendingEvents(d1.events ?? [])
+    setPendingSeries(d1.series ?? [])
     setActiveEvents(d2.events ?? [])
     setModLoading(false)
   }
@@ -1564,6 +1569,45 @@ export default function AdminPage() {
     setMotivoSheet(null)
     setMotivo('')
     setActionId(null)
+    setTimeout(() => setFeedback(null), 3500)
+  }
+
+  const aprovarSerie = async (seriesId: string) => {
+    setSeriesActionId(seriesId)
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch(`/api/admin/series/${seriesId}/approve`, {
+      method: 'POST', headers: { Authorization: `Bearer ${session?.access_token}` },
+    })
+    const data = await res.json().catch(() => ({}))
+    if (res.ok) {
+      setPendingSeries(prev => prev.filter(s => s.id !== seriesId))
+      setFeedback({ tipo: 'ok', msg: `Série aprovada, ${data.occurrences_generated} datas geradas.` })
+    } else {
+      setFeedback({ tipo: 'erro', msg: data.error || 'Erro ao aprovar série.' })
+    }
+    setSeriesActionId(null)
+    setTimeout(() => setFeedback(null), 3500)
+  }
+
+  const confirmarRecusaSerie = async () => {
+    if (!seriesRejectSheet || !serieMotivo.trim()) return
+    setSeriesActionId(seriesRejectSheet.id)
+    const { data: { session } } = await supabase.auth.getSession()
+    const res = await fetch(`/api/admin/series/${seriesRejectSheet.id}/reject`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ motivo: serieMotivo }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (res.ok) {
+      setPendingSeries(prev => prev.filter(s => s.id !== seriesRejectSheet.id))
+      setFeedback({ tipo: 'ok', msg: 'Série recusada.' })
+    } else {
+      setFeedback({ tipo: 'erro', msg: data.error || 'Erro ao recusar série.' })
+    }
+    setSeriesRejectSheet(null)
+    setSerieMotivo('')
+    setSeriesActionId(null)
     setTimeout(() => setFeedback(null), 3500)
   }
 
@@ -2310,6 +2354,12 @@ export default function AdminPage() {
 
       const formatPrice = (e: any) => e.is_free ? 'Gratuito' : `R$ ${Number(e.price ?? 0).toFixed(2).replace('.', ',')}`
 
+      const WEEKDAY_LABELS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
+      const formatRecurrence = (s: any) => {
+        const dia = WEEKDAY_LABELS[s.recurrence_day_of_week] ?? ''
+        return s.recurrence_frequency === 'biweekly' ? `A cada 2 semanas, ${dia}` : `Toda ${dia}`
+      }
+
       const badgeMap: Record<string, { label: string; bg: string; color: string; border?: string }> = {
         pending:   { label: 'Aguardando', bg: '#FFFBEB', color: '#92400E', border: '#FDE68A' },
         active:    { label: 'Ativo',      bg: '#E6F7F6', color: '#0A7A76' },
@@ -2405,6 +2455,57 @@ export default function AdminPage() {
               <div style={{ textAlign: 'center', padding: '40px 16px', color: DIM }}>
                 <div style={{ fontSize: 14 }}>Nenhum evento nesta categoria.</div>
               </div>
+            )}
+
+            {/* Séries recorrentes aguardando aprovação */}
+            {!modLoading && modFilter === 'pending' && pendingSeries.length > 0 && (
+              <>
+                <div style={{ fontSize: 12, color: DIM, marginBottom: 8, fontWeight: 600 }}>
+                  Séries recorrentes aguardando aprovação ({pendingSeries.length})
+                </div>
+                {pendingSeries.map((s: any) => (
+                  <div key={s.id} style={{
+                    background: WHITE, borderRadius: 12, border: `1px solid ${BORDER}`,
+                    padding: 14, marginBottom: 10,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: TEXT, lineHeight: 1.3, flex: 1 }}>{s.title}</div>
+                      <span style={{
+                        fontSize: 11, fontWeight: 600, flexShrink: 0,
+                        background: badgeMap.pending.bg, color: badgeMap.pending.color,
+                        ...(badgeMap.pending.border ? { border: `1px solid ${badgeMap.pending.border}` } : {}),
+                        borderRadius: 20, padding: '3px 8px', whiteSpace: 'nowrap',
+                      }}>{badgeMap.pending.label}</span>
+                    </div>
+
+                    <div style={{ fontSize: 12, color: DIM, marginTop: 5 }}>
+                      {s.producer_name && <span>Por {s.producer_name} · </span>}
+                      <span>{formatRecurrence(s)}</span>
+                    </div>
+
+                    <div style={{ fontSize: 12, color: DIM, marginTop: 3 }}>
+                      Até {formatDate(s.series_end_date)} · {s.initial_batch_size} datas iniciais
+                    </div>
+
+                    {s.location_name && (
+                      <div style={{ fontSize: 11.5, color: DIM, marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.location_name}</div>
+                    )}
+
+                    <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+                      <button
+                        onClick={() => aprovarSerie(s.id)}
+                        disabled={seriesActionId === s.id}
+                        style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: 'none', background: TEAL, color: WHITE, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: seriesActionId === s.id ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
+                      >{seriesActionId === s.id ? '...' : 'Aprovar série'}</button>
+                      <button
+                        onClick={() => { setSeriesRejectSheet({ id: s.id, title: s.title }); setSerieMotivo('') }}
+                        disabled={seriesActionId === s.id}
+                        style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                      >Recusar</button>
+                    </div>
+                  </div>
+                ))}
+              </>
             )}
 
             {/* Cards de evento */}
@@ -2508,6 +2609,42 @@ export default function AdminPage() {
                     disabled={!motivo.trim() || actionId !== null}
                     style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', borderRadius: 10, border: 'none', background: '#FF3B30', color: WHITE, fontSize: 14, fontWeight: 600, cursor: motivo.trim() ? 'pointer' : 'not-allowed', opacity: !motivo.trim() || actionId !== null ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
                   >{actionId !== null ? 'Enviando...' : 'Confirmar'}</button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Bottom sheet de recusa de série */}
+          {seriesRejectSheet && (
+            <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 100, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+              <div style={{ background: WHITE, borderRadius: '16px 16px 0 0', padding: '24px 20px', width: '100%', maxWidth: 480 }}>
+                <div style={{ fontSize: 17, fontWeight: 700, color: TEXT, marginBottom: 6 }}>
+                  Motivo da recusa
+                </div>
+                <div style={{ fontSize: 13, color: DIM, marginBottom: 16 }}>
+                  Esse motivo será enviado por e-mail ao produtor.
+                </div>
+                <textarea
+                  value={serieMotivo}
+                  onChange={e => setSerieMotivo(e.target.value)}
+                  placeholder="Descreva o motivo..."
+                  style={{
+                    width: '100%', height: 100, padding: '12px 14px',
+                    border: `1px solid ${BORDER}`, borderRadius: 10,
+                    fontSize: 14, resize: 'none', boxSizing: 'border-box',
+                    fontFamily: "'Noto Sans', sans-serif", color: TEXT, outline: 'none',
+                  }}
+                />
+                <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                  <button
+                    onClick={() => { setSeriesRejectSheet(null); setSerieMotivo('') }}
+                    style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', borderRadius: 10, border: `1px solid ${BORDER}`, background: WHITE, color: DIM, fontSize: 14, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}
+                  >Cancelar</button>
+                  <button
+                    onClick={confirmarRecusaSerie}
+                    disabled={!serieMotivo.trim() || seriesActionId !== null}
+                    style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 12px', borderRadius: 10, border: 'none', background: '#FF3B30', color: WHITE, fontSize: 14, fontWeight: 600, cursor: serieMotivo.trim() ? 'pointer' : 'not-allowed', opacity: !serieMotivo.trim() || seriesActionId !== null ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
+                  >{seriesActionId !== null ? 'Enviando...' : 'Confirmar recusa'}</button>
                 </div>
               </div>
             </div>
