@@ -42,7 +42,20 @@ export async function GET(req: NextRequest) {
       profiles: undefined,
     }))
 
-    return NextResponse.json({ events })
+    const { data: seriesData } = await supabaseAdmin
+      .from('event_series')
+      .select('id, title, cover_image, genre, location_name, producer_id, created_at, recurrence_day_of_week, recurrence_frequency, series_end_date, initial_batch_size, profiles!producer_id(name, email)')
+      .eq('status', 'pending')
+      .order('created_at', { ascending: true })
+
+    const series = (seriesData ?? []).map((s: any) => ({
+      ...s,
+      producer_name: s.profiles?.name ?? '',
+      producer_email: s.profiles?.email ?? '',
+      profiles: undefined,
+    }))
+
+    return NextResponse.json({ events, series })
   } catch (err) {
     console.error('[fila] erro inesperado:', err)
     return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 })
