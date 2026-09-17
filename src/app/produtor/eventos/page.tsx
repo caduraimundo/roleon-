@@ -4,6 +4,7 @@ import { useEffect, useState, Fragment } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
+import CreateEventMenu from '../../../components/CreateEventMenu'
 
 function statusLabel(status: string) {
   if (status === 'pending') return { text: 'Aguardando aprovação', color: '#F59E0B', bg: '#FFFBEB' }
@@ -49,6 +50,7 @@ export default function EventosPage() {
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [filter, setFilter] = useState('active')
+  const [createMenuOpen, setCreateMenuOpen] = useState(false)
 
   const init = async () => {
     setLoadError(false)
@@ -121,18 +123,19 @@ export default function EventosPage() {
             margin: 0, fontSize: 22, fontWeight: 700,
             color: '#1A1A1A', letterSpacing: -0.5,
           }}>Meus eventos</h1>
-          <a href="/produtor/eventos/novo" style={{
+          <button onClick={() => setCreateMenuOpen(true)} style={{
             width: 36, height: 36, borderRadius: 10,
             background: '#fff', color: '#0EA5A0',
             border: '1.5px solid #0EA5A0',
             display: 'flex', alignItems: 'center',
             justifyContent: 'center', textDecoration: 'none',
+            cursor: 'pointer',
           }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M12 5v14M5 12h14" stroke="currentColor"
                 strokeWidth="2.2" strokeLinecap="round"/>
             </svg>
-          </a>
+          </button>
         </div>
 
         {/* Chips de filtro */}
@@ -467,6 +470,8 @@ export default function EventosPage() {
         </div>
 
       </div>
+
+      <CreateEventMenu open={createMenuOpen} onClose={() => setCreateMenuOpen(false)} />
     </div>
   )
 }
