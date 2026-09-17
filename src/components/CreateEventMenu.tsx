@@ -91,7 +91,7 @@ export default function CreateEventMenu({ open, onClose }: CreateEventMenuProps)
             }
           />
           <OptionRow
-            title="Série recorrente"
+            title="Evento recorrente"
             description="Mesmo local, toda semana ou quinzena, atração variando"
             onClick={() => { onClose(); router.push('/produtor/series/novo') }}
             icon={

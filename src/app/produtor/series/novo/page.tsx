@@ -153,14 +153,14 @@ export default function NovaSeriePage() {
 
   const handleSubmit = async () => {
     setError('')
-    if (!termsAccepted) { showError('Aceite os termos para publicar a série'); return }
+    if (!termsAccepted) { showError('Aceite os termos para publicar o evento recorrente'); return }
     if (!title.trim()) { showError('Título é obrigatório'); return }
     if (genres.length < 1) { showError('Selecione pelo menos uma categoria'); return }
     if (!startTime || !endTime) { showError('Horário de início e término são obrigatórios'); return }
-    if (!seriesEndDate) { showError('Informe até quando a série roda'); return }
+    if (!seriesEndDate) { showError('Informe até quando o evento recorrente roda'); return }
     const seriesEndDateObj = new Date(`${seriesEndDate}T00:00:00-03:00`)
     if (seriesEndDateObj < new Date()) {
-      showError('A data final da série precisa ser no futuro'); return
+      showError('A data final do evento recorrente precisa ser no futuro'); return
     }
     if (!rua.trim()) { showError('Rua é obrigatória'); return }
     if (!numero.trim()) { showError('Número é obrigatório'); return }
@@ -169,7 +169,7 @@ export default function NovaSeriePage() {
     if (!isFree) {
       const valid = ticketTypes.some(t => t.name && parseFloat(t.price) > 0)
       if (!valid) { showError('Adicione ao menos um tipo de ingresso com nome e preço'); return }
-      if (!hasRecipient) { showError('Configure sua conta bancária antes de publicar uma série paga'); return }
+      if (!hasRecipient) { showError('Configure sua conta bancária antes de publicar um evento recorrente pago'); return }
     }
     if (isFree && !isUnlimited && (!freeCapacity || parseInt(freeCapacity) <= 0)) {
       showError('Informe a quantidade de vagas'); return
@@ -244,7 +244,7 @@ export default function NovaSeriePage() {
         setShowSuccessToast(true)
         setTimeout(() => router.replace('/produtor/eventos'), 2200)
       } else {
-        showError(data.error || 'Erro ao criar série')
+        showError(data.error || 'Erro ao criar evento recorrente')
       }
     } finally {
       setLoading(false)
@@ -309,7 +309,7 @@ export default function NovaSeriePage() {
           </svg>
         </button>
         <span style={{ flex: 1, textAlign: 'center', fontSize: 17, fontWeight: 700, color: '#1A1A1A' }}>
-          Nova série
+          Novo evento recorrente
         </span>
         <div style={{ width: 36 }} />
       </header>
@@ -319,7 +319,7 @@ export default function NovaSeriePage() {
 
         {/* Capa */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>Capa da série</label>
+          <label style={labelStyle}>Capa do evento</label>
           <input
             ref={fileInputRef}
             type="file"
@@ -331,7 +331,7 @@ export default function NovaSeriePage() {
             <div>
               <img
                 src={coverPreview}
-                alt="Capa da série"
+                alt="Capa do evento"
                 onClick={() => cropSrc && setCropModalOpen(true)}
                 style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 12, display: 'block', cursor: cropSrc ? 'pointer' : 'default' }}
               />
@@ -384,7 +384,7 @@ export default function NovaSeriePage() {
           <label style={labelStyle}>Título</label>
           <input
             type="text"
-            placeholder="Nome da série"
+            placeholder="Nome do evento"
             value={title}
             onChange={e => setTitle(e.target.value)}
             style={inputStyle}
@@ -470,24 +470,30 @@ export default function NovaSeriePage() {
         <div style={sectionStyle}>
           <label style={labelStyle}>Horário</label>
           <div style={{ display: 'flex', gap: 12 }}>
-            <input
-              type="time"
-              value={startTime}
-              onChange={e => setStartTime(e.target.value)}
-              style={{ ...inputStyle, flex: 1, minWidth: 0 }}
-            />
-            <input
-              type="time"
-              value={endTime}
-              onChange={e => setEndTime(e.target.value)}
-              style={{ ...inputStyle, flex: 1, minWidth: 0 }}
-            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#6E6E73', marginBottom: 6 }}>Início</span>
+              <input
+                type="time"
+                value={startTime}
+                onChange={e => setStartTime(e.target.value)}
+                style={{ ...inputStyle, width: '100%' }}
+              />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#6E6E73', marginBottom: 6 }}>Término</span>
+              <input
+                type="time"
+                value={endTime}
+                onChange={e => setEndTime(e.target.value)}
+                style={{ ...inputStyle, width: '100%' }}
+              />
+            </div>
           </div>
         </div>
 
         {/* Até quando a série roda */}
         <div style={sectionStyle}>
-          <label style={labelStyle}>Até quando essa série roda</label>
+          <label style={labelStyle}>Até quando esse evento se repete</label>
           <input
             type="date"
             value={seriesEndDate}
@@ -597,7 +603,7 @@ export default function NovaSeriePage() {
         <div style={sectionStyle}>
           <label style={labelStyle}>Descrição</label>
           <textarea
-            placeholder="Descreva a série, o formato, informações importantes..."
+            placeholder="Descreva o evento, o formato, informações importantes..."
             value={description}
             onChange={e => setDescription(e.target.value)}
             style={{ ...inputStyle, height: 100, resize: 'none' }}
@@ -911,7 +917,7 @@ export default function NovaSeriePage() {
             opacity: !termsAccepted ? 0.6 : 1,
           }}
         >
-          {uploading ? 'Enviando capa...' : loading ? 'Enviando...' : 'Publicar série'}
+          {uploading ? 'Enviando capa...' : loading ? 'Enviando...' : 'Publicar evento recorrente'}
         </button>
       </div>
 
@@ -932,7 +938,7 @@ export default function NovaSeriePage() {
               <path d="M7.5 11l2.5 2.5 4.5-4.5" stroke="#0EA5A0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
             <div>
-              <div style={{ fontSize: 14, fontWeight: 700 }}>Série enviada para aprovação!</div>
+              <div style={{ fontSize: 14, fontWeight: 700 }}>Evento recorrente enviado para aprovação!</div>
               <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 2 }}>O time Roleon vai revisar em breve.</div>
             </div>
           </div>
