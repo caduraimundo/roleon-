@@ -37,6 +37,8 @@ export async function GET(req: NextRequest) {
       startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
     } else if (period === 'year') {
       startDate = new Date(now.getFullYear(), 0, 1)
+    } else if (period === 'month') {
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1)
     } else {
       startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     }
@@ -123,6 +125,8 @@ export async function GET(req: NextRequest) {
           ) / 100,
         })
       }
+    } else if (period === 'month') {
+      // sem gráfico pro período mensal, só os totals
     } else {
       const monthNames = [
         'jan','fev','mar','abr','mai','jun',

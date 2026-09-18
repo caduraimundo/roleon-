@@ -38,21 +38,27 @@ export default function PainelPage() {
   const router = useRouter()
   const [eventos, setEventos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [hasBank, setHasBank] = useState(true)
   const [producerName, setProducerName] = useState('')
+  const [monthStats, setMonthStats] = useState<{ revenue: number; tickets: number }>({ revenue: 0, tickets: 0 })
 
-  useEffect(() => {
-    const init = async () => {
+  const init = async () => {
+    setLoadError(false)
+    try {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session?.user) { router.replace('/produtor'); return }
 
-      const [{ data: profile }, eventsRes] = await Promise.all([
+      const [{ data: profile }, eventsRes, analyticsRes] = await Promise.all([
         supabase
           .from('profiles')
           .select('name, role, bank_account, producer_disabled')
           .eq('id', session.user.id)
           .single(),
         fetch('/api/produtor/events', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }),
+        fetch('/api/produtor/analytics?period=month', {
           headers: { Authorization: `Bearer ${session.access_token}` },
         }),
       ])
@@ -64,8 +70,18 @@ export default function PainelPage() {
 
       const data = await eventsRes.json()
       setEventos(data.events ?? [])
+
+      const analyticsData = await analyticsRes.json()
+      setMonthStats({ revenue: analyticsData.totals?.revenue ?? 0, tickets: analyticsData.totals?.tickets ?? 0 })
+
+      setLoading(false)
+    } catch {
+      setLoadError(true)
       setLoading(false)
     }
+  }
+
+  useEffect(() => {
     init()
   }, [router])
 
@@ -122,8 +138,8 @@ export default function PainelPage() {
           display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8,
         }}>
           {[
-            { label: 'Total vendido',      value: 'R$ 0',  sub: 'Este mês' },
-            { label: 'Ingressos vendidos', value: '0',     sub: 'Este mês' },
+            { label: 'Total vendido',      value: 'R$ ' + Math.round(monthStats.revenue), sub: 'Este mês' },
+            { label: 'Ingressos vendidos', value: String(monthStats.tickets),             sub: 'Este mês' },
             { label: 'Eventos ativos',
               value: String(eventos.filter((e: any) => e.status === 'active').length),
               sub: 'Agora' },
@@ -236,7 +252,14 @@ export default function PainelPage() {
             </div>
           )}
 
-          {!loading && eventos.length === 0 && (
+          {loadError && (
+            <div style={{ textAlign: 'center', padding: '32px 16px' }}>
+              <p style={{ color: '#FF3B30', fontSize: 14, marginBottom: 12 }}>Não foi possível carregar seus dados. Verifique sua conexão.</p>
+              <button onClick={() => { setLoading(true); init() }} style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px', borderRadius: 8, border: '1.5px solid #FF3B30', background: 'transparent', color: '#FF3B30', fontWeight: 600, fontSize: 13, cursor: 'pointer', fontFamily: "'Noto Sans', sans-serif" }}>Tentar de novo</button>
+            </div>
+          )}
+
+          {!loading && !loadError && eventos.length === 0 && (
             <div style={{
               background: '#fff',
               borderRadius: 16,
@@ -256,7 +279,7 @@ export default function PainelPage() {
             </div>
           )}
 
-          {!loading && eventos.length > 0 && (
+          {!loading && !loadError && eventos.length > 0 && (
             <>
               {futuros.length > 0 && (
                 <>
