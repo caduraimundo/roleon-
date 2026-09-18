@@ -41,7 +41,7 @@ export async function POST(
 
     const { data: series } = await supabaseAdmin
       .from('event_series')
-      .select('id, status, slug, title, description, genre, age_rating, location_name, location_lat, location_lng, cover_image, additional_info, is_free, is_unlimited, display_organizer_name, ticket_types_template, recurrence_day_of_week, recurrence_frequency, event_start_time, event_end_time, series_end_date, initial_batch_size, producer_id')
+      .select('id, status, slug, title, description, genre, age_rating, location_name, location_lat, location_lng, cover_image, additional_info, is_free, is_unlimited, display_organizer_name, ticket_types_template, recurrence_day_of_week, recurrence_frequency, event_start_time, event_end_time, initial_batch_size, producer_id')
       .eq('id', seriesId)
       .single()
 

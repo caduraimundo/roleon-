@@ -2487,7 +2487,7 @@ export default function AdminPage() {
                     </div>
 
                     <div style={{ fontSize: 12, color: DIM, marginTop: 3 }}>
-                      Até {formatDate(s.series_end_date)} · {s.initial_batch_size} datas iniciais
+                      {s.initial_batch_size} datas iniciais
                     </div>
 
                     {s.location_name && (

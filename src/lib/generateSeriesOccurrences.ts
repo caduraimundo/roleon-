@@ -15,7 +15,6 @@ function weekdayOf(dateStr: string): number {
 export function computeOccurrenceDates(series: {
   recurrence_day_of_week: number
   recurrence_frequency: 'weekly' | 'biweekly'
-  series_end_date: string
   initial_batch_size: number
 }): string[] {
   // Calcula as datas das ocorrências iniciais
@@ -29,7 +28,6 @@ export function computeOccurrenceDates(series: {
   const occurrenceDates: string[] = []
   let candidate = firstOccurrence
   while (occurrenceDates.length < series.initial_batch_size) {
-    if (candidate > series.series_end_date) break
     occurrenceDates.push(candidate)
     candidate = addDays(candidate, step)
   }
