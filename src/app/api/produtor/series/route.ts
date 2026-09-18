@@ -56,11 +56,10 @@ export async function POST(req: NextRequest) {
     recurrence_frequency,
     event_start_time,
     event_end_time,
-    series_end_date,
     initial_batch_size,
   } = body
 
-  for (const campo of ['title', 'location_name', 'recurrence_day_of_week', 'recurrence_frequency', 'event_start_time', 'event_end_time', 'series_end_date']) {
+  for (const campo of ['title', 'location_name', 'recurrence_day_of_week', 'recurrence_frequency', 'event_start_time', 'event_end_time']) {
     if (body[campo] === undefined || body[campo] === null || body[campo] === '') {
       return NextResponse.json({ error: `Campo obrigatório: ${campo}` }, { status: 400 })
     }
@@ -78,17 +77,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Frequência inválida' }, { status: 400 })
   }
 
-  const seriesEndDateObj = new Date(`${series_end_date}T00:00:00-03:00`)
-  if (isNaN(seriesEndDateObj.getTime())) {
-    return NextResponse.json({ error: 'Data final da série inválida' }, { status: 400 })
-  }
-  if (seriesEndDateObj < new Date()) {
-    return NextResponse.json({ error: 'A data final da série precisa ser no futuro' }, { status: 400 })
-  }
-
   const batchSize = Number(initial_batch_size)
-  if (!Number.isInteger(batchSize) || batchSize < 1 || batchSize > 8) {
-    return NextResponse.json({ error: 'Quantidade de datas iniciais precisa ser entre 1 e 8' }, { status: 400 })
+  if (!Number.isInteger(batchSize) || batchSize < 2 || batchSize > 8) {
+    return NextResponse.json({ error: 'Quantidade de datas iniciais precisa ser entre 2 e 8' }, { status: 400 })
   }
 
   const slug = generateSlug(title)
@@ -158,7 +149,6 @@ export async function POST(req: NextRequest) {
       recurrence_frequency,
       event_start_time,
       event_end_time,
-      series_end_date,
       initial_batch_size: batchSize,
       producer_id: user.id,
       status: 'pending',
@@ -192,7 +182,6 @@ export async function POST(req: NextRequest) {
           Recorrência: ${WEEKDAY_LABELS[Number(recurrence_day_of_week)]}, ${FREQUENCY_LABELS[recurrence_frequency]}<br/>
           Horário: ${event_start_time} às ${event_end_time}<br/>
           Local: ${location_name}<br/>
-          Série roda até: ${series_end_date}<br/>
           Datas geradas ao aprovar: ${batchSize}
         </p>
         <a href="https://www.roleon.com.br/admin"

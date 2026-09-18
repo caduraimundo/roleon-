@@ -20,7 +20,6 @@ export default function NovaSerieAdminPage() {
   const [frequency, setFrequency] = useState<'weekly' | 'biweekly'>('weekly')
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
-  const [seriesEndDate, setSeriesEndDate] = useState('')
   const [initialBatchSize, setInitialBatchSize] = useState('2')
   const [isUnlimited, setIsUnlimited] = useState(false)
   const [freeCapacity, setFreeCapacity] = useState('')
@@ -84,7 +83,6 @@ export default function NovaSerieAdminPage() {
           if (d.frequency) setFrequency(d.frequency)
           if (d.startTime) setStartTime(d.startTime)
           if (d.endTime) setEndTime(d.endTime)
-          if (d.seriesEndDate) setSeriesEndDate(d.seriesEndDate)
           if (d.initialBatchSize) setInitialBatchSize(d.initialBatchSize)
           if (d.isUnlimited !== undefined) setIsUnlimited(d.isUnlimited)
           if (d.ageRating) setAgeRating(d.ageRating)
@@ -102,12 +100,12 @@ export default function NovaSerieAdminPage() {
     const draft = {
       title, organizerName, description, genres,
       cep, rua, numero, bairro, cidade, estado,
-      dayOfWeek, frequency, startTime, endTime, seriesEndDate, initialBatchSize,
+      dayOfWeek, frequency, startTime, endTime, initialBatchSize,
       isUnlimited, ageRating,
       additionalInfo,
     }
     localStorage.setItem(DRAFT_KEY, JSON.stringify(draft))
-  }, [draftLoaded, title, organizerName, description, genres, cep, rua, numero, bairro, cidade, estado, dayOfWeek, frequency, startTime, endTime, seriesEndDate, initialBatchSize, isUnlimited, ageRating, additionalInfo])
+  }, [draftLoaded, title, organizerName, description, genres, cep, rua, numero, bairro, cidade, estado, dayOfWeek, frequency, startTime, endTime, initialBatchSize, isUnlimited, ageRating, additionalInfo])
 
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -142,11 +140,6 @@ export default function NovaSerieAdminPage() {
     if (!title.trim()) { showError('Título é obrigatório'); return }
     if (genres.length < 1) { showError('Selecione pelo menos uma categoria'); return }
     if (!startTime || !endTime) { showError('Horário de início e término são obrigatórios'); return }
-    if (!seriesEndDate) { showError('Informe até quando o evento recorrente roda'); return }
-    const seriesEndDateObj = new Date(`${seriesEndDate}T00:00:00-03:00`)
-    if (seriesEndDateObj < new Date()) {
-      showError('A data final do evento recorrente precisa ser no futuro'); return
-    }
     if (!rua.trim()) { showError('Rua é obrigatória'); return }
     if (!numero.trim()) { showError('Número é obrigatório'); return }
     if (!cidade.trim()) { showError('Cidade é obrigatória'); return }
@@ -207,7 +200,6 @@ export default function NovaSerieAdminPage() {
           recurrence_frequency: frequency,
           event_start_time: startTime,
           event_end_time: endTime,
-          series_end_date: seriesEndDate,
           initial_batch_size: parseInt(initialBatchSize),
         }),
       })
@@ -480,28 +472,18 @@ export default function NovaSerieAdminPage() {
           </div>
         </div>
 
-        {/* Até quando essa série roda */}
-        <div style={sectionStyle}>
-          <label style={labelStyle}>Até quando essa série roda</label>
-          <input
-            type="date"
-            value={seriesEndDate}
-            onChange={e => setSeriesEndDate(e.target.value)}
-            style={{ ...inputStyle, display: 'block' }}
-          />
-        </div>
-
         {/* Quantas datas gerar de início */}
         <div style={sectionStyle}>
           <label style={labelStyle}>Quantas datas gerar de início</label>
-          <input
-            type="number"
-            min={1}
-            max={8}
+          <select
             value={initialBatchSize}
             onChange={e => setInitialBatchSize(e.target.value)}
-            style={inputStyle}
-          />
+            style={{ ...inputStyle, appearance: 'auto' }}
+          >
+            {[2, 3, 4, 5, 6, 7, 8].map(n => (
+              <option key={n} value={n}>{n}</option>
+            ))}
+          </select>
           <span style={{ fontSize: 11, color: '#6E6E73', marginTop: 6 }}>
             As próximas datas depois dessas você gera manualmente quando quiser
           </span>
