@@ -4,7 +4,6 @@ import { useEffect, useState, Fragment } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
-import CreateEventMenu from '../../../components/CreateEventMenu'
 
 function statusLabel(status: string) {
   if (status === 'pending') return { text: 'Aguardando aprovação', color: '#F59E0B', bg: '#FFFBEB' }
@@ -29,12 +28,6 @@ function isFuturo(event_date: string) {
   return new Date(event_date.replace(' ', 'T')) > new Date()
 }
 
-const WEEKDAY_LABELS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
-function formatRecurrence(s: any) {
-  const dia = WEEKDAY_LABELS[s.recurrence_day_of_week] ?? ''
-  return s.recurrence_frequency === 'biweekly' ? `A cada 2 semanas, ${dia}` : `Toda ${dia}`
-}
-
 const CARD_COLORS = ['#7B5E57', '#556B5D', '#6B5E7A', '#8A6F4A', '#5B6E8A']
 function cardColor(id: string) {
   let n = 0
@@ -53,11 +46,9 @@ const FILTERS = [
 export default function EventosPage() {
   const router = useRouter()
   const [events, setEvents] = useState<any[]>([])
-  const [pendingSeries, setPendingSeries] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState(false)
   const [filter, setFilter] = useState('active')
-  const [createMenuOpen, setCreateMenuOpen] = useState(false)
 
   const init = async () => {
     setLoadError(false)
@@ -80,7 +71,6 @@ export default function EventosPage() {
       if (!res.ok) throw new Error('Falha ao carregar eventos')
       const data = await res.json()
       setEvents(data.events ?? [])
-      setPendingSeries(data.series ?? [])
     } catch {
       setLoadError(true)
     } finally {
@@ -131,19 +121,18 @@ export default function EventosPage() {
             margin: 0, fontSize: 22, fontWeight: 700,
             color: '#1A1A1A', letterSpacing: -0.5,
           }}>Meus eventos</h1>
-          <button onClick={() => setCreateMenuOpen(true)} style={{
+          <a href="/produtor/eventos/novo" style={{
             width: 36, height: 36, borderRadius: 10,
             background: '#fff', color: '#0EA5A0',
             border: '1.5px solid #0EA5A0',
             display: 'flex', alignItems: 'center',
             justifyContent: 'center', textDecoration: 'none',
-            cursor: 'pointer',
           }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M12 5v14M5 12h14" stroke="currentColor"
                 strokeWidth="2.2" strokeLinecap="round"/>
             </svg>
-          </button>
+          </a>
         </div>
 
         {/* Chips de filtro */}
@@ -217,54 +206,6 @@ export default function EventosPage() {
               </div>
             </div>
           )}
-
-          {!loading && (filter === 'pending' || filter === 'rejected') && (() => {
-            const filteredSeries = pendingSeries.filter((s: any) => s.status === filter)
-            if (filteredSeries.length === 0) return null
-            return (
-              <>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1A1A' }}>
-                  Eventos recorrentes aguardando aprovação ({filteredSeries.length})
-                </div>
-                {filteredSeries.map((s: any) => {
-                  const badge = statusLabel(s.status)
-                  return (
-                    <div key={s.id} style={{
-                      background: '#fff', border: '0.5px solid #E8E8E8',
-                      borderRadius: 14, padding: 14,
-                      display: 'flex', flexDirection: 'column', gap: 6,
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-                        <div style={{
-                          fontSize: 15, fontWeight: 700, color: '#1A1A1A',
-                          letterSpacing: -0.2, lineHeight: 1.25,
-                        }}>{s.title}</div>
-                        <span style={{
-                          fontSize: 11, fontWeight: 600, flexShrink: 0,
-                          padding: '3px 8px', borderRadius: 20,
-                          color: badge.color, background: badge.bg,
-                          whiteSpace: 'nowrap',
-                        }}>{badge.text}</span>
-                      </div>
-                      {s.genre?.length > 0 && (
-                        <div style={{ fontSize: 12.5, color: '#6E6E73', fontWeight: 500 }}>
-                          {Array.isArray(s.genre) ? s.genre.join(', ') : s.genre}
-                        </div>
-                      )}
-                      <div style={{ fontSize: 12.5, color: '#6E6E73', fontWeight: 500 }}>
-                        {formatRecurrence(s)}
-                      </div>
-                      {s.location_name && (
-                        <div style={{ fontSize: 12.5, color: '#6E6E73', fontWeight: 500 }}>
-                          {s.location_name}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </>
-            )
-          })()}
 
           {!loading && displayEvents.map((ev: any, idx: number) => {
             const isPast = !isFuturo(ev.event_date)
@@ -526,8 +467,6 @@ export default function EventosPage() {
         </div>
 
       </div>
-
-      <CreateEventMenu open={createMenuOpen} onClose={() => setCreateMenuOpen(false)} />
     </div>
   )
 }

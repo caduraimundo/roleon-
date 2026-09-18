@@ -16,7 +16,6 @@ export default function EditarEventoPage() {
 
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
-  const [attraction, setAttraction] = useState('')
   const [genres, setGenres] = useState<string[]>([])
   const [eventDate, setEventDate] = useState('')
   const [eventTime, setEventTime] = useState('')
@@ -80,7 +79,7 @@ export default function EditarEventoPage() {
 
       const { data: ev } = await supabase
         .from('events')
-        .select('id, title, description, genre, event_date, event_end_date, location_name, location_lat, location_lng, price, is_free, is_unlimited, cover_image, producer_id, status, additional_info, age_rating, event_type, created_at, attraction')
+        .select('id, title, description, genre, event_date, event_end_date, location_name, location_lat, location_lng, price, is_free, is_unlimited, cover_image, producer_id, status, additional_info, age_rating, event_type, created_at')
         .eq('id', eventId)
         .single()
 
@@ -92,7 +91,6 @@ export default function EditarEventoPage() {
 
       setTitle(ev.title || '')
       setDescription(ev.description || '')
-      setAttraction(ev.attraction || '')
       setGenres(ev.genre || [])
       const evDateUtc = ev.event_date ? new Date(ev.event_date.replace(' ', 'T')) : null
       if (evDateUtc) {
@@ -289,7 +287,6 @@ export default function EditarEventoPage() {
         body: JSON.stringify({
           title,
           description,
-          attraction,
           genre: genres,
           event_date,
           event_end_date,
@@ -544,21 +541,6 @@ export default function EditarEventoPage() {
             onChange={e => setTitle(e.target.value)}
             style={inputStyle}
           />
-        </div>
-
-        {/* Atração */}
-        <div style={sectionStyle}>
-          <label style={labelStyle}>Atração</label>
-          <input
-            type="text"
-            placeholder="Nome da atração"
-            value={attraction}
-            onChange={e => setAttraction(e.target.value)}
-            style={inputStyle}
-          />
-          <span style={{ fontSize: 11, color: '#6E6E73', marginTop: 6 }}>
-            Só aparece se este evento faz parte de uma série recorrente. Pode editar quantas vezes quiser, sem precisar de nova aprovação.
-          </span>
         </div>
 
         {/* Categoria */}

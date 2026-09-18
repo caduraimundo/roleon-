@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
-import CreateEventMenu from '../../../components/CreateEventMenu'
 
 function statusLabel(status: string) {
   if (status === 'pending') return { text: 'Aguardando aprovação', color: '#F59E0B', bg: '#FFFBEB' }
@@ -41,7 +40,6 @@ export default function PainelPage() {
   const [loading, setLoading] = useState(true)
   const [hasBank, setHasBank] = useState(true)
   const [producerName, setProducerName] = useState('')
-  const [createMenuOpen, setCreateMenuOpen] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -251,7 +249,7 @@ export default function PainelPage() {
               </p>
               <button
                 style={{ ...btnPrimary, marginTop: 16, width: '100%' }}
-                onClick={() => setCreateMenuOpen(true)}
+                onClick={() => router.push('/produtor/eventos/novo')}
               >
                 Criar primeiro evento
               </button>
@@ -286,7 +284,7 @@ export default function PainelPage() {
 
         {/* FAB criar evento */}
         <button
-          onClick={() => setCreateMenuOpen(true)}
+          onClick={() => router.push('/produtor/eventos/novo')}
           style={{
             position: 'fixed', right: 20, bottom: 98,
             width: 56, height: 56, borderRadius: 18,
@@ -305,8 +303,6 @@ export default function PainelPage() {
         </button>
 
       </div>
-
-      <CreateEventMenu open={createMenuOpen} onClose={() => setCreateMenuOpen(false)} />
     </div>
   )
 }

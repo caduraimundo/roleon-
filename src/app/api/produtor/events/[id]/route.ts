@@ -72,7 +72,6 @@ export async function PUT(
     is_unlimited,
     cover_image,
     additional_info,
-    attraction,
     ticket_types,
   } = body
 
@@ -157,7 +156,6 @@ export async function PUT(
   if (is_unlimited !== undefined) update.is_unlimited = is_unlimited
   if (cover_image !== undefined) update.cover_image = cover_image
   if (additional_info !== undefined) update.additional_info = additional_info
-  if (attraction !== undefined) update.attraction = attraction
 
   // Recalcula price com base nos ticket_types enviados
   if (is_free !== undefined || ticket_types !== undefined) {
