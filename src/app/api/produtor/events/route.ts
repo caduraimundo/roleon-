@@ -44,8 +44,15 @@ export async function GET(req: NextRequest) {
       .or(`status.neq.rejected,created_at.gte.${ninetyDaysAgo.toISOString()}`)
       .order('event_date', { ascending: false })
 
+    const { data: series } = await supabaseAdmin
+      .from('event_series')
+      .select('id, title, cover_image, genre, location_name, created_at, recurrence_day_of_week, recurrence_frequency, initial_batch_size, status')
+      .eq('producer_id', user.id)
+      .in('status', ['pending', 'rejected'])
+      .order('created_at', { ascending: false })
+
     if (!eventos || eventos.length === 0) {
-      return NextResponse.json({ events: [] })
+      return NextResponse.json({ events: [], series: series ?? [] })
     }
 
     const ids = eventos.map(e => e.id)
@@ -68,7 +75,8 @@ export async function GET(req: NextRequest) {
         ...e,
         sold: salesMap[e.id].sold,
         revenue: salesMap[e.id].revenue,
-      }))
+      })),
+      series: series ?? [],
     })
   } catch (err) {
     console.error('[events GET] erro inesperado:', err)
