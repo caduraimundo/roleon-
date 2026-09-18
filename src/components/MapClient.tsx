@@ -512,7 +512,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
     setLoading(true)
     supabase
       .from('events')
-      .select('id, slug, title, genre, event_date, location_name, location_lat, location_lng, price, is_free, cover_image, series_id, attraction, ticket_types(id, quantity, quantity_sold)')
+      .select('id, slug, title, genre, event_date, location_name, location_lat, location_lng, price, is_free, cover_image, ticket_types(id, quantity, quantity_sold)')
       .eq('status', 'active')
       .gte('event_date', new Date().toISOString())
       .then(({ data, error }) => {
@@ -554,29 +554,10 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
               event_date:   (row.event_date as string) ?? '',
               location_lat: (row.location_lat as number) ?? 0,
               location_lng: (row.location_lng as number) ?? 0,
-              attraction:   (row.attraction as string) ?? undefined,
             } satisfies RoleonEvent
           })
 
-          // Para eventos de série (series_id preenchido), mostra só a próxima
-          // data de cada série - as futuras seguintes ficam escondidas até
-          // a atual passar, sem precisar de intervenção manual.
-          const bySeriesNearest = new Map<string, RoleonEvent>()
-          const dedupedEvents: RoleonEvent[] = []
-          mapped.forEach((ev, i) => {
-            const seriesId = (data[i].series_id as string) ?? undefined
-            if (!seriesId) {
-              dedupedEvents.push(ev)
-              return
-            }
-            const current = bySeriesNearest.get(seriesId)
-            if (!current || new Date(ev.event_date ?? '') < new Date(current.event_date ?? '')) {
-              bySeriesNearest.set(seriesId, ev)
-            }
-          })
-          dedupedEvents.push(...bySeriesNearest.values())
-
-          setEvents(dedupedEvents)
+          setEvents(mapped)
         }
         setLoading(false)
       })
