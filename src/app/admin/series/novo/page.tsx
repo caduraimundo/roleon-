@@ -409,15 +409,22 @@ export default function NovaSerieAdminPage() {
         {/* Dia da semana */}
         <div style={sectionStyle}>
           <label style={labelStyle}>Dia da semana</label>
-          <select
-            value={dayOfWeek}
-            onChange={e => setDayOfWeek(e.target.value)}
-            style={{ ...inputStyle, appearance: 'auto' }}
-          >
-            {WEEKDAYS.map((label, i) => (
-              <option key={i} value={i}>{label}</option>
-            ))}
-          </select>
+          <div style={{ position: 'relative' }}>
+            <select
+              value={dayOfWeek}
+              onChange={e => setDayOfWeek(e.target.value)}
+              style={{ ...inputStyle, appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none', paddingRight: 36 }}
+            >
+              {WEEKDAYS.map((label, i) => (
+                <option key={i} value={i}>{label}</option>
+              ))}
+            </select>
+            <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+              <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+                <path d="M1 1.5L6 6.5L11 1.5" stroke="#6E6E73" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
         </div>
 
         {/* Frequência */}
@@ -475,15 +482,22 @@ export default function NovaSerieAdminPage() {
         {/* Quantas datas gerar de início */}
         <div style={sectionStyle}>
           <label style={labelStyle}>Quantas datas gerar de início</label>
-          <select
-            value={initialBatchSize}
-            onChange={e => setInitialBatchSize(e.target.value)}
-            style={{ ...inputStyle, appearance: 'auto' }}
-          >
-            {[2, 3, 4, 5, 6, 7, 8].map(n => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-          </select>
+          <div style={{ position: 'relative' }}>
+            <select
+              value={initialBatchSize}
+              onChange={e => setInitialBatchSize(e.target.value)}
+              style={{ ...inputStyle, appearance: 'none', WebkitAppearance: 'none', MozAppearance: 'none', paddingRight: 36 }}
+            >
+              {[2, 3, 4, 5, 6, 7, 8].map(n => (
+                <option key={n} value={n}>{n}</option>
+              ))}
+            </select>
+            <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+              <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+                <path d="M1 1.5L6 6.5L11 1.5" stroke="#6E6E73" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
           <span style={{ fontSize: 11, color: '#6E6E73', marginTop: 6 }}>
             As próximas datas depois dessas você gera manualmente quando quiser
           </span>
