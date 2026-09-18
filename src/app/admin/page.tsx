@@ -2386,7 +2386,7 @@ export default function AdminPage() {
               </div>
               <button onClick={() => setCreateMenuOpen(true)} style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                height: 44, borderRadius: 14, marginTop: 12,
+                width: '100%', height: 44, borderRadius: 14, marginTop: 12,
                 background: TEAL, color: '#fff', fontSize: 15, fontWeight: 700,
                 fontFamily: "'Noto Sans', sans-serif", textDecoration: 'none',
                 border: 'none', cursor: 'pointer',
