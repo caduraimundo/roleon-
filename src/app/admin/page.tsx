@@ -1583,9 +1583,9 @@ export default function AdminPage() {
     const data = await res.json().catch(() => ({}))
     if (res.ok) {
       setPendingSeries(prev => prev.filter(s => s.id !== seriesId))
-      setFeedback({ tipo: 'ok', msg: `Série aprovada, ${data.occurrences_generated} datas geradas.` })
+      setFeedback({ tipo: 'ok', msg: `Evento recorrente aprovado, ${data.occurrences_generated} datas geradas.` })
     } else {
-      setFeedback({ tipo: 'erro', msg: data.error || 'Erro ao aprovar série.' })
+      setFeedback({ tipo: 'erro', msg: data.error || 'Erro ao aprovar evento recorrente.' })
     }
     setSeriesActionId(null)
     setTimeout(() => setFeedback(null), 3500)
@@ -1603,9 +1603,9 @@ export default function AdminPage() {
     const data = await res.json().catch(() => ({}))
     if (res.ok) {
       setPendingSeries(prev => prev.filter(s => s.id !== seriesRejectSheet.id))
-      setFeedback({ tipo: 'ok', msg: 'Série recusada.' })
+      setFeedback({ tipo: 'ok', msg: 'Evento recorrente recusado.' })
     } else {
-      setFeedback({ tipo: 'erro', msg: data.error || 'Erro ao recusar série.' })
+      setFeedback({ tipo: 'erro', msg: data.error || 'Erro ao recusar evento recorrente.' })
     }
     setSeriesRejectSheet(null)
     setSerieMotivo('')
@@ -2464,7 +2464,7 @@ export default function AdminPage() {
             {!modLoading && modFilter === 'pending' && pendingSeries.length > 0 && (
               <>
                 <div style={{ fontSize: 12, color: DIM, marginBottom: 8, fontWeight: 600 }}>
-                  Séries recorrentes aguardando aprovação ({pendingSeries.length})
+                  Eventos recorrentes aguardando aprovação ({pendingSeries.length})
                 </div>
                 {pendingSeries.map((s: any) => (
                   <div key={s.id} style={{
@@ -2499,7 +2499,7 @@ export default function AdminPage() {
                         onClick={() => aprovarSerie(s.id)}
                         disabled={seriesActionId === s.id}
                         style={{ flex: 1, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 0', borderRadius: 8, border: 'none', background: TEAL, color: WHITE, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: seriesActionId === s.id ? 0.6 : 1, fontFamily: "'Noto Sans', sans-serif" }}
-                      >{seriesActionId === s.id ? '...' : 'Aprovar série'}</button>
+                      >{seriesActionId === s.id ? '...' : 'Aprovar evento recorrente'}</button>
                       <button
                         onClick={() => { setSeriesRejectSheet({ id: s.id, title: s.title }); setSerieMotivo('') }}
                         disabled={seriesActionId === s.id}

@@ -66,12 +66,14 @@ export function buildOccurrenceRows(series: {
 
   const eventRows = dates.map((D) => {
     const endDateBase = crossesMidnight ? addDays(D, 1) : D
+    const startTimeHM = series.event_start_time.slice(0, 5)
+    const endTimeHM = series.event_end_time.slice(0, 5)
     return {
       title: series.title,
       slug: `${series.slug}-${D}`,
       description: series.description,
-      event_date: `${D}T${series.event_start_time}:00-03:00`,
-      event_end_date: `${endDateBase}T${series.event_end_time}:00-03:00`,
+      event_date: `${D}T${startTimeHM}:00-03:00`,
+      event_end_date: `${endDateBase}T${endTimeHM}:00-03:00`,
       location_name: series.location_name,
       location_lat: series.location_lat,
       location_lng: series.location_lng,
