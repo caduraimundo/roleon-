@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
+import { generateSlug } from '@/lib/slug'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -73,6 +74,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Selecione pelo menos uma categoria' }, { status: 400 })
     }
 
+    const slug = generateSlug(title)
+    const { data: slugExistente } = await supabaseAdmin
+      .from('events')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle()
+    if (slugExistente) {
+      return NextResponse.json(
+        { error: 'Já existe um evento com esse nome. Escolha um título diferente.' },
+        { status: 400 }
+      )
+    }
+
     let geoLat: number | null = location_lat ?? null
     let geoLng: number | null = location_lng ?? null
     try {
@@ -94,6 +108,7 @@ export async function POST(req: NextRequest) {
       .from('events')
       .insert({
         title,
+        slug,
         description,
         event_date,
         event_end_date,
