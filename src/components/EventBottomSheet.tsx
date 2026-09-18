@@ -36,6 +36,7 @@ export interface RoleonEvent {
   event_date?: string
   location_lat?: number
   location_lng?: number
+  attraction?: string
 }
 
 const T = {
@@ -197,6 +198,15 @@ export function PinSheet({ event: ev, onClose, onViewDetail, bottomNavHeight, us
           }}>
             {ev.title}
           </div>
+
+          {ev.attraction && (
+            <div style={{
+              fontSize: 12, fontWeight: 500, color: T.textDim,
+              fontFamily: "'Noto Sans', sans-serif",
+            }}>
+              {ev.attraction}
+            </div>
+          )}
 
           {/* Data · Hora */}
           <div style={{
