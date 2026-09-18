@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import * as Sentry from '@sentry/nextjs'
+import { computeOccurrenceDates, buildOccurrenceRows } from '@/lib/generateSeriesOccurrences'
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,20 +15,6 @@ async function getAuthUser(req: NextRequest) {
   const token = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
   const { data: { user } } = await supabaseAdmin.auth.getUser(token)
   return user
-}
-
-function addDays(dateStr: string, days: number): string {
-  const [y, m, d] = dateStr.split('-').map(Number)
-  const date = new Date(Date.UTC(y, m - 1, d))
-  date.setUTCDate(date.getUTCDate() + days)
-  const yy = date.getUTCFullYear()
-  const mm = String(date.getUTCMonth() + 1).padStart(2, '0')
-  const dd = String(date.getUTCDate()).padStart(2, '0')
-  return `${yy}-${mm}-${dd}`
-}
-
-function weekdayOf(dateStr: string): number {
-  return new Date(`${dateStr}T12:00:00-03:00`).getDay()
 }
 
 export async function POST(
@@ -66,21 +53,7 @@ export async function POST(
       return NextResponse.json({ error: 'Série não está pendente' }, { status: 400 })
     }
 
-    // Calcula as datas das ocorrências iniciais
-    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' })
-    let firstOccurrence = addDays(todayStr, 1) // nunca gera pra hoje
-    while (weekdayOf(firstOccurrence) !== series.recurrence_day_of_week) {
-      firstOccurrence = addDays(firstOccurrence, 1)
-    }
-
-    const step = series.recurrence_frequency === 'biweekly' ? 14 : 7
-    const occurrenceDates: string[] = []
-    let candidate = firstOccurrence
-    while (occurrenceDates.length < series.initial_batch_size) {
-      if (candidate > series.series_end_date) break
-      occurrenceDates.push(candidate)
-      candidate = addDays(candidate, step)
-    }
+    const occurrenceDates = computeOccurrenceDates(series)
 
     if (occurrenceDates.length === 0) {
       return NextResponse.json(
@@ -89,40 +62,7 @@ export async function POST(
       )
     }
 
-    const crossesMidnight = series.event_end_time < series.event_start_time
-
-    const ticketTemplate = Array.isArray(series.ticket_types_template) ? series.ticket_types_template : []
-    const price = series.is_free
-      ? 0
-      : ticketTemplate.length > 0
-        ? Math.min(...(ticketTemplate as { price: number }[]).map(t => Number(t.price) || 0).filter(p => p > 0))
-        : 0
-
-    const occurrenceRows = occurrenceDates.map((D) => {
-      const endDateBase = crossesMidnight ? addDays(D, 1) : D
-      return {
-        title: series.title,
-        slug: `${series.slug}-${D}`,
-        description: series.description,
-        event_date: `${D}T${series.event_start_time}:00-03:00`,
-        event_end_date: `${endDateBase}T${series.event_end_time}:00-03:00`,
-        location_name: series.location_name,
-        location_lat: series.location_lat,
-        location_lng: series.location_lng,
-        genre: series.genre,
-        age_rating: series.age_rating,
-        additional_info: series.additional_info,
-        cover_image: series.cover_image,
-        display_organizer_name: series.display_organizer_name,
-        attraction: null,
-        is_free: series.is_free,
-        is_unlimited: series.is_unlimited,
-        series_id: series.id,
-        producer_id: series.producer_id,
-        status: 'active',
-        price,
-      }
-    })
+    const { eventRows: occurrenceRows, ticketTemplatesByIndex } = buildOccurrenceRows(series, occurrenceDates)
 
     const { data: insertedEvents, error: insertError } = await supabaseAdmin
       .from('events')
@@ -134,9 +74,10 @@ export async function POST(
       return NextResponse.json({ error: 'Erro ao gerar ocorrências: ' + (insertError?.message ?? 'sem dados') }, { status: 500 })
     }
 
+    const ticketTemplate = ticketTemplatesByIndex[0] ?? []
     if (ticketTemplate.length > 0) {
-      const ticketRows = insertedEvents.flatMap((ev: { id: string }) =>
-        (ticketTemplate as { name: string; price: number; quantity: number | null }[]).map(t => ({
+      const ticketRows = insertedEvents.flatMap((ev: { id: string }, i: number) =>
+        ticketTemplatesByIndex[i].map(t => ({
           event_id: ev.id,
           name: t.name,
           price: t.price,
