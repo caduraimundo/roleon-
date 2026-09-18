@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../lib/supabase'
+import AdminCreateEventMenu from '../../components/AdminCreateEventMenu'
 
 // ── TOKENS ──────────────────────────────────────────────────────────────────
 const TEAL   = '#0EA5A0'
@@ -1363,6 +1364,7 @@ export default function AdminPage() {
   })
 
   // Moderacao
+  const [createMenuOpen, setCreateMenuOpen] = useState(false)
   const [pendingEvents, setPendingEvents] = useState<any[]>([])
   const [pendingSeries, setPendingSeries] = useState<any[]>([])
   const [activeEvents, setActiveEvents] = useState<any[]>([])
@@ -2382,14 +2384,15 @@ export default function AdminPage() {
               <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 4 }}>
                 Eventos aguardando aprovação ({pendingEvents.length})
               </div>
-              <a href="/admin/eventos/novo" style={{
+              <button onClick={() => setCreateMenuOpen(true)} style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                 height: 44, borderRadius: 14, marginTop: 12,
                 background: TEAL, color: '#fff', fontSize: 15, fontWeight: 700,
                 fontFamily: "'Noto Sans', sans-serif", textDecoration: 'none',
+                border: 'none', cursor: 'pointer',
               }}>
                 + Novo evento
-              </a>
+              </button>
             </div>
 
             {/* Filtros */}
@@ -2649,6 +2652,8 @@ export default function AdminPage() {
               </div>
             </div>
           )}
+
+          <AdminCreateEventMenu open={createMenuOpen} onClose={() => setCreateMenuOpen(false)} />
         </>
       )
     }
