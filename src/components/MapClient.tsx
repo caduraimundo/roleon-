@@ -87,38 +87,13 @@ function SearchBar({ distance, setDistance, searchValue, onSearchChange }: {
   onSearchChange: (v: string) => void
 }) {
   const [open, setOpen] = useState(false)
-  const [expanded, setExpanded] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  useEffect(() => {
-    if (expanded) inputRef.current?.focus()
-  }, [expanded])
-
-  if (!expanded) {
-    return (
-      <div style={{ padding: '13px 16px 10px', pointerEvents: 'none' }}>
-        <div
-          onClick={() => setExpanded(true)}
-          style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-            background: '#fff', borderRadius: 16,
-            padding: '10px 16px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
-            pointerEvents: 'auto', cursor: 'pointer',
-          }}
-        >
-          <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 19, width: 'auto', objectFit: 'contain', display: 'block' }} />
-          <span style={{ color: DIM, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-            <IconSearch />
-          </span>
-        </div>
-      </div>
-    )
-  }
+  const [focused, setFocused] = useState(false)
 
   return (
     <div style={{ padding: '13px 16px 10px', pointerEvents: 'none' }}>
-      <div onClick={() => setExpanded(false)} style={{ position: 'fixed', inset: 0, zIndex: 19, pointerEvents: 'auto' }} />
+      {focused && (
+        <div onClick={() => setFocused(false)} style={{ position: 'fixed', inset: 0, zIndex: 19, pointerEvents: 'auto' }} />
+      )}
       <div style={{
         position: 'relative',
         display: 'flex', alignItems: 'center', gap: 6,
@@ -127,14 +102,22 @@ function SearchBar({ distance, setDistance, searchValue, onSearchChange }: {
         boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
         pointerEvents: 'auto', zIndex: 20,
       }}>
-        <img src="/icons/icon-192.png" alt="" style={{ height: 20, width: 20, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+        {focused ? (
+          <img src="/icons/icon-192.png" alt="" style={{ height: 20, width: 20, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+        ) : (
+          <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 19, width: 'auto', objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+        )}
+        <div style={{ width: 1, height: 22, background: 'rgba(0,0,0,0.10)', flexShrink: 0 }} />
+        <span style={{ color: DIM, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+          <IconSearch />
+        </span>
         <input
-          ref={inputRef}
           type="text"
           id="busca-mapa-evento"
           name="busca-mapa-evento"
           value={searchValue}
           onChange={e => onSearchChange(e.target.value)}
+          onFocus={() => setFocused(true)}
           placeholder="Buscar local ou evento..."
           style={{
             flex: 1, minWidth: 0, fontSize: 14.5, fontWeight: 500, color: TEXT,
@@ -143,67 +126,71 @@ function SearchBar({ distance, setDistance, searchValue, onSearchChange }: {
             padding: 0, margin: 0,
           }}
         />
-        <div style={{ width: 1, height: 22, background: 'rgba(0,0,0,0.10)', flexShrink: 0 }} />
-        <button
-          onClick={(e) => { e.stopPropagation(); setOpen(s => !s) }}
-          style={{
-            marginLeft: 0, flexShrink: 0,
-            display: 'inline-flex', alignItems: 'center', gap: 4,
-            padding: '7px 6px',
-            border: 0, borderRadius: 999, cursor: 'pointer',
-            background: 'transparent',
-            color: TEXT,
-            fontFamily: "'Noto Sans', sans-serif",
-            fontSize: 14.5, fontWeight: 500,
-            lineHeight: 1,
-          }}>
-          <svg width="16" height="16" viewBox="0 0 14 14" fill="none"
-            style={{ color: PRIMARY, flexShrink: 0, display: 'block' }}>
-            <path d="M7 1.5c2.5 0 4.5 2 4.5 4.5 0 3.3-4.5 6.5-4.5 6.5S2.5 9.3 2.5 6c0-2.5 2-4.5 4.5-4.5z" stroke="currentColor" strokeWidth="1.5"/>
-            <circle cx="7" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
-          </svg>
-          <span>{distance}km</span>
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
-            style={{ color: DIM, marginLeft: -1, flexShrink: 0 }}>
-            <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.5"
-              strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-        {open && (
+        {focused && (
           <>
-            <div onClick={(e) => { e.stopPropagation(); setOpen(false) }}
-              style={{ position: 'fixed', inset: 0, zIndex: 22 }} />
-            <div style={{
-              position: 'absolute', right: 0, top: 'calc(100% + 6px)',
-              background: '#fff', borderRadius: 12,
-              boxShadow: '0 10px 28px rgba(0,0,0,0.16), 0 0 0 0.5px rgba(0,0,0,0.05)',
-              padding: 6, zIndex: 25, minWidth: 160,
-            }}>
-              <div style={{
-                fontSize: 10, fontWeight: 700, letterSpacing: 0.6,
-                textTransform: 'uppercase', color: '#9E9EA7',
-                padding: '8px 10px 4px',
-              }}>Distância máxima</div>
-              {DISTANCES.map(d => {
-                const isActive = distance === d
-                return (
-                  <button key={d}
-                    onClick={(e) => { e.stopPropagation(); setDistance(d); setOpen(false) }}
-                    style={{
-                      display: 'block', width: '100%',
-                      textAlign: 'left', padding: '9px 10px',
-                      border: 0, borderRadius: 7,
-                      background: isActive ? '#F0FAF9' : 'transparent',
-                      color: isActive ? PRIMARY : TEXT,
-                      fontSize: 13.5, fontWeight: isActive ? 700 : 500,
-                      fontFamily: "'Noto Sans', sans-serif",
-                      cursor: 'pointer',
-                    }}>
-                    {d}km
-                  </button>
-                )
-              })}
-            </div>
+            <div style={{ width: 1, height: 22, background: 'rgba(0,0,0,0.10)', flexShrink: 0 }} />
+            <button
+              onClick={(e) => { e.stopPropagation(); setOpen(s => !s) }}
+              style={{
+                marginLeft: 0, flexShrink: 0,
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                padding: '7px 6px',
+                border: 0, borderRadius: 999, cursor: 'pointer',
+                background: 'transparent',
+                color: TEXT,
+                fontFamily: "'Noto Sans', sans-serif",
+                fontSize: 14.5, fontWeight: 500,
+                lineHeight: 1,
+              }}>
+              <svg width="16" height="16" viewBox="0 0 14 14" fill="none"
+                style={{ color: PRIMARY, flexShrink: 0, display: 'block' }}>
+                <path d="M7 1.5c2.5 0 4.5 2 4.5 4.5 0 3.3-4.5 6.5-4.5 6.5S2.5 9.3 2.5 6c0-2.5 2-4.5 4.5-4.5z" stroke="currentColor" strokeWidth="1.5"/>
+                <circle cx="7" cy="6" r="1.5" stroke="currentColor" strokeWidth="1.5"/>
+              </svg>
+              <span>{distance}km</span>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                style={{ color: DIM, marginLeft: -1, flexShrink: 0 }}>
+                <path d="M2.5 4.5L6 8l3.5-3.5" stroke="currentColor" strokeWidth="1.5"
+                  strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+            {open && (
+              <>
+                <div onClick={(e) => { e.stopPropagation(); setOpen(false) }}
+                  style={{ position: 'fixed', inset: 0, zIndex: 22 }} />
+                <div style={{
+                  position: 'absolute', right: 0, top: 'calc(100% + 6px)',
+                  background: '#fff', borderRadius: 12,
+                  boxShadow: '0 10px 28px rgba(0,0,0,0.16), 0 0 0 0.5px rgba(0,0,0,0.05)',
+                  padding: 6, zIndex: 25, minWidth: 160,
+                }}>
+                  <div style={{
+                    fontSize: 10, fontWeight: 700, letterSpacing: 0.6,
+                    textTransform: 'uppercase', color: '#9E9EA7',
+                    padding: '8px 10px 4px',
+                  }}>Distância máxima</div>
+                  {DISTANCES.map(d => {
+                    const isActive = distance === d
+                    return (
+                      <button key={d}
+                        onClick={(e) => { e.stopPropagation(); setDistance(d); setOpen(false) }}
+                        style={{
+                          display: 'block', width: '100%',
+                          textAlign: 'left', padding: '9px 10px',
+                          border: 0, borderRadius: 7,
+                          background: isActive ? '#F0FAF9' : 'transparent',
+                          color: isActive ? PRIMARY : TEXT,
+                          fontSize: 13.5, fontWeight: isActive ? 700 : 500,
+                          fontFamily: "'Noto Sans', sans-serif",
+                          cursor: 'pointer',
+                        }}>
+                        {d}km
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
