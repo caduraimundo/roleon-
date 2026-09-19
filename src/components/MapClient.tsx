@@ -96,7 +96,7 @@ function SearchBar({ distance, setDistance, searchValue, onSearchChange }: {
       )}
       <div style={{
         position: 'relative',
-        display: 'flex', alignItems: 'center', gap: 10,
+        display: 'flex', alignItems: 'center', gap: 6,
         background: '#fff', borderRadius: 14,
         padding: '11px 14px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
@@ -147,7 +147,7 @@ function SearchBar({ distance, setDistance, searchValue, onSearchChange }: {
           transition: 'grid-template-columns 0.22s ease',
           overflow: 'hidden',
         }}>
-          <div style={{ overflow: 'hidden', minWidth: 0, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ overflow: 'hidden', minWidth: 0, display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ width: 1, height: 22, background: 'rgba(0,0,0,0.10)', flexShrink: 0 }} />
             <button
               onClick={(e) => { e.stopPropagation(); setOpen(s => !s) }}
