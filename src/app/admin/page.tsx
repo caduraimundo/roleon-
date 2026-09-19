@@ -470,7 +470,7 @@ function VendasSection({
 
       {/* Filtros */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-        {(['pendentes', 'repassados', 'todos'] as const).map((f) => {
+        {(['todos', 'pendentes', 'repassados'] as const).map((f) => {
           const on = filtro === f
           return (
             <button key={f} onClick={() => onFiltroChange(f)} style={{
@@ -1945,7 +1945,7 @@ export default function AdminPage() {
       loadConsumidores()
     }
     if (tab === 'vendas' && !vendasLoading && !vendasResumo) {
-      loadVendas('pendentes')
+      loadVendas(vendasFiltro)
     }
   }, [tab, userSubTab])
 
