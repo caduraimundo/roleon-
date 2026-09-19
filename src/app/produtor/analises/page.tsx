@@ -215,7 +215,13 @@ export default function AnalisesPage() {
                   background: 'linear-gradient(to right, transparent, #fff)',
                   borderRadius: '0 14px 14px 0',
                   pointerEvents: 'none' as const,
-                }} />
+                  display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+                  paddingRight: 4,
+                }}>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
               )}
             </div>
           </div>

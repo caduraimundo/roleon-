@@ -20,6 +20,20 @@ function formatDate(event_date: string) {
   })
 }
 
+function formatDataCurta(iso: string) {
+  const d = new Date(iso.replace(' ', 'T'))
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+}
+
+function formatRepasseEsperado(event_date: string) {
+  const d = new Date(event_date.replace(' ', 'T'))
+  d.setDate(d.getDate() + 3)
+  const dayOfWeek = d.getDay()
+  if (dayOfWeek === 0) d.setDate(d.getDate() + 1)
+  if (dayOfWeek === 6) d.setDate(d.getDate() + 2)
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+}
+
 function formatCurrency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
@@ -289,6 +303,14 @@ export default function EventosPage() {
                     )
                   )}
                 </div>
+
+                {!ev.is_free && ev.status === 'active' && ev.sold > 0 && (
+                  <div style={{ fontSize: 12, color: '#9A9A9A', fontWeight: 500 }}>
+                    {ev.repasse_liberado_at
+                      ? `Repassado em ${formatDataCurta(ev.repasse_liberado_at)}`
+                      : `Repasse previsto: a partir de ${formatRepasseEsperado(ev.event_date)}`}
+                  </div>
+                )}
 
                 {/* Botões — Portaria primário | Editar+Participantes secundário | Copiar link terciário | pending/rejected só Editar | cancelled nenhum */}
                 {ev.status !== 'cancelled' && (
