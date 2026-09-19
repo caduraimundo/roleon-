@@ -107,10 +107,13 @@ export default function EventoAnalisesPage() {
           {loading ? 'Carregando...' : (data?.event.title ?? '')}
         </h1>
         {!loading && data && (
-          <div style={{
-            marginTop: 4, fontSize: 13, color: T.textDim, fontWeight: 500,
-          }}>
-            {fmtDate(data.event.event_date)} · {data.event.location_name}
+          <div style={{ marginTop: 4 }}>
+            <div style={{ fontSize: 13, color: T.textDim, fontWeight: 500 }}>
+              {fmtDate(data.event.event_date)}
+            </div>
+            <div style={{ fontSize: 12, color: T.textMute, fontWeight: 500, marginTop: 2 }}>
+              {data.event.location_name}
+            </div>
           </div>
         )}
       </div>
