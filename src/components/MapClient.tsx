@@ -80,33 +80,56 @@ const DISTANCES = [10, 25, 50, 100]
 
 // ── Search Bar ───────────────────────────────────────────────────────────────
 
-function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searchValue, onSearchChange }: {
-  hasActiveFilter: boolean
-  onFilterOpen: () => void
+function SearchBar({ distance, setDistance, searchValue, onSearchChange }: {
   distance: number
   setDistance: (d: number) => void
   searchValue: string
   onSearchChange: (v: string) => void
 }) {
   const [open, setOpen] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (expanded) inputRef.current?.focus()
+  }, [expanded])
+
+  if (!expanded) {
+    return (
+      <div style={{ padding: '13px 16px 10px', pointerEvents: 'none' }}>
+        <div
+          onClick={() => setExpanded(true)}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            background: '#fff', borderRadius: 16,
+            padding: '10px 16px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
+            pointerEvents: 'auto', cursor: 'pointer',
+          }}
+        >
+          <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 19, width: 'auto', objectFit: 'contain', display: 'block' }} />
+          <span style={{ color: DIM, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+            <IconSearch />
+          </span>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div style={{
-      padding: '13px 16px 10px',
-      pointerEvents: 'none',
-    }}>
+    <div style={{ padding: '13px 16px 10px', pointerEvents: 'none' }}>
+      <div onClick={() => setExpanded(false)} style={{ position: 'fixed', inset: 0, zIndex: 19, pointerEvents: 'auto' }} />
       <div style={{
         position: 'relative',
         display: 'flex', alignItems: 'center', gap: 6,
         background: '#fff', borderRadius: 16,
         padding: '10px 12px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
-        pointerEvents: 'auto',
+        pointerEvents: 'auto', zIndex: 20,
       }}>
-        <span style={{ color: DIM, display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-          <IconSearch />
-        </span>
+        <img src="/icons/icon-192.png" alt="" style={{ height: 20, width: 20, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
         <input
+          ref={inputRef}
           type="text"
           id="busca-mapa-evento"
           name="busca-mapa-evento"
@@ -120,12 +143,9 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
             padding: 0, margin: 0,
           }}
         />
-        {/* divisor */}
         <div style={{ width: 1, height: 22, background: 'rgba(0,0,0,0.10)', flexShrink: 0 }} />
-
-        {/* chip distância */}
         <button
-          onClick={() => setOpen(s => !s)}
+          onClick={(e) => { e.stopPropagation(); setOpen(s => !s) }}
           style={{
             marginLeft: 0, flexShrink: 0,
             display: 'inline-flex', alignItems: 'center', gap: 4,
@@ -149,11 +169,9 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
               strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </button>
-
-        {/* dropdown */}
         {open && (
           <>
-            <div onClick={() => setOpen(false)}
+            <div onClick={(e) => { e.stopPropagation(); setOpen(false) }}
               style={{ position: 'fixed', inset: 0, zIndex: 22 }} />
             <div style={{
               position: 'absolute', right: 0, top: 'calc(100% + 6px)',
@@ -170,7 +188,7 @@ function SearchBar({ hasActiveFilter, onFilterOpen, distance, setDistance, searc
                 const isActive = distance === d
                 return (
                   <button key={d}
-                    onClick={() => { setDistance(d); setOpen(false) }}
+                    onClick={(e) => { e.stopPropagation(); setDistance(d); setOpen(false) }}
                     style={{
                       display: 'block', width: '100%',
                       textAlign: 'left', padding: '9px 10px',
@@ -930,23 +948,15 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
       <div ref={loadingTopRef} style={{
         position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
         pointerEvents: 'none',
+        paddingTop: 'env(safe-area-inset-top, 0px)',
       }}>
-        <div style={{
-          display: 'flex', justifyContent: 'center',
-          background: '#ffffff', borderBottom: '0.5px solid #EAEAEA',
-          boxShadow: '0 4px 14px rgba(0,0,0,0.04)',
-          padding: 'calc(14px + env(safe-area-inset-top, 0px)) 16px 12px',
-          pointerEvents: 'none',
-        }}>
-          <img src="/logo/roleon-logo.png" alt="Roleon" style={{ height: 19, width: 'auto', objectFit: 'contain', display: 'block' }} />
-        </div>
         <div style={{ pointerEvents: 'auto' }}>
-          <SearchBar hasActiveFilter={hasActiveFilter} onFilterOpen={() => setShowFilter(true)} distance={distance} setDistance={(d) => { setDistance(d); updateFiltersUrl(filterGenres, filterDate, filterPreco, d) }} searchValue={searchValue} onSearchChange={handleSearch} />
+          <SearchBar distance={distance} setDistance={(d) => { setDistance(d); updateFiltersUrl(filterGenres, filterDate, filterPreco, d) }} searchValue={searchValue} onSearchChange={handleSearch} />
         </div>
         {showSuggestions && (
           <div style={{
             position: 'absolute',
-            top: 'calc(113px + env(safe-area-inset-top, 0px))',
+            top: 'calc(70px + env(safe-area-inset-top, 0px))',
             left: 12, right: 12,
             background: '#fff',
             borderRadius: 12,
