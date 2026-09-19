@@ -46,15 +46,14 @@ export async function GET(
 
     const { data: tickets } = await supabaseAdmin
       .from('tickets')
-      .select('id, price_paid, ticket_type_name, status, created_at')
+      .select('id, producer_amount, ticket_type_name, status, created_at')
       .eq('event_id', eventId)
 
     const all = tickets || []
     const sold = all.filter(t => t.status === 'paid' || t.status === 'used' || t.status === 'confirmed')
     const checkedIn = all.filter(t => t.status === 'used').length
 
-    const totalRevenueBruto = sold.reduce((s, t) => s + Number(t.price_paid), 0)
-    const totalRevenue = Math.round(totalRevenueBruto * 0.96 * 100) / 100
+    const totalRevenue = Math.round(sold.reduce((s, t) => s + Number(t.producer_amount), 0) * 100) / 100
     const totalTickets = sold.length
 
     // Breakdown por tipo
@@ -63,7 +62,7 @@ export async function GET(
       const name = t.ticket_type_name ?? 'Ingresso Padrao'
       if (!typeMap[name]) typeMap[name] = { tickets: 0, revenue: 0 }
       typeMap[name].tickets += 1
-      typeMap[name].revenue += Number(t.price_paid) * 0.96
+      typeMap[name].revenue += Number(t.producer_amount)
     }
 
     const byType = Object.entries(typeMap)
@@ -81,7 +80,7 @@ export async function GET(
       const day = t.created_at.split('T')[0] ?? t.created_at.substring(0, 10)
       if (!dayMap[day]) dayMap[day] = { tickets: 0, revenue: 0 }
       dayMap[day].tickets += 1
-      dayMap[day].revenue += Number(t.price_paid) * 0.96
+      dayMap[day].revenue += Number(t.producer_amount)
     }
 
     const chart = Object.entries(dayMap)

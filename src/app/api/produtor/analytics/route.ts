@@ -61,25 +61,24 @@ export async function GET(req: NextRequest) {
 
     const { data: filteredTickets } = await supabaseAdmin
       .from('tickets')
-      .select('price_paid, event_id, created_at')
+      .select('producer_amount, event_id, created_at')
       .in('event_id', paidEventIds)
       .in('status', ['paid', 'used'])
       .gte('created_at', startDate.toISOString())
 
     const ft = (filteredTickets || []) as {
-      price_paid: string; event_id: string; created_at: string
+      producer_amount: string; event_id: string; created_at: string
     }[]
 
     const { data: allTickets } = await supabaseAdmin
       .from('tickets')
-      .select('price_paid, event_id')
+      .select('producer_amount, event_id')
       .in('event_id', eventIds)
       .in('status', ['paid', 'used', 'confirmed'])
 
-    const at = (allTickets || []) as { price_paid: string; event_id: string }[]
+    const at = (allTickets || []) as { producer_amount: string; event_id: string }[]
 
-    const totalRevenueBruto = ft.reduce((sum, t) => sum + Number(t.price_paid), 0)
-    const totalRevenue = totalRevenueBruto * 0.96
+    const totalRevenue = ft.reduce((sum, t) => sum + Number(t.producer_amount), 0)
     const totalTickets = ft.length
     const avgTicket = totalTickets > 0 ? totalRevenue / totalTickets : 0
 
@@ -100,7 +99,7 @@ export async function GET(req: NextRequest) {
           label: `${dayStart.getDate()}/${dayStart.getMonth() + 1}`,
           tickets: dayTickets.length,
           revenue: Math.round(
-            dayTickets.reduce((s, t) => s + Number(t.price_paid) * 0.96, 0) * 100
+            dayTickets.reduce((s, t) => s + Number(t.producer_amount), 0) * 100
           ) / 100,
         })
       }
@@ -121,7 +120,7 @@ export async function GET(req: NextRequest) {
           label: `Sem ${5 - bucket}`,
           tickets: bucketTickets.length,
           revenue: Math.round(
-            bucketTickets.reduce((s, t) => s + Number(t.price_paid) * 0.96, 0) * 100
+            bucketTickets.reduce((s, t) => s + Number(t.producer_amount), 0) * 100
           ) / 100,
         })
       }
@@ -143,7 +142,7 @@ export async function GET(req: NextRequest) {
           label: monthNames[m],
           tickets: monthTickets.length,
           revenue: Math.round(
-            monthTickets.reduce((s, t) => s + Number(t.price_paid) * 0.96, 0) * 100
+            monthTickets.reduce((s, t) => s + Number(t.producer_amount), 0) * 100
           ) / 100,
         })
       }
@@ -155,7 +154,7 @@ export async function GET(req: NextRequest) {
       .map(e => {
         const eventTickets = at.filter(t => t.event_id === e.id)
         const eventRevenue = e.is_free ? 0 : Math.round(
-          eventTickets.reduce((s, t) => s + Number(t.price_paid) * 0.96, 0) * 100
+          eventTickets.reduce((s, t) => s + Number(t.producer_amount), 0) * 100
         ) / 100
         return {
           id: e.id,

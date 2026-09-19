@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
 
     const { data: tickets } = await supabaseAdmin
       .from('tickets')
-      .select('event_id, price_paid')
+      .select('event_id, producer_amount')
       .in('event_id', ids)
       .in('status', ['paid', 'confirmed', 'used'])
 
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
     for (const id of ids) salesMap[id] = { sold: 0, revenue: 0 }
     for (const t of tickets ?? []) {
       salesMap[t.event_id].sold += 1
-      salesMap[t.event_id].revenue += Number(t.price_paid)
+      salesMap[t.event_id].revenue += Number(t.producer_amount)
     }
 
     return NextResponse.json({
