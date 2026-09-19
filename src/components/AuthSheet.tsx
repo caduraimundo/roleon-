@@ -44,8 +44,8 @@ export default function AuthSheet({ isOpen, onClose }: AuthSheetProps) {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!session) return
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session || event !== 'SIGNED_IN') return
       try {
         const tab = sessionStorage.getItem('auth-redirect-tab')
         if (tab && REDIRECT_ROUTES[tab]) {
