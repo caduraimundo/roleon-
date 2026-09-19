@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 
@@ -76,7 +76,7 @@ export default function AnalisesPage() {
     load()
   }, [period])
 
-  const bars = data?.chart ?? []
+  const bars = useMemo(() => data?.chart ?? [], [data])
   const maxV = Math.max(1, ...bars.map(b => b.tickets))
   const barH = 80
   const useScroll = (period === 'year' || period === 'month') && bars.length > 7
