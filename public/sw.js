@@ -1,4 +1,4 @@
-const CACHE_NAME = 'roleon-v1'
+const CACHE_NAME = 'roleon-v2'
 const PRECACHE_URLS = ['/', '/manifest.json']
 
 self.addEventListener('install', (event) => {
@@ -21,6 +21,8 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return
   const url = new URL(event.request.url)
   if (url.origin !== location.origin) return
+  if (event.request.headers.get('RSC') === '1') return
+  if (url.searchParams.has('_rsc')) return
   event.respondWith(
     fetch(event.request)
       .then((res) => {
