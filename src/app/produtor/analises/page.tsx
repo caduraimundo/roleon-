@@ -11,7 +11,7 @@ const T = {
 
 const PERIODS = [
   { id: '7d',   label: 'Últimos 7 dias' },
-  { id: '30d',  label: 'Últimos 30 dias' },
+  { id: 'month', label: 'Este mês' },
   { id: 'year', label: 'Este ano'       },
 ]
 
@@ -79,7 +79,7 @@ export default function AnalisesPage() {
   const bars = data?.chart ?? []
   const maxV = Math.max(1, ...bars.map(b => b.tickets))
   const barH = 80
-  const useScroll = period === 'year' && bars.length > 7
+  const useScroll = (period === 'year' || period === 'month') && bars.length > 7
 
   useEffect(() => {
     updateScrollState()

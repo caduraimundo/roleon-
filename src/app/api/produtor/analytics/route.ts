@@ -125,7 +125,22 @@ export async function GET(req: NextRequest) {
         })
       }
     } else if (period === 'month') {
-      // sem gráfico pro período mensal, só os totals
+      const daysInMonth = nowBrt.getUTCDate()
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayStart = new Date(Date.UTC(nowBrt.getUTCFullYear(), nowBrt.getUTCMonth(), day, 3, 0, 0))
+        const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000)
+        const dayTickets = ft.filter(t => {
+          const d = new Date(t.created_at)
+          return d >= dayStart && d < dayEnd
+        })
+        chartData.push({
+          label: `${day}`,
+          tickets: dayTickets.length,
+          revenue: Math.round(
+            dayTickets.reduce((s, t) => s + Number(t.producer_amount), 0) * 100
+          ) / 100,
+        })
+      }
     } else {
       const monthNames = [
         'jan','fev','mar','abr','mai','jun',
