@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 3. Status do cron: ultimo run e proximo run esperado
-    // O cron roda diariamente via vercel.json (schedule: "0 3 * * *" = 03:00 UTC)
+    // O cron roda diariamente via vercel.json (schedule: "0 12 * * *" = 12:00 UTC = 09:00 horario de Brasilia)
     const { data: lastRun, error: cronError } = await supabaseAdmin
       .from('cron_runs')
       .select('ran_at, events_eligible, events_processed, status')
@@ -81,10 +81,11 @@ export async function GET(req: NextRequest) {
 
     let proximoRun: string | null = null
     if (lastRun?.ran_at) {
-      // Proximo run = amanha as 03:00 UTC
+      // Proximo run = 12:00 UTC de hoje se ainda nao passou, senao amanha
+      const now = new Date()
       const d = new Date()
-      d.setUTCDate(d.getUTCDate() + 1)
-      d.setUTCHours(3, 0, 0, 0)
+      d.setUTCHours(12, 0, 0, 0)
+      if (d <= now) d.setUTCDate(d.getUTCDate() + 1)
       proximoRun = d.toISOString()
     }
 
