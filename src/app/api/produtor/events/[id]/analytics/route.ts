@@ -77,7 +77,8 @@ export async function GET(
     // Grafico: vendas por dia (todos os tempos)
     const dayMap: Record<string, { tickets: number; revenue: number }> = {}
     for (const t of sold) {
-      const day = t.created_at.split('T')[0] ?? t.created_at.substring(0, 10)
+      const createdBrt = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000)
+      const day = createdBrt.toISOString().split('T')[0]
       if (!dayMap[day]) dayMap[day] = { tickets: 0, revenue: 0 }
       dayMap[day].tickets += 1
       dayMap[day].revenue += Number(t.producer_amount)

@@ -31,14 +31,15 @@ export async function GET(req: NextRequest) {
 
     const period = req.nextUrl.searchParams.get('period') || '30d'
     const now = new Date()
+    const nowBrt = new Date(now.getTime() - 3 * 60 * 60 * 1000) // horario de Brasilia (fixo, sem horario de verao)
     let startDate: Date
 
     if (period === '7d') {
       startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
     } else if (period === 'year') {
-      startDate = new Date(now.getFullYear(), 0, 1)
+      startDate = new Date(Date.UTC(nowBrt.getUTCFullYear(), 0, 1, 3, 0, 0))
     } else if (period === 'month') {
-      startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+      startDate = new Date(Date.UTC(nowBrt.getUTCFullYear(), nowBrt.getUTCMonth(), 1, 3, 0, 0))
     } else {
       startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     }
@@ -86,17 +87,16 @@ export async function GET(req: NextRequest) {
 
     if (period === '7d') {
       for (let i = 6; i >= 0; i--) {
-        const dayStart = new Date(now)
-        dayStart.setDate(dayStart.getDate() - i)
-        dayStart.setHours(0, 0, 0, 0)
-        const dayEnd = new Date(dayStart)
-        dayEnd.setDate(dayEnd.getDate() + 1)
+        const dayBrt = new Date(nowBrt)
+        dayBrt.setUTCDate(dayBrt.getUTCDate() - i)
+        const dayStart = new Date(Date.UTC(dayBrt.getUTCFullYear(), dayBrt.getUTCMonth(), dayBrt.getUTCDate(), 3, 0, 0))
+        const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000)
         const dayTickets = ft.filter(t => {
           const d = new Date(t.created_at)
           return d >= dayStart && d < dayEnd
         })
         chartData.push({
-          label: `${dayStart.getDate()}/${dayStart.getMonth() + 1}`,
+          label: `${dayBrt.getUTCDate()}/${dayBrt.getUTCMonth() + 1}`,
           tickets: dayTickets.length,
           revenue: Math.round(
             dayTickets.reduce((s, t) => s + Number(t.producer_amount), 0) * 100
@@ -131,9 +131,9 @@ export async function GET(req: NextRequest) {
         'jan','fev','mar','abr','mai','jun',
         'jul','ago','set','out','nov','dez',
       ]
-      for (let m = 0; m <= now.getMonth(); m++) {
-        const monthStart = new Date(now.getFullYear(), m, 1)
-        const monthEnd = new Date(now.getFullYear(), m + 1, 1)
+      for (let m = 0; m <= nowBrt.getUTCMonth(); m++) {
+        const monthStart = new Date(Date.UTC(nowBrt.getUTCFullYear(), m, 1, 3, 0, 0))
+        const monthEnd = new Date(Date.UTC(nowBrt.getUTCFullYear(), m + 1, 1, 3, 0, 0))
         const monthTickets = ft.filter(t => {
           const d = new Date(t.created_at)
           return d >= monthStart && d < monthEnd

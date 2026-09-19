@@ -11,7 +11,7 @@ const T = {
 
 const PERIODS = [
   { id: '7d',   label: 'Últimos 7 dias' },
-  { id: '30d',  label: 'Este mês'       },
+  { id: '30d',  label: 'Últimos 30 dias' },
   { id: 'year', label: 'Este ano'       },
 ]
 
