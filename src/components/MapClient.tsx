@@ -102,15 +102,18 @@ function SearchBar({ distance, setDistance, searchValue, onSearchChange }: {
         boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
         pointerEvents: 'auto', zIndex: 20,
       }}>
-        <img src="/icons/icon-192.png" alt="Roleon" style={{ height: 20, width: 20, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+        <img src="/icons/icon-192.png" alt="Roleon" style={{ height: 26, width: 26, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
         <div style={{
           display: 'grid',
           gridTemplateColumns: focused ? '0fr' : '1fr',
           transition: 'grid-template-columns 0.22s ease',
           overflow: 'hidden',
         }}>
-          <div style={{ overflow: 'hidden', minWidth: 0 }}>
-            <span style={{ fontSize: 15, fontWeight: 700, color: TEXT, fontFamily: "'Noto Sans', sans-serif", whiteSpace: 'nowrap', display: 'inline-block' }}>Rolêon</span>
+          <div style={{ overflow: 'hidden', minWidth: 0, width: 69, height: 17, position: 'relative' }}>
+            <img src="/logo/roleon-logo.png" alt="Rolêon" style={{
+              position: 'absolute', left: -36.9, top: -4.08,
+              width: 105.83, height: 25.42, maxWidth: 'none',
+            }} />
           </div>
         </div>
         <div style={{ width: 1, height: 22, background: 'rgba(0,0,0,0.10)', flexShrink: 0 }} />
