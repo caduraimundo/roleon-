@@ -412,11 +412,11 @@ function VendasSection({
       label: 'Cron D+3',
       value: resumo.cron ? (resumo.cron.status === 'ok' ? 'OK' : 'Erro') : 'Nunca rodou',
       sub: resumo.cron ? (
-        <>
+        <span style={{ fontSize: 10, lineHeight: 1.35, display: 'block' }}>
           Último: {formatDateTime(resumo.cron.ultimo_run)}<br/>
           Próximo: {formatDateTime(resumo.cron.proximo_run)}<br/>
           {resumo.cron.events_processed} processado(s)
-        </>
+        </span>
       ) : null as React.ReactNode,
     },
   ] : []
@@ -1407,7 +1407,7 @@ export default function AdminPage() {
   const [vendasResumo, setVendasResumo] = useState<any | null>(null)
   const [vendasEventos, setVendasEventos] = useState<any[]>([])
   const [vendasLoading, setVendasLoading] = useState(false)
-  const [vendasFiltro, setVendasFiltro] = useState<'todos' | 'pendentes' | 'repassados'>('pendentes')
+  const [vendasFiltro, setVendasFiltro] = useState<'todos' | 'pendentes' | 'repassados'>('todos')
   const [vendasSearch, setVendasSearch] = useState('')
   const [forceRepasseId, setForceRepasseId] = useState<string | null>(null)
   const [forceLoading, setForceLoading] = useState(false)
