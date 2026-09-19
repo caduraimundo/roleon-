@@ -966,7 +966,7 @@ export default function MapClient({ onEventSelect, bottomNavHeight = 70 }: MapCl
         {showSuggestions && (
           <div style={{
             position: 'absolute',
-            top: 'calc(70px + env(safe-area-inset-top, 0px))',
+            top: 'calc(67px + env(safe-area-inset-top, 0px))',
             left: 12, right: 12,
             background: '#fff',
             borderRadius: 12,
