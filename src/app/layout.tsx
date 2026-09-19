@@ -16,8 +16,8 @@ const notoSans = Noto_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.roleon.com.br"),
   title: {
-    default: "Roleon",
-    template: "%s | Roleon",
+    default: "Rolêon",
+    template: "%s | Rolêon",
   },
   description: "Descubra shows, festas e eventos culturais perto de voce. Compre seu ingresso com seguranca.",
   alternates: {
@@ -27,19 +27,19 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Roleon",
+    title: "Rolêon",
   },
   openGraph: {
     type: "website",
-    siteName: "Roleon",
-    title: "Roleon - Eventos e Ingressos",
+    siteName: "Rolêon",
+    title: "Rolêon - Eventos e Ingressos",
     description: "Descubra shows, festas e eventos culturais perto de voce. Compre seu ingresso com seguranca.",
     locale: "pt_BR",
     url: "https://www.roleon.com.br",
     images: [
       {
         url: "/og-image.png",
-        alt: "Roleon",
+        alt: "Rolêon",
       },
     ],
   },
