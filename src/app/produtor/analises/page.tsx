@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 
@@ -41,6 +41,22 @@ export default function AnalisesPage() {
   const [period, setPeriod]   = useState('7d')
   const [data, setData]       = useState<Analytics | null>(null)
   const [loading, setLoading] = useState(true)
+  const chartScrollRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const updateScrollState = () => {
+    const el = chartScrollRef.current
+    if (!el) return
+    setCanScrollLeft(el.scrollLeft > 4)
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 4)
+  }
+
+  const scrollChart = (direction: 'left' | 'right') => {
+    const el = chartScrollRef.current
+    if (!el) return
+    el.scrollBy({ left: direction === 'right' ? el.clientWidth : -el.clientWidth, behavior: 'smooth' })
+  }
 
   useEffect(() => {
     const load = async () => {
@@ -64,6 +80,10 @@ export default function AnalisesPage() {
   const maxV = Math.max(1, ...bars.map(b => b.tickets))
   const barH = 80
   const useScroll = period === 'year' && bars.length > 7
+
+  useEffect(() => {
+    updateScrollState()
+  }, [bars])
 
   return (
     <div style={{ background: '#F7F7F7', minHeight: '100dvh', display: 'flex', justifyContent: 'center' }}>
@@ -169,15 +189,18 @@ export default function AnalisesPage() {
               borderRadius: 14, padding: '18px 14px 14px',
               position: 'relative' as const,
             }}>
-              <div style={{
-                display: 'flex', alignItems: 'flex-end',
-                gap: period === '7d' ? 5 : 10,
-                height: barH + 48,
-                justifyContent: useScroll ? 'flex-start' : 'space-between',
-                overflowX: useScroll ? 'auto' : 'visible',
-                scrollbarWidth: 'none' as const,
-                WebkitOverflowScrolling: 'touch' as const,
-              }}>
+              <div
+                ref={chartScrollRef}
+                onScroll={updateScrollState}
+                style={{
+                  display: 'flex', alignItems: 'flex-end',
+                  gap: period === '7d' ? 5 : 10,
+                  height: barH + 48,
+                  justifyContent: useScroll ? 'flex-start' : 'space-between',
+                  overflowX: useScroll ? 'auto' : 'visible',
+                  scrollbarWidth: 'none' as const,
+                  WebkitOverflowScrolling: 'touch' as const,
+                }}>
                 {bars.map((b, i) => {
                   const h = maxV > 0
                     ? Math.max(b.tickets > 0 ? 6 : 0, Math.round((b.tickets / maxV) * barH))
@@ -208,20 +231,41 @@ export default function AnalisesPage() {
                   )
                 })}
               </div>
-              {useScroll && (
-                <div style={{
-                  position: 'absolute' as const,
-                  right: 0, top: 0, bottom: 0, width: 40,
-                  background: 'linear-gradient(to right, transparent, #fff)',
-                  borderRadius: '0 14px 14px 0',
-                  pointerEvents: 'none' as const,
-                  display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
-                  paddingRight: 4,
-                }}>
+              {useScroll && canScrollLeft && (
+                <button
+                  onClick={() => scrollChart('left')}
+                  style={{
+                    position: 'absolute' as const,
+                    left: 0, top: 0, bottom: 0, width: 40,
+                    background: 'linear-gradient(to left, transparent, #fff)',
+                    borderRadius: '14px 0 0 14px',
+                    border: 'none', cursor: 'pointer', padding: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
+                    paddingLeft: 4,
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M10 4l-4 4 4 4" stroke="#0EA5A0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              )}
+              {useScroll && canScrollRight && (
+                <button
+                  onClick={() => scrollChart('right')}
+                  style={{
+                    position: 'absolute' as const,
+                    right: 0, top: 0, bottom: 0, width: 40,
+                    background: 'linear-gradient(to right, transparent, #fff)',
+                    borderRadius: '0 14px 14px 0',
+                    border: 'none', cursor: 'pointer', padding: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+                    paddingRight: 4,
+                  }}
+                >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M6 4l4 4-4 4" stroke="#0EA5A0" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                </div>
+                </button>
               )}
             </div>
           </div>
