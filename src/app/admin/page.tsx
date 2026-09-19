@@ -435,7 +435,7 @@ function VendasSection({
           }}>Atualizar</button>
         </div>
         <div style={{ fontSize: 12, color: '#6E6E73', marginTop: 4 }}>
-          {resumo ? `${resumo.repasse_pendente_eventos ?? 0} evento(s) pendente(s)` : ''}
+          {resumo ? `${resumo.repasse_pendente_eventos ?? 0} pendente(s) de repasse` : ''}
         </div>
       </div>
 

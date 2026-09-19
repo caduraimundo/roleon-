@@ -50,7 +50,7 @@ export default function PerfilProdutorPage() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
     await supabase.auth.signOut()
-    router.push('/')
+    window.location.href = '/'
   }
 
   if (profile === null) {
@@ -228,7 +228,7 @@ export default function PerfilProdutorPage() {
 
           {/* Ir para o Roleon — card teal destacado, mesmo gap */}
           <div
-            onClick={() => router.push('/')}
+            onClick={() => { window.location.href = '/' }}
             style={{
               background: '#E8F7F6',
               border: '1px solid #C4EAE9',
