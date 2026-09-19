@@ -102,17 +102,20 @@ function SearchBar({ distance, setDistance, searchValue, onSearchChange }: {
         boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 0 0.5px rgba(0,0,0,0.04)',
         pointerEvents: 'auto', zIndex: 20,
       }}>
-        <img src="/icons/icon-192.png" alt="Roleon" style={{ height: 26, width: 26, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
-        <div style={{
-          maxWidth: focused ? 0 : 53, opacity: focused ? 0 : 1,
-          transition: 'max-width 0.22s ease, opacity 0.18s ease',
-          overflow: 'hidden', flexShrink: 0,
-        }}>
-          <div style={{ width: 52.71, height: 13, position: 'relative', overflow: 'hidden' }}>
-            <img src="/logo/roleon-logo.png" alt="Rolêon" style={{
-              position: 'absolute', left: -28.22, top: -3.12,
-              width: 80.93, height: 19.44, maxWidth: 'none',
-            }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0 }}>
+          <img src="/icons/icon-192.png" alt="Roleon" style={{ height: 26, width: 26, objectFit: 'contain', display: 'block', flexShrink: 0 }} />
+          <div style={{
+            maxWidth: focused ? 0 : 53, opacity: focused ? 0 : 1,
+            marginRight: focused ? 0 : 3,
+            transition: 'max-width 0.22s ease, opacity 0.18s ease, margin-right 0.22s ease',
+            overflow: 'hidden', flexShrink: 0,
+          }}>
+            <div style={{ width: 52.71, height: 13, position: 'relative', overflow: 'hidden' }}>
+              <img src="/logo/roleon-logo.png" alt="Rolêon" style={{
+                position: 'absolute', left: -28.22, top: -3.12,
+                width: 80.93, height: 19.44, maxWidth: 'none',
+              }} />
+            </div>
           </div>
         </div>
         <div style={{ width: 1, height: 22, background: 'rgba(0,0,0,0.10)', flexShrink: 0 }} />
